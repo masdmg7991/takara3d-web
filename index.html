@@ -4,62 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Takara 3D</title>
+
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
+      padding: 20px;
+      background: #111111;
       color: #f5f5f5;
+      font-family: Arial, sans-serif;
       text-align: center;
-      padding: 32px 18px;
     }
+
     .card {
-      max-width: 430px;
-      margin: auto;
-      padding: 28px 20px;
-      border-radius: 22px;
+      max-width: 500px;
+      margin: 30px auto;
       background: #1b1b1b;
-      box-shadow: 0 0 30px rgba(0,0,0,.35);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
     }
+
     h1 {
-      margin-bottom: 8px;
-      font-size: 34px;
-      letter-spacing: 1px;
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 36px;
+      color: #d6a85f;
     }
-    p {
+
+    .subtitle {
       color: #cfcfcf;
+      margin-bottom: 30px;
       line-height: 1.5;
     }
+
     .button {
       display: block;
-      margin: 14px 0;
-      padding: 16px;
-      border-radius: 14px;
-      background: #d6a85f;
-      color: #111;
       text-decoration: none;
+      margin: 15px 0;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 18px;
       font-weight: bold;
+      transition: 0.2s;
     }
-    .button.secondary {
+
+    .instagram {
+      background: #d6a85f;
+      color: #111111;
+    }
+
+    .pedido {
       background: #f1f1f1;
+      color: #111111;
     }
+
+    .whatsapp {
+      background: #25D366;
+      color: white;
+    }
+
+    .button:hover {
+      opacity: 0.9;
+    }
+
     .footer {
-      margin-top: 24px;
+      margin-top: 25px;
       font-size: 13px;
-      color: #888;
+      color: #888888;
     }
   </style>
 </head>
+
 <body>
-  <main class="card">
+
+  <div class="card">
+
     <h1>Takara 3D</h1>
-    <p>Detalles personalizados en impresión 3D. Litofanías, marcos luminosos y regalos únicos hechos por encargo.</p>
 
-    <a class="button" href="https://www.instagram.com/" target="_blank">Ver Instagram</a>
-    <a class="button secondary" href="https://forms.google.com/" target="_blank">Hacer pedido</a>
-    <a class="button secondary" href="https://wa.me/34XXXXXXXXX" target="_blank">Contactar por WhatsApp</a>
+    <p class="subtitle">
+      Litofanías, lámparas personalizadas y regalos únicos impresos en 3D.
+      Fabricado bajo pedido.
+    </p>
 
-    <p class="footer">Hecho con impresión 3D · Madrid</p>
-  </main>
+    <a class="button instagram"
+       href="https://www.instagram.com/3d.takara/"
+       target="_blank">
+       📸 Ver Instagram
+    </a>
+
+    <a class="button pedido"
+       href="https://forms.google.com/"
+       target="_blank">
+       🛒 Hacer pedido
+    </a>
+
+    <a class="button whatsapp"
+       href="https://wa.me/34XXXXXXXXX"
+       target="_blank">
+       💬 WhatsApp
+    </a>
+
+    <div class="footer">
+      Hecho con impresión 3D · Madrid
+    </div>
+
+  </div>
+
 </body>
 </html>
