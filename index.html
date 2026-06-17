@@ -3,43 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Litofanías luminosas, marcos personalizados y regalos únicos fabricados bajo pedido en impresión 3D." />
   <title>Takara 3D | Litofanías personalizadas</title>
 
   <style>
     * { box-sizing: border-box; }
 
     :root {
-      --ink: #100c08;
-      --ink-2: #1a120a;
-      --cream: #fff7ea;
-      --paper: #f8efe1;
-      --paper-2: #efe0c8;
-      --gold: #d9a441;
-      --gold-2: #f2c870;
-      --wood: #8b4d1b;
-      --muted: #cbb99e;
-      --soft: rgba(255, 247, 234, 0.78);
-      --glass: rgba(18, 13, 8, 0.72);
-      --line: rgba(217, 164, 65, 0.26);
-      --shadow: 0 28px 80px rgba(0,0,0,.42);
-      --radius-xl: 30px;
-      --radius-lg: 22px;
-      --max: 1180px;
+      --dark: #0c0906;
+      --brown: #1b120a;
+      --gold: #c9912e;
+      --gold2: #e4bd6a;
+      --cream: #f4eadc;
+      --paper: #f3eadc;
+      --text: #1b140c;
+      --muted: #d7c6aa;
     }
-
-    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
+      background: var(--paper);
       color: var(--cream);
-      background: var(--ink);
-    }
-
-    img {
-      max-width: 100%;
-      display: block;
     }
 
     a {
@@ -49,35 +33,33 @@
 
     .hero {
       min-height: 100vh;
-      padding: 28px clamp(18px, 5vw, 72px) 48px;
+      padding: 34px 5vw 50px;
       background:
-        radial-gradient(circle at 72% 44%, rgba(222, 159, 52, .24), transparent 26%),
-        radial-gradient(circle at 6% 82%, rgba(222, 159, 52, .16), transparent 23%),
-        linear-gradient(90deg, rgba(10,8,5,.98), rgba(18,12,6,.88) 42%, rgba(20,12,5,.58)),
-        linear-gradient(180deg, #090705, #1d1107 70%, #0a0705);
+        linear-gradient(90deg, rgba(8,6,4,.96), rgba(12,8,4,.76) 44%, rgba(12,8,4,.20)),
+        url("assets/hero-litofania-familia.png") center right / cover no-repeat;
       position: relative;
-      overflow: hidden;
     }
 
-    .hero::before {
+    .hero::after {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,.58), transparent 54%),
-        radial-gradient(circle at 88% 18%, rgba(255,196,90,.12), transparent 15%);
+      background: radial-gradient(circle at 72% 55%, rgba(224,166,69,.24), transparent 30%);
       pointer-events: none;
     }
 
-    .nav {
+    .nav, .hero-inner, .trust-row {
       position: relative;
       z-index: 2;
-      max-width: var(--max);
-      margin: 0 auto clamp(42px, 7vw, 82px);
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 24px;
+      margin-bottom: 80px;
     }
 
     .brand {
@@ -87,85 +69,89 @@
     }
 
     .mark {
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--gold);
-      border-radius: 13px;
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--gold);
+      border-radius: 12px;
       display: grid;
       place-items: center;
-      color: var(--gold-2);
+      color: var(--gold2);
       font-size: 24px;
-      box-shadow: 0 0 22px rgba(217,164,65,.18);
     }
 
     .brand-name {
-      font-family: Georgia, 'Times New Roman', serif;
+      font-family: Georgia, serif;
       font-size: 31px;
       line-height: 1;
-      letter-spacing: .4px;
     }
 
-    .brand-subtitle {
+    .brand-sub {
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       color: var(--muted);
-      font-size: 12px;
       margin-top: 4px;
     }
 
     .nav-links {
       display: flex;
-      gap: clamp(14px, 3vw, 32px);
       align-items: center;
-      color: var(--gold-2);
-      font-weight: 700;
+      gap: 28px;
+      font-weight: 600;
       font-size: 15px;
     }
 
     .nav-links a {
-      padding: 10px 2px;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
+      opacity: .92;
     }
 
-    .nav-links a:hover { border-color: var(--gold); }
+    .nav-links .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #211304;
+      padding: 13px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
 
-    .hero-grid {
-      position: relative;
-      z-index: 2;
-      max-width: var(--max);
-      margin: 0 auto;
+    .hero-inner {
+      max-width: 1180px;
       display: grid;
-      grid-template-columns: .95fr 1.05fr;
-      gap: clamp(30px, 6vw, 76px);
+      grid-template-columns: 0.95fr 1.05fr;
       align-items: center;
+      gap: 48px;
+    }
+
+    .copy {
+      max-width: 560px;
     }
 
     .eyebrow {
-      color: var(--gold-2);
-      letter-spacing: .46em;
-      font-size: 14px;
-      font-weight: 900;
-      margin-bottom: 18px;
+      color: var(--gold2);
+      font-weight: 800;
+      letter-spacing: 5px;
+      font-size: 15px;
+      margin-bottom: 20px;
     }
 
     h1 {
-      margin: 0;
-      max-width: 590px;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(48px, 6.2vw, 84px);
+      font-family: Georgia, serif;
+      font-size: clamp(48px, 7vw, 84px);
       line-height: .98;
+      margin: 0 0 22px;
       font-weight: 500;
-      letter-spacing: -.04em;
     }
 
-    h1 .gold { color: var(--gold-2); }
+    h1 span {
+      color: var(--gold2);
+    }
 
     .divider {
+      width: 260px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      max-width: 260px;
+      gap: 14px;
+      color: var(--gold2);
       margin: 24px 0;
-      color: var(--gold);
     }
 
     .divider::before,
@@ -174,22 +160,20 @@
       height: 1px;
       flex: 1;
       background: var(--gold);
-      opacity: .68;
+      opacity: .8;
     }
 
     .lead {
-      max-width: 520px;
-      color: var(--soft);
-      font-size: clamp(18px, 2.1vw, 23px);
-      line-height: 1.5;
+      font-size: 21px;
+      line-height: 1.45;
+      color: #f3e7d6;
       margin: 0 0 28px;
     }
 
-    .cta-row {
+    .actions {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
     }
 
     .btn {
@@ -197,608 +181,492 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      min-height: 62px;
-      padding: 15px 25px;
-      border-radius: 14px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      border: 1px solid var(--line);
-      box-shadow: 0 16px 34px rgba(0,0,0,.28);
-      transition: transform .16s ease, filter .16s ease, border-color .16s ease;
+      padding: 18px 25px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      transition: transform .16s ease, filter .16s ease;
+      border: 1px solid rgba(228,189,106,.35);
     }
 
     .btn:hover {
       transform: translateY(-2px);
       filter: brightness(1.06);
-      border-color: rgba(242,200,112,.65);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #c48122, #e6bd62);
-      color: #201204;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #211304;
+      box-shadow: 0 18px 35px rgba(201,145,46,.28);
     }
 
-    .btn-ghost {
+    .btn-secondary {
       background: rgba(0,0,0,.28);
       color: var(--cream);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero-space {
+      min-height: 440px;
+    }
+
+    .trust-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      margin-top: 34px;
+      max-width: 720px;
+      margin-left: 0;
     }
 
     .trust {
-      display: inline-flex;
+      display: flex;
       align-items: center;
       gap: 12px;
-      color: var(--gold-2);
-      font-size: 24px;
-      letter-spacing: 2px;
+      color: #f4e7d4;
+      font-size: 14px;
+      line-height: 1.25;
     }
 
-    .trust span {
-      font-size: 15px;
-      letter-spacing: 0;
-      color: var(--muted);
-    }
-
-    .hero-photo-wrap {
-      position: relative;
-      isolation: isolate;
-    }
-
-    .hero-photo-wrap::before {
-      content: "";
-      position: absolute;
-      inset: 8% -5% -5% 10%;
-      border-radius: 38px;
-      background: rgba(217,164,65,.20);
-      filter: blur(42px);
-      z-index: -1;
-    }
-
-    .hero-photo {
-      border-radius: 34px;
-      overflow: hidden;
-      border: 1px solid rgba(242,200,112,.32);
-      box-shadow: var(--shadow);
-      background: #22150a;
-      transform: rotate(.2deg);
-    }
-
-    .hero-photo img {
-      width: 100%;
-      height: min(68vh, 670px);
-      object-fit: cover;
-      object-position: center;
-      filter: saturate(1.06) contrast(1.04);
-    }
-
-    .floating-card {
-      position: absolute;
-      left: -18px;
-      bottom: 22px;
-      max-width: 280px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: rgba(255,247,234,.91);
-      color: #211307;
-      box-shadow: 0 18px 40px rgba(0,0,0,.28);
-    }
-
-    .floating-card strong {
-      display: block;
-      color: #8b4d1b;
-      margin-bottom: 4px;
-    }
-
-    .benefits {
-      position: relative;
-      z-index: 2;
-      max-width: var(--max);
-      margin: 48px auto 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      background: rgba(12, 9, 6, .76);
-      border: 1px solid rgba(217,164,65,.18);
-      border-radius: 24px;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-    }
-
-    .benefit {
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 52px 1fr;
-      gap: 18px;
-      align-items: center;
-      border-right: 1px solid rgba(217,164,65,.14);
-    }
-
-    .benefit:last-child { border-right: none; }
-
-    .benefit-icon {
-      font-size: 38px;
-      color: var(--gold);
-    }
-
-    .benefit strong {
-      color: var(--gold-2);
-      display: block;
-      font-size: 17px;
-      margin-bottom: 5px;
-    }
-
-    .benefit p {
-      margin: 0;
-      color: var(--soft);
-      line-height: 1.45;
-    }
-
-    .light-section {
-      background:
-        radial-gradient(circle at top, rgba(217,164,65,.16), transparent 26%),
-        linear-gradient(180deg, var(--paper), var(--paper-2));
-      color: #171006;
-      padding: clamp(52px, 7vw, 88px) clamp(18px, 5vw, 72px);
-    }
-
-    .section-inner {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    .section-kicker {
-      text-align: center;
-      color: #b97815;
-      letter-spacing: .36em;
-      font-size: 13px;
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
-
-    h2 {
-      margin: 0 0 34px;
-      text-align: center;
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(34px, 5vw, 54px);
-      line-height: 1.08;
-      font-weight: 500;
-      letter-spacing: -.03em;
-    }
-
-    .showcase {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: stretch;
-      margin-bottom: 30px;
-    }
-
-    .showcase-card {
-      background: rgba(255,255,255,.42);
-      border: 1px solid rgba(80,48,16,.12);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 18px 45px rgba(70,45,20,.14);
-    }
-
-    .showcase-card img {
-      width: 100%;
-      height: 390px;
-      object-fit: cover;
-    }
-
-    .showcase-text {
-      padding: 22px 24px 26px;
-    }
-
-    .showcase-text h3 {
-      margin: 0 0 7px;
-      font-family: Georgia, 'Times New Roman', serif;
+    .trust-icon {
+      color: var(--gold2);
       font-size: 28px;
     }
 
-    .showcase-text p {
+    .section {
+      padding: 70px 5vw;
+      color: var(--text);
+    }
+
+    .section-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-title h2 {
+      font-family: Georgia, serif;
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 1.05;
       margin: 0;
-      color: #5a452d;
-      line-height: 1.5;
-      font-size: 17px;
+      font-weight: 500;
+    }
+
+    .section-title p {
+      color: #6b5a45;
+      font-size: 18px;
+      margin: 12px auto 0;
+      max-width: 620px;
+      line-height: 1.45;
     }
 
     .steps {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin: 34px 0;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 22px;
+      margin-bottom: 70px;
     }
 
     .step {
-      padding: 24px;
-      border-radius: 22px;
-      background: #17120c;
-      color: var(--cream);
-      box-shadow: 0 18px 42px rgba(60,40,20,.18);
+      text-align: center;
+      padding: 22px;
     }
 
-    .step .num {
-      display: inline-grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
+    .step-icon {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 18px;
       border-radius: 50%;
-      background: var(--gold);
-      color: #201204;
-      font-weight: 900;
-      margin-bottom: 14px;
+      background: #ede1cf;
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      color: #17110a;
     }
 
-    .step strong {
-      display: block;
-      color: var(--gold-2);
-      font-size: 19px;
-      margin-bottom: 8px;
+    .step h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
     }
 
     .step p {
       margin: 0;
-      color: var(--soft);
+      color: #5c4b37;
       line-height: 1.45;
+      font-size: 15px;
     }
 
     .gallery {
       display: grid;
-      grid-template-columns: 1.15fr .85fr .85fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 18px;
-      margin-top: 34px;
+      margin-bottom: 52px;
     }
 
-    .gallery figure {
-      margin: 0;
-      border-radius: 22px;
+    .photo-card {
+      background: #fff8ee;
+      border-radius: 16px;
       overflow: hidden;
-      background: #211307;
-      box-shadow: 0 16px 38px rgba(60,40,20,.18);
-      position: relative;
+      box-shadow: 0 20px 45px rgba(54,35,16,.16);
+      border: 1px solid rgba(70,42,15,.12);
     }
 
-    .gallery figure:first-child {
-      grid-row: span 2;
-    }
-
-    .gallery img {
+    .photo-card img {
       width: 100%;
-      height: 100%;
-      min-height: 240px;
+      height: 260px;
       object-fit: cover;
-      transition: transform .25s ease;
+      display: block;
     }
 
-    .gallery figure:hover img { transform: scale(1.025); }
+    .photo-card div {
+      padding: 18px;
+      text-align: center;
+    }
 
-    .gallery figcaption {
-      position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: 16px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(12,8,4,.72);
-      color: var(--cream);
-      backdrop-filter: blur(8px);
+    .photo-card h3 {
+      margin: 0 0 6px;
+      font-family: Georgia, serif;
+      font-size: 22px;
+    }
+
+    .photo-card p {
+      margin: 0;
+      color: #6d5c45;
+    }
+
+    .real-block {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 34px;
+      align-items: center;
+      margin: 35px 0 56px;
+      background: #fff7ec;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 22px 55px rgba(54,35,16,.14);
+    }
+
+    .real-block img {
+      width: 100%;
+      height: 520px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .real-copy {
+      padding: 36px;
+    }
+
+    .real-copy h2 {
+      font-family: Georgia, serif;
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.05;
+      margin: 0 0 18px;
+      font-weight: 500;
+    }
+
+    .real-copy p {
+      color: #5b4933;
+      font-size: 19px;
+      line-height: 1.55;
+    }
+
+    .checks {
+      margin: 26px 0;
+      display: grid;
+      gap: 12px;
+      color: #312417;
       font-weight: 700;
     }
 
-    .dark-band {
+    .cta-panel {
       background:
-        radial-gradient(circle at 18% 50%, rgba(217,164,65,.20), transparent 22%),
-        linear-gradient(135deg, #17120c, #070605);
+        linear-gradient(90deg, rgba(14,9,5,.95), rgba(28,17,8,.82)),
+        url("assets/marco-horizontal-perro.png") center right / cover no-repeat;
       color: var(--cream);
-      padding: clamp(50px, 7vw, 78px) clamp(18px, 5vw, 72px);
-    }
-
-    .split-cta {
-      max-width: var(--max);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 42px;
-      align-items: center;
-      padding: clamp(24px, 4vw, 42px);
-      border-radius: 28px;
-      border: 1px solid rgba(217,164,65,.22);
-      background: rgba(255,255,255,.035);
-      box-shadow: var(--shadow);
-    }
-
-    .split-cta img {
-      width: 100%;
-      height: 360px;
-      object-fit: cover;
       border-radius: 24px;
-      box-shadow: 0 20px 48px rgba(0,0,0,.36);
+      padding: 42px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 30px;
+      align-items: center;
+      box-shadow: 0 26px 70px rgba(0,0,0,.25);
     }
 
-    .split-cta h2 {
-      text-align: left;
-      margin-bottom: 14px;
-      color: var(--cream);
+    .cta-panel h2 {
+      font-family: Georgia, serif;
+      font-size: clamp(34px, 5vw, 52px);
+      margin: 0 0 10px;
+      font-weight: 500;
     }
 
-    .split-cta p {
-      color: var(--soft);
+    .cta-panel p {
+      margin: 0;
       font-size: 20px;
-      line-height: 1.48;
-      margin: 0 0 24px;
+      color: #eadcc8;
     }
 
-    .cta-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-
-    footer {
-      padding: 22px;
+    .footer {
+      background: #efe4d2;
+      color: #7a6a55;
       text-align: center;
-      color: #76644f;
-      background: var(--paper-2);
+      padding: 24px;
       font-size: 14px;
     }
 
-    @media (max-width: 920px) {
+    @media (max-width: 900px) {
+      .hero {
+        background:
+          linear-gradient(180deg, rgba(8,6,4,.96), rgba(12,8,4,.72)),
+          url("assets/hero-litofania-familia.png") center / cover no-repeat;
+      }
+
       .nav {
         align-items: flex-start;
         flex-direction: column;
+        margin-bottom: 44px;
       }
 
       .nav-links {
-        width: 100%;
-        overflow-x: auto;
-        padding-bottom: 4px;
+        flex-wrap: wrap;
+        gap: 16px;
       }
 
-      .hero-grid,
-      .showcase,
-      .split-cta {
+      .hero-inner,
+      .real-block,
+      .cta-panel {
         grid-template-columns: 1fr;
       }
 
-      .hero-photo img {
-        height: min(70vh, 640px);
+      .hero-space {
+        min-height: 240px;
       }
 
-      .benefits,
-      .steps {
-        grid-template-columns: 1fr;
-      }
-
-      .benefit {
-        border-right: none;
-        border-bottom: 1px solid rgba(217,164,65,.14);
-      }
-
-      .benefit:last-child { border-bottom: none; }
-
+      .trust-row,
+      .steps,
       .gallery {
         grid-template-columns: 1fr 1fr;
       }
 
-      .gallery figure:first-child {
-        grid-column: span 2;
+      .cta-panel {
+        text-align: center;
       }
-
-      .split-cta h2 { text-align: center; }
-      .split-cta p { text-align: center; }
-      .cta-actions { justify-content: center; }
     }
 
-    @media (max-width: 620px) {
+    @media (max-width: 560px) {
       .hero {
-        padding-top: 22px;
+        padding: 24px 20px 38px;
       }
 
-      .brand-name { font-size: 28px; }
-      .eyebrow { letter-spacing: .26em; }
+      .brand-name {
+        font-size: 27px;
+      }
 
-      .cta-row,
-      .cta-actions {
+      .eyebrow {
+        letter-spacing: 3px;
+        font-size: 13px;
+      }
+
+      .lead {
+        font-size: 18px;
+      }
+
+      .actions {
         flex-direction: column;
       }
 
-      .btn { width: 100%; }
-
-      .floating-card {
-        position: static;
-        margin-top: 14px;
-        max-width: none;
+      .btn {
+        width: 100%;
       }
 
-      .hero-photo img {
-        height: 520px;
-      }
-
-      .showcase-card img,
-      .split-cta img {
-        height: 300px;
-      }
-
+      .trust-row,
+      .steps,
       .gallery {
         grid-template-columns: 1fr;
       }
 
-      .gallery figure:first-child {
-        grid-column: auto;
+      .real-block img {
+        height: 360px;
+      }
+
+      .real-copy,
+      .cta-panel {
+        padding: 28px;
+      }
+
+      .photo-card img {
+        height: 340px;
       }
     }
   </style>
 </head>
 
 <body>
+
   <header class="hero" id="inicio">
     <nav class="nav">
-      <a class="brand" href="#inicio" aria-label="Inicio Takara 3D">
+      <div class="brand">
         <div class="mark">⬡</div>
         <div>
           <div class="brand-name">Takara 3D</div>
-          <div class="brand-subtitle">Detalles que iluminan recuerdos</div>
+          <div class="brand-sub">Litofanías personalizadas</div>
         </div>
-      </a>
+      </div>
 
-      <div class="nav-links" aria-label="Navegación principal">
+      <div class="nav-links">
         <a href="#inicio">Inicio</a>
+        <a href="#ejemplos">Ejemplos</a>
         <a href="#como-funciona">Cómo funciona</a>
-        <a href="#galeria">Galería</a>
-        <a href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://wa.me/34XXXXXXXXX" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="https://www.instagram.com/3d.takara/" target="_blank">Instagram</a>
+        <a class="nav-cta" href="https://wa.me/34XXXXXXXXX" target="_blank">Hacer pedido</a>
       </div>
     </nav>
 
-    <section class="hero-grid">
-      <div class="hero-copy">
-        <div class="eyebrow">RECUERDOS QUE COBRAN LUZ</div>
-        <h1>Convierte tu foto favorita en una <span class="gold">lámpara única</span></h1>
-        <div class="divider">♡</div>
+    <section class="hero-inner">
+      <div class="copy">
+        <div class="eyebrow">TUS RECUERDOS. NUESTRA LUZ.</div>
+
+        <h1>Convierte tu foto favorita en un recuerdo <span>único.</span></h1>
+
+        <div class="divider">♥</div>
+
         <p class="lead">
-          Litofanías personalizadas fabricadas bajo pedido: piezas cálidas, decorativas y hechas para regalar momentos que importan.
+          Litofanías personalizadas iluminadas. Un regalo diferente para personas, familias y mascotas.
         </p>
 
-        <div class="cta-row">
-          <a class="btn btn-primary" href="#pedido">HACER PEDIDO</a>
-          <a class="btn btn-ghost" href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener">VER INSTAGRAM</a>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://wa.me/34XXXXXXXXX" target="_blank">💬 CREAR MI LITOFANÍA</a>
+          <a class="btn btn-secondary" href="#ejemplos">👁 VER EJEMPLOS</a>
         </div>
 
-        <div class="trust">★★★★★ <span>Producto real · fabricación personalizada</span></div>
-      </div>
-
-      <div class="hero-photo-wrap">
-        <picture class="hero-photo">
-          <img src="assets/hero-litofania-familia.png" alt="Litofanía familiar personalizada iluminada sobre mesa de madera" />
-        </picture>
-        <div class="floating-card">
-          <strong>Tu foto, con luz propia</strong>
-          Un detalle íntimo, bonito y preparado para emocionar desde el primer encendido.
+        <div class="trust-row">
+          <div class="trust"><span class="trust-icon">⌘</span><span>Hecho bajo<br>pedido</span></div>
+          <div class="trust"><span class="trust-icon">◇</span><span>Vista previa<br>antes de fabricar</span></div>
+          <div class="trust"><span class="trust-icon">▣</span><span>Perfecto para<br>regalar</span></div>
         </div>
       </div>
-    </section>
 
-    <section class="benefits">
-      <article class="benefit">
-        <div class="benefit-icon">☆</div>
-        <div>
-          <strong>Personalización total</strong>
-          <p>Eliges la foto y preparamos una pieza única para ti.</p>
-        </div>
-      </article>
-
-      <article class="benefit">
-        <div class="benefit-icon">◇</div>
-        <div>
-          <strong>Acabado cuidado</strong>
-          <p>Impresión 3D, luz cálida y montaje preparado bajo pedido.</p>
-        </div>
-      </article>
-
-      <article class="benefit">
-        <div class="benefit-icon">🎁</div>
-        <div>
-          <strong>Regalo con intención</strong>
-          <p>Perfecto para familia, pareja, mascotas y momentos especiales.</p>
-        </div>
-      </article>
+      <div class="hero-space"></div>
     </section>
   </header>
 
   <main>
-    <section class="light-section" id="como-funciona">
+
+    <section class="section" id="como-funciona">
       <div class="section-inner">
-        <div class="section-kicker">FÁCIL, CERCANO Y PERSONAL</div>
-        <h2>Así nace tu litofanía</h2>
-
-        <div class="showcase">
-          <article class="showcase-card">
-            <img src="assets/comparativa-apagada-encendida-familia.png" alt="Comparativa de litofanía apagada y encendida con foto familiar" />
-            <div class="showcase-text">
-              <h3>De recuerdo a luz ambiente</h3>
-              <p>Apagada se aprecia el relieve. Encendida aparece la imagen con una luz cálida y decorativa.</p>
-            </div>
-          </article>
-
-          <article class="showcase-card">
-            <img src="assets/litofania-nina-perro.png" alt="Litofanía personalizada de niña con perro iluminada" />
-            <div class="showcase-text">
-              <h3>Para historias reales</h3>
-              <p>Familia, mascotas, pareja o momentos especiales. Cada diseño se adapta a la foto y al formato.</p>
-            </div>
-          </article>
+        <div class="section-title">
+          <h2>Así de fácil</h2>
+          <p>Un proceso sencillo, cercano y pensado para que el resultado final quede bien desde el primer momento.</p>
         </div>
 
         <div class="steps">
-          <article class="step">
-            <div class="num">1</div>
-            <strong>Nos cuentas la idea</strong>
-            <p>Eliges formato, orientación y nos envías la foto que quieres convertir en litofanía.</p>
-          </article>
+          <div class="step">
+            <div class="step-icon">🖼</div>
+            <h3>1. Envías tu foto</h3>
+            <p>Por WhatsApp o formulario. Nos cuentas tu idea y el formato que quieres.</p>
+          </div>
 
-          <article class="step">
-            <div class="num">2</div>
-            <strong>Preparamos la pieza</strong>
-            <p>Ajustamos la imagen, fabricamos el marco y montamos la iluminación con acabado cuidado.</p>
-          </article>
+          <div class="step">
+            <div class="step-icon">✎</div>
+            <h3>2. Preparamos el diseño</h3>
+            <p>Revisamos la imagen y te orientamos para que la litofanía quede bien.</p>
+          </div>
 
-          <article class="step">
-            <div class="num">3</div>
-            <strong>La recibes lista</strong>
-            <p>Te entregamos un regalo personalizado, bonito y preparado para colocar o regalar.</p>
-          </article>
-        </div>
+          <div class="step">
+            <div class="step-icon">⬡</div>
+            <h3>3. La fabricamos</h3>
+            <p>Impresión 3D cuidada, luz cálida y acabado listo para regalar.</p>
+          </div>
 
-        <div class="gallery" id="galeria">
-          <figure>
-            <img src="assets/marco-vertical-familia.png" alt="Marco vertical de litofanía familiar encendida" />
-            <figcaption>Marco vertical familiar</figcaption>
-          </figure>
-
-          <figure>
-            <img src="assets/marco-horizontal-perro.png" alt="Marco horizontal de litofanía niña con perro" />
-            <figcaption>Formato horizontal</figcaption>
-          </figure>
-
-          <figure>
-            <img src="assets/comparativa-apagada-encendida-perro.png" alt="Litofanía apagada y encendida con niña y perro" />
-            <figcaption>Apagada / encendida</figcaption>
-          </figure>
-
-          <figure>
-            <img src="assets/litofania-nina-perro.png" alt="Detalle de litofanía iluminada con mascota" />
-            <figcaption>Regalos con mascotas</figcaption>
-          </figure>
-
-          <figure>
-            <img src="assets/hero-litofania-familia.png" alt="Litofanía familiar cálida en ambiente decorativo" />
-            <figcaption>Luz cálida decorativa</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="dark-band" id="pedido">
-      <div class="split-cta">
-        <img src="assets/hero-litofania-familia.png" alt="Litofanía personalizada lista para regalar" />
-
-        <div>
-          <h2>¿Tienes una foto especial?</h2>
-          <p>
-            La convertimos en una litofanía luminosa personalizada. Escríbenos, vemos la idea contigo y te guiamos para elegir el mejor formato.
-          </p>
-
-          <div class="cta-actions">
-            <a class="btn btn-primary" href="https://wa.me/34XXXXXXXXX" target="_blank" rel="noopener">PEDIR POR WHATSAPP</a>
-            <a class="btn btn-ghost" href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener">VER MÁS TRABAJOS</a>
+          <div class="step">
+            <div class="step-icon">🎁</div>
+            <h3>4. La recibes lista</h3>
+            <p>Preparada para decorar, regalar o guardar un recuerdo especial.</p>
           </div>
         </div>
+
+        <section class="real-block">
+          <img src="assets/comparativa-apagada-encendida-familia.png" alt="Comparativa de litofanía apagada y encendida" />
+
+          <div class="real-copy">
+            <h2>De una foto a una pieza con presencia.</h2>
+            <p>
+              La litofanía cambia completamente cuando se ilumina. Apagada es un relieve discreto; encendida revela la imagen con una luz cálida y muy especial.
+            </p>
+
+            <div class="checks">
+              <span>✓ Ideal para familia, pareja, niños y mascotas</span>
+              <span>✓ Fabricada bajo pedido</span>
+              <span>✓ Te ayudamos a elegir una foto que funcione bien</span>
+            </div>
+
+            <a class="btn btn-primary" href="https://wa.me/34XXXXXXXXX" target="_blank">💬 QUIERO HACER UNA</a>
+          </div>
+        </section>
       </div>
     </section>
+
+    <section class="section" id="ejemplos">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>Algunos trabajos reales</h2>
+          <p>Fotos reales del producto, con luz cálida y acabado preparado para casa.</p>
+        </div>
+
+        <div class="gallery">
+          <article class="photo-card">
+            <img src="assets/hero-litofania-familia.png" alt="Litofanía familiar vertical iluminada" />
+            <div>
+              <h3>Marco familiar</h3>
+              <p>Un recuerdo para ver cada día.</p>
+            </div>
+          </article>
+
+          <article class="photo-card">
+            <img src="assets/litofania-nina-perro.png" alt="Litofanía de niña con perro iluminada" />
+            <div>
+              <h3>Mascotas</h3>
+              <p>Detalles con mucha personalidad.</p>
+            </div>
+          </article>
+
+          <article class="photo-card">
+            <img src="assets/marco-vertical-familia.png" alt="Marco vertical familiar iluminado" />
+            <div>
+              <h3>Formato vertical</h3>
+              <p>Perfecto para retratos familiares.</p>
+            </div>
+          </article>
+
+          <article class="photo-card">
+            <img src="assets/marco-horizontal-perro.png" alt="Marco horizontal de niña con perro" />
+            <div>
+              <h3>Formato horizontal</h3>
+              <p>Ideal para fotos amplias.</p>
+            </div>
+          </article>
+        </div>
+
+        <section class="cta-panel">
+          <div>
+            <h2>¿Tienes una foto?</h2>
+            <p>Nosotros nos encargamos del resto.</p>
+          </div>
+
+          <a class="btn btn-primary" href="https://wa.me/34XXXXXXXXX" target="_blank">💬 CREAR MI LITOFANÍA</a>
+        </section>
+      </div>
+    </section>
+
   </main>
 
-  <footer>
-    © 2026 Takara 3D · Litofanías y detalles personalizados fabricados bajo encargo
+  <footer class="footer">
+    © 2026 Takara 3D · Litofanías personalizadas fabricadas bajo pedido
   </footer>
+
 </body>
 </html>
