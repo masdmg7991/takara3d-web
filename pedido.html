@@ -1,189 +1,750 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pedido | Takara 3D</title>
 
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3eadc;
-      color: #1b140c;
-      padding: 24px;
+    * { box-sizing: border-box; }
+
+    :root {
+      --black: #080706;
+      --cream: #f5eddf;
+      --paper: #fff8ee;
+      --gold: #c99735;
+      --gold-soft: #e5bd69;
+      --brown: #6f3b16;
+      --text: #1e160f;
+      --muted: #6d5d49;
+      --line: rgba(95, 68, 36, .18);
+      --shadow: 0 22px 55px rgba(70, 42, 15, .13);
     }
 
-    .page {
-      max-width: 1100px;
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(201,151,53,.16), transparent 28%),
+        linear-gradient(180deg, #fff9ef, #f2e5d2);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    header {
+      background: var(--black);
+      color: var(--cream);
+      padding: 18px 5vw;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav {
+      max-width: 1180px;
       margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mark {
+      color: var(--gold-soft);
+      font-size: 30px;
+    }
+
+    .brand-title {
+      font-family: Georgia, serif;
+      font-size: 27px;
+      line-height: 1;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #cbbba2;
+      margin-top: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      font-size: 15px;
+    }
+
+    .nav-links a.active {
+      color: var(--gold-soft);
+      border-bottom: 1px solid var(--gold-soft);
+      padding-bottom: 6px;
+    }
+
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #211304;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: auto;
+      padding: 54px 5vw 70px;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 44px;
+    }
+
+    .kicker {
+      color: #a36c18;
+      letter-spacing: 4px;
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 14px;
     }
 
     h1 {
       font-family: Georgia, serif;
-      font-size: 42px;
+      font-size: clamp(46px, 6vw, 76px);
+      line-height: .95;
+      margin: 0 0 18px;
+      font-weight: 500;
+    }
+
+    .intro p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+      max-width: 560px;
+    }
+
+    .mini-trust {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      text-align: center;
+      color: #5d4b34;
+    }
+
+    .mini-trust div {
+      padding: 16px;
+    }
+
+    .mini-trust span {
+      display: block;
+      font-size: 30px;
+      color: var(--gold);
       margin-bottom: 8px;
     }
 
-    .intro {
-      color: #6b5a45;
-      font-size: 18px;
-      margin-bottom: 32px;
-    }
-
-    .grid {
+    .layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      grid-template-columns: 0.9fr 1.55fr;
+      gap: 34px;
       align-items: start;
     }
 
-    .panel {
-      background: #fff8ee;
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 18px 45px rgba(54,35,16,.12);
+    .card {
+      background: rgba(255, 248, 238, .82);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-inner {
+      padding: 26px;
+    }
+
+    .section-label {
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      font-size: 14px;
+      margin: 0 0 12px;
+    }
+
+    .help {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .dropzone {
+      border: 1px dashed rgba(95, 68, 36, .35);
+      border-radius: 14px;
+      padding: 28px 18px;
+      text-align: center;
+      background: rgba(255,255,255,.42);
+      cursor: pointer;
+      transition: border .15s ease, transform .15s ease;
+    }
+
+    .dropzone:hover {
+      border-color: var(--gold);
+      transform: translateY(-1px);
+    }
+
+    .dropzone strong {
+      display: block;
+      margin-top: 8px;
+    }
+
+    .dropzone small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+    }
+
+    input[type="file"] { display: none; }
+
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 24px 0;
+    }
+
+    .format-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .option {
+      border: 1px solid rgba(95, 68, 36, .22);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255,255,255,.35);
+    }
+
+    .option.active {
+      border-color: var(--gold);
+      box-shadow: inset 0 0 0 1px var(--gold);
+    }
+
+    .shape {
+      width: 34px;
+      height: 54px;
+      border: 2px solid #3b2b19;
+      margin: 0 auto 10px;
+      border-radius: 3px;
+    }
+
+    .shape.horizontal {
+      width: 58px;
+      height: 38px;
+      margin-top: 8px;
+    }
+
+    .colors {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .color {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0,0,0,.12);
+    }
+
+    .color.active {
+      border-color: var(--gold);
+      outline: 2px solid rgba(201,151,53,.25);
+    }
+
+    .color-labels {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
     }
 
     label {
       display: block;
-      font-weight: bold;
-      margin: 18px 0 8px;
+      font-size: 13px;
+      font-weight: 800;
+      margin: 18px 0 7px;
     }
 
-    input, select {
+    input, textarea {
       width: 100%;
       padding: 14px;
+      border: 1px solid rgba(95, 68, 36, .22);
       border-radius: 10px;
-      border: 1px solid #d6c6ad;
-      font-size: 16px;
-      background: white;
+      background: rgba(255,255,255,.65);
+      font-size: 15px;
+      font-family: inherit;
     }
 
-    .preview-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 30px;
-      background: #17110a;
-      border-radius: 24px;
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    .preview-card .card-inner {
+      padding: 26px;
+    }
+
+    .preview-stage {
+      background:
+        radial-gradient(circle at 52% 42%, rgba(232,165,62,.28), transparent 32%),
+        linear-gradient(135deg, #130d08, #060504);
+      min-height: 560px;
+      border-radius: 0 0 20px 20px;
+      display: grid;
+      place-items: center;
+      padding: 36px;
     }
 
     .frame {
-      width: 320px;
-      height: 420px;
-      padding: 24px;
-      border-radius: 24px;
-      background: #8a4f24;
-      box-shadow: 0 25px 55px rgba(0,0,0,.45);
-      transition: background .2s ease;
+      --frame-color: #7a3f16;
+      width: 390px;
+      height: 500px;
+      padding: 28px;
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.12), transparent 18%),
+        var(--frame-color);
+      box-shadow:
+        0 30px 70px rgba(0,0,0,.55),
+        inset 0 0 0 4px rgba(255,255,255,.05);
+      transition: all .2s ease;
     }
 
-    .photo {
+    .frame.horizontal {
+      width: 520px;
+      height: 360px;
+    }
+
+    .litho {
       width: 100%;
       height: 100%;
-      border-radius: 12px;
-      background: #f7e9c8;
+      background: #f7e6be;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: inset 0 0 28px rgba(255,255,255,.9), 0 0 28px rgba(255,210,120,.65);
+      box-shadow:
+        inset 0 0 36px rgba(255,255,255,.88),
+        0 0 34px rgba(255,205,118,.75);
+      display: grid;
+      place-items: center;
+      color: rgba(60,38,18,.55);
+      text-align: center;
+      padding: 22px;
     }
 
-    .photo img {
+    .litho img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: grayscale(1) sepia(.35) brightness(1.12) contrast(.92);
+      filter: grayscale(1) sepia(.34) brightness(1.16) contrast(.9);
       opacity: .82;
     }
 
-    .note {
+    .thumbs {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
       margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bottom {
+      display: grid;
+      grid-template-columns: 1.5fr .8fr;
+      gap: 26px;
+      margin-top: 34px;
+    }
+
+    .summary {
+      background: rgba(255,248,238,.88);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      padding: 11px 0;
+      color: var(--muted);
       font-size: 14px;
-      color: #6b5a45;
+    }
+
+    .summary-row strong {
+      color: var(--text);
+    }
+
+    .send {
+      margin-top: 18px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #211304;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .note-box {
+      max-width: 620px;
+      margin: 36px auto 0;
+      background: rgba(255,248,238,.82);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 22px;
+      color: #5d4b34;
+      text-align: center;
       line-height: 1.45;
     }
 
-    .back {
-      display: inline-block;
-      margin-bottom: 22px;
-      color: #9b6a1f;
-      font-weight: bold;
-      text-decoration: none;
+    footer {
+      background: var(--black);
+      color: #cbbba2;
+      padding: 34px 5vw;
+      text-align: center;
+      font-size: 14px;
     }
 
-    @media (max-width: 800px) {
-      .grid {
+    @media (max-width: 980px) {
+      .intro,
+      .layout,
+      .bottom {
         grid-template-columns: 1fr;
       }
 
+      .mini-trust {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .preview-stage {
+        min-height: auto;
+      }
+
       .frame {
-        width: 260px;
-        height: 350px;
+        width: 300px;
+        height: 390px;
+      }
+
+      .frame.horizontal {
+        width: min(100%, 390px);
+        height: 270px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      header { position: static; }
+
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      main {
+        padding: 38px 18px 54px;
+      }
+
+      .mini-trust {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+
+      .format-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-stage {
+        padding: 22px;
+      }
+
+      .frame {
+        width: 250px;
+        height: 330px;
+        padding: 18px;
+      }
+
+      .frame.horizontal {
+        width: 100%;
+        height: 220px;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="page">
-    <a class="back" href="index.html">← Volver a Takara 3D</a>
 
-    <h1>Crea tu litofanía</h1>
-    <p class="intro">Sube una foto, elige el color del marco y revisa una primera vista previa orientativa.</p>
+<header>
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <div class="mark">△</div>
+      <div>
+        <div class="brand-title">Takara 3D</div>
+        <div class="brand-sub">Litofanías personalizadas</div>
+      </div>
+    </a>
 
-    <section class="grid">
-      <div class="panel">
-        <h2>Configura tu marco</h2>
+    <div class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="index.html#ejemplos">Ejemplos</a>
+      <a href="index.html#como-funciona">Cómo funciona</a>
+      <a class="active" href="pedido.html">Pedido</a>
+      <a class="nav-cta" href="#datos">Pedir ahora</a>
+    </div>
+  </nav>
+</header>
 
-        <label for="photoInput">Sube tu foto</label>
+<main>
+  <section class="intro">
+    <div>
+      <div class="kicker">CREA TU LITOFANÍA</div>
+      <h1>Hazlo único.</h1>
+      <p>
+        Sube tu foto, elige el formato y el color del marco. Esta vista previa es orientativa:
+        antes de fabricar revisaremos contigo que la imagen quede bien.
+      </p>
+    </div>
+
+    <div class="mini-trust">
+      <div><span>◇</span>Artesanal y único</div>
+      <div><span>✦</span>Materiales premium</div>
+      <div><span>♡</span>Cuidado en cada detalle</div>
+    </div>
+  </section>
+
+  <section class="layout">
+    <aside class="card">
+      <div class="card-inner">
+        <p class="section-label">1. TU FOTO</p>
+        <p class="help">Sube una imagen con buena luz, enfoque y contraste.</p>
+
+        <label class="dropzone" for="photoInput">
+          <div style="font-size:34px;">☁</div>
+          <strong>Haz clic para subir tu foto</strong>
+          <small>JPG o PNG</small>
+        </label>
         <input id="photoInput" type="file" accept="image/*">
 
-        <label for="colorSelect">Color del marco</label>
-        <select id="colorSelect">
-          <option value="#8a4f24">Rosewood</option>
-          <option value="#17110a">Ebony / negro</option>
-          <option value="#e8d8bd">Polar claro</option>
-          <option value="#b8783a">Madera cálida</option>
-        </select>
+        <div class="divider"></div>
 
-        <p class="note">
-          Esta vista previa es orientativa. Antes de fabricar revisaremos que la foto tenga buena calidad y contraste para litofanía.
-        </p>
+        <p class="section-label">2. FORMATO</p>
+        <p class="help">Elige la orientación de tu litofanía.</p>
+
+        <div class="format-grid">
+          <div class="option active" data-format="vertical">
+            <div class="shape"></div>
+            <strong>VERTICAL</strong>
+          </div>
+          <div class="option" data-format="horizontal">
+            <div class="shape horizontal"></div>
+            <strong>HORIZONTAL</strong>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-label">3. COLOR DEL MARCO</p>
+        <p class="help">Selecciona el acabado que más encaje con tu estilo.</p>
+
+        <div class="colors">
+          <button class="color active" title="Rosewood" data-name="Rosewood" data-color="#7a3f16" style="background:#7a3f16"></button>
+          <button class="color" title="Ebony" data-name="Ebony" data-color="#21150d" style="background:#21150d"></button>
+          <button class="color" title="Polar" data-name="Polar" data-color="#e7d7bc" style="background:#e7d7bc"></button>
+          <button class="color" title="Negro" data-name="Negro" data-color="#050505" style="background:#050505"></button>
+          <button class="color" title="Blanco" data-name="Blanco" data-color="#f8f5ee" style="background:#f8f5ee"></button>
+        </div>
+
+        <div class="color-labels">
+          <span>Rosewood</span><span>Ebony</span><span>Polar</span><span>Negro</span><span>Blanco</span>
+        </div>
+      </div>
+    </aside>
+
+    <section class="card preview-card">
+      <div class="card-inner">
+        <p class="section-label">VISTA PREVIA</p>
+        <p class="help">La imagen se muestra como aproximación visual, no como resultado final técnico.</p>
       </div>
 
-      <div class="panel">
-        <h2>Vista previa</h2>
-
-        <div class="preview-wrap">
-          <div id="frame" class="frame">
-            <div class="photo">
-              <img id="previewImage" alt="">
-            </div>
+      <div class="preview-stage">
+        <div id="frame" class="frame">
+          <div class="litho">
+            <span id="emptyText">Sube una foto para ver la previsualización</span>
+            <img id="previewImage" alt="Vista previa de la litofanía" style="display:none;">
           </div>
         </div>
       </div>
+
+      <div class="thumbs">
+        <span id="previewCaption">Marco vertical · Rosewood</span>
+      </div>
     </section>
-  </main>
+  </section>
 
-  <script>
-    const photoInput = document.getElementById("photoInput");
-    const previewImage = document.getElementById("previewImage");
-    const colorSelect = document.getElementById("colorSelect");
-    const frame = document.getElementById("frame");
+  <section class="bottom" id="datos">
+    <section class="card">
+      <div class="card-inner">
+        <p class="section-label">4. TUS DATOS</p>
+        <p class="help">Los usaremos solo para contactar contigo y preparar tu pedido.</p>
 
-    photoInput.addEventListener("change", function () {
-      const file = this.files && this.files[0];
-      if (!file) return;
+        <label for="nameInput">Nombre</label>
+        <input id="nameInput" type="text" placeholder="Tu nombre">
 
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        previewImage.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+        <label for="phoneInput">WhatsApp</label>
+        <input id="phoneInput" type="tel" placeholder="Tu número de WhatsApp">
+
+        <label for="commentInput">Comentario opcional</label>
+        <textarea id="commentInput" placeholder="Cuéntanos algo especial sobre tu pedido..."></textarea>
+      </div>
+    </section>
+
+    <aside class="summary">
+      <p class="section-label">TU RESUMEN</p>
+
+      <div class="summary-row"><span>Formato</span><strong id="summaryFormat">Vertical</strong></div>
+      <div class="summary-row"><span>Color</span><strong id="summaryColor">Rosewood</strong></div>
+      <div class="summary-row"><span>Foto</span><strong id="summaryPhoto">Pendiente</strong></div>
+
+      <p class="help" style="margin-top:16px;">
+        Revisaremos la foto y te confirmaremos el pedido antes de fabricar.
+      </p>
+
+      <button class="send" id="sendButton">ENVIAR PEDIDO POR WHATSAPP</button>
+    </aside>
+  </section>
+
+  <div class="note-box">
+    Cada litofanía se revisa cuidadosamente para asegurar el mejor resultado.
+    Si la foto no es adecuada, te ayudaremos a elegir una opción mejor.
+  </div>
+</main>
+
+<footer>
+  © 2026 Takara 3D · Litofanías personalizadas fabricadas bajo pedido
+</footer>
+
+<script>
+  const WHATSAPP_DESTINO = "34XXXXXXXXX";
+
+  const photoInput = document.getElementById("photoInput");
+  const previewImage = document.getElementById("previewImage");
+  const emptyText = document.getElementById("emptyText");
+  const frame = document.getElementById("frame");
+  const previewCaption = document.getElementById("previewCaption");
+
+  const summaryFormat = document.getElementById("summaryFormat");
+  const summaryColor = document.getElementById("summaryColor");
+  const summaryPhoto = document.getElementById("summaryPhoto");
+
+  const nameInput = document.getElementById("nameInput");
+  const phoneInput = document.getElementById("phoneInput");
+  const commentInput = document.getElementById("commentInput");
+  const sendButton = document.getElementById("sendButton");
+
+  let selectedFormat = "Vertical";
+  let selectedColor = "Rosewood";
+  let photoLoaded = false;
+
+  function updateSummary() {
+    summaryFormat.textContent = selectedFormat;
+    summaryColor.textContent = selectedColor;
+    summaryPhoto.textContent = photoLoaded ? "Subida" : "Pendiente";
+    previewCaption.textContent = `Marco ${selectedFormat.toLowerCase()} · ${selectedColor}`;
+  }
+
+  photoInput.addEventListener("change", function () {
+    const file = this.files && this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      previewImage.src = event.target.result;
+      previewImage.style.display = "block";
+      emptyText.style.display = "none";
+      photoLoaded = true;
+      updateSummary();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.querySelectorAll(".option").forEach(option => {
+    option.addEventListener("click", () => {
+      document.querySelectorAll(".option").forEach(el => el.classList.remove("active"));
+      option.classList.add("active");
+
+      const format = option.dataset.format;
+      selectedFormat = format === "vertical" ? "Vertical" : "Horizontal";
+
+      frame.classList.toggle("horizontal", format === "horizontal");
+      updateSummary();
     });
+  });
 
-    colorSelect.addEventListener("change", function () {
-      frame.style.background = this.value;
+  document.querySelectorAll(".color").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".color").forEach(el => el.classList.remove("active"));
+      button.classList.add("active");
+
+      selectedColor = button.dataset.name;
+      frame.style.setProperty("--frame-color", button.dataset.color);
+      updateSummary();
     });
-  </script>
+  });
+
+  sendButton.addEventListener("click", () => {
+    const nombre = nameInput.value.trim();
+    const telefono = phoneInput.value.trim();
+    const comentario = commentInput.value.trim();
+
+    const mensaje = [
+      "Hola, quiero pedir una litofanía Takara 3D.",
+      "",
+      `Formato: ${selectedFormat}`,
+      `Color del marco: ${selectedColor}`,
+      `Foto subida en la web: ${photoLoaded ? "Sí" : "No"}`,
+      nombre ? `Nombre: ${nombre}` : "",
+      telefono ? `WhatsApp cliente: ${telefono}` : "",
+      comentario ? `Comentario: ${comentario}` : "",
+      "",
+      "Te enviaré la foto por WhatsApp para confirmar el diseño."
+    ].filter(Boolean).join("\\n");
+
+    const url = `https://wa.me/${WHATSAPP_DESTINO}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, "_blank");
+  });
+
+  updateSummary();
+</script>
+
 </body>
 </html>
