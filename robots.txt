@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://takara3d.es/sitemap.xml

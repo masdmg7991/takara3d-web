@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="Bodas">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b1e16"/>
+      <stop offset="0.48" stop-color="#6b4a2e"/>
+      <stop offset="1" stop-color="#120d09"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="65%" cy="42%" r="45%">
+      <stop offset="0" stop-color="#fff1c5" stop-opacity="1"/>
+      <stop offset="0.36" stop-color="#e0a84d" stop-opacity=".70"/>
+      <stop offset="1" stop-color="#2b1e16" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe5a6"/>
+      <stop offset="1" stop-color="#b87628"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".35"/>
+    </filter>
+  </defs>
+  <rect width="900" height="620" fill="url(#bg)"/>
+  <rect width="900" height="620" fill="url(#glow)"/>
+  <circle cx="128" cy="428" r="86" fill="#211710" opacity=".45"/>
+  <rect x="60" y="410" width="300" height="28" rx="14" fill="#8b6237" opacity=".46"/>
+  <rect x="82" y="360" width="120" height="44" rx="8" fill="#3a281d" opacity=".55"/>
+  <path d="M140 328c25-50 95-52 120 0" fill="none" stroke="#bb8a44" stroke-width="9" opacity=".45"/>
+  <g filter="url(#shadow)">
+    <rect x="446" y="126" width="388" height="320" rx="12" fill="#2b1e16" />
+    <rect x="462" y="142" width="356" height="266" rx="5" fill="#6b4a2e"/>
+    <rect x="470" y="150" width="340" height="250" rx="4" fill="url(#plate)"/>
+    <g opacity=".48" stroke="#fff7df" stroke-width="8" stroke-linecap="round" fill="none">
+      <circle cx="592.4" cy="237.5" r="44.2"/>
+      <circle cx="680.8" cy="230.0" r="51.0"/>
+      <circle cx="640.0" cy="287.5" r="37.4"/>
+      <path d="M555.0 320.0c70-60 150-50 200 0" />
+      <path d="M514.2 195.0c80 25 160 20 220-10" opacity=".45"/>
+      <path d="M531.2 355.0c70-28 160-22 220-5" opacity=".36"/>
+    </g>
+    <rect x="434" y="424" width="412" height="42" rx="16" fill="#1d140f"/>
+    <rect x="458" y="433" width="364" height="12" rx="6" fill="#8c6236" opacity=".6"/>
+  </g>
+  <text x="70" y="105" font-family="Georgia, serif" font-size="42" fill="#fff8e8">Bodas</text>
+  <text x="72" y="150" font-family="Arial, sans-serif" font-size="22" fill="#eadac4">un recuerdo para siempre</text>
+  <text x="72" y="185" font-family="Arial, sans-serif" font-size="18" fill="#c89b4a">TAKARA 3D · litofanía personalizada</text>
+</svg>

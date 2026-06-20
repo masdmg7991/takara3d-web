@@ -1,0 +1,62 @@
+[
+  {
+    "id": "marco-vertical",
+    "categoria": "marcos",
+    "nombre": "Marco litofanía clásico",
+    "subtitulo": "Ideal para retratos",
+    "descripcion": "Elegancia atemporal para tus recuerdos más especiales.",
+    "precio": "79,00 €",
+    "imagen": "assets/img/productos/marco-vertical.svg",
+    "features": [
+      "Marco de acabado premium",
+      "Luz LED cálida integrada",
+      "Litofanía personalizada en 3D",
+      "Ideal para sobremesas"
+    ]
+  },
+  {
+    "id": "marco-horizontal",
+    "categoria": "marcos",
+    "nombre": "Marco litofanía horizontal",
+    "subtitulo": "Ideal para paisajes",
+    "descripcion": "Diseñado para fotos panorámicas que merecen más espacio.",
+    "precio": "89,00 €",
+    "imagen": "assets/img/productos/marco-horizontal.svg",
+    "features": [
+      "Formato horizontal estable",
+      "Luz LED cálida integrada",
+      "Litofanía personalizada en 3D",
+      "Ideal para estantes"
+    ]
+  },
+  {
+    "id": "caja-lampara",
+    "categoria": "cajas",
+    "nombre": "Caja/lámpara 4 caras",
+    "subtitulo": "Ilumina en 4 caras",
+    "descripcion": "Ilumina tus recuerdos desde todos los ángulos.",
+    "precio": "99,00 €",
+    "imagen": "assets/img/productos/caja-lampara.svg",
+    "features": [
+      "4 caras personalizables",
+      "Luz LED cálida interior",
+      "Diseño envolvente",
+      "Perfecta para regalo"
+    ]
+  },
+  {
+    "id": "edicion-regalo",
+    "categoria": "regalo",
+    "nombre": "Edición regalo",
+    "subtitulo": "Presentación premium",
+    "descripcion": "Presentación cuidada para entregar directamente como regalo.",
+    "precio": "109,00 €",
+    "imagen": "assets/img/productos/edicion-regalo.svg",
+    "features": [
+      "Incluye presentación especial",
+      "Tarjeta personalizada",
+      "Empaque protegido",
+      "Lista para sorprender"
+    ]
+  }
+]

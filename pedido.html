@@ -1,750 +1,201 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pedido | Takara 3D</title>
 
-  <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --black: #080706;
-      --cream: #f5eddf;
-      --paper: #fff8ee;
-      --gold: #c99735;
-      --gold-soft: #e5bd69;
-      --brown: #6f3b16;
-      --text: #1e160f;
-      --muted: #6d5d49;
-      --line: rgba(95, 68, 36, .18);
-      --shadow: 0 22px 55px rgba(70, 42, 15, .13);
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(201,151,53,.16), transparent 28%),
-        linear-gradient(180deg, #fff9ef, #f2e5d2);
-    }
-
-    a { text-decoration: none; color: inherit; }
-
-    header {
-      background: var(--black);
-      color: var(--cream);
-      padding: 18px 5vw;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    .nav {
-      max-width: 1180px;
-      margin: auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .mark {
-      color: var(--gold-soft);
-      font-size: 30px;
-    }
-
-    .brand-title {
-      font-family: Georgia, serif;
-      font-size: 27px;
-      line-height: 1;
-    }
-
-    .brand-sub {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #cbbba2;
-      margin-top: 3px;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      font-size: 15px;
-    }
-
-    .nav-links a.active {
-      color: var(--gold-soft);
-      border-bottom: 1px solid var(--gold-soft);
-      padding-bottom: 6px;
-    }
-
-    .nav-cta {
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      color: #211304;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-weight: 800;
-    }
-
-    main {
-      max-width: 1180px;
-      margin: auto;
-      padding: 54px 5vw 70px;
-    }
-
-    .intro {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 34px;
-      align-items: end;
-      margin-bottom: 44px;
-    }
-
-    .kicker {
-      color: #a36c18;
-      letter-spacing: 4px;
-      font-weight: 800;
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    h1 {
-      font-family: Georgia, serif;
-      font-size: clamp(46px, 6vw, 76px);
-      line-height: .95;
-      margin: 0 0 18px;
-      font-weight: 500;
-    }
-
-    .intro p {
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.55;
-      max-width: 560px;
-    }
-
-    .mini-trust {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-      text-align: center;
-      color: #5d4b34;
-    }
-
-    .mini-trust div {
-      padding: 16px;
-    }
-
-    .mini-trust span {
-      display: block;
-      font-size: 30px;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 0.9fr 1.55fr;
-      gap: 34px;
-      align-items: start;
-    }
-
-    .card {
-      background: rgba(255, 248, 238, .82);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .card-inner {
-      padding: 26px;
-    }
-
-    .section-label {
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      font-size: 14px;
-      margin: 0 0 12px;
-    }
-
-    .help {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.45;
-      margin-bottom: 18px;
-    }
-
-    .dropzone {
-      border: 1px dashed rgba(95, 68, 36, .35);
-      border-radius: 14px;
-      padding: 28px 18px;
-      text-align: center;
-      background: rgba(255,255,255,.42);
-      cursor: pointer;
-      transition: border .15s ease, transform .15s ease;
-    }
-
-    .dropzone:hover {
-      border-color: var(--gold);
-      transform: translateY(-1px);
-    }
-
-    .dropzone strong {
-      display: block;
-      margin-top: 8px;
-    }
-
-    .dropzone small {
-      display: block;
-      margin-top: 6px;
-      color: var(--muted);
-    }
-
-    input[type="file"] { display: none; }
-
-    .divider {
-      height: 1px;
-      background: var(--line);
-      margin: 24px 0;
-    }
-
-    .format-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .option {
-      border: 1px solid rgba(95, 68, 36, .22);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      cursor: pointer;
-      background: rgba(255,255,255,.35);
-    }
-
-    .option.active {
-      border-color: var(--gold);
-      box-shadow: inset 0 0 0 1px var(--gold);
-    }
-
-    .shape {
-      width: 34px;
-      height: 54px;
-      border: 2px solid #3b2b19;
-      margin: 0 auto 10px;
-      border-radius: 3px;
-    }
-
-    .shape.horizontal {
-      width: 58px;
-      height: 38px;
-      margin-top: 8px;
-    }
-
-    .colors {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .color {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(0,0,0,.12);
-    }
-
-    .color.active {
-      border-color: var(--gold);
-      outline: 2px solid rgba(201,151,53,.25);
-    }
-
-    .color-labels {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 800;
-      margin: 18px 0 7px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid rgba(95, 68, 36, .22);
-      border-radius: 10px;
-      background: rgba(255,255,255,.65);
-      font-size: 15px;
-      font-family: inherit;
-    }
-
-    textarea {
-      min-height: 112px;
-      resize: vertical;
-    }
-
-    .preview-card .card-inner {
-      padding: 26px;
-    }
-
-    .preview-stage {
-      background:
-        radial-gradient(circle at 52% 42%, rgba(232,165,62,.28), transparent 32%),
-        linear-gradient(135deg, #130d08, #060504);
-      min-height: 560px;
-      border-radius: 0 0 20px 20px;
-      display: grid;
-      place-items: center;
-      padding: 36px;
-    }
-
-    .frame {
-      --frame-color: #7a3f16;
-      width: 390px;
-      height: 500px;
-      padding: 28px;
-      border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.12), transparent 18%),
-        var(--frame-color);
-      box-shadow:
-        0 30px 70px rgba(0,0,0,.55),
-        inset 0 0 0 4px rgba(255,255,255,.05);
-      transition: all .2s ease;
-    }
-
-    .frame.horizontal {
-      width: 520px;
-      height: 360px;
-    }
-
-    .litho {
-      width: 100%;
-      height: 100%;
-      background: #f7e6be;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow:
-        inset 0 0 36px rgba(255,255,255,.88),
-        0 0 34px rgba(255,205,118,.75);
-      display: grid;
-      place-items: center;
-      color: rgba(60,38,18,.55);
-      text-align: center;
-      padding: 22px;
-    }
-
-    .litho img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: grayscale(1) sepia(.34) brightness(1.16) contrast(.9);
-      opacity: .82;
-    }
-
-    .thumbs {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      margin-top: 18px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .bottom {
-      display: grid;
-      grid-template-columns: 1.5fr .8fr;
-      gap: 26px;
-      margin-top: 34px;
-    }
-
-    .summary {
-      background: rgba(255,248,238,.88);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 22px;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      border-bottom: 1px solid var(--line);
-      padding: 11px 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .summary-row strong {
-      color: var(--text);
-    }
-
-    .send {
-      margin-top: 18px;
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-      color: #211304;
-      font-weight: 900;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    .note-box {
-      max-width: 620px;
-      margin: 36px auto 0;
-      background: rgba(255,248,238,.82);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 18px 22px;
-      color: #5d4b34;
-      text-align: center;
-      line-height: 1.45;
-    }
-
-    footer {
-      background: var(--black);
-      color: #cbbba2;
-      padding: 34px 5vw;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    @media (max-width: 980px) {
-      .intro,
-      .layout,
-      .bottom {
-        grid-template-columns: 1fr;
-      }
-
-      .mini-trust {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
-
-      .preview-stage {
-        min-height: auto;
-      }
-
-      .frame {
-        width: 300px;
-        height: 390px;
-      }
-
-      .frame.horizontal {
-        width: min(100%, 390px);
-        height: 270px;
-      }
-    }
-
-    @media (max-width: 620px) {
-      header { position: static; }
-
-      .nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .nav-links {
-        flex-wrap: wrap;
-        gap: 14px;
-      }
-
-      main {
-        padding: 38px 18px 54px;
-      }
-
-      .mini-trust {
-        grid-template-columns: 1fr;
-        text-align: left;
-      }
-
-      .format-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .preview-stage {
-        padding: 22px;
-      }
-
-      .frame {
-        width: 250px;
-        height: 330px;
-        padding: 18px;
-      }
-
-      .frame.horizontal {
-        width: 100%;
-        height: 220px;
-      }
-    }
-  </style>
-</head>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Pedido personalizado | Takara 3D</title>
+      <meta name="description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
+      <link rel="canonical" href="https://takara3d.es/pedido.html">
+      <meta property="og:title" content="Pedido personalizado | Takara 3D">
+      <meta property="og:description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
+      <meta property="og:type" content="website">
+      <meta property="og:url" content="https://takara3d.es/pedido.html">
+      <meta property="og:image" content="https://takara3d.es/assets/img/ui/hero-home.svg">
+      <meta name="theme-color" content="#f7f3ee">
+      <link rel="icon" href="assets/icons/takara-mark.svg" type="image/svg+xml">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="assets/css/styles.css">
+    </head>
 
 <body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-<header>
-  <nav class="nav">
-    <a class="brand" href="index.html">
-      <div class="mark">△</div>
-      <div>
-        <div class="brand-title">Takara 3D</div>
-        <div class="brand-sub">Litofanías personalizadas</div>
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <symbol id="i-instagram" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M7 2.8h10A4.2 4.2 0 0 1 21.2 7v10a4.2 4.2 0 0 1-4.2 4.2H7A4.2 4.2 0 0 1 2.8 17V7A4.2 4.2 0 0 1 7 2.8Z"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.3" cy="6.8" r="1.1" fill="currentColor"/></symbol>
+  <symbol id="i-whatsapp" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 21a8.7 8.7 0 0 0 7.48-13.14A8.7 8.7 0 0 0 4.7 16.7L3.4 21l4.44-1.17A8.67 8.67 0 0 0 12 21Z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M8.75 8.45c.25 3.2 3.04 5.83 6.54 6.73l1.18-1.35c.22-.25.2-.63-.05-.85l-1.4-1.17a.7.7 0 0 0-.85-.04l-.72.48c-.36.24-2.02-.9-2.42-1.56l.44-.78a.67.67 0 0 0-.09-.78L10.2 7.8a.62.62 0 0 0-.87-.04l-.58.69Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 2v3m0 14v3m10-10h-3M5 12H2m17.1-7.1-2.1 2.1M7 17l-2.1 2.1m14.2 0L17 17M7 7 4.9 4.9"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M20.5 5.8c-1.8-2-4.8-1.8-6.5.3L12 8.5l-2-2.4C8.3 4 5.3 3.8 3.5 5.8c-2 2.2-1.8 5.7.4 7.8L12 21l8.1-7.4c2.2-2.1 2.4-5.6.4-7.8Z"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3.5 9h17v11h-17zM3 9h18V6.2H3zM12 6v14M7.7 6C5.6 4.2 7.1 2.1 9 3c1.1.5 2 3 3 3m4.3 0c2.1-1.8.6-3.9-1.3-3-1.1.5-2 3-3 3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M20 16.5A4.5 4.5 0 0 0 15.5 12h-.7A6 6 0 1 0 6 17.3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m4 17 5.2-5.2 3.5 3.5 2.1-2.1L20 18"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="m12 2.7 8 4.4v9.8l-8 4.4-8-4.4V7.1zM4 7.1l8 4.4 8-4.4M12 11.5v9.8"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 8.5h17C20.5 16 18 16 18 9Zm-3.7 11a2.5 2.5 0 0 1-4.6 0"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 6h12v10H3zM15 10h3.2l2.8 3.1V16h-6z"/><circle cx="7" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" d="m4 7 8 6 8-6"/></symbol>
+</svg>
+
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo" href="index.html" aria-label="Takara 3D · Inicio">
+          <img class="logo__mark" src="assets/icons/takara-mark.svg" alt="" aria-hidden="true">
+          <span>TAKARA 3D</span>
+        </a>
+        <nav id="site-nav" class="nav" data-nav aria-label="Navegación principal">
+          <a href="index.html" >Inicio</a><a href="productos.html" >Productos</a><a href="pedido.html" aria-current="page">Pedido</a><a href="contacto.html" >Contacto</a>
+        </nav>
+        <div class="header-actions">
+          <a class="icon-link" href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Takara 3D"><svg width="21" height="21"><use href="#i-instagram"/></svg></a>
+          <button class="icon-link" type="button" data-whatsapp aria-label="Abrir WhatsApp"><svg width="21" height="21"><use href="#i-whatsapp"/></svg></button>
+          <button class="menu-toggle" type="button" data-menu-toggle aria-controls="site-nav" aria-expanded="false" aria-label="Abrir menú">
+            <span>☰</span>
+          </button>
+        </div>
       </div>
-    </a>
+    </header>
 
-    <div class="nav-links">
-      <a href="index.html">Inicio</a>
-      <a href="index.html#ejemplos">Ejemplos</a>
-      <a href="index.html#como-funciona">Cómo funciona</a>
-      <a class="active" href="pedido.html">Pedido</a>
-      <a class="nav-cta" href="#datos">Pedir ahora</a>
-    </div>
-  </nav>
-</header>
+  <main id="contenido">
+    <section class="section section--tight">
+      <div class="container">
+        <div class="section-title">
+          <p class="eyebrow">Pedido personalizado</p>
+          <h1>Haz tu pedido personalizado</h1>
+          <p class="lead">Sigue estos pasos y convierte tu foto en una litofanía única. Nosotros revisamos la imagen antes de fabricar.</p>
+        </div>
 
-<main>
-  <section class="intro">
-    <div>
-      <div class="kicker">CREA TU LITOFANÍA</div>
-      <h1>Hazlo único.</h1>
-      <p>
-        Sube tu foto, elige el formato y el color del marco. Esta vista previa es orientativa:
-        antes de fabricar revisaremos contigo que la imagen quede bien.
-      </p>
-    </div>
+        <form class="order-layout" data-order-form>
+          <div class="order-stack">
+            <section class="card order-step">
+              <div class="order-step__head"><span class="badge">1</span><div><h2>Elige tu producto</h2><p class="small">Selecciona el formato que más te guste.</p></div></div>
+              <div class="option-grid">
+                <label class="option-card"><input type="radio" name="producto" value="marco-vertical" checked><img src="assets/img/productos/marco-vertical.svg" alt=""><strong>Marco vertical</strong><span class="small">Ideal para retratos</span></label>
+                <label class="option-card"><input type="radio" name="producto" value="marco-horizontal"><img src="assets/img/productos/marco-horizontal.svg" alt=""><strong>Marco horizontal</strong><span class="small">Ideal para paisajes</span></label>
+                <label class="option-card"><input type="radio" name="producto" value="caja-lampara"><img src="assets/img/productos/caja-lampara.svg" alt=""><strong>Caja / Lámpara</strong><span class="small">Ilumina en 4 caras</span></label>
+              </div>
+            </section>
 
-    <div class="mini-trust">
-      <div><span>◇</span>Artesanal y único</div>
-      <div><span>✦</span>Materiales premium</div>
-      <div><span>♡</span>Cuidado en cada detalle</div>
-    </div>
-  </section>
+            <section class="card order-step">
+              <div class="order-step__head"><span class="badge">2</span><div><h2>Sube tu foto</h2><p class="small">La calidad de la foto influye en el resultado final.</p></div></div>
+              <div class="upload-box">
+                <label class="drop-area" data-drop-area>
+                  <input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-photo-input>
+                  <span>
+                    <svg width="46" height="46" style="margin:0 auto .8rem;color:var(--color-gold-dark)"><use href="#i-upload"/></svg>
+                    <strong>Arrastra tu foto aquí</strong><br>
+                    <span class="small">o haz clic para seleccionar · JPG, PNG o WEBP · Máx. 20 MB</span>
+                  </span>
+                </label>
+                <div class="preview-thumb">
+                  <img class="hidden" data-photo-preview alt="Vista previa de la foto seleccionada">
+                  <strong data-file-name>Sin foto seleccionada</strong>
+                  <span class="small" data-file-size>La enviarás por WhatsApp si hace falta.</span>
+                </div>
+              </div>
+            </section>
 
-  <section class="layout">
-    <aside class="card">
-      <div class="card-inner">
-        <p class="section-label">1. TU FOTO</p>
-        <p class="help">Sube una imagen con buena luz, enfoque y contraste.</p>
+            <section class="card order-step">
+              <div class="order-step__head"><span class="badge">3</span><div><h2>Personaliza el acabado</h2><p class="small">Elige color del marco y orientación de la imagen.</p></div></div>
+              <div class="grid grid--2">
+                <div>
+                  <h3>Color / acabado</h3>
+                  <div class="swatches" style="margin-top:.85rem">
+                    <label class="swatch"><input type="radio" name="acabado" value="ebony" checked><span class="swatch__sample swatch__sample--ebony"></span><strong>Ebony</strong><span class="small">Negro profundo</span></label>
+                    <label class="swatch"><input type="radio" name="acabado" value="rosewood"><span class="swatch__sample swatch__sample--rosewood"></span><strong>Rosewood</strong><span class="small">Madera cálida</span></label>
+                    <label class="swatch"><input type="radio" name="acabado" value="polar"><span class="swatch__sample swatch__sample--polar"></span><strong>Polar</strong><span class="small">Blanco mate</span></label>
+                  </div>
+                </div>
+                <div>
+                  <h3>Orientación</h3>
+                  <div class="option-grid" style="grid-template-columns:repeat(2,1fr);margin-top:.85rem">
+                    <label class="option-card"><input type="radio" name="orientacion" value="vertical" checked><strong>Vertical</strong><span class="small">(retrato)</span></label>
+                    <label class="option-card"><input type="radio" name="orientacion" value="horizontal"><strong>Horizontal</strong><span class="small">(paisaje)</span></label>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-        <label class="dropzone" for="photoInput">
-          <div style="font-size:34px;">☁</div>
-          <strong>Haz clic para subir tu foto</strong>
-          <small>JPG o PNG</small>
-        </label>
-        <input id="photoInput" type="file" accept="image/*">
+            <section class="card order-step">
+              <div class="order-step__head"><span class="badge">4</span><div><h2>Vista previa de tu marco</h2><p class="small">Vista orientativa con el producto y acabado seleccionados.</p></div></div>
+              <div class="grid grid--2">
+                <img data-product-preview src="assets/img/productos/marco-vertical.svg" alt="Vista previa del producto" style="border-radius:18px;box-shadow:var(--shadow-card)">
+                <div>
+                  <ul class="clean-list">
+                    <li>Producto: <strong data-summary-product>Marco vertical</strong></li>
+                    <li>Acabado: <strong data-summary-finish>Ebony</strong></li>
+                    <li>Orientación: <strong data-summary-orientation>Vertical</strong></li>
+                  </ul>
+                  <p class="small">La vista previa es referencial. El resultado final depende de la calidad, contraste y composición de la foto.</p>
+                </div>
+              </div>
+            </section>
 
-        <div class="divider"></div>
-
-        <p class="section-label">2. FORMATO</p>
-        <p class="help">Elige la orientación de tu litofanía.</p>
-
-        <div class="format-grid">
-          <div class="option active" data-format="vertical">
-            <div class="shape"></div>
-            <strong>VERTICAL</strong>
+            <section class="card order-step">
+              <div class="order-step__head"><span class="badge">5</span><div><h2>Datos de tu pedido</h2><p class="small">Completa tus datos para enviarnos la solicitud.</p></div></div>
+              <div class="form-grid">
+                <div class="field"><label for="nombre">Nombre completo</label><input id="nombre" name="nombre" autocomplete="name" placeholder="Ej. María García" required></div>
+                <div class="field"><label for="telefono">WhatsApp</label><input id="telefono" name="telefono" autocomplete="tel" placeholder="Ej. +34 600 123 456" required></div>
+                <div class="field field--full"><label for="observaciones">Observaciones opcionales</label><textarea id="observaciones" name="observaciones" placeholder="Cuéntanos si hay algo importante que debamos saber sobre el pedido..."></textarea></div>
+              </div>
+              <p class="small" style="margin-top:.8rem">🔒 Tus datos solo se usarán para gestionar tu pedido.</p>
+            </section>
           </div>
-          <div class="option" data-format="horizontal">
-            <div class="shape horizontal"></div>
-            <strong>HORIZONTAL</strong>
-          </div>
-        </div>
 
-        <div class="divider"></div>
-
-        <p class="section-label">3. COLOR DEL MARCO</p>
-        <p class="help">Selecciona el acabado que más encaje con tu estilo.</p>
-
-        <div class="colors">
-          <button class="color active" title="Rosewood" data-name="Rosewood" data-color="#7a3f16" style="background:#7a3f16"></button>
-          <button class="color" title="Ebony" data-name="Ebony" data-color="#21150d" style="background:#21150d"></button>
-          <button class="color" title="Polar" data-name="Polar" data-color="#e7d7bc" style="background:#e7d7bc"></button>
-          <button class="color" title="Negro" data-name="Negro" data-color="#050505" style="background:#050505"></button>
-          <button class="color" title="Blanco" data-name="Blanco" data-color="#f8f5ee" style="background:#f8f5ee"></button>
-        </div>
-
-        <div class="color-labels">
-          <span>Rosewood</span><span>Ebony</span><span>Polar</span><span>Negro</span><span>Blanco</span>
-        </div>
-      </div>
-    </aside>
-
-    <section class="card preview-card">
-      <div class="card-inner">
-        <p class="section-label">VISTA PREVIA</p>
-        <p class="help">La imagen se muestra como aproximación visual, no como resultado final técnico.</p>
-      </div>
-
-      <div class="preview-stage">
-        <div id="frame" class="frame">
-          <div class="litho">
-            <span id="emptyText">Sube una foto para ver la previsualización</span>
-            <img id="previewImage" alt="Vista previa de la litofanía" style="display:none;">
-          </div>
-        </div>
-      </div>
-
-      <div class="thumbs">
-        <span id="previewCaption">Marco vertical · Rosewood</span>
+          <aside class="order-summary">
+            <section class="card info-panel">
+              <h2>Resumen de tu pedido</h2>
+              <div class="summary-product" style="margin-top:1rem">
+                <img src="assets/img/productos/marco-vertical.svg" alt="" data-summary-img>
+                <div><strong data-summary-product>Marco vertical</strong><p class="small"><span data-summary-finish>Ebony</span><br><span data-summary-orientation>Vertical</span></p></div>
+              </div>
+              <div style="margin-top:1rem">
+                <div class="summary-row"><span>Foto</span><strong data-file-name>Sin seleccionar</strong></div>
+                <div class="summary-row"><span>Acabado</span><strong data-summary-finish>Ebony</strong></div>
+                <div class="summary-row"><span>Orientación</span><strong data-summary-orientation>Vertical</strong></div>
+              </div>
+              <ul class="clean-list">
+                <li>Litofanía personalizada en 3D</li>
+                <li>Iluminación LED cálida</li>
+                <li>Cable USB-C · 5V</li>
+                <li>Revisión antes de fabricar</li>
+              </ul>
+              <div class="notice">
+                <h3>Siguiente paso</h3>
+                <p class="small">Al enviar tu pedido por WhatsApp, confirmaremos contigo la imagen antes de fabricarlo.</p>
+              </div>
+              <button class="btn btn--primary btn--wide" type="submit">Enviar pedido por WhatsApp</button>
+            </section>
+            <section class="card info-panel">
+              <h3>¿Tienes dudas?</h3>
+              <p class="small" style="margin:.5rem 0 1rem">Escríbenos por WhatsApp y te ayudamos encantados.</p>
+              <button class="btn btn--light btn--wide" type="button" data-whatsapp>Abrir WhatsApp</button>
+            </section>
+          </aside>
+        </form>
       </div>
     </section>
-  </section>
+  </main>
 
-  <section class="bottom" id="datos">
-    <section class="card">
-      <div class="card-inner">
-        <p class="section-label">4. TUS DATOS</p>
-        <p class="help">Los usaremos solo para contactar contigo y preparar tu pedido.</p>
-
-        <label for="nameInput">Nombre</label>
-        <input id="nameInput" type="text" placeholder="Tu nombre">
-
-        <label for="phoneInput">WhatsApp</label>
-        <input id="phoneInput" type="tel" placeholder="Tu número de WhatsApp">
-
-        <label for="commentInput">Comentario opcional</label>
-        <textarea id="commentInput" placeholder="Cuéntanos algo especial sobre tu pedido..."></textarea>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div>
+          <div class="footer-brand">TAKARA 3D</div>
+          <p class="small">Litofanías personalizadas impresas en 3D<br>para iluminar tus recuerdos.</p>
+        </div>
+        <div class="footer-center">
+          <strong>takara3d.es</strong>
+          <p class="small">© <span data-current-year></span> Takara 3D. Todos los derechos reservados.</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <button class="btn btn--light" type="button" data-whatsapp>WhatsApp</button>
+        </div>
       </div>
-    </section>
+    </footer>
 
-    <aside class="summary">
-      <p class="section-label">TU RESUMEN</p>
-
-      <div class="summary-row"><span>Formato</span><strong id="summaryFormat">Vertical</strong></div>
-      <div class="summary-row"><span>Color</span><strong id="summaryColor">Rosewood</strong></div>
-      <div class="summary-row"><span>Foto</span><strong id="summaryPhoto">Pendiente</strong></div>
-
-      <p class="help" style="margin-top:16px;">
-        Revisaremos la foto y te confirmaremos el pedido antes de fabricar.
-      </p>
-
-      <button class="send" id="sendButton">ENVIAR PEDIDO POR WHATSAPP</button>
-    </aside>
-  </section>
-
-  <div class="note-box">
-    Cada litofanía se revisa cuidadosamente para asegurar el mejor resultado.
-    Si la foto no es adecuada, te ayudaremos a elegir una opción mejor.
-  </div>
-</main>
-
-<footer>
-  © 2026 Takara 3D · Litofanías personalizadas fabricadas bajo pedido
-</footer>
-
-<script>
-  const WHATSAPP_DESTINO = "34XXXXXXXXX";
-
-  const photoInput = document.getElementById("photoInput");
-  const previewImage = document.getElementById("previewImage");
-  const emptyText = document.getElementById("emptyText");
-  const frame = document.getElementById("frame");
-  const previewCaption = document.getElementById("previewCaption");
-
-  const summaryFormat = document.getElementById("summaryFormat");
-  const summaryColor = document.getElementById("summaryColor");
-  const summaryPhoto = document.getElementById("summaryPhoto");
-
-  const nameInput = document.getElementById("nameInput");
-  const phoneInput = document.getElementById("phoneInput");
-  const commentInput = document.getElementById("commentInput");
-  const sendButton = document.getElementById("sendButton");
-
-  let selectedFormat = "Vertical";
-  let selectedColor = "Rosewood";
-  let photoLoaded = false;
-
-  function updateSummary() {
-    summaryFormat.textContent = selectedFormat;
-    summaryColor.textContent = selectedColor;
-    summaryPhoto.textContent = photoLoaded ? "Subida" : "Pendiente";
-    previewCaption.textContent = `Marco ${selectedFormat.toLowerCase()} · ${selectedColor}`;
-  }
-
-  photoInput.addEventListener("change", function () {
-    const file = this.files && this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      previewImage.src = event.target.result;
-      previewImage.style.display = "block";
-      emptyText.style.display = "none";
-      photoLoaded = true;
-      updateSummary();
-    };
-    reader.readAsDataURL(file);
-  });
-
-  document.querySelectorAll(".option").forEach(option => {
-    option.addEventListener("click", () => {
-      document.querySelectorAll(".option").forEach(el => el.classList.remove("active"));
-      option.classList.add("active");
-
-      const format = option.dataset.format;
-      selectedFormat = format === "vertical" ? "Vertical" : "Horizontal";
-
-      frame.classList.toggle("horizontal", format === "horizontal");
-      updateSummary();
-    });
-  });
-
-  document.querySelectorAll(".color").forEach(button => {
-    button.addEventListener("click", () => {
-      document.querySelectorAll(".color").forEach(el => el.classList.remove("active"));
-      button.classList.add("active");
-
-      selectedColor = button.dataset.name;
-      frame.style.setProperty("--frame-color", button.dataset.color);
-      updateSummary();
-    });
-  });
-
-  sendButton.addEventListener("click", () => {
-    const nombre = nameInput.value.trim();
-    const telefono = phoneInput.value.trim();
-    const comentario = commentInput.value.trim();
-
-    const mensaje = [
-      "Hola, quiero pedir una litofanía Takara 3D.",
-      "",
-      `Formato: ${selectedFormat}`,
-      `Color del marco: ${selectedColor}`,
-      `Foto subida en la web: ${photoLoaded ? "Sí" : "No"}`,
-      nombre ? `Nombre: ${nombre}` : "",
-      telefono ? `WhatsApp cliente: ${telefono}` : "",
-      comentario ? `Comentario: ${comentario}` : "",
-      "",
-      "Te enviaré la foto por WhatsApp para confirmar el diseño."
-    ].filter(Boolean).join("\\n");
-
-    const url = `https://wa.me/${WHATSAPP_DESTINO}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, "_blank");
-  });
-
-  updateSummary();
-</script>
-
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/pedido.js"></script>
 </body>
 </html>
