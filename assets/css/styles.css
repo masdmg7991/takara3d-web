@@ -1138,3 +1138,15 @@ p {
     border-bottom: 0;
   }
 }
+
+/* HOME · respiración ligera para el titular principal */
+.hero-title-home {
+  line-height: 1.06;
+  letter-spacing: 0.01em;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0;
+}
+
+.hero-title-home .text-gold {
+  margin-left: 0.04em;
+}
