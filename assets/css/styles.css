@@ -594,7 +594,7 @@ p {
   color: var(--color-warm-white);
   background:
     linear-gradient(90deg, rgba(24, 15, 10, .98), rgba(43, 30, 22, .82)),
-    url("../img/ui/hero-home.svg") center / cover;
+    url("../img/fotos/ambiente-marco-vertical-familia.webp") center / cover;
   box-shadow: var(--shadow-soft);
 }
 
