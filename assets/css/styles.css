@@ -279,9 +279,13 @@ p {
 }
 
 .hero__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 225%;
+  height: 122%;
+  object-fit: contain;
+  object-position: 59% center;
+  transform: scale(1.39) translateX(7%);
+  opacity: 0.60;
+  filter: saturate(0.92) brightness(0.94) contrast(0.96);
 }
 
 .hero__overlay {
@@ -1160,3 +1164,465 @@ p {
     radial-gradient(circle at 50% 45%, rgba(255, 244, 220, 0.16), transparent 58%),
     linear-gradient(135deg, rgba(34, 24, 18, 0.72), rgba(12, 10, 9, 0.9));
 }
+
+/* HOME · hero logo visible final */
+.hero__title-with-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.35rem, 0.6vw, 0.55rem);
+}
+
+.hero__title-line--lead {
+  position: relative;
+  display: block;
+  line-height: 0.92;
+}
+
+.hero__inline-logo {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(calc(-100% - 1.05rem), -52%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  pointer-events: none;
+}
+
+.hero__inline-logo img {
+  display: block;
+  width: clamp(153px, 9.9vw, 218px);
+  height: auto;
+  object-fit: contain;
+  background: transparent;
+  opacity: 1;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.14));
+}
+
+.hero__title-brand {
+  display: block;
+}
+
+.hero__title-line--sub {
+  display: block;
+  line-height: 0.88;
+}
+
+.hero__title-emphasis {
+  color: var(--color-gold-dark);
+}
+
+@media (max-width: 900px) {
+  .hero__inline-logo {
+    transform: translate(calc(-100% - 0.65rem), -52%);
+  }
+
+  .hero__inline-logo img {
+    width: clamp(88px, 17vw, 118px);
+  }
+}
+
+/* HOME · logo independiente y marco visible */
+.hero__content {
+  transform: none !important;
+}
+
+.hero__title-line--lead {
+  position: relative !important;
+  display: block !important;
+  line-height: 0.92;
+}
+
+.hero__inline-logo {
+  position: absolute !important;
+  left: clamp(-178px, -10.4vw, -138px) !important;
+  right: auto !important;
+  top: 50% !important;
+  transform: translateY(-52%) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  pointer-events: none;
+}
+
+.hero__inline-logo img {
+  display: block;
+  width: clamp(153px, 9.9vw, 218px);
+  height: auto;
+  object-fit: contain;
+  background: transparent;
+  mix-blend-mode: normal;
+  opacity: 1;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.12));
+}
+
+.hero__media img {
+  opacity: 0.86 !important;
+  filter: saturate(1.02) brightness(1.08) contrast(1.04) !important;
+}
+
+@media (max-width: 900px) {
+  .hero__inline-logo {
+    left: clamp(-112px, -18vw, -82px) !important;
+    transform: translateY(-52%) !important;
+  }
+
+  .hero__inline-logo img {
+    width: clamp(88px, 17vw, 118px);
+  }
+
+  .hero__media img {
+    opacity: 0.64 !important;
+    filter: saturate(0.98) brightness(1.04) contrast(1.02) !important;
+  }
+}
+
+/* HOME · microajuste final hero separacion y altura */
+.hero__inline-logo {
+  left: clamp(-150px, -8.9vw, -116px) !important;
+}
+
+.hero__media img {
+  transform: scale(1.26) translateX(7%) translateY(-18px) !important;
+}
+
+@media (max-width: 900px) {
+  .hero__inline-logo {
+    left: clamp(-100px, -16vw, -74px) !important;
+  }
+
+  .hero__media img {
+    transform: scale(1.14) translateX(4%) translateY(-12px) !important;
+  }
+}
+
+/* HOME · ajuste fino logo bajo y marco visible */
+.hero__inline-logo {
+  top: 56% !important;
+}
+
+.hero__media img {
+  transform: scale(1.26) translateX(7%) translateY(-56px) !important;
+  opacity: 0.94 !important;
+  filter: saturate(1.06) brightness(1.12) contrast(1.06) !important;
+}
+
+@media (max-width: 900px) {
+  .hero__inline-logo {
+    top: 55% !important;
+  }
+
+  .hero__media img {
+    transform: scale(1.14) translateX(4%) translateY(-32px) !important;
+    opacity: 0.72 !important;
+    filter: saturate(1.02) brightness(1.08) contrast(1.04) !important;
+  }
+}
+
+/* HOME · microajuste logo hero */
+.hero__inline-logo img {
+  width: clamp(156px, 10.1vw, 214px) !important;
+}
+
+@media (max-width: 900px) {
+  .hero__inline-logo img {
+    width: clamp(94px, 20vw, 128px) !important;
+  }
+}
+
+/* HOME · ajuste palabra significa */
+.hero__word-significa {
+  display: inline-block;
+  letter-spacing: 0.012em;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  text-rendering: geometricPrecision;
+}
+
+/* HEADER · texto sin isotipo */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.logo__mark {
+  display: none !important;
+}
+
+.logo span {
+  display: inline-block;
+  font-size: clamp(2.15rem, 2.55vw, 2.95rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 640px) {
+  .logo span {
+    font-size: 1.9rem;
+  }
+}
+
+/* HOME · productos destacados v5 final */
+.product-showcase-section .section-title {
+  max-width: 840px;
+  margin-bottom: clamp(1.7rem, 3vw, 2.5rem);
+}
+
+.section-title__text {
+  margin: 0.75rem auto 0;
+  max-width: 780px;
+  color: var(--color-muted);
+  font-size: 1.03rem;
+  line-height: 1.72;
+}
+
+.product-showcase-grid {
+  align-items: stretch;
+}
+
+.product-showcase-grid .product-card {
+  overflow: hidden;
+}
+
+.product-showcase-grid .product-card__image {
+  min-height: clamp(350px, 35vw, 490px);
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(191,145,71,0.10), rgba(43,28,18,0.08));
+}
+
+.product-showcase-grid .product-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 240ms ease, filter 240ms ease;
+}
+
+.product-card__image--vertical img {
+  transform: scale(1.02);
+  object-position: 50% 47%;
+}
+
+.product-card__image--horizontal img {
+  transform: scale(1.18);
+  object-position: 50% 48%;
+}
+
+.product-showcase-grid .product-card:hover .product-card__image img {
+  filter: brightness(1.03) contrast(1.03);
+}
+
+.product-card__kicker {
+  margin: 0 0 0.45rem;
+  color: var(--color-gold-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.product-card__lead {
+  color: var(--color-ink);
+  font-size: 1.02rem;
+  line-height: 1.68;
+  margin-bottom: 1rem;
+}
+
+.product-copy-block {
+  display: grid;
+  gap: 0.82rem;
+  margin: 0 0 1rem;
+}
+
+.product-copy-block p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.72;
+}
+
+.product-spec-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 1.15rem;
+}
+
+.product-spec-strip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.72rem;
+  border-radius: 999px;
+  background: rgba(43, 28, 18, 0.06);
+  color: var(--color-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .product-showcase-grid .product-card__image {
+    min-height: 310px;
+  }
+
+  .product-card__image--vertical img {
+    transform: scale(1.00);
+    object-position: 50% 47%;
+  }
+
+  .product-card__image--horizontal img {
+    transform: scale(1.10);
+    object-position: 50% 48%;
+  }
+}
+
+/* TAKARA HOME PULIDO FINAL V20 START */
+
+/* Portada: pulido general no invasivo */
+main section {
+  scroll-margin-top: 5.5rem;
+}
+
+main .section {
+  position: relative;
+}
+
+section#productos-destacados.product-showcase-section {
+  padding-top: clamp(2.2rem, 4.2vw, 4.25rem);
+  padding-bottom: clamp(3rem, 5vw, 5rem);
+}
+
+section#productos-destacados .product-showcase-heading {
+  margin-bottom: clamp(1.15rem, 2.2vw, 1.65rem);
+  text-align: center;
+}
+
+section#productos-destacados .product-showcase-heading h2 {
+  margin: 0;
+  color: #21120c;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+section#productos-destacados .product-showcase-heading::before,
+section#productos-destacados .product-showcase-heading::after,
+section#productos-destacados .product-showcase-heading h2::before,
+section#productos-destacados .product-showcase-heading h2::after,
+section#productos-destacados .section-title::before,
+section#productos-destacados .section-title::after,
+section#productos-destacados .eyebrow::before,
+section#productos-destacados .eyebrow::after {
+  content: none !important;
+  display: none !important;
+}
+
+section#productos-destacados .eyebrow,
+section#productos-destacados .section-title__text {
+  display: none !important;
+}
+
+section#productos-destacados .product-showcase-grid {
+  align-items: stretch !important;
+  gap: clamp(1.35rem, 2.35vw, 2.05rem);
+}
+
+section#productos-destacados .product-card--simple {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch !important;
+  height: 100% !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: clamp(1.15rem, 2vw, 1.55rem);
+  background: rgba(30, 26, 22, 0.88);
+  box-shadow: 0 24px 70px rgba(37, 24, 13, 0.16);
+}
+
+section#productos-destacados .product-card__image {
+  position: relative;
+  overflow: hidden;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+
+section#productos-destacados .product-card__image::after {
+  content: none !important;
+  display: none !important;
+}
+
+section#productos-destacados .product-card__image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+section#productos-destacados .product-card--vertical .product-card__image--vertical,
+section#productos-destacados .product-card--horizontal .product-card__image--horizontal {
+  aspect-ratio: 3 / 4 !important;
+}
+
+section#productos-destacados .product-card--vertical .product-card__image--vertical img,
+section#productos-destacados .product-card--horizontal .product-card__image--horizontal img {
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: none !important;
+}
+
+section#productos-destacados .product-card__content {
+  flex: 1 1 auto !important;
+}
+
+section#productos-destacados .product-card__content--simple {
+  flex: 1 1 auto !important;
+  min-height: clamp(6.1rem, 9vw, 7.4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center !important;
+  gap: 0.42rem;
+  padding: clamp(1rem, 1.8vw, 1.35rem) 1.25rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(61, 57, 50, 0.94), rgba(46, 43, 38, 0.96));
+}
+
+section#productos-destacados .product-card__content--simple h3 {
+  margin: 0;
+  color: #f2dcc0;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+}
+
+section#productos-destacados .product-card__measure {
+  margin: 0;
+  color: rgba(255, 246, 228, 0.94);
+  font-size: clamp(0.94rem, 1.05vw, 1.03rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 760px) {
+  section#productos-destacados.product-showcase-section {
+    padding-top: 2rem;
+    padding-bottom: 3.25rem;
+  }
+
+  section#productos-destacados .product-showcase-heading {
+    margin-bottom: 1rem;
+  }
+
+  section#productos-destacados .product-showcase-grid {
+    gap: 1.1rem;
+  }
+
+  section#productos-destacados .product-card__content--simple {
+    min-height: 5.8rem;
+    padding: 1rem;
+  }
+}
+
+/* TAKARA HOME PULIDO FINAL V20 END */

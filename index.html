@@ -41,7 +41,6 @@
     <header class="site-header">
       <div class="container header-inner">
         <a class="logo" href="index.html" aria-label="Takara 3D · Inicio">
-          <img class="logo__mark" src="assets/icons/takara-mark.svg" alt="" aria-hidden="true">
           <span>TAKARA 3D</span>
         </a>
         <nav id="site-nav" class="nav" data-nav aria-label="Navegación principal">
@@ -63,7 +62,15 @@
       <div class="hero__overlay"></div>
       <div class="container hero__content">
         <div class="hero__copy">
-          <h1 class="hero-title-home">TAKARA significa <span class="text-gold">tesoro</span></h1>
+          <h1 class="hero__title-with-logo">
+  <span class="hero__title-line hero__title-line--lead">
+    <span class="hero__inline-logo"><img src="
+assets/brand/takara-logo-principal-transparente.png
+" alt="" aria-hidden="true"></span>
+    <span class="hero__title-brand">TAKARA</span>
+  </span>
+  <span class="hero__title-line hero__title-line--sub"><span class="hero__word-significa">significa</span> <span class="hero__title-emphasis">tesoro</span></span>
+</h1>
           <p class="lead">Y así tratamos cada pieza, transformando recuerdos especiales en luz mediante impresión 3D.</p>
           <div class="hero__actions">
             <a class="btn btn--primary" href="pedido.html">Hacer pedido</a>
@@ -90,35 +97,38 @@
       </div>
     </section>
 
-    <section class="section section--tight">
-      <div class="container">
-        <div class="section-title">
-          <h2>Productos destacados</h2>
-        </div>
-        <div class="grid grid--2">
-          <article class="card product-card">
-            <div class="product-card__image"><img src="assets/img/fotos/producto-marco-vertical-familia.webp" alt="Marco vertical de litofanía personalizado con foto familiar" loading="lazy"></div>
-            <div class="product-card__body">
-              <h3>Marco litofanía personalizado</h3>
-              <p>Un clásico atemporal para cualquier rincón de tu hogar.</p>
-              <ul class="clean-list"><li>Luz LED cálida integrada</li><li>Acabados Ebony, Rosewood o Polar</li><li>Ideal para sobremesas</li></ul>
-              <a class="btn btn--primary" href="pedido.html?producto=marco-vertical">Hacer pedido</a>
-            </div>
-          </article>
-          <article class="card product-card">
-            <div class="product-card__image"><img src="assets/img/fotos/producto-marco-horizontal-mascota.webp" alt="Marco horizontal de litofanía personalizado con mascota" loading="lazy"></div>
-            <div class="product-card__body">
-              <h3>Marco horizontal personalizado</h3>
-              <p>Formato horizontal ideal para retratos familiares, mascotas y escenas con más amplitud.</p>
-              <ul class="clean-list"><li>Fotografía en relieve</li><li>Luz LED cálida integrada</li><li>Ideal para sobremesas</li></ul>
-              <a class="btn btn--primary" href="pedido.html?producto=marco-horizontal">Hacer pedido</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
+                        <section class="section section--soft product-showcase-section" id="productos-destacados">
+  <div class="container">
+    <div class="product-showcase-heading">
+      <h2>Productos destacados</h2>
+    </div>
 
-    <section class="section section--tight">
+    <div class="grid grid--2 product-showcase-grid">
+      <article class="card product-card product-card--simple product-card--vertical">
+        <div class="product-card__image product-card__image--vertical">
+          <img src="assets/img/fotos/producto-marco-vertical-familia-card-v18.webp" alt="Marco vertical de litofanía personalizada Takara 3D">
+        </div>
+
+        <div class="product-card__content product-card__content--simple">
+          <h3>Marco vertical</h3>
+          <p class="product-card__measure">Foto 108 × 144 mm</p>
+        </div>
+      </article>
+
+      <article class="card product-card product-card--simple product-card--horizontal">
+        <div class="product-card__image product-card__image--horizontal">
+          <img src="assets/img/fotos/producto-marco-horizontal-mascota.webp" alt="Marco horizontal de litofanía personalizada Takara 3D">
+        </div>
+
+        <div class="product-card__content product-card__content--simple">
+          <h3>Marco horizontal</h3>
+          <p class="product-card__measure">Foto 144 × 108 mm</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="section section--tight">
       <div class="container">
         <div class="section-title">
           <h2>Cómo funciona</h2>
