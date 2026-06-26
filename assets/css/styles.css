@@ -1478,17 +1478,14 @@ p {
   }
 }
 
-/* TAKARA HOME PULIDO FINAL V20 START */
+/* TAKARA HOME FINAL CLEAN START */
 
-/* Portada: pulido general no invasivo */
+/* Home: navegación interna */
 main section {
   scroll-margin-top: 5.5rem;
 }
 
-main .section {
-  position: relative;
-}
-
+/* Home: Productos destacados */
 section#productos-destacados.product-showcase-section {
   padding-top: clamp(2.2rem, 4.2vw, 4.25rem);
   padding-bottom: clamp(3rem, 5vw, 5rem);
@@ -1515,17 +1512,17 @@ section#productos-destacados .section-title::before,
 section#productos-destacados .section-title::after,
 section#productos-destacados .eyebrow::before,
 section#productos-destacados .eyebrow::after {
-  content: none !important;
-  display: none !important;
+  content: none;
+  display: none;
 }
 
 section#productos-destacados .eyebrow,
 section#productos-destacados .section-title__text {
-  display: none !important;
+  display: none;
 }
 
 section#productos-destacados .product-showcase-grid {
-  align-items: stretch !important;
+  align-items: stretch;
   gap: clamp(1.35rem, 2.35vw, 2.05rem);
 }
 
@@ -1533,8 +1530,8 @@ section#productos-destacados .product-card--simple {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-self: stretch !important;
-  height: 100% !important;
+  align-self: stretch;
+  height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: clamp(1.15rem, 2vw, 1.55rem);
   background: rgba(30, 26, 22, 0.88);
@@ -1544,13 +1541,13 @@ section#productos-destacados .product-card--simple {
 section#productos-destacados .product-card__image {
   position: relative;
   overflow: hidden;
-  min-height: 0 !important;
-  background: transparent !important;
+  min-height: 0;
+  background: transparent;
 }
 
 section#productos-destacados .product-card__image::after {
-  content: none !important;
-  display: none !important;
+  content: none;
+  display: none;
 }
 
 section#productos-destacados .product-card__image img {
@@ -1561,27 +1558,27 @@ section#productos-destacados .product-card__image img {
 
 section#productos-destacados .product-card--vertical .product-card__image--vertical,
 section#productos-destacados .product-card--horizontal .product-card__image--horizontal {
-  aspect-ratio: 3 / 4 !important;
+  aspect-ratio: 3 / 4;
 }
 
 section#productos-destacados .product-card--vertical .product-card__image--vertical img,
 section#productos-destacados .product-card--horizontal .product-card__image--horizontal img {
-  object-fit: cover !important;
-  object-position: center center !important;
-  transform: none !important;
+  object-fit: cover;
+  object-position: center center;
+  transform: none;
 }
 
 section#productos-destacados .product-card__content {
-  flex: 1 1 auto !important;
+  flex: 1 1 auto;
 }
 
 section#productos-destacados .product-card__content--simple {
-  flex: 1 1 auto !important;
+  flex: 1 1 auto;
   min-height: clamp(6.1rem, 9vw, 7.4rem);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center !important;
+  justify-content: center;
   gap: 0.42rem;
   padding: clamp(1rem, 1.8vw, 1.35rem) 1.25rem;
   text-align: center;
@@ -1625,4 +1622,4 @@ section#productos-destacados .product-card__measure {
   }
 }
 
-/* TAKARA HOME PULIDO FINAL V20 END */
+/* TAKARA HOME FINAL CLEAN END */
