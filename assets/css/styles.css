@@ -1719,3 +1719,140 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 /* TAKARA HOME GIFT STRIP END */
+/* TAKARA PRODUCTOS RENDER FINAL START */
+
+/* Productos: grid fino y filtros estables */
+.grid[data-products-grid] {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.2vw, 2rem);
+  align-items: stretch;
+}
+
+.product-tile {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  border: 1px solid rgba(70, 42, 24, 0.12);
+  border-radius: 1.25rem;
+  background: rgba(255, 252, 247, 0.94);
+  box-shadow: 0 18px 48px rgba(72, 45, 24, 0.11);
+}
+
+.product-tile__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #201712;
+}
+
+.product-tile__media img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.product-tile--vertical .product-tile__media img {
+  object-fit: contain;
+  padding: 0.62rem;
+  background: #201712;
+}
+
+.product-tile__media--soon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(171, 99, 42, 0.28), transparent 34%),
+    linear-gradient(135deg, #20140d, #4b2d18);
+  color: rgba(255, 244, 228, 0.86);
+  text-align: center;
+}
+
+.product-tile__soon-title {
+  font-size: clamp(1.05rem, 1.5vw, 1.35rem);
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.product-tile__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 13rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: clamp(1.1rem, 1.6vw, 1.35rem);
+}
+
+.product-tile__status {
+  margin: 0;
+  color: rgba(132, 76, 36, 0.88);
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.product-tile h3 {
+  margin: 0;
+  color: #21120c;
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+
+.product-tile__measure {
+  margin: 0 0 0.25rem;
+  color: rgba(48, 35, 26, 0.76);
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  line-height: 1.45;
+}
+
+.product-tile .btn {
+  margin-top: auto;
+}
+
+.product-tile__badge {
+  position: absolute;
+  top: 0.78rem;
+  left: 0.78rem;
+  z-index: 2;
+  padding: 0.34rem 0.58rem;
+  border-radius: 999px;
+  background: rgba(33, 18, 12, 0.88);
+  color: #fff4e4;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.product-tile--coming-soon {
+  opacity: 0.96;
+}
+
+.product-tile__disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.filters [data-takara-filter-active="true"] {
+  box-shadow: 0 10px 24px rgba(166, 96, 36, 0.16);
+}
+
+@media (max-width: 760px) {
+  .grid[data-products-grid] {
+    grid-template-columns: 1fr;
+  }
+
+  .product-tile__body {
+    min-height: auto;
+  }
+}
+
+/* TAKARA PRODUCTOS RENDER FINAL END */

@@ -130,5 +130,173 @@
 
   <script src="assets/js/main.js"></script>
   <script src="assets/js/productos.js"></script>
+
+
+
+<!-- TAKARA PRODUCTOS RENDER FINAL START -->
+<script>
+(function () {
+  var currentFilter = "todos";
+  var isRendering = false;
+
+  var products = [
+    {
+      category: "marcos",
+      state: "Disponible",
+      title: "Marco vertical",
+      measure: "Foto 108 × 144 mm",
+      image: "assets/img/fotos/producto-marco-vertical-familia-card-v18.webp",
+      alt: "Marco vertical de litofanía personalizada Takara 3D",
+      modifier: "product-tile--vertical",
+      action: "Pedir este formato",
+      href: "pedido.html",
+      comingSoon: false
+    },
+    {
+      category: "marcos",
+      state: "Disponible",
+      title: "Marco horizontal",
+      measure: "Foto 144 × 108 mm",
+      image: "assets/img/fotos/producto-marco-horizontal-mascota.webp",
+      alt: "Marco horizontal de litofanía personalizada Takara 3D",
+      modifier: "product-tile--horizontal",
+      action: "Pedir este formato",
+      href: "pedido.html",
+      comingSoon: false
+    },
+    {
+      category: "cajas",
+      state: "Próximamente",
+      title: "Caja/lámpara 4 caras",
+      measure: "En desarrollo",
+      soonTitle: "Caja 4 caras",
+      modifier: "product-tile--coming-soon",
+      action: "Próximamente",
+      comingSoon: true
+    },
+    {
+      category: "regalo",
+      state: "Próximamente",
+      title: "Edición regalo",
+      measure: "En preparación",
+      soonTitle: "Edición regalo",
+      modifier: "product-tile--coming-soon",
+      action: "Próximamente",
+      comingSoon: true
+    }
+  ];
+
+  function normaliseFilter(value) {
+    var text = (value || "").toString().trim().toLowerCase();
+    if (text.normalize) {
+      text = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    if (text.indexOf("todo") >= 0) return "todos";
+    if (text.indexOf("marco") >= 0) return "marcos";
+    if (text.indexOf("caja") >= 0) return "cajas";
+    if (text.indexOf("regalo") >= 0) return "regalo";
+
+    return "todos";
+  }
+
+  function productCard(product) {
+    var classes = "product-tile " + product.modifier;
+    var media = product.comingSoon
+      ? `<div class="product-tile__media product-tile__media--soon">
+           <span class="product-tile__badge">Próximamente</span>
+           <span class="product-tile__soon-title">${product.soonTitle}</span>
+         </div>`
+      : `<div class="product-tile__media">
+           <img src="${product.image}" alt="${product.alt}">
+         </div>`;
+
+    var action = product.comingSoon
+      ? `<span class="btn btn--secondary product-tile__disabled">Próximamente</span>`
+      : `<a class="btn btn--primary" href="${product.href}">${product.action}</a>`;
+
+    return `
+      <article class="${classes}" data-category="${product.category}">
+        ${media}
+        <div class="product-tile__body">
+          <p class="product-tile__status">${product.state}</p>
+          <h3>${product.title}</h3>
+          <p class="product-tile__measure">${product.measure}</p>
+          ${action}
+        </div>
+      </article>`;
+  }
+
+  function setActiveFilter(filter) {
+    var buttons = document.querySelectorAll(".filters button, .filters a");
+    buttons.forEach(function (button) {
+      var buttonFilter = normaliseFilter(button.getAttribute("data-filter") || button.getAttribute("data-category") || button.textContent);
+      var active = buttonFilter === filter;
+      button.classList.toggle("is-active", active);
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.setAttribute("data-takara-filter-active", active ? "true" : "false");
+    });
+  }
+
+  function renderTakaraProducts(filter) {
+    var grid = document.querySelector("[data-products-grid]");
+    if (!grid) return;
+
+    currentFilter = normaliseFilter(filter || currentFilter || "todos");
+    var visibleProducts = products.filter(function (product) {
+      return currentFilter === "todos" || product.category === currentFilter;
+    });
+
+    isRendering = true;
+    grid.innerHTML = visibleProducts.map(productCard).join("");
+    grid.setAttribute("data-takara-products-rendered", "true");
+    grid.setAttribute("data-takara-current-filter", currentFilter);
+    setActiveFilter(currentFilter);
+    window.setTimeout(function () { isRendering = false; }, 0);
+  }
+
+  function bindTakaraFilters() {
+    document.addEventListener("click", function (event) {
+      var target = event.target.closest ? event.target.closest(".filters button, .filters a") : null;
+      if (!target) return;
+
+      var filter = normaliseFilter(target.getAttribute("data-filter") || target.getAttribute("data-category") || target.textContent);
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      renderTakaraProducts(filter);
+    }, true);
+  }
+
+  function protectGrid() {
+    var grid = document.querySelector("[data-products-grid]");
+    if (!grid || !window.MutationObserver) return;
+
+    var observer = new MutationObserver(function () {
+      if (isRendering) return;
+      if (!grid.querySelector(".product-tile") || !grid.getAttribute("data-takara-products-rendered")) {
+        window.setTimeout(function () {
+          renderTakaraProducts(currentFilter);
+        }, 0);
+      }
+    });
+
+    observer.observe(grid, { childList: true });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    bindTakaraFilters();
+    renderTakaraProducts("todos");
+    protectGrid();
+  });
+
+  window.addEventListener("load", function () {
+    renderTakaraProducts(currentFilter);
+    window.setTimeout(function () { renderTakaraProducts(currentFilter); }, 150);
+    window.setTimeout(function () { renderTakaraProducts(currentFilter); }, 500);
+  });
+}());
+</script>
+<!-- TAKARA PRODUCTOS RENDER FINAL END -->
 </body>
 </html>
