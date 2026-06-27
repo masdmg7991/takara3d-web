@@ -1463,6 +1463,10 @@ p {
 }
 
 @media (max-width: 760px) {
+  .pedido-stl-canvas {
+    min-height: auto;
+  }
+
   .product-showcase-grid .product-card__image {
     min-height: 310px;
   }
@@ -1603,6 +1607,10 @@ section#productos-destacados .product-card__measure {
 }
 
 @media (max-width: 760px) {
+  .pedido-stl-canvas {
+    min-height: auto;
+  }
+
   section#productos-destacados.product-showcase-section {
     padding-top: 2rem;
     padding-bottom: 3.25rem;
@@ -1846,6 +1854,10 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 @media (max-width: 760px) {
+  .pedido-stl-canvas {
+    min-height: auto;
+  }
+
   .grid[data-products-grid] {
     grid-template-columns: 1fr;
   }
@@ -1856,3 +1868,563 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 /* TAKARA PRODUCTOS RENDER FINAL END */
+
+/* TAKARA PEDIDO STL PREVIEW START */
+.pedido-stl-page {
+  min-height: calc(100vh - 80px);
+  padding: clamp(2.4rem, 4.2vw, 4.6rem) 0 clamp(4.2rem, 6vw, 6.3rem);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(205, 147, 72, 0.12), transparent 30%),
+    radial-gradient(circle at 95% 8%, rgba(113, 71, 38, 0.08), transparent 26%),
+    linear-gradient(180deg, #fffaf4 0%, #f7eee2 100%);
+}
+
+.pedido-stl-grid {
+  max-width: min(1540px, calc(100vw - 2rem));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(300px, 0.72fr) minmax(640px, 1.28fr);
+  gap: clamp(1.5rem, 3.2vw, 3.2rem);
+  align-items: start;
+}
+
+.pedido-stl-label {
+  margin: 0 0 0.8rem;
+  color: #a06a2f;
+  font-size: 0.77rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pedido-stl-hero h1 {
+  margin: 0;
+  color: #20110c;
+  font-size: clamp(2.7rem, 5vw, 4.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+.pedido-stl-hero p {
+  max-width: 58ch;
+  margin: 0.95rem 0 0;
+  color: rgba(50, 34, 23, 0.78);
+  font-size: clamp(1rem, 1.2vw, 1.1rem);
+  line-height: 1.72;
+}
+
+.pedido-stl-form {
+  margin-top: clamp(1.2rem, 2vw, 1.7rem);
+  display: grid;
+  gap: 1rem;
+}
+
+.pedido-stl-card,
+.pedido-stl-preview {
+  border: 1px solid rgba(83, 52, 28, 0.12);
+  border-radius: 1.35rem;
+  background: rgba(255, 253, 249, 0.97);
+  box-shadow: 0 20px 58px rgba(54, 34, 18, 0.08);
+}
+
+.pedido-stl-card {
+  padding: clamp(1.05rem, 1.8vw, 1.5rem);
+}
+
+.pedido-stl-card-head {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.pedido-stl-card-head > span {
+  width: 2.05rem;
+  height: 2.05rem;
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d5a03f, #bd7e28);
+  color: #fff8ec;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(177, 115, 34, 0.18);
+}
+
+.pedido-stl-card-head h2 {
+  margin: 0;
+  color: #24150d;
+  font-size: clamp(1.24rem, 1.65vw, 1.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.pedido-stl-card-head p {
+  margin: 0.32rem 0 0;
+  color: rgba(55, 38, 26, 0.7);
+  font-size: 0.98rem;
+  line-height: 1.58;
+}
+
+.pedido-stl-format-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.pedido-stl-format {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(103, 67, 40, 0.15);
+  background: #fffdf9;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.pedido-stl-format strong {
+  color: #21120c;
+  font-size: 1rem;
+}
+
+.pedido-stl-format small {
+  color: rgba(60, 41, 27, 0.72);
+  font-size: 0.94rem;
+}
+
+.pedido-stl-format.is-active {
+  border-color: rgba(191, 131, 47, 0.74);
+  box-shadow: 0 14px 28px rgba(180, 116, 35, 0.12);
+  transform: translateY(-1px);
+  background: #fffaf1;
+}
+
+.pedido-stl-color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.pedido-stl-color {
+  cursor: pointer;
+}
+
+.pedido-stl-color input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pedido-stl-color > span {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(103, 67, 40, 0.15);
+  background: #fffdf9;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.pedido-stl-color strong {
+  color: #21120c;
+  font-size: 0.95rem;
+}
+
+.pedido-stl-color small {
+  color: rgba(52, 36, 25, 0.56);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.pedido-stl-color input:checked + span {
+  border-color: rgba(191, 131, 47, 0.74);
+  background: #fffaf1;
+  box-shadow: 0 14px 28px rgba(180, 116, 35, 0.12);
+  transform: translateY(-1px);
+}
+
+.pedido-stl-dot,
+.pedido-stl-summary-dot {
+  display: inline-block;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26), 0 5px 14px rgba(35, 22, 13, 0.17);
+}
+
+.pedido-stl-dot {
+  width: 2rem;
+  height: 2rem;
+}
+
+.pedido-stl-summary-dot {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.pedido-stl-dot--actual,
+.pedido-stl-summary-dot--actual { background: #C6A664; }
+
+.pedido-stl-dot--rosewood,
+.pedido-stl-summary-dot--rosewood { background: #602C24; }
+
+.pedido-stl-dot--ebano,
+.pedido-stl-summary-dot--ebano { background: #1F1A17; }
+
+.pedido-stl-dot--negro,
+.pedido-stl-summary-dot--negro { background: #0F1011; }
+
+.pedido-stl-upload {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(123, 80, 43, 0.32);
+  background: rgba(250, 244, 235, 0.76);
+  cursor: pointer;
+}
+
+.pedido-stl-upload input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pedido-stl-upload-icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.9);
+  color: #8b5725;
+  font-size: 1.35rem;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(52, 31, 16, 0.08);
+}
+
+.pedido-stl-upload-text {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.pedido-stl-upload-text strong {
+  color: #21120c;
+}
+
+.pedido-stl-upload-text small {
+  color: rgba(52, 36, 25, 0.66);
+}
+
+.pedido-stl-file {
+  margin-top: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.95rem;
+  background: rgba(255,255,255,0.78);
+  color: rgba(52, 36, 25, 0.66);
+}
+
+.pedido-stl-file[hidden] {
+  display: none;
+}
+
+.pedido-stl-file strong {
+  display: block;
+  margin-bottom: 0.18rem;
+  color: #21120c;
+}
+
+.pedido-stl-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.pedido-stl-fields label {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.pedido-stl-field-full {
+  grid-column: 1 / -1;
+}
+
+.pedido-stl-fields span {
+  color: #21120c;
+  font-weight: 780;
+}
+
+.pedido-stl-fields input,
+.pedido-stl-fields textarea {
+  width: 100%;
+  border: 1px solid rgba(103, 67, 40, 0.15);
+  border-radius: 0.95rem;
+  background: #fffdf9;
+  padding: 0.92rem 1rem;
+  color: #21120c;
+  font: inherit;
+  line-height: 1.45;
+}
+
+.pedido-stl-fields input:focus,
+.pedido-stl-fields textarea:focus {
+  outline: none;
+  border-color: rgba(191, 131, 47, 0.75);
+  box-shadow: 0 0 0 4px rgba(191, 131, 47, 0.11);
+}
+
+.pedido-stl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.pedido-stl-secondary {
+  border: 1px solid rgba(110, 71, 37, 0.2);
+  background: rgba(255,255,255,0.72);
+  color: #4a2d18;
+}
+
+.pedido-stl-aside {
+  position: sticky;
+  top: 5.75rem;
+}
+
+.pedido-stl-preview {
+  padding: clamp(1.1rem, 2vw, 1.55rem);
+}
+
+.pedido-stl-preview h2 {
+  margin: 0 0 0.55rem;
+  color: #21120c;
+  font-size: clamp(2rem, 3vw, 3.05rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.pedido-stl-preview-text {
+  margin: 0;
+  color: rgba(43, 29, 20, 0.72);
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+.pedido-stl-stage {
+  margin-top: 1.15rem;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  background: linear-gradient(180deg, #f6ecdd 0%, #ece0ce 100%);
+  box-shadow: inset 0 0 0 1px rgba(109, 73, 42, 0.08), 0 22px 58px rgba(42, 24, 13, 0.16);
+}
+
+.pedido-stl-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: min(72vh, 760px);
+}
+
+.pedido-stl-summary {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.72rem;
+}
+
+.pedido-stl-summary > div {
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.88rem 1rem;
+  border-radius: 0.98rem;
+  background: rgba(248, 241, 232, 0.84);
+}
+
+.pedido-stl-summary span {
+  color: rgba(73, 50, 32, 0.64);
+  font-size: 0.81rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pedido-stl-summary strong {
+  color: #21120c;
+  font-size: 1rem;
+}
+
+.pedido-stl-summary-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.pedido-stl-note {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(37, 24, 15, 0.9);
+  color: rgba(255, 244, 228, 0.84);
+  line-height: 1.62;
+}
+
+@media (max-width: 980px) {
+  .pedido-stl-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-stl-aside {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .pedido-stl-canvas {
+    min-height: auto;
+  }
+
+  .pedido-stl-format-grid,
+  .pedido-stl-color-grid,
+  .pedido-stl-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .pedido-stl-actions {
+    flex-direction: column;
+  }
+
+  .pedido-stl-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+/* TAKARA PEDIDO STL PREVIEW END */
+
+/* TAKARA PEDIDO PREVIEW LITHO REAL V16 START */
+.takara-preview-v16-stage {
+  --takara-stage-ratio: 4 / 5;
+  position: relative;
+  width: min(100%, 790px);
+  margin: 0 auto;
+  aspect-ratio: var(--takara-stage-ratio);
+  border-radius: 1.45rem;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 48%, #352417 0%, #191109 58%, #070504 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 24px 74px rgba(0,0,0,0.28);
+}
+
+.takara-preview-v16-stage[data-format="horizontal"] {
+  --takara-stage-ratio: 6 / 5;
+}
+
+.takara-preview-v16-stage img[src*="marco-preview-"] {
+  display: none !important;
+}
+
+.takara-preview-v16-canvas,
+[data-takara-preview-canvas] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.takara-preview-v16-controls {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.8rem;
+  border-radius: 1rem;
+  background: rgba(255, 250, 242, 0.86);
+  border: 1px solid rgba(120, 82, 42, 0.12);
+}
+
+.takara-preview-v16-mode {
+  border: 1px solid rgba(129, 87, 44, 0.18);
+  border-radius: 999px;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255,255,255,0.72);
+  color: #4d2f18;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.takara-preview-v16-mode.is-active {
+  background: linear-gradient(135deg, #c99242, #aa742d);
+  color: #fff8ee;
+  box-shadow: 0 10px 22px rgba(155, 101, 43, 0.18);
+}
+
+.takara-preview-v16-mode:active {
+  transform: translateY(1px);
+}
+
+[data-takara-file-box] {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+[data-takara-file-name],
+[data-takara-summary-photo] {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+.takara-litofania-intensity,
+[data-takara-litho-intensity],
+[data-takara-preview-range],
+[data-takara-intensity],
+[data-takara-preview-intensity] {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .takara-preview-v16-stage {
+    width: 100%;
+    border-radius: 1.15rem;
+  }
+
+  .takara-preview-v16-controls {
+    padding: 0.72rem;
+    gap: 0.55rem;
+  }
+
+  .takara-preview-v16-mode {
+    padding: 0.66rem 0.76rem;
+    font-size: 0.88rem;
+  }
+}
+/* TAKARA PEDIDO PREVIEW LITHO REAL V16 END */
+
+/* TAKARA PEDIDO PREVIEW FONDO CANVAS V16B-1 START */
+.pedido-stl-preview,
+.pedido-stl-preview-stage,
+.pedido-stl-preview-shell,
+.pedido-stl-preview-canvas,
+.pedido-stl-preview-canvas-wrap,
+.pedido-stl-preview-frame,
+.pedido-stl-preview-frame-stage,
+[data-takara-preview],
+[data-takara-preview-stage],
+[data-takara-preview-shell] {
+  background-color: #21150d !important;
+}
+/* TAKARA PEDIDO PREVIEW FONDO CANVAS V16B-1 END */

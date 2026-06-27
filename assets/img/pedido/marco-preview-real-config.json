@@ -1,0 +1,47 @@
+{
+  "source": "Cubierta_V2.STL",
+  "generated": "stl_orthographic_overlay_v1",
+  "vertical": {
+    "imageSize": {
+      "w": 1151,
+      "h": 1400
+    },
+    "window": {
+      "x": 0.1746307558644657,
+      "y": 0.14357142857142857,
+      "w": 0.6498696785403997,
+      "h": 0.7128571428571429,
+      "px": [
+        201,
+        201,
+        748,
+        998
+      ]
+    }
+  },
+  "horizontal": {
+    "imageSize": {
+      "w": 1400,
+      "h": 1151
+    },
+    "window": {
+      "x": 0.14357142857142857,
+      "y": 0.1746307558644657,
+      "w": 0.7128571428571429,
+      "h": 0.6498696785403997,
+      "px": [
+        201,
+        201,
+        998,
+        748
+      ]
+    }
+  },
+  "colors": [
+    "actual",
+    "rosewood",
+    "ebano",
+    "negro"
+  ],
+  "note": "Overlay PNGs generated from the uploaded STL; outside and central opening are transparent. Use customer photo below and frame overlay above."
+}

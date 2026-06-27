@@ -4,10 +4,10 @@
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Pedido personalizado | Takara 3D</title>
+      <title>Pedido | Takara 3D</title>
       <meta name="description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
       <link rel="canonical" href="https://takara3d.es/pedido.html">
-      <meta property="og:title" content="Pedido personalizado | Takara 3D">
+      <meta property="og:title" content="Pedido | Takara 3D">
       <meta property="og:description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
       <meta property="og:type" content="website">
       <meta property="og:url" content="https://takara3d.es/pedido.html">
@@ -56,125 +56,195 @@
       </div>
     </header>
 
-  <main id="contenido">
-    <section class="section section--tight">
-      <div class="container">
-        <div class="section-title">
-          <h1>Haz tu pedido personalizado</h1>
-          <p class="lead">Sigue estos pasos y convierte tu foto en una litofanía única. Nosotros revisamos la imagen antes de fabricar.</p>
-        </div>
+  <main>
+  <!-- TAKARA PEDIDO STL PREVIEW START -->
+  <section class="pedido-stl-page" id="pedido">
+    <div class="container pedido-stl-grid">
+      <div class="pedido-stl-main">
+        <header class="pedido-stl-hero">
+          <h1>Configura tu litofanía</h1>
+          <p>
+            Sube tu foto, elige el color del marco y revisa la vista previa. El formato se detecta automáticamente según la orientación de la imagen.
+          </p>
+        </header>
 
-        <form class="order-layout" data-order-form>
-          <div class="order-stack">
-            <section class="card order-step">
-              <div class="order-step__head"><span class="badge">1</span><div><h2>Elige tu producto</h2><p class="small">Selecciona el formato que más te guste.</p></div></div>
-              <div class="option-grid">
-                <label class="option-card"><input type="radio" name="producto" value="marco-vertical" checked><img src="assets/img/productos/marco-vertical.svg" alt=""><strong>Marco vertical</strong><span class="small">Ideal para retratos</span></label>
-                <label class="option-card"><input type="radio" name="producto" value="marco-horizontal"><img src="assets/img/productos/marco-horizontal.svg" alt=""><strong>Marco horizontal</strong><span class="small">Ideal para paisajes</span></label>
-                <label class="option-card"><input type="radio" name="producto" value="caja-lampara"><img src="assets/img/productos/caja-lampara.svg" alt=""><strong>Caja / Lámpara</strong><span class="small">Ilumina en 4 caras</span></label>
-              </div>
-            </section>
+        <form class="pedido-stl-form" data-takara-pedido-form novalidate>
+          <input type="hidden" name="formato" value="vertical" data-takara-format-value>
 
-            <section class="card order-step">
-              <div class="order-step__head"><span class="badge">2</span><div><h2>Sube tu foto</h2><p class="small">La calidad de la foto influye en el resultado final.</p></div></div>
-              <div class="upload-box">
-                <label class="drop-area" data-drop-area>
-                  <input class="file-input" type="file" accept="image/jpeg,image/png,image/webp" data-photo-input>
-                  <span>
-                    <svg width="46" height="46" style="margin:0 auto .8rem;color:var(--color-gold-dark)"><use href="#i-upload"/></svg>
-                    <strong>Arrastra tu foto aquí</strong><br>
-                    <span class="small">o haz clic para seleccionar · JPG, PNG o WEBP · Máx. 20 MB</span>
-                  </span>
-                </label>
-                <div class="preview-thumb">
-                  <img class="hidden" data-photo-preview alt="Vista previa de la foto seleccionada">
-                  <strong data-file-name>Sin foto seleccionada</strong>
-                  <span class="small" data-file-size>La enviarás por WhatsApp si hace falta.</span>
-                </div>
+          <section class="pedido-stl-card">
+            <div class="pedido-stl-card-head">
+              <span>1</span>
+              <div>
+                <h2>Formato detectado</h2>
+                <p>Al subir la foto marcamos automáticamente vertical u horizontal.</p>
               </div>
-            </section>
+            </div>
 
-            <section class="card order-step">
-              <div class="order-step__head"><span class="badge">3</span><div><h2>Personaliza el acabado</h2><p class="small">Elige color del marco y orientación de la imagen.</p></div></div>
-              <div class="grid grid--2">
-                <div>
-                  <h3>Color / acabado</h3>
-                  <div class="swatches" style="margin-top:.85rem">
-                    <label class="swatch"><input type="radio" name="acabado" value="ebony" checked><span class="swatch__sample swatch__sample--ebony"></span><strong>Ebony</strong><span class="small">Negro profundo</span></label>
-                    <label class="swatch"><input type="radio" name="acabado" value="rosewood"><span class="swatch__sample swatch__sample--rosewood"></span><strong>Rosewood</strong><span class="small">Madera cálida</span></label>
-                    <label class="swatch"><input type="radio" name="acabado" value="polar"><span class="swatch__sample swatch__sample--polar"></span><strong>Polar</strong><span class="small">Blanco mate</span></label>
-                  </div>
-                </div>
-                <div>
-                  <h3>Orientación</h3>
-                  <div class="option-grid" style="grid-template-columns:repeat(2,1fr);margin-top:.85rem">
-                    <label class="option-card"><input type="radio" name="orientacion" value="vertical" checked><strong>Vertical</strong><span class="small">(retrato)</span></label>
-                    <label class="option-card"><input type="radio" name="orientacion" value="horizontal"><strong>Horizontal</strong><span class="small">(paisaje)</span></label>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <div class="pedido-stl-format-grid">
+              <article class="pedido-stl-format is-active" data-takara-format-card="vertical">
+                <strong>Marco vertical</strong>
+                <small>Foto 108 × 144 mm</small>
+              </article>
 
-            <section class="card order-step">
-              <div class="order-step__head"><span class="badge">4</span><div><h2>Vista previa de tu marco</h2><p class="small">Vista orientativa con el producto y acabado seleccionados.</p></div></div>
-              <div class="grid grid--2">
-                <img data-product-preview src="assets/img/productos/marco-vertical.svg" alt="Vista previa del producto" style="border-radius:18px;box-shadow:var(--shadow-card)">
-                <div>
-                  <ul class="clean-list">
-                    <li>Producto: <strong data-summary-product>Marco vertical</strong></li>
-                    <li>Acabado: <strong data-summary-finish>Ebony</strong></li>
-                    <li>Orientación: <strong data-summary-orientation>Vertical</strong></li>
-                  </ul>
-                  <p class="small">La vista previa es referencial. El resultado final depende de la calidad, contraste y composición de la foto.</p>
-                </div>
-              </div>
-            </section>
+              <article class="pedido-stl-format" data-takara-format-card="horizontal">
+                <strong>Marco horizontal</strong>
+                <small>Foto 144 × 108 mm</small>
+              </article>
+            </div>
+          </section>
 
-            <section class="card order-step">
-              <div class="order-step__head"><span class="badge">5</span><div><h2>Datos de tu pedido</h2><p class="small">Completa tus datos para enviarnos la solicitud.</p></div></div>
-              <div class="form-grid">
-                <div class="field"><label for="nombre">Nombre completo</label><input id="nombre" name="nombre" autocomplete="name" placeholder="Ej. María García" required></div>
-                <div class="field"><label for="telefono">WhatsApp</label><input id="telefono" name="telefono" autocomplete="tel" placeholder="Ej. +34 600 123 456" required></div>
-                <div class="field field--full"><label for="observaciones">Observaciones opcionales</label><textarea id="observaciones" name="observaciones" placeholder="Cuéntanos si hay algo importante que debamos saber sobre el pedido..."></textarea></div>
+          <section class="pedido-stl-card">
+            <div class="pedido-stl-card-head">
+              <span>2</span>
+              <div>
+                <h2>Color del marco</h2>
+                <p>Selecciona el acabado que quieres para el pedido.</p>
               </div>
-              <p class="small" style="margin-top:.8rem">🔒 Tus datos solo se usarán para gestionar tu pedido.</p>
-            </section>
+            </div>
+
+            <div class="pedido-stl-color-grid">
+              <label class="pedido-stl-color">
+                <input type="radio" name="color_marco" value="actual" checked>
+                <span>
+                  <i class="pedido-stl-dot pedido-stl-dot--actual"></i>
+                  <strong>Madera clara</strong>
+                </span>
+              </label>
+
+              <label class="pedido-stl-color">
+                <input type="radio" name="color_marco" value="rosewood">
+                <span>
+                  <i class="pedido-stl-dot pedido-stl-dot--rosewood"></i>
+                  <strong>Rosewood</strong>
+                </span>
+              </label>
+
+              <label class="pedido-stl-color">
+                <input type="radio" name="color_marco" value="ebano">
+                <span>
+                  <i class="pedido-stl-dot pedido-stl-dot--ebano"></i>
+                  <strong>Ébano</strong>
+                </span>
+              </label>
+
+              <label class="pedido-stl-color">
+                <input type="radio" name="color_marco" value="negro">
+                <span>
+                  <i class="pedido-stl-dot pedido-stl-dot--negro"></i>
+                  <strong>Negro</strong>
+                </span>
+              </label>
+
+              <label class="pedido-stl-color">
+                <input type="radio" name="color_marco" value="blanco-mate">
+                <span>
+                  <i class="pedido-stl-dot pedido-stl-dot--blanco-mate"></i>
+                  <strong>Blanco mate</strong>
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <section class="pedido-stl-card">
+            <div class="pedido-stl-card-head">
+              <span>3</span>
+              <div>
+                <h2>Tu foto</h2>
+                <p>La imagen se coloca dentro del marco generado desde el STL real.</p>
+              </div>
+            </div>
+
+            <label class="pedido-stl-upload">
+              <input type="file" accept="image/png,image/jpeg,image/webp" data-takara-photo-input>
+              <span class="pedido-stl-upload-icon">+</span>
+              <span class="pedido-stl-upload-text">
+                <strong>Subir foto</strong>
+                <small>JPG, PNG o WEBP</small>
+              </span>
+            </label>
+
+            <div class="pedido-stl-file" data-takara-file-box hidden>
+              <strong data-takara-file-name>Sin foto subida</strong>
+              <span>Formato detectado: <b data-takara-file-format>Vertical</b></span>
+            </div>
+          </section>
+
+          <section class="pedido-stl-card">
+            <div class="pedido-stl-card-head">
+              <span>4</span>
+              <div>
+                <h2>Datos de contacto</h2>
+                <p>Te contactaremos para revisar la foto antes de fabricar.</p>
+              </div>
+            </div>
+
+            <div class="pedido-stl-fields">
+              <label>
+                <span>Nombre</span>
+                <input type="text" name="nombre" placeholder="Tu nombre">
+              </label>
+
+              <label>
+                <span>WhatsApp</span>
+                <input type="text" name="whatsapp" placeholder="Tu número">
+              </label>
+
+              <label class="pedido-stl-field-full">
+                <span>Email</span>
+                <input type="email" name="email" placeholder="tuemail@ejemplo.com">
+              </label>
+
+              <label class="pedido-stl-field-full">
+                <span>Notas</span>
+                <textarea name="notas" rows="4" placeholder="Fecha, regalo, encuadre, dedicatoria o cualquier detalle importante."></textarea>
+              </label>
+            </div>
+          </section>
+
+          <div class="pedido-stl-actions">
+            <a class="btn btn--primary" href="contacto.html" data-takara-wa-link>Continuar por WhatsApp</a>
+            <a class="btn btn--secondary pedido-stl-secondary" href="contacto.html">Consultar primero</a>
           </div>
-
-          <aside class="order-summary">
-            <section class="card info-panel">
-              <h2>Resumen de tu pedido</h2>
-              <div class="summary-product" style="margin-top:1rem">
-                <img src="assets/img/productos/marco-vertical.svg" alt="" data-summary-img>
-                <div><strong data-summary-product>Marco vertical</strong><p class="small"><span data-summary-finish>Ebony</span><br><span data-summary-orientation>Vertical</span></p></div>
-              </div>
-              <div style="margin-top:1rem">
-                <div class="summary-row"><span>Foto</span><strong data-file-name>Sin seleccionar</strong></div>
-                <div class="summary-row"><span>Acabado</span><strong data-summary-finish>Ebony</strong></div>
-                <div class="summary-row"><span>Orientación</span><strong data-summary-orientation>Vertical</strong></div>
-              </div>
-              <ul class="clean-list">
-                <li>Litofanía personalizada en 3D</li>
-                <li>Iluminación LED cálida</li>
-                <li>Cable USB-C · 5V</li>
-                <li>Revisión antes de fabricar</li>
-              </ul>
-              <div class="notice">
-                <h3>Siguiente paso</h3>
-                <p class="small">Al enviar tu pedido por WhatsApp, confirmaremos contigo la imagen antes de fabricarlo.</p>
-              </div>
-              <button class="btn btn--primary btn--wide" type="submit">Enviar pedido por WhatsApp</button>
-            </section>
-            <section class="card info-panel">
-              <h3>¿Tienes dudas?</h3>
-              <p class="small" style="margin:.5rem 0 1rem">Escríbenos por WhatsApp y te ayudamos encantados.</p>
-              <button class="btn btn--light btn--wide" type="button" data-whatsapp>Abrir WhatsApp</button>
-            </section>
-          </aside>
         </form>
       </div>
-    </section>
-  </main>
+
+      <aside class="pedido-stl-aside">
+        <div class="pedido-stl-preview">
+          <h2 data-takara-preview-title>Marco vertical</h2>
+
+          <div class="pedido-stl-stage">
+            <canvas class="pedido-stl-canvas" width="1400" height="1050" data-takara-preview-canvas></canvas>
+          </div>
+
+          <div class="pedido-stl-summary">
+            <div>
+              <span>Formato</span>
+              <strong data-takara-summary-format>Marco vertical · 108 × 144 mm</strong>
+            </div>
+
+            <div>
+              <span>Color</span>
+              <strong class="pedido-stl-summary-color">
+                <i class="pedido-stl-summary-dot pedido-stl-summary-dot--actual" data-takara-summary-dot></i>
+                <b data-takara-summary-color>Madera clara</b>
+              </strong>
+            </div>
+
+            <div>
+              <span>Foto</span>
+              <strong data-takara-summary-photo>Sin foto subida</strong>
+            </div>
+          </div>
+
+          <div class="pedido-stl-note">
+            La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+  <!-- TAKARA PEDIDO STL PREVIEW END -->
+</main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
@@ -195,5 +265,29 @@
 
   <script src="assets/js/main.js"></script>
   <script src="assets/js/pedido.js"></script>
+  <script id="takara-frame-preload">
+    (() => {
+      const urls = [
+        "assets/img/pedido/marco-preview-vertical-actual.png",
+        "assets/img/pedido/marco-preview-vertical-rosewood.png",
+        "assets/img/pedido/marco-preview-vertical-ebano.png",
+        "assets/img/pedido/marco-preview-vertical-negro.png",
+        "assets/img/pedido/marco-preview-vertical-blanco-mate.png",
+        "assets/img/pedido/marco-preview-horizontal-actual.png",
+        "assets/img/pedido/marco-preview-horizontal-rosewood.png",
+        "assets/img/pedido/marco-preview-horizontal-ebano.png",
+        "assets/img/pedido/marco-preview-horizontal-negro.png",
+        "assets/img/pedido/marco-preview-horizontal-blanco-mate.png"
+      ];
+
+      urls.forEach((url) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.loading = "eager";
+        img.src = url;
+      });
+    })();
+  </script>
+  <script src="assets/js/takara-pedido-preview.js" defer></script>
 </body>
 </html>
