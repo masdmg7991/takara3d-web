@@ -5,10 +5,10 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Pedido | Takara 3D</title>
-      <meta name="description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
+      <meta name="description" content="Solicita tu litofanía personalizada: elige formato, sube tu foto y envía una solicitud para revisión antes de confirmar el pedido.">
       <link rel="canonical" href="https://takara3d.es/pedido.html">
       <meta property="og:title" content="Pedido | Takara 3D">
-      <meta property="og:description" content="Haz tu pedido de litofanía personalizada: elige producto, sube tu foto, selecciona acabado y envía la solicitud por WhatsApp.">
+      <meta property="og:description" content="Solicita tu litofanía personalizada: elige formato, sube tu foto y envía una solicitud para revisión antes de confirmar el pedido.">
       <meta property="og:type" content="website">
       <meta property="og:url" content="https://takara3d.es/pedido.html">
       <meta property="og:image" content="https://takara3d.es/assets/img/ui/hero-home.svg">
@@ -29,6 +29,49 @@
     <meta name="theme-color" content="#1f1511">
     <meta name="msapplication-TileColor" content="#1f1511">
     <!-- TAKARA OFFICIAL FAVICON V2 END -->
+
+  <style id="takara-pedido-ux-final-v1g">
+    [data-takara-pedido-form] .pedido-stl-observaciones {
+      display: block !important;
+      margin-bottom: 1.8rem !important;
+      padding-bottom: 0.45rem !important;
+    }
+
+    [data-takara-pedido-form] .pedido-stl-observaciones textarea,
+    [data-takara-pedido-form] textarea[name="notas"] {
+      height: 7rem !important;
+      min-height: 7rem !important;
+      max-height: 7rem !important;
+      resize: none !important;
+      overflow-y: auto !important;
+    }
+
+    [data-takara-pedido-form] [data-takara-pedido-legal] {
+      display: block !important;
+      clear: both !important;
+      margin-top: 1.9rem !important;
+    }
+
+    [data-takara-pedido-form] [data-takara-pedido-legal] .pedido-stl-legal-title {
+      display: block !important;
+      margin-top: 0 !important;
+      margin-bottom: 0.8rem !important;
+    }
+
+    [data-takara-pedido-form] [data-takara-pedido-legal] .pedido-stl-legal-item {
+      display: block !important;
+      width: 100% !important;
+      margin-bottom: 0.82rem !important;
+    }
+
+    [data-takara-pedido-form] [data-takara-pedido-legal] .pedido-stl-check {
+      display: grid !important;
+      grid-template-columns: 1.05rem minmax(0, 1fr) !important;
+      gap: 0.68rem !important;
+      align-items: flex-start !important;
+      width: 100% !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -77,7 +120,7 @@
           </p>
         </header>
 
-        <form class="pedido-stl-form" data-takara-pedido-form novalidate>
+        <form class="pedido-stl-form" data-takara-pedido-form data-takara-pedido-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
           <input type="hidden" name="formato" value="vertical" data-takara-format-value>
 
           <section class="pedido-stl-card">
@@ -164,7 +207,7 @@
             </div>
 
             <label class="pedido-stl-upload">
-              <input type="file" accept="image/png,image/jpeg,image/webp" data-takara-photo-input>
+              <input type="file" name="foto" accept="image/png,image/jpeg,image/webp" data-takara-photo-input required>
               <span class="pedido-stl-upload-icon">+</span>
               <span class="pedido-stl-upload-text">
                 <strong>Subir foto</strong>
@@ -187,32 +230,69 @@
               </div>
             </div>
 
-            <div class="pedido-stl-fields">
+                        <div class="pedido-stl-fields">
               <label>
                 <span>Nombre</span>
-                <input type="text" name="nombre" placeholder="Tu nombre">
+                <input type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" required>
               </label>
 
               <label>
-                <span>WhatsApp</span>
-                <input type="text" name="whatsapp" placeholder="Tu número">
+                <span>Teléfono / WhatsApp</span>
+                <input type="text" name="whatsapp" placeholder="Tu número" autocomplete="tel">
               </label>
 
-              <label class="pedido-stl-field-full">
+              <label>
                 <span>Email</span>
-                <input type="email" name="email" placeholder="tuemail@ejemplo.com">
+                <input type="email" name="email" placeholder="tuemail@ejemplo.com" autocomplete="email">
               </label>
 
-              <label class="pedido-stl-field-full">
-                <span>Notas</span>
-                <textarea name="notas" rows="4" placeholder="Fecha, regalo, encuadre, dedicatoria o cualquier detalle importante."></textarea>
+              <label>
+                <span>Cantidad</span>
+                <input type="number" name="cantidad" value="1" min="1" max="20" step="1" inputmode="numeric" required>
+              </label>
+<label class="pedido-stl-field-full pedido-stl-observaciones">
+                <span>Observaciones</span>
+                <textarea name="notas" rows="4" placeholder="Cuéntanos cualquier detalle útil: fecha aproximada, encuadre, acabado o información importante para revisar el pedido."></textarea>
               </label>
             </div>
+
+            <div class="pedido-stl-legal" data-takara-pedido-legal>
+              <p class="pedido-stl-legal-title">Antes de enviar</p>
+
+              <div class="pedido-stl-legal-item">
+                <label class="pedido-stl-check">
+                  <input type="checkbox" name="acepta_contacto" value="si" required>
+                  <span>
+                    <strong>Datos de contacto.</strong>
+                    Autorizo a Takara 3D a utilizar los datos enviados para gestionar mi solicitud y contactar conmigo.
+                  </span>
+                </label>
+              </div>
+
+              <div class="pedido-stl-legal-item">
+                <label class="pedido-stl-check">
+                  <input type="checkbox" name="acepta_revision" value="si" required>
+                  <span>
+                    <strong>Imagen enviada.</strong>
+                    Declaro que cuento con los derechos o permisos necesarios para solicitar este trabajo personalizado.
+                  </span>
+                </label>
+              </div>
+
+              <div class="pedido-stl-legal-item pedido-stl-legal-item--note">
+                <p class="pedido-stl-legal-note">
+                  <strong>Uso de la imagen.</strong>
+                  La imagen se utilizará únicamente para revisar el encuadre y preparar la litofanía solicitada.
+                </p>
+              </div>
+            </div>
+
+            <p class="pedido-stl-status" data-takara-pedido-status hidden></p>
           </section>
 
-          <div class="pedido-stl-actions">
-            <a class="btn btn--primary" href="contacto.html" data-takara-wa-link>Continuar por WhatsApp</a>
-            <a class="btn btn--secondary pedido-stl-secondary" href="contacto.html">Consultar primero</a>
+                    <div class="pedido-stl-actions">
+            <button class="btn btn--primary" type="submit" data-takara-pedido-submit>Enviar solicitud de pedido</button>
+            <a class="btn btn--secondary pedido-stl-secondary" href="contacto.html" data-takara-wa-link>Tengo una duda por WhatsApp</a>
           </div>
         </form>
       </div>
@@ -273,6 +353,7 @@
     </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/takara-pedido-web.js"></script>
   <script src="assets/js/pedido.js"></script>
   <script id="takara-frame-preload">
     (() => {

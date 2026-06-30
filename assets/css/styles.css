@@ -2577,3 +2577,379 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   }
 }
 /* TAKARA HEADER LOGO PRINCIPAL V13 END */
+
+/* TAKARA PEDIDOS GMAIL V1 START */
+.pedido-stl-fields select {
+  width: 100%;
+  border: 1px solid rgba(103, 67, 40, 0.15);
+  border-radius: 0.95rem;
+  background: #fffdf9;
+  padding: 0.92rem 1rem;
+  color: #21120c;
+  font: inherit;
+  line-height: 1.45;
+  appearance: none;
+}
+
+.pedido-stl-fields select:focus {
+  outline: none;
+  border-color: rgba(191, 131, 47, 0.75);
+  box-shadow: 0 0 0 4px rgba(191, 131, 47, 0.11);
+}
+
+.pedido-stl-legal {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 80, 43, 0.16);
+  background: rgba(250, 244, 235, 0.72);
+}
+
+.pedido-stl-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.62rem;
+  align-items: flex-start;
+  color: rgba(45, 30, 20, 0.82);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.pedido-stl-check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.12rem;
+  accent-color: #a66a2c;
+}
+
+.pedido-stl-legal p {
+  margin: 0.15rem 0 0;
+  color: rgba(52, 36, 25, 0.62);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.pedido-stl-status {
+  margin: 0;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(123, 80, 43, 0.16);
+  background: rgba(255, 253, 249, 0.9);
+  color: rgba(40, 27, 19, 0.82);
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.pedido-stl-status[hidden] {
+  display: none;
+}
+
+.pedido-stl-status[data-state="success"] {
+  border-color: rgba(72, 137, 85, 0.32);
+  background: rgba(235, 248, 238, 0.92);
+  color: #23552f;
+}
+
+.pedido-stl-status[data-state="error"] {
+  border-color: rgba(164, 56, 42, 0.32);
+  background: rgba(255, 239, 236, 0.94);
+  color: #7a281f;
+}
+
+.pedido-stl-actions button.btn {
+  cursor: pointer;
+  font: inherit;
+}
+
+.pedido-stl-actions button.btn:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+@media (max-width: 760px) {
+  .pedido-stl-check {
+    font-size: 0.86rem;
+  }
+}
+/* TAKARA PEDIDOS GMAIL V1 END */
+
+/* TAKARA PEDIDOS UX LEGAL V1D START */
+.pedido-stl-fields {
+  gap: 0.86rem 0.95rem;
+}
+
+.pedido-stl-fields label {
+  gap: 0.36rem;
+}
+
+.pedido-stl-fields textarea {
+  min-height: 7.1rem;
+  resize: vertical;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] {
+  display: block !important;
+  padding: 0.95rem;
+  border-radius: 1.05rem;
+  background: rgba(255, 250, 242, 0.9);
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-legal-title {
+  display: block !important;
+  margin: 0 0 0.68rem !important;
+  color: rgba(38, 24, 16, 0.92);
+  font-size: 0.9rem;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-legal-item {
+  display: block !important;
+  width: 100%;
+  margin: 0 0 0.72rem !important;
+  padding: 0 !important;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-legal-item:last-child {
+  margin-bottom: 0 !important;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-check {
+  display: grid !important;
+  grid-template-columns: 1.08rem minmax(0, 1fr) !important;
+  gap: 0.68rem !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0.74rem 0.78rem !important;
+  border: 1px solid rgba(123, 80, 43, 0.14);
+  border-radius: 0.92rem;
+  background: rgba(255, 253, 249, 0.9);
+  color: rgba(45, 30, 20, 0.86);
+  font-size: 0.84rem;
+  line-height: 1.46;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-check input {
+  display: block !important;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0.12rem 0 0 !important;
+  accent-color: #a66a2c;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-check span {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] strong {
+  color: rgba(38, 24, 16, 0.94);
+  font-weight: 850;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-legal-note {
+  display: block !important;
+  width: 100%;
+  margin: 0 !important;
+  padding: 0.74rem 0.78rem !important;
+  border: 1px solid rgba(123, 80, 43, 0.11);
+  border-radius: 0.92rem;
+  background: rgba(255, 253, 249, 0.66);
+  color: rgba(52, 36, 25, 0.74);
+  font-size: 0.84rem;
+  line-height: 1.48;
+}
+
+.pedido-stl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.72rem;
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 760px) {
+  .pedido-stl-legal[data-takara-pedido-legal] {
+    padding: 0.88rem;
+  }
+
+  .pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-check,
+  .pedido-stl-legal[data-takara-pedido-legal] .pedido-stl-legal-note {
+    padding: 0.68rem 0.7rem !important;
+    font-size: 0.82rem;
+  }
+
+  .pedido-stl-fields textarea {
+    min-height: 6.5rem;
+  }
+}
+/* TAKARA PEDIDOS UX LEGAL V1D END */
+
+/* TAKARA PEDIDOS UX FORM V1E START */
+.pedido-stl-field-full {
+  margin-bottom: 0.4rem;
+}
+
+.pedido-stl-field-full textarea {
+  margin-bottom: 0.45rem;
+}
+
+.pedido-stl-fields + .pedido-stl-legal,
+.pedido-stl-fields + [data-takara-pedido-legal] {
+  margin-top: 1.1rem !important;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] {
+  margin-top: 1.1rem !important;
+}
+
+@media (max-width: 760px) {
+  .pedido-stl-fields + .pedido-stl-legal,
+  .pedido-stl-fields + [data-takara-pedido-legal] {
+    margin-top: 0.95rem !important;
+  }
+}
+/* TAKARA PEDIDOS UX FORM V1E END */
+
+/* TAKARA PEDIDOS UX FORM V1F START */
+.pedido-stl-observaciones {
+  display: block !important;
+  margin-bottom: 1.35rem !important;
+}
+
+.pedido-stl-observaciones textarea {
+  height: 7.4rem !important;
+  min-height: 7.4rem !important;
+  max-height: 7.4rem !important;
+  resize: none !important;
+  overflow: auto;
+}
+
+.pedido-stl-observaciones + .pedido-stl-legal,
+.pedido-stl-fields + .pedido-stl-legal,
+.pedido-stl-fields + [data-takara-pedido-legal] {
+  margin-top: 1.45rem !important;
+}
+
+.pedido-stl-legal[data-takara-pedido-legal] {
+  margin-top: 1.45rem !important;
+}
+
+@media (max-width: 760px) {
+  .pedido-stl-observaciones {
+    margin-bottom: 1.15rem !important;
+  }
+
+  .pedido-stl-observaciones textarea {
+    height: 7rem !important;
+    min-height: 7rem !important;
+    max-height: 7rem !important;
+  }
+
+  .pedido-stl-legal[data-takara-pedido-legal] {
+    margin-top: 1.25rem !important;
+  }
+}
+/* TAKARA PEDIDOS UX FORM V1F END */
+
+/* TAKARA PEDIDOS FEEDBACK V1H START */
+.takara-pedido-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.35rem;
+  z-index: 99999;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 0.8rem;
+  width: min(92vw, 34rem);
+  padding: 1rem 1rem 1rem 1.05rem;
+  border-radius: 1.1rem;
+  box-shadow: 0 24px 64px rgba(37, 22, 12, 0.24);
+  transform: translateX(-50%);
+  animation: takaraPedidoToastIn 180ms ease-out both;
+}
+
+.takara-pedido-toast strong {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.takara-pedido-toast span {
+  display: block;
+  grid-column: 1 / 2;
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.takara-pedido-toast button {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+  align-self: start;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.takara-pedido-toast[data-state="success"] {
+  border: 1px solid rgba(72, 137, 85, 0.42);
+  background: #eaf8ee;
+  color: #173f24;
+}
+
+.takara-pedido-toast[data-state="error"] {
+  border: 1px solid rgba(169, 63, 42, 0.42);
+  background: #fff0ea;
+  color: #722415;
+}
+
+.pedido-stl-status[data-state="success"],
+.pedido-stl-status[data-state="error"] {
+  border-width: 2px;
+  font-size: 0.92rem;
+}
+
+.pedido-stl-status[data-state="success"] {
+  box-shadow: 0 12px 28px rgba(35, 85, 47, 0.12);
+}
+
+.pedido-stl-status[data-state="error"] {
+  box-shadow: 0 12px 28px rgba(122, 40, 31, 0.13);
+}
+
+@keyframes takaraPedidoToastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.75rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .takara-pedido-toast {
+    bottom: 0.85rem;
+    width: calc(100vw - 1.4rem);
+    padding: 0.92rem 0.92rem 0.95rem;
+  }
+
+  .takara-pedido-toast span {
+    font-size: 0.86rem;
+  }
+}
+/* TAKARA PEDIDOS FEEDBACK V1H END */
