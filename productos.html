@@ -18,7 +18,18 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="assets/css/styles.css">
-    </head>
+
+
+  <!-- TAKARA OFFICIAL FAVICON V2 START -->
+    <link rel="icon" href="favicon.ico?v=oficial-2" sizes="any">
+    <link rel="icon" type="image/png" sizes="48x48" href="assets/brand/favicon-48.png?v=oficial-2">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png?v=oficial-2">
+    <link rel="shortcut icon" type="image/png" href="assets/brand/favicon-48.png?v=oficial-2">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon.png?v=oficial-2">
+    <meta name="theme-color" content="#1f1511">
+    <meta name="msapplication-TileColor" content="#1f1511">
+    <!-- TAKARA OFFICIAL FAVICON V2 END -->
+</head>
 
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -40,9 +51,7 @@
 
     <header class="site-header">
       <div class="container header-inner">
-        <a class="logo" href="index.html" aria-label="Takara 3D · Inicio">
-          <span>TAKARA 3D</span>
-        </a>
+        <a class="logo takara-logo-final" href="index.html" aria-label="Takara 3D · Inicio" data-takara-logo-inline="v13"><img class="takara-logo-final__symbol" src="assets/brand/takara-logo-principal-header.png?v=header-principal-13" alt="" width="112" height="112" decoding="async"><span class="takara-logo-final__text">TAKARA 3D</span></a>
         <nav id="site-nav" class="nav" data-nav aria-label="Navegación principal">
           <a href="index.html" >Inicio</a><a href="productos.html" aria-current="page">Productos</a><a href="pedido.html" >Pedido</a><a href="contacto.html" >Contacto</a>
         </nav>
@@ -73,8 +82,8 @@
         <div class="filters" aria-label="Filtros de producto">
           <button class="filter-btn is-active" type="button" data-filter="todos">Todos</button>
           <button class="filter-btn" type="button" data-filter="marcos">Marcos</button>
-          <button class="filter-btn" type="button" data-filter="cajas">Cajas</button>
-          <button class="filter-btn" type="button" data-filter="regalo">Regalo</button>
+
+
         </div>
         <div class="grid grid--4" data-products-grid></div>
       </div>
@@ -132,7 +141,6 @@
   <script src="assets/js/productos.js"></script>
 
 
-
 <!-- TAKARA PRODUCTOS RENDER FINAL START -->
 <script>
 (function () {
@@ -145,6 +153,7 @@
       state: "Disponible",
       title: "Marco vertical",
       measure: "Foto 108 × 144 mm",
+      price: "27,50 €",
       image: "assets/img/fotos/producto-marco-vertical-familia-card-v18.webp",
       alt: "Marco vertical de litofanía personalizada Takara 3D",
       modifier: "product-tile--vertical",
@@ -157,32 +166,13 @@
       state: "Disponible",
       title: "Marco horizontal",
       measure: "Foto 144 × 108 mm",
+      price: "27,50 €",
       image: "assets/img/fotos/producto-marco-horizontal-mascota.webp",
       alt: "Marco horizontal de litofanía personalizada Takara 3D",
       modifier: "product-tile--horizontal",
       action: "Pedir este formato",
       href: "pedido.html",
       comingSoon: false
-    },
-    {
-      category: "cajas",
-      state: "Próximamente",
-      title: "Caja/lámpara 4 caras",
-      measure: "En desarrollo",
-      soonTitle: "Caja 4 caras",
-      modifier: "product-tile--coming-soon",
-      action: "Próximamente",
-      comingSoon: true
-    },
-    {
-      category: "regalo",
-      state: "Próximamente",
-      title: "Edición regalo",
-      measure: "En preparación",
-      soonTitle: "Edición regalo",
-      modifier: "product-tile--coming-soon",
-      action: "Próximamente",
-      comingSoon: true
     }
   ];
 
@@ -204,7 +194,7 @@
     var classes = "product-tile " + product.modifier;
     var media = product.comingSoon
       ? `<div class="product-tile__media product-tile__media--soon">
-           <span class="product-tile__badge">Próximamente</span>
+           <span class="product-tile__badge">No disponible</span>
            <span class="product-tile__soon-title">${product.soonTitle}</span>
          </div>`
       : `<div class="product-tile__media">
@@ -212,7 +202,7 @@
          </div>`;
 
     var action = product.comingSoon
-      ? `<span class="btn btn--secondary product-tile__disabled">Próximamente</span>`
+      ? `<span class="btn btn--secondary product-tile__disabled">No disponible</span>`
       : `<a class="btn btn--primary" href="${product.href}">${product.action}</a>`;
 
     return `
@@ -222,6 +212,7 @@
           <p class="product-tile__status">${product.state}</p>
           <h3>${product.title}</h3>
           <p class="product-tile__measure">${product.measure}</p>
+          ${product.price ? '<p class="product-tile__price-label">Desde</p><p class="product-tile__price">' + product.price + '</p>' : ""}
           ${action}
         </div>
       </article>`;

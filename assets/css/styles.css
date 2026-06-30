@@ -2428,3 +2428,152 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   background-color: #21150d !important;
 }
 /* TAKARA PEDIDO PREVIEW FONDO CANVAS V16B-1 END */
+
+/* TAKARA PRODUCTOS PRECIO V4 START */
+.product-tile__price-label {
+  margin: 0.85rem 0 0.15rem;
+  color: rgba(57, 38, 24, 0.62);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.product-tile__price {
+  margin: 0 0 1rem;
+  color: #7a4713;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+/* TAKARA PRODUCTOS PRECIO V4 END */
+
+/* TAKARA HEADER LOGO PRINCIPAL V13 START */
+.site-header .header-inner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 112px !important;
+  gap: clamp(1.25rem, 3vw, 3rem) !important;
+}
+
+.site-header .logo.takara-logo-final {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.site-header .logo.takara-logo-final .takara-logo-final__symbol {
+  display: block !important;
+  width: 112px !important;
+  height: 112px !important;
+  max-width: 112px !important;
+  max-height: 112px !important;
+  min-width: 112px !important;
+  min-height: 112px !important;
+  flex: 0 0 112px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  vertical-align: middle !important;
+  filter:
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12))
+    drop-shadow(0 0 1px rgba(255, 255, 255, 0.85));
+  transform: translateY(-1px);
+}
+
+.site-header .logo.takara-logo-final .takara-logo-final__text {
+  display: inline-block !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  line-height: 0.92 !important;
+  font-family: var(--font-heading) !important;
+  font-size: 50px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.055em !important;
+  color: var(--color-gold-dark) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+}
+
+.site-header .nav {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+}
+
+.site-header .header-actions {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+@media (max-width: 900px) {
+  .site-header .header-inner {
+    min-height: 84px !important;
+    gap: 1rem !important;
+  }
+
+  .site-header .logo.takara-logo-final {
+    gap: 9px !important;
+  }
+
+  .site-header .logo.takara-logo-final .takara-logo-final__symbol {
+    width: 68px !important;
+    height: 68px !important;
+    min-width: 68px !important;
+    min-height: 68px !important;
+    flex-basis: 68px !important;
+  }
+
+  .site-header .logo.takara-logo-final .takara-logo-final__text {
+    font-size: 34px !important;
+    letter-spacing: 0.045em !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-header .header-inner {
+    min-height: 72px !important;
+  }
+
+  .site-header .logo.takara-logo-final {
+    gap: 7px !important;
+  }
+
+  .site-header .logo.takara-logo-final .takara-logo-final__symbol {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    flex-basis: 52px !important;
+  }
+
+  .site-header .logo.takara-logo-final .takara-logo-final__text {
+    font-size: 23px !important;
+    letter-spacing: 0.035em !important;
+  }
+}
+/* TAKARA HEADER LOGO PRINCIPAL V13 END */
