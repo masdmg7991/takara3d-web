@@ -1026,15 +1026,23 @@ p {
     display: inline-grid;
   }
 
+  .header-inner {
+    flex-wrap: wrap;
+  }
+
   .nav {
-    position: fixed;
-    inset: 78px 0 auto;
+    position: static;
+    inset: auto;
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 1rem;
-    border-bottom: 1px solid var(--color-line);
-    background: rgba(255, 251, 246, .98);
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 0;
+    background: transparent;
   }
 
   body.menu-open .nav {
