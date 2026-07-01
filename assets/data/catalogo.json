@@ -1,0 +1,78 @@
+{
+  "$schema": "./catalogo.schema.json",
+  "version": "TAKARA_CATALOGO_V1",
+  "moneda": "EUR",
+  "estado": "activo",
+  "productos": [
+    {
+      "codigo": "MARCO_LITOFANIA_144X108",
+      "slug": "marco-litofania-144x108",
+      "estado": "activo",
+      "nombre": "Marco litofanía personalizado",
+      "familia": "litofania",
+      "descripcion_corta": "Marco personalizado con litofanía a partir de una foto.",
+      "descripcion_larga": "Un recuerdo físico, personalizado y retroiluminado, preparado a partir de una imagen enviada por el cliente.",
+      "precio_base_eur": 35.0,
+      "moneda": "EUR",
+      "precio_visible": "35 €",
+      "cantidad_minima": 1,
+      "cantidad_maxima": 20,
+      "color_litofania_defecto": "Blanco natural",
+      "colores_marco": [
+        {
+          "codigo": "madera_clara",
+          "nombre": "Madera clara",
+          "estado": "activo"
+        },
+        {
+          "codigo": "madera_oscura",
+          "nombre": "Madera oscura",
+          "estado": "activo"
+        },
+        {
+          "codigo": "negro",
+          "nombre": "Negro",
+          "estado": "activo"
+        }
+      ],
+      "variantes": [
+        {
+          "codigo": "vertical",
+          "nombre": "Marco vertical",
+          "orientacion": "vertical",
+          "medida": "108 x 144 mm",
+          "precio_extra_eur": 0.0,
+          "estado": "activo"
+        },
+        {
+          "codigo": "horizontal",
+          "nombre": "Marco horizontal",
+          "orientacion": "horizontal",
+          "medida": "144 x 108 mm",
+          "precio_extra_eur": 0.0,
+          "estado": "activo"
+        }
+      ],
+      "extras": [
+        {
+          "codigo": "personalizacion_texto",
+          "nombre": "Texto personalizado",
+          "descripcion": "Añadir una frase corta o nombre al diseño cuando sea técnicamente viable.",
+          "precio_extra_eur": 2.0,
+          "estado": "preparado",
+          "visible_en_web": false
+        }
+      ],
+      "imagenes": {
+        "principal": "assets/img/productos/marco-litofania-principal.webp",
+        "vertical": "assets/brand/marco-preview-vertical-actual.png",
+        "horizontal": "assets/brand/marco-preview-horizontal-actual.png"
+      },
+      "pedido": {
+        "requiere_foto": true,
+        "formatos_imagen_aceptados": ["image/jpeg", "image/png", "image/webp"],
+        "tamano_maximo_foto_mb": 10
+      }
+    }
+  ]
+}

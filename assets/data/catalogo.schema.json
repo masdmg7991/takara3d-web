@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.takara3d.es/assets/data/catalogo.schema.json",
+  "title": "Takara 3D Catalogo",
+  "type": "object",
+  "required": ["version", "moneda", "estado", "productos"],
+  "properties": {
+    "version": { "type": "string" },
+    "moneda": { "type": "string", "const": "EUR" },
+    "estado": { "type": "string", "enum": ["activo", "pausado"] },
+    "productos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "codigo",
+          "slug",
+          "estado",
+          "nombre",
+          "precio_base_eur",
+          "moneda",
+          "precio_visible",
+          "variantes",
+          "extras",
+          "pedido"
+        ],
+        "properties": {
+          "codigo": { "type": "string" },
+          "slug": { "type": "string" },
+          "estado": { "type": "string", "enum": ["activo", "pausado", "oculto"] },
+          "nombre": { "type": "string" },
+          "precio_base_eur": { "type": "number", "minimum": 0 },
+          "moneda": { "type": "string", "const": "EUR" },
+          "precio_visible": { "type": "string" },
+          "variantes": {
+            "type": "array",
+            "minItems": 1
+          },
+          "extras": {
+            "type": "array"
+          },
+          "pedido": {
+            "type": "object",
+            "required": ["requiere_foto", "formatos_imagen_aceptados", "tamano_maximo_foto_mb"]
+          }
+        }
+      }
+    }
+  }
+}
