@@ -167,9 +167,7 @@ p {
 }
 
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: static;
   border-bottom: 1px solid rgba(107, 74, 46, .12);
   background: rgba(255, 251, 246, .88);
   backdrop-filter: blur(18px);
