@@ -4,7 +4,22 @@
 
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
   const PRODUCT_CODE = "MARCO_LITOFANIA_144X108";
-  const DISPLAY_PRICE_EUR = "27,50";
+  const DISPLAY_PRICE_EUR = getPrecioUnitarioMarco();
+
+  function getPrecioUnitarioMarco() {
+    if (
+      window.TAKARA_GET_PRECIO_UNITARIO_EUR &&
+      typeof window.TAKARA_GET_PRECIO_UNITARIO_EUR === "function"
+    ) {
+      const precio = window.TAKARA_GET_PRECIO_UNITARIO_EUR("MARCO_LITOFANIA_144X108");
+
+      if (precio) {
+        return precio;
+      }
+    }
+
+    return "35.00";
+  }
 
   const COLOR_LABELS = {
     actual: "Madera clara",
