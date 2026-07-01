@@ -1036,7 +1036,7 @@ p {
     order: 3;
     flex: 0 0 100%;
     width: 100%;
-    display: none;
+    display: none !important;
     flex-direction: column;
     align-items: stretch;
     padding: 1rem 0 0;
@@ -1046,7 +1046,7 @@ p {
   }
 
   body.menu-open .nav {
-    display: flex;
+    display: flex !important;
   }
 
   .nav a {
