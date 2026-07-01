@@ -139,6 +139,8 @@
     </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/core/takara-catalogo.js?v=catalogo-v2b2r"></script>
+  <script src="assets/js/core/takara-pricing.js?v=catalogo-v2b2r"></script>
   <script src="assets/js/productos.js"></script>
 
 
@@ -154,7 +156,9 @@
       state: "Disponible",
       title: "Marco vertical",
       measure: "Foto 108 × 144 mm",
-      price: "35 €",
+      productCode: "MARCO_LITOFANIA_144X108",
+      variantCode: "vertical",
+      price: "",
       image: "assets/img/fotos/producto-marco-vertical-familia-card-v18.webp",
       alt: "Marco vertical de litofanía personalizada Takara 3D",
       modifier: "product-tile--vertical",
@@ -167,7 +171,9 @@
       state: "Disponible",
       title: "Marco horizontal",
       measure: "Foto 144 × 108 mm",
-      price: "35 €",
+      productCode: "MARCO_LITOFANIA_144X108",
+      variantCode: "horizontal",
+      price: "",
       image: "assets/img/fotos/producto-marco-horizontal-mascota.webp",
       alt: "Marco horizontal de litofanía personalizada Takara 3D",
       modifier: "product-tile--horizontal",
@@ -189,6 +195,93 @@
     if (text.indexOf("regalo") >= 0) return "regalo";
 
     return "todos";
+  }
+
+  var pricedProducts = null;
+  var catalogLoadStarted = false;
+
+  function getTakaraCore(name) {
+    var api = window[name];
+
+    if (!api) {
+      throw new Error("No se ha cargado el módulo " + name + ".");
+    }
+
+    return api;
+  }
+
+  function formatMeasureForCard(measure) {
+    var text = String(measure || "").trim();
+
+    if (!text) {
+      return "";
+    }
+
+    return "Foto " + text.replace(" x ", " × ");
+  }
+
+  function withCatalogPricing(product, catalog) {
+    if (!product.productCode || !product.variantCode) {
+      return product;
+    }
+
+    var pricingApi = getTakaraCore("TAKARA_PRICING_V1");
+    var pricing = pricingApi.calculate({
+      catalog: catalog,
+      product_code: product.productCode,
+      variant_code: product.variantCode,
+      extra_codes: [],
+      quantity: 1
+    });
+
+    return Object.assign({}, product, {
+      title: pricing.variante_nombre || product.title,
+      measure: formatMeasureForCard(pricing.medida) || product.measure,
+      price: pricing.precio_visible,
+      catalogVersion: pricing.catalog_version,
+      pricingVersion: pricing.pricing_version
+    });
+  }
+
+  function productsForRender() {
+    return pricedProducts || products;
+  }
+
+  function renderCatalogFallback() {
+    pricedProducts = products.map(function (product) {
+      if (!product.productCode || !product.variantCode) {
+        return product;
+      }
+
+      return Object.assign({}, product, {
+        price: "Consultar"
+      });
+    });
+
+    renderTakaraProducts(currentFilter);
+  }
+
+  function loadTakaraCatalogProducts() {
+    if (catalogLoadStarted) {
+      return;
+    }
+
+    catalogLoadStarted = true;
+
+    var catalogApi = getTakaraCore("TAKARA_CATALOGO_CORE_V1");
+
+    catalogApi.loadCatalog()
+      .then(function (catalog) {
+        pricedProducts = products.map(function (product) {
+          return withCatalogPricing(product, catalog);
+        });
+
+        renderTakaraProducts(currentFilter);
+      })
+      .catch(function (error) {
+        console.error("[Takara productos] No se pudo cargar el catálogo.", error);
+        renderCatalogFallback();
+      });
   }
 
   function productCard(product) {
@@ -236,7 +329,7 @@
     if (!grid) return;
 
     currentFilter = normaliseFilter(filter || currentFilter || "todos");
-    var visibleProducts = products.filter(function (product) {
+    var visibleProducts = productsForRender().filter(function (product) {
       return currentFilter === "todos" || product.category === currentFilter;
     });
 
@@ -279,6 +372,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     bindTakaraFilters();
     renderTakaraProducts("todos");
+    loadTakaraCatalogProducts();
     protectGrid();
   });
 
