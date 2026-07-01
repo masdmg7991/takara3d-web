@@ -4,22 +4,7 @@
 
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
   const PRODUCT_CODE = "MARCO_LITOFANIA_144X108";
-  const DISPLAY_PRICE_EUR = getPrecioUnitarioMarco();
-
-  function getPrecioUnitarioMarco() {
-    if (
-      window.TAKARA_GET_PRECIO_UNITARIO_EUR &&
-      typeof window.TAKARA_GET_PRECIO_UNITARIO_EUR === "function"
-    ) {
-      const precio = window.TAKARA_GET_PRECIO_UNITARIO_EUR("MARCO_LITOFANIA_144X108");
-
-      if (precio) {
-        return precio;
-      }
-    }
-
-    return "35.00";
-  }
+  const DISPLAY_PRICE_EUR = "";
 
   const COLOR_LABELS = {
     actual: "Madera clara",
@@ -89,6 +74,80 @@
     } finally {
       setBusy(submitButton, false);
     }
+  }
+
+
+  function getTakaraCore(name) {
+    const api = window[name];
+
+    if (!api) {
+      throw new Error("No se ha cargado el módulo " + name + ". No se puede enviar el pedido.");
+    }
+
+    return api;
+  }
+
+  async function loadCatalogForPedido() {
+    const catalogApi = getTakaraCore("TAKARA_CATALOGO_CORE_V1");
+    return catalogApi.loadCatalog();
+  }
+
+  function normalizeVariantCode(value) {
+    const text = String(value || "").toLowerCase();
+
+    if (text === "horizontal") {
+      return "horizontal";
+    }
+
+    return "vertical";
+  }
+
+  function enrichPayloadWithCatalogSnapshot(payload) {
+    return loadCatalogForPedido().then(function (catalog) {
+      const snapshotApi = getTakaraCore("TAKARA_ORDER_SNAPSHOT_V1");
+
+      const producto = payload.producto || {};
+      const cliente = payload.cliente || {};
+
+      const snapshot = snapshotApi.build({
+        catalog: catalog,
+        selection: {
+          product_code: PRODUCT_CODE,
+          variant_code: normalizeVariantCode(producto.orientacion),
+          extra_codes: [],
+          quantity: producto.cantidad || 1
+        },
+        cliente: cliente,
+        archivos: payload.archivos || {},
+        mensaje_cliente: payload.mensaje_cliente || "",
+        meta: payload.meta || {}
+      });
+
+      payload.snapshot_pedido = snapshot;
+
+      payload.producto = Object.assign({}, producto, {
+        producto: snapshot.producto.producto,
+        codigo_producto: snapshot.producto.codigo_producto,
+        variante_codigo: snapshot.producto.variante_codigo,
+        formato: snapshot.producto.formato,
+        orientacion: snapshot.producto.orientacion,
+        medida: snapshot.producto.medida,
+        extras: snapshot.producto.extras,
+        cantidad: snapshot.producto.cantidad,
+        moneda: snapshot.producto.moneda,
+        precio_base_eur: snapshot.producto.precio_base_eur,
+        precio_variante_eur: snapshot.producto.precio_variante_eur,
+        precio_extras_eur: snapshot.producto.precio_extras_eur,
+        precio_unitario_final_eur: snapshot.producto.precio_unitario_final_eur,
+        precio_total_eur: snapshot.producto.precio_total_eur,
+        precio_mostrado_eur: snapshot.producto.precio_unitario_final_eur,
+        origen_precio: snapshot.origen_precio,
+        catalog_version: snapshot.catalog_version,
+        pricing_version: snapshot.pricing_version
+      });
+
+      return enrichPayloadWithCatalogSnapshot(payload);
+    });
   }
 
   async function buildPayload(form) {
