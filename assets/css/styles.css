@@ -2959,9 +2959,9 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   }
 }
 /* TAKARA PEDIDOS FEEDBACK V1H END */
-/* TAKARA_MOBILE_DROPDOWN_FINAL_V1
+/* TAKARA_MOBILE_DROPDOWN_FINAL_V2
    Menú móvil cerrado por defecto y abierto solo con el botón.
-   Debe ir al final para ganar a reglas anteriores del header. */
+   Recupera iconos superiores de Instagram y WhatsApp en móvil. */
 @media (max-width: 980px) {
   body:not(.menu-open) .site-header .nav {
     display: none !important;
@@ -2977,6 +2977,13 @@ section#perfecto-para-regalar .gift-strip-card__body p {
     overflow: visible !important;
   }
 
+  .site-header .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: .45rem !important;
+  }
+
+  .site-header .header-actions .icon-link,
   .site-header .menu-toggle {
     display: inline-grid !important;
   }
