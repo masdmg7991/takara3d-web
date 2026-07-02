@@ -2959,6 +2959,36 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   }
 }
 /* TAKARA PEDIDOS FEEDBACK V1H END */
+
+/* TAKARA_CONTACTO_HERO_HORIZONTAL_V9 START
+   Hero de contacto con foto real como fondo.
+   Mantiene tamaño; mueve solo la foto a la derecha. */
+.hero--contacto-horizontal .hero__media {
+  opacity: 1;
+  overflow: hidden !important;
+  background-image: url("../img/fotos/producto-marco-horizontal-mascota.webp") !important;
+  background-repeat: no-repeat !important;
+  background-size: 75% auto !important;
+  background-position: 100% center !important;
+}
+
+.hero--contacto-horizontal .hero__media img {
+  display: none !important;
+}
+
+.hero--contacto-horizontal .hero__overlay {
+  background:
+    linear-gradient(90deg, rgba(18, 13, 9, .94) 0%, rgba(23, 15, 10, .76) 40%, rgba(23, 15, 10, .24) 100%),
+    linear-gradient(0deg, rgba(18, 13, 9, .32), transparent 62%);
+}
+
+@media (max-width: 760px) {
+  .hero--contacto-horizontal .hero__media {
+    background-size: 82% auto !important;
+    background-position: 100% center !important;
+  }
+}
+/* TAKARA_CONTACTO_HERO_HORIZONTAL_V9 END */
 /* TAKARA_MOBILE_DROPDOWN_FINAL_V2
    Menú móvil cerrado por defecto y abierto solo con el botón.
    Recupera iconos superiores de Instagram y WhatsApp en móvil. */
