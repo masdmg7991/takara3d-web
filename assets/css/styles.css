@@ -3034,8 +3034,8 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 
 .hero--inicio .hero__media {
   background-image: url("../img/fotos/hero-home-familia-ambiente.webp") !important;
-  background-size: cover !important;
-  background-position: 58% center !important;
+  background-size: auto 162% !important;
+  background-position: 79% center !important;
 }
 
 .hero--productos-abuela .hero__media {
