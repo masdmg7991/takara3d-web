@@ -2989,6 +2989,89 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   }
 }
 /* TAKARA_CONTACTO_HERO_HORIZONTAL_V9 END */
+
+/* TAKARA_HERO_CENEFA_UNIFICADA_V1 START
+   Base común para la cenefa hero de Inicio, Productos y Contacto.
+   La foto se controla como fondo para evitar reglas antiguas de img. */
+.hero--takara-common {
+  min-height: clamp(570px, 72vh, 720px) !important;
+  background: #120d09 !important;
+  color: var(--color-warm-white);
+  isolation: isolate;
+}
+
+.hero--takara-common.hero--page {
+  min-height: clamp(570px, 72vh, 720px) !important;
+}
+
+.hero--takara-common .hero__media {
+  opacity: 1 !important;
+  background-color: #120d09 !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+}
+
+.hero--takara-common .hero__media img {
+  display: none !important;
+}
+
+.hero--takara-common .hero__overlay {
+  background:
+    linear-gradient(90deg, rgba(18, 13, 9, .94) 0%, rgba(23, 15, 10, .76) 42%, rgba(23, 15, 10, .24) 100%),
+    linear-gradient(0deg, rgba(18, 13, 9, .32), transparent 62%) !important;
+}
+
+.hero--takara-common .hero__content,
+.hero--takara-common.hero--page .hero__content {
+  min-height: clamp(570px, 72vh, 720px) !important;
+  display: flex;
+  align-items: center;
+}
+
+.hero--takara-common .hero__copy {
+  max-width: 680px;
+}
+
+.hero--inicio .hero__media {
+  background-image: url("../img/fotos/hero-home-familia-ambiente.webp") !important;
+  background-size: cover !important;
+  background-position: 58% center !important;
+}
+
+.hero--productos-abuela .hero__media {
+  background-image: url("../img/fotos/producto-marco-vertical-abuela.png") !important;
+  background-size: auto 184% !important;
+  background-position: 78% center !important;
+}
+
+.hero--contacto-horizontal .hero__media {
+  background-image: url("../img/fotos/producto-marco-horizontal-mascota.webp") !important;
+  background-size: 75% auto !important;
+  background-position: 100% center !important;
+}
+
+@media (max-width: 760px) {
+  .hero--takara-common,
+  .hero--takara-common.hero--page,
+  .hero--takara-common .hero__content,
+  .hero--takara-common.hero--page .hero__content {
+    min-height: clamp(520px, 72vh, 640px) !important;
+  }
+
+  .hero--inicio .hero__media {
+    background-position: 60% center !important;
+  }
+
+  .hero--productos-abuela .hero__media {
+    background-position: 52% center !important;
+  }
+
+  .hero--contacto-horizontal .hero__media {
+    background-size: 82% auto !important;
+    background-position: 100% center !important;
+  }
+}
+/* TAKARA_HERO_CENEFA_UNIFICADA_V1 END */
 /* TAKARA_MOBILE_DROPDOWN_FINAL_V2
    Menú móvil cerrado por defecto y abierto solo con el botón.
    Recupera iconos superiores de Instagram y WhatsApp en móvil. */
