@@ -3101,3 +3101,44 @@ section#perfecto-para-regalar .gift-strip-card__body p {
     display: inline-grid !important;
   }
 }
+
+/* TAKARA_SOCIAL_FINAL_V1 START
+   Cierre defensivo de iconos sociales.
+   Evita que Instagram/WhatsApp del header queden ocultos en móvil
+   y mantiene Instagram del footer con presencia de botón. */
+.site-header .header-actions {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.site-header .header-actions .icon-link {
+  display: inline-grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 980px) {
+  .site-header .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: .45rem !important;
+  }
+
+  .site-header .header-actions .icon-link {
+    display: inline-grid !important;
+  }
+
+  footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
+    display: inline-flex !important;
+  }
+}
+/* TAKARA_SOCIAL_FINAL_V1 END */
