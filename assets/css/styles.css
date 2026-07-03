@@ -3515,3 +3515,30 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
   }
 }
 /* TAKARA_CONTACTO_PREMIUM_V4 END */
+
+
+/* TAKARA_CONTACTO_WEB_FORM_V1 START */
+.contacto-final-status {
+  width: 100%;
+  margin: .15rem 0 0 0 !important;
+  padding: .9rem 1rem !important;
+  border-radius: 16px !important;
+  font-size: .93rem !important;
+  line-height: 1.45 !important;
+  border: 1px solid rgba(95, 69, 45, .14) !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: var(--color-muted) !important;
+}
+
+.contacto-final-status[data-state="success"] {
+  border-color: rgba(72, 130, 82, .22) !important;
+  background: rgba(72, 130, 82, .08) !important;
+  color: #365f3b !important;
+}
+
+.contacto-final-status[data-state="error"] {
+  border-color: rgba(164, 58, 48, .24) !important;
+  background: rgba(164, 58, 48, .08) !important;
+  color: #7a3029 !important;
+}
+/* TAKARA_CONTACTO_WEB_FORM_V1 END */

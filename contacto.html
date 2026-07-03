@@ -17,7 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="assets/css/styles.css?v=contacto-final-20260703_144208">
+      <link rel="stylesheet" href="assets/css/styles.css?v=contacto-web-final-20260703_154622">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -93,7 +93,7 @@
 
           <p class="contacto-final-card__text">Si tienes una consulta, escríbenos y te responderemos por correo lo antes posible. Para gestionar un pedido personalizado con más precisión, utiliza la página de pedido.</p>
 
-          <form class="contacto-final-form" action="mailto:3d.takara@gmail.com?subject=Consulta%20Takara%203D" method="post" enctype="text/plain">
+          <form class="contacto-final-form" data-takara-contact-form data-takara-contact-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
             <div class="contacto-final-form__row">
               <label>
                 <span>Nombre completo</span>
@@ -116,9 +116,10 @@
             </label>
 
             <div class="contacto-final-form__actions">
-              <button class="btn btn--primary" type="submit">Enviar consulta por email</button>
-              <p>Se abrirá tu aplicación de correo para enviarnos la consulta.</p>
+              <button class="btn btn--primary" type="submit" data-takara-contact-submit>Enviar consulta</button>
+              <p>Enviaremos tu consulta de forma segura para poder responderte por correo.</p>
             </div>
+            <p class="contacto-final-status" data-takara-contact-status hidden></p>
           </form>
         </article>
 
@@ -238,5 +239,6 @@
     </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/takara-contacto-web.js?v=contacto-web-final-20260703_154622" defer></script>
 </body>
 </html>
