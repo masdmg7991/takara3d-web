@@ -1,22 +1,32 @@
-/* TAKARA CONTACTO WEB V1 */
+/* TAKARA CONTACTO WEB V2 - SIN FORM NATIVO */
 (function () {
   "use strict";
 
   function init() {
-    const form = document.querySelector("[data-takara-contact-form][data-takara-contact-web-v1]");
-    if (!form) return;
+    const box = document.querySelector("[data-takara-contact-form][data-takara-contact-web-v1]");
+    if (!box) return;
 
-    form.addEventListener("submit", handleSubmit, true);
+    const submitButton = box.querySelector("[data-takara-contact-submit]");
+    if (!submitButton) return;
+
+    submitButton.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      handleSubmit(box);
+    });
+
+    box.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && event.target && event.target.tagName !== "TEXTAREA") {
+        event.preventDefault();
+        handleSubmit(box);
+      }
+    });
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    const form = event.currentTarget;
-    const submitButton = form.querySelector("[data-takara-contact-submit]");
-    const statusNode = form.querySelector("[data-takara-contact-status]");
-    const endpoint = form.getAttribute("data-takara-endpoint") || "";
+  async function handleSubmit(box) {
+    const submitButton = box.querySelector("[data-takara-contact-submit]");
+    const statusNode = box.querySelector("[data-takara-contact-status]");
+    const endpoint = box.getAttribute("data-takara-endpoint") || "";
 
     try {
       setBusy(submitButton, true);
@@ -26,10 +36,10 @@
         throw new Error("No está configurado el endpoint de contacto.");
       }
 
-      const nombre = value(form, "Nombre");
-      const email = value(form, "Email");
-      const asunto = value(form, "Asunto");
-      const mensaje = value(form, "Mensaje");
+      const nombre = value(box, "Nombre");
+      const email = value(box, "Email");
+      const asunto = value(box, "Asunto");
+      const mensaje = value(box, "Mensaje");
 
       if (!nombre) {
         throw new Error("Indica tu nombre para poder responderte correctamente.");
@@ -88,7 +98,7 @@
         body: payload
       });
 
-      form.reset();
+      resetFields(box);
 
       setStatus(
         statusNode,
@@ -102,9 +112,16 @@
     }
   }
 
-  function value(form, name) {
-    const field = form.querySelector('[name="' + name + '"]');
+  function value(box, name) {
+    const field = box.querySelector('[name="' + name + '"]');
     return field && typeof field.value === "string" ? field.value.trim() : "";
+  }
+
+  function resetFields(box) {
+    const fields = box.querySelectorAll("input, textarea");
+    fields.forEach(function (field) {
+      field.value = "";
+    });
   }
 
   function isValidEmail(email) {
