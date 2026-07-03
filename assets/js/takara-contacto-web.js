@@ -1,45 +1,35 @@
-/* TAKARA CONTACTO WEB V2 - SIN FORM NATIVO */
+/* TAKARA CONTACTO WEB V4 - PATRON PEDIDO */
 (function () {
   "use strict";
 
   function init() {
-    const box = document.querySelector("[data-takara-contact-form][data-takara-contact-web-v1]");
-    if (!box) return;
+    const form = document.querySelector("[data-takara-contact-form][data-takara-contact-web-v2]");
+    if (!form) return;
 
-    const submitButton = box.querySelector("[data-takara-contact-submit]");
-    if (!submitButton) return;
-
-    submitButton.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      handleSubmit(box);
-    });
-
-    box.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" && event.target && event.target.tagName !== "TEXTAREA") {
-        event.preventDefault();
-        handleSubmit(box);
-      }
-    });
+    form.addEventListener("submit", handleSubmit, true);
   }
 
-  async function handleSubmit(box) {
-    const submitButton = box.querySelector("[data-takara-contact-submit]");
-    const statusNode = box.querySelector("[data-takara-contact-status]");
-    const endpoint = box.getAttribute("data-takara-endpoint") || "";
+  async function handleSubmit(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const form = event.currentTarget;
+    const submitButton = form.querySelector("[data-takara-contact-submit]");
+    const statusNode = form.querySelector("[data-takara-contact-status]");
+    const endpoint = form.getAttribute("data-takara-endpoint") || form.getAttribute("action") || "";
 
     try {
       setBusy(submitButton, true);
       setStatus(statusNode, "Preparando consulta...", "info");
 
       if (!endpoint || endpoint.indexOf("https://script.google.com/macros/s/") !== 0) {
-        throw new Error("No está configurado el endpoint de contacto.");
+        throw new Error("No está configurado el envío de contacto.");
       }
 
-      const nombre = value(box, "Nombre");
-      const email = value(box, "Email");
-      const asunto = value(box, "Asunto");
-      const mensaje = value(box, "Mensaje");
+      const nombre = value(form, "nombre");
+      const email = value(form, "email");
+      const asunto = value(form, "asunto");
+      const mensaje = value(form, "mensaje");
 
       if (!nombre) {
         throw new Error("Indica tu nombre para poder responderte correctamente.");
@@ -98,13 +88,9 @@
         body: payload
       });
 
-      resetFields(box);
+      form.reset();
 
-      setStatus(
-        statusNode,
-        "Consulta enviada correctamente. Te responderemos por correo lo antes posible.",
-        "success"
-      );
+      setStatus(statusNode, "Consulta enviada correctamente. Te responderemos por correo lo antes posible.", "success");
     } catch (error) {
       setStatus(statusNode, error && error.message ? error.message : "No se pudo enviar la consulta.", "error");
     } finally {
@@ -112,16 +98,9 @@
     }
   }
 
-  function value(box, name) {
-    const field = box.querySelector('[name="' + name + '"]');
+  function value(form, name) {
+    const field = form.querySelector('[name="' + name + '"]');
     return field && typeof field.value === "string" ? field.value.trim() : "";
-  }
-
-  function resetFields(box) {
-    const fields = box.querySelectorAll("input, textarea");
-    fields.forEach(function (field) {
-      field.value = "";
-    });
   }
 
   function isValidEmail(email) {

@@ -17,7 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="assets/css/styles.css?v=contacto-sin-form-20260703_212204">
+      <link rel="stylesheet" href="assets/css/styles.css?v=contacto-patron-pedido-20260703_221139">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -93,17 +93,35 @@
 
           <p class="contacto-final-card__text">Si tienes una consulta, escríbenos y te responderemos por correo lo antes posible. Para gestionar un pedido personalizado con más precisión, utiliza la página de pedido.</p>
 
-          <div class="contacto-final-form" data-takara-contact-form data-takara-contact-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
+                    <form class="contacto-final-form" data-takara-contact-form data-takara-contact-web-v2 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" action="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" method="post" novalidate>
             <div class="contacto-final-form__row">
               <label>
                 <span>Nombre completo</span>
-                <input type="text" name="Nombre" autocomplete="name" placeholder="Tu nombre" required>
+                <input type="text" name="nombre" autocomplete="name" placeholder="Tu nombre" required>
               </label>
               <label>
                 <span>Correo electrónico</span>
-                <input type="email" name="Email" autocomplete="email" placeholder="tu@email.com" required>
+                <input type="email" name="email" autocomplete="email" placeholder="tu@email.com" required>
               </label>
             </div>
+
+            <label>
+              <span>Asunto</span>
+              <input type="text" name="asunto" placeholder="Consulta, colaboración o duda general" required>
+            </label>
+
+            <label>
+              <span>Mensaje</span>
+              <textarea name="mensaje" rows="6" placeholder="Cuéntanos en qué podemos ayudarte" required></textarea>
+            </label>
+
+            <div class="contacto-final-form__actions">
+              <button class="btn btn--primary" type="submit" data-takara-contact-submit>Enviar consulta</button>
+              <p>Enviaremos tu consulta directamente a Takara 3D para poder responderte por correo.</p>
+            </div>
+
+            <p class="contacto-final-status" data-takara-contact-status hidden></p>
+          </form>
 
             <label>
               <span>Asunto</span>
@@ -239,6 +257,6 @@
     </footer>
 
   <script src="assets/js/main.js"></script>
-  <script src="assets/js/takara-contacto-web.js?v=contacto-sin-form-20260703_212204" defer></script>
+  <script src="assets/js/takara-contacto-web.js?v=contacto-patron-pedido-20260703_221139" defer></script>
 </body>
 </html>
