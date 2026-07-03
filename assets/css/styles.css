@@ -2990,18 +2990,27 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 /* TAKARA_CONTACTO_HERO_HORIZONTAL_V9 END */
 
-/* TAKARA_HERO_CENEFA_UNIFICADA_V1 START
-   Base común para la cenefa hero de Inicio, Productos y Contacto.
-   La foto se controla como fondo para evitar reglas antiguas de img. */
-.hero--takara-common {
+/* TAKARA_HERO_CENEFA_UNIFICADA_V2 START
+   Base común real para la cenefa hero de Inicio, Productos y Contacto.
+   La estructura queda idéntica; cada foto solo controla su encuadre. */
+.hero--takara-common,
+.hero--takara-common.hero--page {
   min-height: clamp(570px, 72vh, 720px) !important;
+  height: clamp(570px, 72vh, 720px) !important;
+  padding: 0 !important;
   background: #120d09 !important;
   color: var(--color-warm-white);
   isolation: isolate;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero--takara-common.hero--page {
-  min-height: clamp(570px, 72vh, 720px) !important;
+.hero--takara-common .hero__media,
+.hero--takara-common .hero__overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .hero--takara-common .hero__media {
@@ -3009,6 +3018,7 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   background-color: #120d09 !important;
   background-repeat: no-repeat !important;
   background-position: center center !important;
+  z-index: 0;
 }
 
 .hero--takara-common .hero__media img {
@@ -3016,6 +3026,7 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 .hero--takara-common .hero__overlay {
+  z-index: 1;
   background:
     linear-gradient(90deg, rgba(18, 13, 9, .94) 0%, rgba(23, 15, 10, .76) 42%, rgba(23, 15, 10, .24) 100%),
     linear-gradient(0deg, rgba(18, 13, 9, .32), transparent 62%) !important;
@@ -3023,27 +3034,35 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 
 .hero--takara-common .hero__content,
 .hero--takara-common.hero--page .hero__content {
+  position: relative;
+  z-index: 2;
   min-height: clamp(570px, 72vh, 720px) !important;
+  height: clamp(570px, 72vh, 720px) !important;
   display: flex;
   align-items: center;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .hero--takara-common .hero__copy {
   max-width: 680px;
 }
 
+/* Encuadre específico de Inicio aprobado */
 .hero--inicio .hero__media {
   background-image: url("../img/fotos/hero-home-familia-ambiente.webp") !important;
   background-size: auto 162% !important;
   background-position: 79% center !important;
 }
 
+/* Encuadre específico de Productos aprobado */
 .hero--productos-abuela .hero__media {
   background-image: url("../img/fotos/producto-marco-vertical-abuela.png") !important;
   background-size: auto 184% !important;
   background-position: 78% center !important;
 }
 
+/* Encuadre específico de Contacto aprobado */
 .hero--contacto-horizontal .hero__media {
   background-image: url("../img/fotos/producto-marco-horizontal-mascota.webp") !important;
   background-size: 75% auto !important;
@@ -3052,18 +3071,15 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 
 @media (max-width: 760px) {
   .hero--takara-common,
-  .hero--takara-common.hero--page,
+  .hero--takara-common.hero--page {
+    min-height: clamp(520px, 72vh, 640px) !important;
+    height: clamp(520px, 72vh, 640px) !important;
+  }
+
   .hero--takara-common .hero__content,
   .hero--takara-common.hero--page .hero__content {
     min-height: clamp(520px, 72vh, 640px) !important;
-  }
-
-  .hero--inicio .hero__media {
-    background-position: 60% center !important;
-  }
-
-  .hero--productos-abuela .hero__media {
-    background-position: 52% center !important;
+    height: clamp(520px, 72vh, 640px) !important;
   }
 
   .hero--contacto-horizontal .hero__media {
@@ -3071,7 +3087,7 @@ section#perfecto-para-regalar .gift-strip-card__body p {
     background-position: 100% center !important;
   }
 }
-/* TAKARA_HERO_CENEFA_UNIFICADA_V1 END */
+/* TAKARA_HERO_CENEFA_UNIFICADA_V2 END */
 /* TAKARA_MOBILE_DROPDOWN_FINAL_V2
    Menú móvil cerrado por defecto y abierto solo con el botón.
    Recupera iconos superiores de Instagram y WhatsApp en móvil. */
