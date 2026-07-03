@@ -17,7 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="assets/css/styles.css?v=hero-cenefa-v2-final-20260703092331">
+      <link rel="stylesheet" href="assets/css/styles.css?v=contacto-final-20260703_144208">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -76,75 +76,149 @@
         </div>
       </div>
     </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-title">
-          <h2>Elige cómo contactarnos</h2>
-        </div>
-        <div class="contact-grid">
-          <article class="card contact-card"><svg width="48" height="48"><use href="#i-whatsapp"/></svg><h3>WhatsApp</h3><p class="small">Escríbenos directamente y te respondemos lo antes posible.</p><button class="btn btn--primary" type="button" data-whatsapp style="margin-top:1rem">Escribir por WhatsApp</button></article>
-          <article class="card contact-card"><svg width="48" height="48"><use href="#i-instagram"/></svg><h3>Instagram</h3><p class="small">Síguenos o envíanos un DM para ver novedades y ejemplos.</p><a class="btn btn--primary" href="https://www.instagram.com/3d.takara/" target="_blank" rel="noopener noreferrer" style="margin-top:1rem">Enviar mensaje</a></article>
-          <article class="card contact-card"><svg width="48" height="48"><use href="#i-mail"/></svg><h3>Correo / mensaje</h3><p class="small">Usa el formulario y lo convertiremos en mensaje de WhatsApp.</p><a class="btn btn--primary" href="#formulario-contacto" style="margin-top:1rem">Ir al formulario</a></article>
-        </div>
+    <section class="section contacto-final" id="contacto">
+      <div class="container contacto-final__intro">
+        <h2>Elige la forma más cómoda de contactar con nosotros</h2>
+        <p>Cuéntanos tu idea o consúltanos cualquier duda. Te orientaremos con calma para que el resultado encaje con lo que quieres crear.</p>
       </div>
-    </section>
 
-    <section class="section section--tight" id="formulario-contacto">
-      <div class="container contact-layout">
-        <form class="card info-panel" data-contact-form>
-          <h2>Envíanos tu mensaje</h2>
-          <div class="form-grid" style="margin-top:1rem">
-            <div class="field"><label for="contact-nombre">Nombre completo</label><input id="contact-nombre" name="nombre" autocomplete="name" required></div>
-            <div class="field"><label for="contact-contacto">Email o WhatsApp</label><input id="contact-contacto" name="contacto" autocomplete="email" required></div>
-            <div class="field field--full"><label for="contact-asunto">Asunto</label><input id="contact-asunto" name="asunto"></div>
-            <div class="field field--full"><label for="contact-mensaje">Mensaje</label><textarea id="contact-mensaje" name="mensaje" required></textarea></div>
+      <div class="container contacto-final__grid">
+        <article class="contacto-final-card contacto-final-card--form">
+          <div class="contacto-final-card__heading">
+            <span class="contacto-final-icon" aria-hidden="true">✉</span>
+            <div>
+              <h3>Envíanos un mensaje</h3>
+            </div>
           </div>
-          <button class="btn btn--primary btn--wide" type="submit" style="margin-top:1rem">Enviar mensaje</button>
-          <p class="small" style="margin-top:.8rem">🔒 Tus datos solo se usan para responderte.</p>
-        </form>
 
-        <aside class="card info-panel">
-          <h2>Confiar en nosotros es elegir calidad</h2>
-          <div class="trust-list" style="margin-top:1.3rem">
-            <div class="trust-item"><svg width="42" height="42"><use href="#i-heart"/></svg><div><h3>Atención cercana</h3><p class="small">Te acompañamos durante el proceso.</p></div></div>
-            <div class="trust-item"><svg width="42" height="42"><use href="#i-image"/></svg><div><h3>Revisión personalizada</h3><p class="small">Revisamos cada foto antes de fabricar.</p></div></div>
-            <div class="trust-item"><svg width="42" height="42"><use href="#i-bell"/></svg><div><h3>Respuesta rápida</h3><p class="small">Te respondemos lo antes posible.</p></div></div>
-            <div class="trust-item"><svg width="42" height="42"><use href="#i-box"/></svg><div><h3>Fabricación por encargo</h3><p class="small">Cada pieza se fabrica especialmente para ti.</p></div></div>
+          <p class="contacto-final-card__text">Si tienes una consulta, escríbenos y te responderemos por correo lo antes posible. Para gestionar un pedido personalizado con más precisión, utiliza la página de pedido.</p>
+
+          <form class="contacto-final-form" action="mailto:3d.takara@gmail.com?subject=Consulta%20Takara%203D" method="post" enctype="text/plain">
+            <div class="contacto-final-form__row">
+              <label>
+                <span>Nombre completo</span>
+                <input type="text" name="Nombre" autocomplete="name" placeholder="Tu nombre" required>
+              </label>
+              <label>
+                <span>Correo electrónico</span>
+                <input type="email" name="Email" autocomplete="email" placeholder="tu@email.com" required>
+              </label>
+            </div>
+
+            <label>
+              <span>Asunto</span>
+              <input type="text" name="Asunto" placeholder="Consulta, colaboración o duda general" required>
+            </label>
+
+            <label>
+              <span>Mensaje</span>
+              <textarea name="Mensaje" rows="6" placeholder="Cuéntanos en qué podemos ayudarte" required></textarea>
+            </label>
+
+            <div class="contacto-final-form__actions">
+              <button class="btn btn--primary" type="submit">Enviar consulta por email</button>
+              <p>Se abrirá tu aplicación de correo para enviarnos la consulta.</p>
+            </div>
+          </form>
+        </article>
+
+        <aside class="contacto-final-card contacto-final-card--channels">
+          <div class="contacto-final-card__heading">
+            <span class="contacto-final-icon" aria-hidden="true">◌</span>
+            <div>
+              <h3>Canales de contacto</h3>
+            </div>
+          </div>
+
+          <div class="contacto-channel contacto-channel--featured">
+            <span class="contacto-channel__icon" aria-hidden="true">✉</span>
+            <div>
+              <h4>Email recomendado</h4>
+              <p>La mejor opción para consultas sobre medidas, acabados, tiempos o cualquier detalle antes de encargar tu litofanía.</p>
+              <strong>3d.takara@gmail.com</strong>
+            </div>
+          </div>
+
+          <div class="contacto-channel contacto-channel--notice">
+            <span class="contacto-channel__icon" aria-hidden="true">i</span>
+            <div>
+              <h4>Pedidos personalizados</h4>
+              <p>Los pedidos personalizados los recibimos desde el formulario de pedido para revisar bien la imagen, confirmar los datos y dejar todo preparado con claridad.</p>
+              <a href="pedido.html">Ir al formulario de pedido</a>
+            </div>
           </div>
         </aside>
+
+        <section class="contacto-trust" aria-labelledby="contacto-confianza-title">
+          <h3 id="contacto-confianza-title">Confiar en nosotros es elegir calidad</h3>
+
+          <div class="contacto-trust__grid">
+            <article class="contacto-trust-card">
+              <span aria-hidden="true">♡</span>
+              <h4>Atención cercana</h4>
+              <p>Te acompañamos durante el proceso.</p>
+            </article>
+
+            <article class="contacto-trust-card">
+              <span aria-hidden="true">▧</span>
+              <h4>Revisión personalizada</h4>
+              <p>Revisamos cada foto antes de fabricar.</p>
+            </article>
+
+            <article class="contacto-trust-card">
+              <span aria-hidden="true">↗</span>
+              <h4>Respuesta rápida</h4>
+              <p>Te respondemos lo antes posible.</p>
+            </article>
+
+            <article class="contacto-trust-card">
+              <span aria-hidden="true">□</span>
+              <h4>Fabricación por encargo</h4>
+              <p>Cada pieza se fabrica especialmente para ti.</p>
+            </article>
+          </div>
+        </section>
       </div>
     </section>
 
-    <section class="section section--tight">
+    <section class="section contacto-faq" aria-labelledby="contacto-faq-title">
       <div class="container">
-        <div class="section-title">
-          <h2>Preguntas frecuentes</h2>
-        </div>
-        <div class="faq">
-          <details><summary>¿Cuánto tiempo tardan en fabricarse?</summary><p>Depende de carga y formato. Como referencia inicial, trabajamos con 2 a 4 días hábiles desde la confirmación de la imagen.</p></details>
-          <details><summary>¿Puedo ver una vista previa?</summary><p>Sí. Revisamos la imagen y te confirmamos si es válida antes de fabricar.</p></details>
-          <details><summary>¿Hacéis envíos a toda España?</summary><p>Sí, la web queda preparada para comunicar envíos a toda España. Las condiciones se pueden ajustar cuando cierres operador y costes.</p></details>
-          <details><summary>¿Qué fotos funcionan mejor?</summary><p>Fotos nítidas, con buena luz, caras visibles y contraste suficiente. Si una foto no es adecuada, te lo diremos antes de imprimir.</p></details>
+        <h2 id="contacto-faq-title">Preguntas frecuentes</h2>
+
+        <div class="faq-grid">
+          <article class="faq-item">
+            <h3>¿Cómo se hace un pedido personalizado?</h3>
+            <p>Puedes hacerlo desde la página de pedido. Allí eliges el formato, el acabado del marco, subes tu foto y nos dejas las observaciones importantes. Después revisamos todo contigo antes de fabricar.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Qué tipo de foto funciona mejor?</h3>
+            <p>Funcionan mejor las imágenes nítidas, con buena luz y donde se vean bien las caras o el motivo principal. Si una foto no es adecuada, te lo diremos antes de fabricar.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Cómo se alimenta la lámpara?</h3>
+            <p>Las lámparas funcionan con alimentación USB de 5V. Puedes usarlas con un cargador USB compatible, una regleta con USB o una batería externa.</p>
+          </article>
+
+          <article class="faq-item">
+            <h3>¿Cuánto tarda la fabricación?</h3>
+            <p>Depende del volumen de trabajo y del tipo de pedido. Al revisar tu solicitud te indicaremos el plazo aproximado antes de fabricar.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section section--tight">
-      <div class="container">
-        <div class="cta-band">
-          <div>
-            <h2>¿Listo para crear tu recuerdo?</h2>
-            <p>Estamos aquí para hacerlo realidad.</p>
-          </div>
-          <div class="cta-band__actions">
-            <a class="btn btn--primary" href="pedido.html">Hacer pedido ahora</a>
-            <button class="btn btn--secondary" type="button" data-whatsapp>WhatsApp</button>
-          </div>
+    <section class="section contacto-final-cta">
+      <div class="container contacto-final-cta__inner">
+        <div>
+          <h2>Empieza tu pedido personalizado</h2>
+          <p>El formulario de pedido nos permite revisar la foto, guardar los datos correctamente y responderte con los siguientes pasos.</p>
         </div>
+        <a class="btn btn--primary" href="pedido.html">Hacer pedido ahora</a>
       </div>
     </section>
-  </main>
+</main>
 
     <footer class="site-footer">
       <div class="container footer-inner">
