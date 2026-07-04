@@ -5,6 +5,8 @@
   const MAX_FILE_BYTES = 10 * 1024 * 1024;
   const PRODUCT_CODE = "MARCO_LITOFANIA_144X108";
   const DISPLAY_PRICE_EUR = "";
+  const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V1";
+  const ORDER_ID_PREFIX = "TK-WEB";
 
   const COLOR_LABELS = {
     actual: "Madera clara",
@@ -169,6 +171,8 @@
     const notas = value(form, "notas");
     const aceptaContacto = isChecked(form, "acepta_contacto");
     const aceptaRevision = isChecked(form, "acepta_revision");
+    const pedidoWebId = createPedidoWebId();
+    const creadoEnIso = new Date().toISOString();
 
     if (!nombre) {
       throw new Error("Falta tu nombre. Completa el campo Nombre para poder enviar la solicitud.");
@@ -201,6 +205,9 @@
     const photoBase64 = await readFileAsDataUrl(file);
 
     return {
+      payload_version: ORDER_PAYLOAD_VERSION,
+      pedido_web_id: pedidoWebId,
+      creado_en_iso: creadoEnIso,
       modo_prueba: false,
       cliente: {
         nombre: nombre,
@@ -210,7 +217,10 @@
       },
       meta: {
         pagina_origen: paginaOrigen,
-        entorno: entorno
+        entorno: entorno,
+        pedido_web_id: pedidoWebId,
+        payload_version: ORDER_PAYLOAD_VERSION,
+        creado_en_iso: creadoEnIso
       },
       producto: {
         producto: "Marco litofanía personalizado",
@@ -250,6 +260,39 @@
     }
 
     return "produccion";
+  }
+
+  function createPedidoWebId() {
+    const now = new Date();
+    const datePart = [
+      now.getFullYear(),
+      pad2(now.getMonth() + 1),
+      pad2(now.getDate())
+    ].join("");
+
+    return ORDER_ID_PREFIX + "-" + datePart + "-" + randomCode(6);
+  }
+
+  function pad2(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function randomCode(length) {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const cryptoApi = window.crypto || window.msCrypto;
+    const bytes = new Uint8Array(length);
+
+    if (cryptoApi && cryptoApi.getRandomValues) {
+      cryptoApi.getRandomValues(bytes);
+    } else {
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = Math.floor(Math.random() * 256);
+      }
+    }
+
+    return Array.prototype.map.call(bytes, function (byte) {
+      return alphabet[byte % alphabet.length];
+    }).join("");
   }
 
   function value(form, name) {
