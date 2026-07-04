@@ -137,8 +137,7 @@
         meta: payload.meta || {}
       });
 
-      payload.snapshot_pedido = snapshot;
-
+      payload.snapshot_pedido = createPhotoBase64SafeCopy(snapshot);
       payload.producto = Object.assign({}, producto, {
         producto: snapshot.producto.producto,
         codigo_producto: snapshot.producto.codigo_producto,
@@ -305,16 +304,30 @@
   }
 
   function createDryRunInspectionPayload(payload) {
-    const copy = JSON.parse(JSON.stringify(payload));
+    return createPhotoBase64SafeCopy(payload);
+  }
 
-    if (copy.archivos && copy.archivos.foto_base64) {
-      copy.archivos.foto_base64_presente = true;
-      copy.archivos.foto_base64_length = copy.archivos.foto_base64.length;
-      copy.archivos.foto_base64_prefix = copy.archivos.foto_base64.slice(0, 48);
-      delete copy.archivos.foto_base64;
+  function createPhotoBase64SafeCopy(value) {
+    const copy = JSON.parse(JSON.stringify(value));
+    stripPhotoBase64FromObject(copy);
+    return copy;
+  }
+
+  function stripPhotoBase64FromObject(value) {
+    if (!value || typeof value !== "object") {
+      return;
     }
 
-    return copy;
+    if (typeof value.foto_base64 === "string") {
+      value.foto_base64_presente = true;
+      value.foto_base64_length = value.foto_base64.length;
+      value.foto_base64_prefix = value.foto_base64.slice(0, 48);
+      delete value.foto_base64;
+    }
+
+    Object.keys(value).forEach(function (key) {
+      stripPhotoBase64FromObject(value[key]);
+    });
   }
 
   function downloadDryRunPayload(json, pedidoWebId) {
