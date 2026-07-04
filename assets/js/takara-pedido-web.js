@@ -2,7 +2,8 @@
 (function () {
   "use strict";
 
-  const MAX_FILE_BYTES = 10 * 1024 * 1024;
+  const MAX_FILE_MB = 20;
+  const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
   const PRODUCT_CODE = "MARCO_LITOFANIA_144X108";
   const DISPLAY_PRICE_EUR = "";
   const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V1";
@@ -197,7 +198,7 @@
     }
 
     if (file.size > MAX_FILE_BYTES) {
-      throw new Error("La foto supera el máximo permitido de 10 MB.");
+      throw new Error("La foto supera el máximo permitido de 20 MB.");
     }
 
     if (!isAllowedImage(file)) {
@@ -286,17 +287,59 @@
   }
 
   function persistDryRunPayload(payload) {
-    const json = JSON.stringify(payload, null, 2);
+    const inspectionPayload = createDryRunInspectionPayload(payload);
+    const json = JSON.stringify(inspectionPayload, null, 2);
 
     try {
       window.sessionStorage.setItem("TAKARA_PEDIDO_DRY_RUN_PAYLOAD", json);
     } catch (error) {
-      // sessionStorage puede estar bloqueado; el payload sigue visible por consola.
+      // sessionStorage puede estar bloqueado; el archivo descargado sigue siendo suficiente.
     }
 
+    downloadDryRunPayload(json, inspectionPayload.pedido_web_id);
+
     if (window.console && typeof window.console.log === "function") {
-      window.console.log("[Takara pedido dry-run]", payload);
+      window.console.log("[Takara pedido dry-run inspeccion]", inspectionPayload);
+      window.console.log("[Takara pedido dry-run payload completo]", payload);
     }
+  }
+
+  function createDryRunInspectionPayload(payload) {
+    const copy = JSON.parse(JSON.stringify(payload));
+
+    if (copy.archivos && copy.archivos.foto_base64) {
+      copy.archivos.foto_base64_presente = true;
+      copy.archivos.foto_base64_length = copy.archivos.foto_base64.length;
+      copy.archivos.foto_base64_prefix = copy.archivos.foto_base64.slice(0, 48);
+      delete copy.archivos.foto_base64;
+    }
+
+    return copy;
+  }
+
+  function downloadDryRunPayload(json, pedidoWebId) {
+    try {
+      const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = safeFilename(pedidoWebId || "takara-pedido-dry-run") + ".json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.setTimeout(function () {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+    } catch (error) {
+      // Si el navegador bloquea la descarga, sessionStorage y consola siguen disponibles.
+    }
+  }
+
+  function safeFilename(value) {
+    return String(value || "takara-pedido-dry-run")
+      .replace(/[^a-z0-9_-]+/gi, "-")
+      .replace(/^-+|-+$/g, "") || "takara-pedido-dry-run";
   }
 
   function createPedidoWebId() {
