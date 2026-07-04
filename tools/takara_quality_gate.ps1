@@ -85,7 +85,9 @@ $RequiredFiles = @(
     "docs/DESIGN_SYSTEM.md",
     "docs/QUALITY_GATE.md",
     "docs/ERROR_REGISTRY.md",
-    "docs/CLEANUP_POLICY.md"
+    "docs/CLEANUP_POLICY.md",
+    "docs/ORDER_ENGINE_CONTRACT.md",
+    "docs/PREVIEW_ENGINE_CONTRACT.md"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -122,8 +124,14 @@ $ForbiddenMarkers = @(
     "takara-pedido-configurator.js"
 )
 
-$ScannedTextFiles = @(Get-ChildItem $Project -Recurse -File -Include *.html,*.css,*.js,*.ts,*.vue,*.md,*.json | Where-Object {
+$ScannedTextFiles = @(Get-ChildItem $Project -Recurse -File -Include *.html,*.css,*.js,*.ts,*.vue,*.md,*.json,*.ps1 | Where-Object {
     $_.FullName -notmatch "\\.git\\" -and $_.FullName -notmatch "\\node_modules\\" -and $_.FullName -notmatch "\\dist\\"
+})
+
+$ProductionTextFiles = @($ScannedTextFiles | Where-Object {
+    $_.FullName -notmatch "\\docs\\" -and $_.FullName -notmatch "\\tools\\" -and (
+        $_.Extension -eq ".html" -or $_.Extension -eq ".css" -or $_.Extension -eq ".js" -or $_.Extension -eq ".ts" -or $_.Extension -eq ".vue" -or $_.Extension -eq ".json"
+    )
 })
 
 foreach ($File in $ScannedTextFiles) {
@@ -131,6 +139,11 @@ foreach ($File in $ScannedTextFiles) {
     $Text = Read-Utf8 $File.FullName
     if ($Text.Length -gt 0 -and ([int][char]$Text[0]) -eq 65279) { Err ("BOM UTF-8 detectado en " + $Rel) }
     if (Has-Mojibake $Text) { Err ("Mojibake detectado en " + $Rel) }
+}
+
+foreach ($File in $ProductionTextFiles) {
+    $Rel = Resolve-Path -Relative $File.FullName
+    $Text = Read-Utf8 $File.FullName
     foreach ($Marker in $ForbiddenMarkers) {
         if ($Text.Contains($Marker)) { Err ("Marcador experimental prohibido en " + $Rel + ": " + $Marker) }
     }
@@ -160,8 +173,13 @@ if (Test-Path "tools/validar_catalogo.py") {
 
 Log-Line ""
 Log-Line "[RUN] git diff --check"
-git diff --check 2>&1 | ForEach-Object { Log-Line $_ }
-if ($LASTEXITCODE -eq 0) { Ok "git diff --check OK" } else { Err "git diff --check detecto problemas" }
+$OldErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$GitDiffOutput = @(git diff --check 2>&1)
+$GitDiffExitCode = $LASTEXITCODE
+$ErrorActionPreference = $OldErrorActionPreference
+foreach ($Line in $GitDiffOutput) { Log-Line ([string]$Line) }
+if ($GitDiffExitCode -eq 0) { Ok "git diff --check OK" } else { Err "git diff --check detecto problemas" }
 
 $Status = @(git status --short)
 Log-Line ""

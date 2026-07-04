@@ -88,3 +88,39 @@ Detector automatico: revisar logs de Quality Gate buscando caracteres de dibujo 
 Prevencion: fase futura para normalizar salida de consola con codificacion UTF-8 controlada.
 
 Estado: pendiente de mejora de logs.
+
+### TK-WEB-006 - Warning de Git tratado como error por PowerShell
+
+Sintoma: Quality Gate falla durante git diff --check aunque Git solo emite un warning y el exit code real es cero.
+
+Causa: PowerShell puede tratar salida de error estandar de un proceso nativo como NativeCommandError si ErrorActionPreference esta en Stop.
+
+Detector automatico: ejecutar Quality Gate en modo bootstrap y precommit despues de modificar tooling.
+
+Prevencion: capturar salida de comandos nativos y decidir por LASTEXITCODE, no por la presencia de texto en stderr.
+
+Estado: corregido en CORE V1-R0H-1R2.
+
+### TK-WEB-007 - Reemplazo por bloque exacto no encuentra el objetivo
+
+Sintoma: una fase intenta corregir un archivo buscando un bloque literal completo, no lo encuentra y aun asi el pegado continua ejecutando pasos posteriores.
+
+Causa: el reemplazo dependia de saltos de linea y texto exacto. Si el archivo cambia minimamente, el bloque no coincide.
+
+Detector automatico: validar que el contenido nuevo esperado existe antes de ejecutar el Quality Gate.
+
+Prevencion: usar reemplazo por anclas de linea o parsing estructural, no Replace de bloques largos fragiles.
+
+Estado: corregido en CORE V1-R0H-1R2.
+
+### TK-WEB-008 - Quality Gate bloquea documentacion por mencionar marcadores prohibidos
+
+Sintoma: un documento de contrato menciona un archivo o marcador prohibido para explicar que no debe usarse, y el Quality Gate lo bloquea como si estuviera en codigo productivo.
+
+Causa: el escaneo de marcadores experimentales se aplicaba tambien a docs y tools.
+
+Detector automatico: ejecutar Quality Gate despues de crear documentacion que enumera restricciones.
+
+Prevencion: separar escaneo de encoding para todo el repo y escaneo de marcadores solo para archivos productivos.
+
+Estado: corregido en CORE V1-R0I-1R.
