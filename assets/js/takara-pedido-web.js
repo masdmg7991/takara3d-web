@@ -51,7 +51,8 @@
         throw new Error("No está configurado el endpoint de pedidos.");
       }
 
-      const payload = await buildPayload(form);
+      const basePayload = await buildPayload(form);
+      const payload = await enrichPayloadWithCatalogSnapshot(basePayload);
 
       setStatus(statusNode, "Enviando solicitud a Takara 3D...", "info");
 
@@ -146,7 +147,7 @@
         pricing_version: snapshot.pricing_version
       });
 
-      return enrichPayloadWithCatalogSnapshot(payload);
+      return payload;
     });
   }
 
