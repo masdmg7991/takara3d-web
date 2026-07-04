@@ -56,6 +56,16 @@
       const basePayload = await buildPayload(form);
       const payload = await enrichPayloadWithCatalogSnapshot(basePayload);
 
+      if (isDryRunEnabled()) {
+        persistDryRunPayload(payload);
+        setStatus(
+          statusNode,
+          "Modo prueba local: payload generado correctamente sin enviar al endpoint.",
+          "success"
+        );
+        return;
+      }
+
       setStatus(statusNode, "Enviando solicitud a Takara 3D...", "info");
 
       await fetch(endpoint, {
@@ -260,6 +270,33 @@
     }
 
     return "produccion";
+  }
+
+  function isDryRunEnabled() {
+    if (getEnvironment() !== "local") {
+      return false;
+    }
+
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("takara_dry_run") === "1";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function persistDryRunPayload(payload) {
+    const json = JSON.stringify(payload, null, 2);
+
+    try {
+      window.sessionStorage.setItem("TAKARA_PEDIDO_DRY_RUN_PAYLOAD", json);
+    } catch (error) {
+      // sessionStorage puede estar bloqueado; el payload sigue visible por consola.
+    }
+
+    if (window.console && typeof window.console.log === "function") {
+      window.console.log("[Takara pedido dry-run]", payload);
+    }
   }
 
   function createPedidoWebId() {
