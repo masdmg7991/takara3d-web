@@ -1,61 +1,40 @@
-# Takara Pedidos Web — Google Apps Script
+# Takara 3D - Apps Script pedidos/contacto
 
-## Estado
+Este directorio versiona el Apps Script real que atiende los formularios publicos de Takara 3D.
 
-Este directorio queda preparado para versionar el backend ligero de pedidos y contacto.
+Archivo principal:
 
-Versión pública esperada:
+- Code.gs
 
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
-```
+Responsabilidad:
 
-Endpoint actual:
+- Recibir solicitudes desde la web publica.
+- Diferenciar contacto web y pedido web.
+- Enviar correo interno a 3d.takara@gmail.com.
+- Enviar confirmacion al cliente cuando procede.
+- Guardar foto original en Drive cuando se recibe en base64.
+- Responder siempre en JSON.
 
-```text
-<APPS_SCRIPT_ENDPOINT>
-```
+Contrato validado:
 
-## Regla crítica
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
+- TAKARA_PEDIDO_WEB_V1
+- doGet()
+- doPost(e)
+- CONTACTO_WEB
+- MailApp.sendEmail
+- DriveApp
+- limite de foto 20 MB
+- precio mostrado 35.00 EUR
+- ContentService para respuesta JSON
 
-`Code.gs` no debe inventarse ni reconstruirse desde memoria.
+Reglas:
 
-Debe copiarse literalmente desde el proyecto real publicado en Google Apps Script V1_8.
+- Este codigo no debe contener tokens, contrasenas ni claves privadas.
+- No se versionan pedidos reales, fotos, adjuntos ni datos de clientes.
+- El endpoint real de despliegue no se documenta aqui.
+- Si se cambia el Apps Script real en Google, primero debe actualizarse este archivo y pasar el quality gate.
 
-Hasta tener ese código real, este directorio solo documenta el contrato y queda pendiente de completar.
+Hash exacto versionado:
 
-## Responsabilidades del Apps Script
-
-- Recibir contacto web.
-- Recibir pedido web completo con foto.
-- Validar campos mínimos.
-- Mantener precio backend actual de 35 euros.
-- Mantener límite backend actual de 20 MB.
-- Enviar email interno a Takara.
-- Enviar confirmación al cliente.
-- Devolver respuesta estructurada.
-
-## Validación GET
-
-La respuesta actual es JSON. La validación correcta debe comprobar el campo `script`:
-
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
-```
-
-No comparar la respuesta completa contra texto plano.
-
-## Pendiente
-
-- Añadir `Code.gs` real.
-- Documentar despliegue de nueva versión.
-- Documentar permisos usados.
-- Documentar pruebas manuales de contacto y pedido.
-
-## Prohibido
-
-- Cambiar endpoint desde la web sin backup.
-- Asumir que guardar en Apps Script equivale a desplegar.
-- Bajar el límite de 20 MB sin decisión explícita.
-- Volver a precio 27,50 euros.
-- Sustituir pedido completo por pedido ligero si el completo funciona.
+- SHA256 02BF9D9CF7FC9CFEF3D9ACE8DE898F52B7E17D0E22A418CD1CF011EB398378EA

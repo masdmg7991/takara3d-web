@@ -239,5 +239,18 @@ if (Test-Path $TakaraPublicAudit) {
 }
 # /TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
 
+
+# TAKARA_APPS_SCRIPT_VALIDATION_INTEGRATION_V1
+Write-Host ""
+Write-Host "[RUN] powershell -NoProfile -ExecutionPolicy Bypass -File tools/takara_validar_apps_script.ps1"
+$TakaraToolsDir = Split-Path -Parent $PSCommandPath
+$TakaraRepoRoot = Resolve-Path (Join-Path $TakaraToolsDir "..")
+$TakaraAppsValidator = Join-Path $TakaraToolsDir "takara_validar_apps_script.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File $TakaraAppsValidator -Project $TakaraRepoRoot
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ERROR] Apps Script validation fallo." -ForegroundColor Red
+    exit 1
+}
+
 Log-Line "[TAKARA_QUALITY_GATE_OK]"
 exit 0
