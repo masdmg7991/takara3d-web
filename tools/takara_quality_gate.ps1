@@ -221,5 +221,23 @@ if ($Errors.Count -gt 0) {
     exit 1
 }
 
+
+# TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
+$TakaraPublicAudit = Join-Path $PSScriptRoot "takara_public_repo_audit.ps1"
+if (Test-Path $TakaraPublicAudit) {
+    Write-Host ""
+    Write-Host "[RUN] powershell -NoProfile -ExecutionPolicy Bypass -File tools/takara_public_repo_audit.ps1"
+    try {
+        & $TakaraPublicAudit -Project (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+    } catch {
+        Write-Host ("[ERROR] Auditoria publica fallo: " + $_.Exception.Message) -ForegroundColor Red
+        exit 1
+    }
+} else {
+    Write-Host "[ERROR] Falta tools/takara_public_repo_audit.ps1" -ForegroundColor Red
+    exit 1
+}
+# /TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
+
 Log-Line "[TAKARA_QUALITY_GATE_OK]"
 exit 0
