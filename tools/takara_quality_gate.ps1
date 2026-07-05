@@ -110,6 +110,20 @@ if (Test-Path $PreviewPath) {
 if (Test-Path $PedidoPath) {
     $PedidoText = Read-Utf8 $PedidoPath
     if ($PedidoText.Contains("takara-pedido-preview.js")) { Ok "pedido.html carga preview JS" } else { Err "pedido.html no carga preview JS" }
+
+# TAKARA LEGACY ENGINE GUARDS START
+$ProductosPath = Join-Path $Project "productos.html"
+if (Test-Path $ProductosPath) {
+    $ProductosText = Read-Utf8 $ProductosPath
+    if ($ProductosText.Contains('<script src="assets/js/productos.js"></script>')) { Err "productos.html carga motor legado productos.js" } else { Ok "productos.html no carga motor legado productos.js" }
+    if ($ProductosText.Contains("renderTakaraProducts") -and $ProductosText.Contains("assets/js/core/takara-catalogo.js") -and $ProductosText.Contains("assets/js/core/takara-pricing.js")) { Ok "productos.html conserva motor catalogo actual" } else { Err "productos.html no conserva motor catalogo actual" }
+} else {
+    Err "No existe productos.html"
+}
+
+if ($PedidoText.Contains('<script src="assets/js/pedido.js"></script>')) { Err "pedido.html carga motor legado pedido.js" } else { Ok "pedido.html no carga motor legado pedido.js" }
+if ($PedidoText.Contains("assets/js/takara-pedido-web.js") -and $PedidoText.Contains("data-takara-pedido-form") -and $PedidoText.Contains("data-takara-pedido-web-v1")) { Ok "pedido.html conserva motor Gmail actual" } else { Err "pedido.html no conserva motor Gmail actual" }
+# TAKARA LEGACY ENGINE GUARDS END
     if ($PedidoText.Contains("takara-pedido-configurator.js")) { Err "pedido.html carga configurador experimental prohibido" } else { Ok "pedido.html no carga configurador experimental" }
 }
 
