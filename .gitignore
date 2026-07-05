@@ -1,0 +1,6 @@
+
+# Takara3D - documentacion privada/local, no publicar
+docs/takara-continuidad-arquitectura-*/
+docs/private/
+private-docs/
+*.local.md
