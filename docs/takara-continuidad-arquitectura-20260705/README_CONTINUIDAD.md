@@ -1,9 +1,9 @@
 # Takara3D — Paquete de continuidad, arquitectura y hoja de ruta
 
 Fecha de corte: 2026-07-05
-Proyecto: **Página Web Takara / Takara3D Web + Pedido Web + Apps Script + MicroFactory futura**
+Proyecto: **Página Web Takara / Takara3D Web + Pedido Web + Apps Script + backend de produccion futuro futura**
 
-Este paquete sirve para continuar el trabajo en otra conversación sin perder contexto ni repetir errores. Debe copiarse al repositorio `C:\Users\Miky\Desktop\takara3d-web`, idealmente dentro de `docs/`, antes de seguir desarrollando.
+Este paquete sirve para continuar el trabajo en otra conversación sin perder contexto ni repetir errores. Debe copiarse al repositorio `<REPO_LOCAL>`, idealmente dentro de `docs/`, antes de seguir desarrollando.
 
 ## Lectura recomendada para la próxima conversación
 

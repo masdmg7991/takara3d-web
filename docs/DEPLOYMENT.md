@@ -1,4 +1,4 @@
-﻿# Despliegue Takara3D Web
+# Despliegue Takara3D Web
 
 ## Estado actual
 
@@ -7,7 +7,7 @@ La web actual funciona como sitio estático publicado mediante GitHub Pages.
 Repositorio local:
 
 ```text
-C:\Users\Miky\Desktop\takara3d-web
+<REPO_LOCAL>
 ```
 
 Repositorio remoto:

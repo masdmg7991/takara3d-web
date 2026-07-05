@@ -1,4 +1,4 @@
-# 07 — Apps Script, Gmail y MicroFactory
+# 07 — Apps Script, Gmail y backend de produccion futuro
 
 ## Papel de Apps Script
 
@@ -15,7 +15,7 @@ Responsabilidades:
 - Enviar confirmación al cliente.
 - Responder con estado.
 
-No debe convertirse en el ERP ni en MicroFactory.
+No debe convertirse en el ERP ni en backend de produccion futuro.
 
 ## Estado Apps Script
 
@@ -52,7 +52,7 @@ Ventajas:
 - Control humano.
 - Trazabilidad inicial.
 - Fácil de revisar.
-- Permite a MicroFactory importar cuando esté listo.
+- Permite a backend de produccion futuro importar cuando esté listo.
 
 ## Papel de WhatsApp
 
@@ -66,15 +66,15 @@ Debe usarse para:
 - aclaraciones,
 - trato comercial.
 
-## MicroFactory futuro
+## backend de produccion futuro futuro
 
-MicroFactory será el backend de producción.
+backend de produccion futuro será el backend de producción.
 
 Flujo deseado:
 
 ```text
 Gmail pedido estructurado
-→ MicroFactory lector
+→ backend de produccion futuro lector
 → parseo/normalización
 → crear expediente TK
 → custodiar original
@@ -84,7 +84,7 @@ Gmail pedido estructurado
 → preparación producción
 ```
 
-## Datos que MicroFactory debe capturar
+## Datos que backend de produccion futuro debe capturar
 
 - ID TK-WEB.
 - Fecha recepción.
@@ -101,7 +101,7 @@ Gmail pedido estructurado
 - Eventos.
 - Origen `web`.
 
-## Estados sugeridos MicroFactory
+## Estados sugeridos backend de produccion futuro
 
 ```text
 entrada_creada

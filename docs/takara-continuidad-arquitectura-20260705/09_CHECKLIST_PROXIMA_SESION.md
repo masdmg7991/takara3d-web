@@ -7,7 +7,7 @@ Pegar el contenido de `99_PROMPT_PROXIMA_CONVERSACION.md`.
 ## Comprobaciones iniciales
 
 ```powershell
-cd C:\Users\Miky\Desktop\takara3d-web
+cd <REPO_LOCAL>
 git status --short
 git rev-parse --short HEAD
 git log --oneline -5
@@ -16,7 +16,7 @@ git log --oneline -5
 ## Verificar Apps Script
 
 ```powershell
-$Endpoint = "https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec"
+$Endpoint = "<APPS_SCRIPT_ENDPOINT>"
 (Invoke-WebRequest -Uri $Endpoint -Method GET -TimeoutSec 30 -UseBasicParsing).Content
 ```
 
@@ -29,7 +29,7 @@ TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
 ## Verificar local
 
 ```powershell
-cd C:\Users\Miky\Desktop\takara3d-web
+cd <REPO_LOCAL>
 py -m http.server 8080
 ```
 

@@ -4,7 +4,7 @@
 
 El motor de pedido debe ser simple para el cliente y estricto por dentro.
 
-El cliente no debe ver complejidad. Takara y MicroFactory sí deben recibir datos claros, completos y trazables.
+El cliente no debe ver complejidad. Takara y backend de produccion futuro sí deben recibir datos claros, completos y trazables.
 
 ## Flujo oficial actual
 
@@ -64,7 +64,7 @@ TK-WEB-...
 El ID debe acompañar todo el ciclo:
 
 ```text
-web → Apps Script → Gmail → MicroFactory → producción
+web → Apps Script → Gmail → backend de produccion futuro → producción
 ```
 
 ## Payload versionado
@@ -92,7 +92,7 @@ Regla:
 - La UI no calcula precios a mano.
 - El precio vive en dominio/core.
 - Apps Script valida o muestra el precio esperado.
-- MicroFactory debe recibir snapshot de precio.
+- backend de produccion futuro debe recibir snapshot de precio.
 
 ## Foto
 
@@ -185,7 +185,7 @@ Debe incluir:
 - Foto/archivo.
 - Mensaje cliente.
 - Snapshot técnico.
-- Indicadores para MicroFactory.
+- Indicadores para backend de produccion futuro.
 
 ## Idempotencia pendiente
 
@@ -199,7 +199,7 @@ Opciones:
 
 - Apps Script PropertiesService.
 - Registro en hoja interna.
-- MicroFactory deduplica al importar.
+- backend de produccion futuro deduplica al importar.
 - ID único en BD futura.
 
 ## Estados futuros

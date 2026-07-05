@@ -138,7 +138,7 @@ Estados previstos:
 - aceptado para fabricacion;
 - requiere aclaracion.
 
-La web publica solo necesita mostrar estados utiles para el cliente. Los estados internos pueden quedar para MicroFactory o gestion posterior.
+La web publica solo necesita mostrar estados utiles para el cliente. Los estados internos pueden quedar para backend de produccion futuro o gestion posterior.
 
 ---
 

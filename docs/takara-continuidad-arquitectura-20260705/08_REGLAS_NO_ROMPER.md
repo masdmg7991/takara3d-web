@@ -42,7 +42,7 @@
 - No subir temporales.
 - No mezclar temas.
 
-## MicroFactory
+## backend de produccion futuro
 
 - No automatizar fabricación antes de controlar pedidos.
 - No perder originales.

@@ -143,7 +143,7 @@ La UI no calcula precios a mano. La UI consulta al dominio.
 ### 6.5 Capa de pedido
 
 Contiene estado del pedido, configuracion, datos de contacto, legal, resumen, envio y adaptadores.
-El formulario no debe saber si el destino futuro sera Gmail, MicroFactory, base de datos o tienda.
+El formulario no debe saber si el destino futuro sera Gmail, backend de produccion futuro, base de datos o tienda.
 
 ### 6.6 Capa de preview
 
@@ -338,4 +338,4 @@ El codigo debe sentirse modular, predecible, documentado, testeable, sin duplici
 
 ## 15. Criterio de exito
 
-Esta arquitectura sera correcta si dentro de meses podemos aniadir nuevos productos, formatos, colores, precios por cantidad, cupones, resenias, usuarios, panel interno, MicroFactory y motor preview mejorado sin rehacer la web ni romper lo que funciona.
+Esta arquitectura sera correcta si dentro de meses podemos aniadir nuevos productos, formatos, colores, precios por cantidad, cupones, resenias, usuarios, panel interno, backend de produccion futuro y motor preview mejorado sin rehacer la web ni romper lo que funciona.

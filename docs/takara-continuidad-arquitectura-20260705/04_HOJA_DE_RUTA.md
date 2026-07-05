@@ -164,7 +164,7 @@ Debe cubrir:
 - Foto.
 - Estado de envío.
 - Payload para Apps Script.
-- Payload futuro para MicroFactory.
+- Payload futuro para backend de produccion futuro.
 
 Tests:
 
@@ -326,7 +326,7 @@ No es prioridad inmediata.
 Solo plantear cuando:
 
 - Pedido estable.
-- MicroFactory estable.
+- backend de produccion futuro estable.
 - Panel interno claro.
 - Necesidad real de cliente recurrente.
 
@@ -338,7 +338,7 @@ Posibles funciones futuras:
 - Consultar estado.
 - Historial.
 
-## Fase 13 — MicroFactory
+## Fase 13 — backend de produccion futuro
 
 Objetivo: cerrar el circuito de producción.
 
@@ -346,7 +346,7 @@ Flujo deseado:
 
 ```text
 Gmail pedido
-→ lector MicroFactory
+→ lector backend de produccion futuro
 → normalización
 → expediente TK
 → custodia original

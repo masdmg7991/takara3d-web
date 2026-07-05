@@ -4,7 +4,7 @@
 
 Construir Takara3D como una web de producto seria, rápida, premium, mantenible y preparada para crecer hacia un sistema completo de pedidos y producción.
 
-No queremos una web hecha a base de parches. Queremos una arquitectura donde el cliente vea algo muy simple, bonito y fiable, pero por debajo exista un sistema ordenado, trazable y preparado para MicroFactory.
+No queremos una web hecha a base de parches. Queremos una arquitectura donde el cliente vea algo muy simple, bonito y fiable, pero por debajo exista un sistema ordenado, trazable y preparado para backend de produccion futuro.
 
 ## Estado real actual
 
@@ -43,8 +43,8 @@ El pedido completo con foto funciona tanto en GitHub/web pública como en local.
 - Panel interno de pedidos.
 - Cuentas de usuario.
 - Reseñas/opiniones.
-- Integración automática Gmail → MicroFactory.
-- Custodia automática en MicroFactory desde pedidos web.
+- Integración automática Gmail → backend de produccion futuro.
+- Custodia automática en backend de produccion futuro desde pedidos web.
 - Base de datos de pedidos web.
 - Idempotencia fuerte backend.
 - Estado de pedido visible: recibido, pendiente revisión, aprobado, producción, enviado.
@@ -67,7 +67,7 @@ Astro + Vue 3 + TypeScript + Vite
 + GitHub Actions + GitHub Pages
 + Apps Script como backend ligero de entrada
 + Gmail como bandeja oficial
-+ MicroFactory como backend real de producción
++ backend de produccion futuro como backend real de producción
 ```
 
 ## Regla clave

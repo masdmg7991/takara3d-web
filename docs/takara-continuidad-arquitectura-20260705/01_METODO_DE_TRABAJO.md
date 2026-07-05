@@ -102,7 +102,7 @@ Si PowerShell/Git se queda mostrando `(END)`, pulsar `q`.
 - No usar WhatsApp como entrada oficial de pedidos.
 - WhatsApp queda para dudas, trato humano y seguimiento.
 - Gmail es la entrada oficial de pedidos.
-- MicroFactory será el backend real de producción.
+- backend de produccion futuro será el backend real de producción.
 
 ## Regla de documentación
 

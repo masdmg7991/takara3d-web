@@ -1,4 +1,4 @@
-﻿# Takara Pedidos Web — Google Apps Script
+# Takara Pedidos Web — Google Apps Script
 
 ## Estado
 
@@ -13,7 +13,7 @@ TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
 Endpoint actual:
 
 ```text
-https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec
+<APPS_SCRIPT_ENDPOINT>
 ```
 
 ## Regla crítica

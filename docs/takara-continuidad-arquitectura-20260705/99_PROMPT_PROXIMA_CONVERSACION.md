@@ -18,8 +18,8 @@ Quiero que mantengas exactamente este método de trabajo:
 
 Estado actual importante:
 
-- Repo local: `C:\Users\Miky\Desktop\takara3d-web`.
-- Backups: `C:\Users\Miky\Desktop\takara3d-backups`.
+- Repo local: `<REPO_LOCAL>`.
+- Backups: `<BACKUPS_LOCAL>`.
 - Web pública: `https://takara3d.es/`.
 - Remoto: `masdmg7991/takara3d-web`.
 - Base local buena conocida: `bf32ff5 Validar dry-run y fotos de 20MB`.
@@ -56,7 +56,7 @@ Astro + Vue 3 + TypeScript + Vite
 + GitHub Actions + GitHub Pages
 + Apps Script como backend ligero
 + Gmail como bandeja oficial
-+ MicroFactory como backend real de producción
++ backend de produccion futuro como backend real de producción
 ```
 
 Decisión clave:

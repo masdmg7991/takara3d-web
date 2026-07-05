@@ -5,13 +5,13 @@
 Repositorio local Windows:
 
 ```text
-C:\Users\Miky\Desktop\takara3d-web
+<REPO_LOCAL>
 ```
 
 Backups:
 
 ```text
-C:\Users\Miky\Desktop\takara3d-backups
+<BACKUPS_LOCAL>
 ```
 
 Remoto:

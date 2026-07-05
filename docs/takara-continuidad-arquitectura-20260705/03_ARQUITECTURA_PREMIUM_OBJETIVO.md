@@ -281,11 +281,11 @@ Adaptadores, no lógica pegada al formulario:
 submit-order.ts
 payload.ts
 adapters/gmail-adapter.ts
-adapters/microfactory-adapter.ts
+adapters/backend-produccion-futuro-adapter.ts
 adapters/future-shop-adapter.ts
 ```
 
-El formulario no debe saber si mañana se envía a Gmail, MicroFactory o base de datos.
+El formulario no debe saber si mañana se envía a Gmail, backend de produccion futuro o base de datos.
 
 ### 7. Calidad
 
