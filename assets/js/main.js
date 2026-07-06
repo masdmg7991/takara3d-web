@@ -1,7 +1,7 @@
-"use strict";
+﻿"use strict";
 
 const TAKARA = {
-  whatsappNumber: "34600000000", // TODO: sustituir por el número real en formato internacional sin '+'.
+  whatsappNumber: "34711235636", // TODO: sustituir por el número real en formato internacional sin '+'.
   instagramUrl: "https://www.instagram.com/3d.takara/",
   siteUrl: "https://takara3d.es"
 };
