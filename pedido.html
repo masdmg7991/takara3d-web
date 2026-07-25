@@ -17,7 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="assets/css/styles.css?v=hero-cenefa-v2-final-20260703092331">
+      <link rel="stylesheet" href="assets/css/styles.css?v=pedido-premium-2ag">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -104,7 +104,7 @@
       <meta name="twitter:description" content="Haz tu pedido de litofanía personalizada: sube tu foto, elige formato y recibe un marco luminoso original, personalizado y preparado como regalo.">
 </head>
 
-<body>
+<body class="pedido-premium">
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
 <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
@@ -143,14 +143,14 @@
   <section class="pedido-stl-page" id="pedido">
     <div class="container pedido-stl-grid">
       <div class="pedido-stl-main">
-        <header class="pedido-stl-hero">
-          <h1>Configura tu litofanía</h1>
-          <p>
-            Sube tu foto, elige el color del marco y revisa la vista previa. El formato se detecta automáticamente según la orientación de la imagen.
-          </p>
+        <header class="pedido-stl-hero pedido-premium-hero-v2 pedido-premium-hero-v2--strip pedido-premium-hero-v2--clean">
+          <div class="pedido-premium-hero-v2__copy">
+            <h1>Convierte tu foto en un recuerdo que ilumina</h1>
+            <p>Sube tu foto, prueba el color del marco y revisa una vista previa orientativa antes de enviar tu pedido.</p>
+          </div>
         </header>
 
-        <form class="pedido-stl-form" data-takara-pedido-form data-takara-pedido-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
+        <form id="takara-pedido-form-premium" class="pedido-stl-form" data-takara-pedido-form data-takara-pedido-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
           <input type="hidden" name="formato" value="vertical" data-takara-format-value>
 
           <section class="pedido-stl-card">
@@ -268,12 +268,12 @@
 
               <label>
                 <span>Teléfono / WhatsApp</span>
-                <input type="text" name="whatsapp" placeholder="Tu número" autocomplete="tel">
+                <input type="tel" name="whatsapp" placeholder="Tu número" autocomplete="tel" inputmode="numeric" maxlength="15" required pattern="[0-9]{9,15}" minlength="9" aria-required="true">
               </label>
 
               <label>
                 <span>Email</span>
-                <input type="email" name="email" placeholder="tuemail@ejemplo.com" autocomplete="email">
+                <input type="email" name="email" placeholder="tuemail@ejemplo.com" autocomplete="email" inputmode="email" maxlength="254" required>
               </label>
 
               <label>
@@ -329,35 +329,147 @@
 
       <aside class="pedido-stl-aside">
         <div class="pedido-stl-preview">
+          <aside class="takara-preview-config-panel" aria-label="Personalización del marco">
+            <section class="takara-preview-config-section takara-preview-config-section--format">
+              <div class="takara-config-heading">
+                <p class="takara-preview-config-step">1</p>
+                <div>
+                  <h2>Formato detectado</h2>
+                  <p>Al subir la foto marcamos automáticamente vertical u horizontal.</p>
+                </div>
+              </div>
+              <div class="takara-preview-format-options">
+                <button type="button" class="takara-preview-format-card is-active" data-takara-format-proxy="vertical">
+                  <strong>Marco vertical</strong>
+                  <span>Foto 108 × 144 mm</span>
+                </button>
+                <button type="button" class="takara-preview-format-card" data-takara-format-proxy="horizontal">
+                  <strong>Marco horizontal</strong>
+                  <span>Foto 144 × 108 mm</span>
+                </button>
+              </div>
+            </section>
+
+            <section class="takara-preview-config-section takara-preview-config-section--photo">
+              <div class="takara-config-heading">
+                <p class="takara-preview-config-step">2</p>
+                <div>
+                  <h2>Tu foto</h2>
+                  <p>La imagen se coloca dentro del marco generado desde el STL real.</p>
+                </div>
+              </div>
+              <button type="button" class="takara-preview-upload-button" data-takara-upload-proxy>
+                <span data-takara-upload-proxy-name>Ningún archivo seleccionado</span>
+                <strong>+ Subir foto</strong>
+              </button>
+              <small>JPG, PNG o WEBP</small>
+            </section>
+
+            <section class="takara-preview-config-section takara-preview-config-section--color">
+              <div class="takara-config-heading">
+                <p class="takara-preview-config-step">3</p>
+                <div>
+                  <h2>Color del marco</h2>
+                  <p>Elige el acabado y comprueba cómo queda con la litofanía.</p>
+                </div>
+              </div>
+              <div class="takara-preview-color-options">
+                <label class="takara-preview-color-chip takara-preview-color-chip--madera-clara">
+                  <input type="radio" name="color_marco_preview" value="actual" checked data-takara-color-proxy="actual">
+                  <span class="takara-preview-color-chip__dot"></span>
+                  <span>Madera clara</span>
+                </label>
+                <label class="takara-preview-color-chip takara-preview-color-chip--rosewood">
+                  <input type="radio" name="color_marco_preview" value="rosewood" data-takara-color-proxy="rosewood">
+                  <span class="takara-preview-color-chip__dot"></span>
+                  <span>Rosewood</span>
+                </label>
+                <label class="takara-preview-color-chip takara-preview-color-chip--ebano">
+                  <input type="radio" name="color_marco_preview" value="ebano" data-takara-color-proxy="ebano">
+                  <span class="takara-preview-color-chip__dot"></span>
+                  <span>Ébano</span>
+                </label>
+                <label class="takara-preview-color-chip takara-preview-color-chip--negro">
+                  <input type="radio" name="color_marco_preview" value="negro" data-takara-color-proxy="negro">
+                  <span class="takara-preview-color-chip__dot"></span>
+                  <span>Negro</span>
+                </label>
+                <label class="takara-preview-color-chip takara-preview-color-chip--blanco">
+                  <input type="radio" name="color_marco_preview" value="blanco-mate" data-takara-color-proxy="blanco-mate">
+                  <span class="takara-preview-color-chip__dot"></span>
+                  <span>Blanco mate</span>
+                </label>
+              </div>
+            </section>
+          </aside>
+
+          <section class="takara-preview-contact-panel" aria-label="Datos de contacto">
+            <div class="takara-preview-contact-panel__head">
+              <div>
+                <h2>Datos de contacto</h2>
+                <p>Los usamos solo para revisar la foto contigo antes de preparar la litofanía.</p>
+              </div>
+            </div>
+
+            <div class="takara-preview-contact-grid">
+              <label class="takara-preview-contact-field">
+                <span>Nombre</span>
+                <input type="text" autocomplete="name" data-takara-contact-proxy="nombre" placeholder="Tu nombre">
+              </label>
+
+              <label class="takara-preview-contact-field">
+                <span>Teléfono / WhatsApp</span>
+                <input type="tel" autocomplete="tel" data-takara-contact-proxy="telefono" placeholder="Tu número" inputmode="numeric" maxlength="15" required aria-required="true" pattern="[0-9]{9,15}" minlength="9">
+              </label>
+
+              <label class="takara-preview-contact-field">
+                <span>Email</span>
+                <input type="email" autocomplete="email" data-takara-contact-proxy="email" placeholder="tuemail@ejemplo.com" inputmode="email" maxlength="254" required aria-required="true">
+              </label>
+
+              <label class="takara-preview-contact-field takara-preview-contact-field--small">
+                <span>Cantidad</span>
+                <input type="number" min="1" step="1" data-takara-contact-proxy="cantidad" placeholder="1">
+              </label>
+
+              <label class="takara-preview-contact-field takara-preview-contact-field--wide">
+                <span>Observaciones</span>
+                <textarea rows="3" data-takara-contact-proxy="observaciones" placeholder="Cuéntanos cualquier detalle: fecha aproximada, encuadre, acabado o información importante."></textarea>
+              </label>
+            </div>
+          </section>
+
+                    <section class="takara-preview-submit-panel takara-submit-final" aria-label="Revisión y envío">
+            <div class="takara-submit-final__copy">
+              <h2>Revisión y envío</h2>
+              <p>Revisamos tu foto y te confirmamos por WhatsApp antes de fabricar.</p>
+            </div>
+
+            <div class="takara-submit-final__checks">
+              <label class="takara-submit-final__check">
+                <input type="checkbox" data-takara-accept-proxy="acepta_revision" checked>
+                <span>Acepto la revisión previa de mi foto y entiendo que el resultado puede variar según el contraste y la calidad de la imagen.</span>
+              </label>
+
+              <label class="takara-submit-final__check">
+                <input type="checkbox" data-takara-accept-proxy="acepta_contacto" checked>
+                <span>Acepto que Takara revise encuadre, contraste y detalle antes de preparar el pedido.</span>
+              </label>
+            </div>
+
+            <div class="takara-submit-final__actions">
+              <button type="button" class="btn btn--primary" data-takara-submit-proxy>Enviar solicitud de pedido</button>
+              <a class="btn btn--ghost" href="https://wa.me/34711235636?text=Hola%2C%20tengo%20una%20duda%20sobre%20un%20pedido%20de%20una%20litofan%C3%ADa%20personalizada%20de%20Takara%203D.">Tengo una duda por WhatsApp</a>
+            </div>
+          </section>
+
           <h2 data-takara-preview-title>Marco vertical</h2>
 
           <div class="pedido-stl-stage">
             <canvas class="pedido-stl-canvas" width="1400" height="1050" data-takara-preview-canvas></canvas>
           </div>
 
-          <div class="pedido-stl-summary">
-            <div>
-              <span>Formato</span>
-              <strong data-takara-summary-format>Marco vertical · 108 × 144 mm</strong>
-            </div>
-
-            <div>
-              <span>Color</span>
-              <strong class="pedido-stl-summary-color">
-                <i class="pedido-stl-summary-dot pedido-stl-summary-dot--actual" data-takara-summary-dot></i>
-                <b data-takara-summary-color>Madera clara</b>
-              </strong>
-            </div>
-
-            <div>
-              <span>Foto</span>
-              <strong data-takara-summary-photo>Sin foto subida</strong>
-            </div>
-          </div>
-
-          <div class="pedido-stl-note">
-            La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.
-          </div>
+                    <div class="pedido-stl-note">La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.</div>
         </div>
       </aside>
     </div>
@@ -386,7 +498,7 @@
   <script src="assets/js/core/takara-catalogo.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-pricing.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-order-snapshot.js?v=catalogo-v2b1"></script>
-  <script src="assets/js/takara-pedido-web.js?v=pedido-r2k1-safe-copy-20mb"></script>
+  <script src="assets/js/takara-pedido-web.js?v=pedido-contact-v2-digits-only"></script>
   <!-- Motor legado desactivado: assets/js/pedido.js -->
   <script id="takara-frame-preload">
     (() => {
@@ -412,5 +524,6 @@
     })();
   </script>
   <script src="assets/js/takara-pedido-preview.js" defer></script>
+  <script src="assets/js/takara-pedido-premium.js" defer></script>
 </body>
 </html>

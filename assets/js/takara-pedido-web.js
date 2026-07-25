@@ -34,6 +34,9 @@
     const form = document.querySelector("[data-takara-pedido-form][data-takara-pedido-web-v1]");
     if (!form) return;
 
+    configurarTelefonos();
+    document.addEventListener("input", filtrarTelefono, true);
+
     form.addEventListener("submit", handleSubmit, true);
   }
 
@@ -80,7 +83,7 @@
 
       setStatus(
         statusNode,
-        "Solicitud enviada correctamente. Hemos recibido tu solicitud. Revisa tu correo si has indicado email; te contactaremos para confirmar viabilidad, plazo y entrega.",
+        "Solicitud enviada correctamente. Hemos recibido tu solicitud. Revisa tu correo; te contactaremos para confirmar viabilidad, plazo y entrega.",
         "success"
       );
     } catch (error) {
@@ -90,6 +93,66 @@
     }
   }
 
+
+  /* TAKARA PEDIDO CONTACT CONTRACT V2 START */
+  function esCampoTelefono(node) {
+    if (!node || typeof node.getAttribute !== "function") return false;
+
+    return (
+      node.getAttribute("name") === "whatsapp" ||
+      node.getAttribute("data-takara-contact-proxy") === "telefono"
+    );
+  }
+
+  function soloDigitos(value) {
+    return String(value || "").replace(/\D/g, "").slice(0, 15);
+  }
+
+  function configurarTelefonos() {
+    const fields = document.querySelectorAll(
+      '[name="whatsapp"], [data-takara-contact-proxy="telefono"]'
+    );
+
+    fields.forEach(function (field) {
+      field.setAttribute("inputmode", "numeric");
+      field.setAttribute("pattern", "[0-9]{9,15}");
+      field.setAttribute("minlength", "9");
+      field.setAttribute("maxlength", "15");
+      field.setAttribute("required", "");
+      field.setAttribute("aria-required", "true");
+      field.value = soloDigitos(field.value);
+    });
+  }
+
+  function filtrarTelefono(event) {
+    const field = event && event.target;
+    if (!esCampoTelefono(field)) return;
+
+    const digits = soloDigitos(field.value);
+    if (field.value !== digits) field.value = digits;
+  }
+
+  function telefonoValido(value) {
+    return /^[0-9]{9,15}$/.test(String(value || ""));
+  }
+
+  function emailValido(value) {
+    if (!value || value.length > 254) return false;
+
+    const partes = value.split("@");
+    if (partes.length !== 2) return false;
+
+    const local = partes[0];
+    const dominio = partes[1];
+
+    if (!local || local.length > 64) return false;
+    if (local.charAt(0) === "." || local.charAt(local.length - 1) === ".") return false;
+    if (local.indexOf("..") !== -1) return false;
+    if (!/^[a-z0-9!#$%&*+/=?^_{}|~.-]+$/i.test(local)) return false;
+
+    return /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{2,63}|xn--[a-z0-9-]{2,59})$/i.test(dominio);
+  }
+  /* TAKARA PEDIDO CONTACT CONTRACT V2 END */
 
   function getTakaraCore(name) {
     const api = window[name];
@@ -169,7 +232,7 @@
 
     const nombre = value(form, "nombre");
     const email = value(form, "email");
-    const telefono = value(form, "whatsapp");
+    const telefono = soloDigitos(value(form, "whatsapp"));
     const contactoPreferido = "";
     const cantidad = normalizeQuantity(value(form, "cantidad"));
     const formatoKey = normalizeFormat(value(form, "formato"));
@@ -188,8 +251,20 @@
       throw new Error("Falta tu nombre. Completa el campo Nombre para poder enviar la solicitud.");
     }
 
-    if (!email && !telefono) {
-      throw new Error("Falta un dato de contacto. Indica email o teléfono para poder contactar contigo.");
+    if (!telefono) {
+      throw new Error("Falta el tel\u00e9fono. Completa el campo Tel\u00e9fono / WhatsApp para poder enviar la solicitud.");
+    }
+
+    if (!telefonoValido(telefono)) {
+      throw new Error("Introduce un tel\u00e9fono v\u00e1lido de entre 9 y 15 cifras, solo con n\u00fameros.");
+    }
+
+    if (!email) {
+      throw new Error("Falta el correo electr\u00f3nico. Completa el campo Email para poder enviar la solicitud.");
+    }
+
+    if (!emailValido(email)) {
+      throw new Error("Introduce un correo electr\u00f3nico v\u00e1lido, por ejemplo nombre@gmail.com.");
     }
 
     if (!file) {
@@ -595,13 +670,23 @@
     }
   }
 
+  /* TAKARA PEDIDO SUBMIT FEEDBACK V1 START */
   function setBusy(button, busy) {
-    if (!button) return;
+    const buttons = Array.from(
+      document.querySelectorAll("[data-takara-pedido-submit], [data-takara-submit-proxy]")
+    );
 
-    button.disabled = !!busy;
-    button.setAttribute("aria-busy", busy ? "true" : "false");
-    button.textContent = busy ? "Enviando solicitud..." : "Enviar solicitud de pedido";
+    if (button && buttons.indexOf(button) === -1) {
+      buttons.push(button);
+    }
+
+    buttons.forEach(function (currentButton) {
+      currentButton.disabled = !!busy;
+      currentButton.setAttribute("aria-busy", busy ? "true" : "false");
+      currentButton.textContent = busy ? "Enviando pedido..." : "Enviar solicitud de pedido";
+    });
   }
+  /* TAKARA PEDIDO SUBMIT FEEDBACK V1 END */
 
   function cssEscape(value) {
     if (window.CSS && typeof window.CSS.escape === "function") {

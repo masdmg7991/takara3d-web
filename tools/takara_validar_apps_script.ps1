@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "02BF9D9CF7FC9CFEF3D9ACE8DE898F52B7E17D0E22A418CD1CF011EB398378EA"
+$ExpectedHash = "B7FA96414E47B09D77EE9F792D6D81C7735772CBABA7CCA52342F89A23689103"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -28,7 +28,7 @@ if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_8"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8") },
+    @{ Name = "VERSION_SCRIPT V1_9"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_9_5_EXTERNAL_LOGO") },
     @{ Name = "VERSION_PLANTILLA"; Pass = ($Text -match "TAKARA_PEDIDO_WEB_V1") },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },
@@ -37,7 +37,26 @@ $Checks = @(
     @{ Name = "DriveApp"; Pass = ($Text -match "DriveApp") },
     @{ Name = "MAX_FOTO_BYTES 20MB"; Pass = ($Text -match "20\s*\*\s*1024\s*\*\s*1024") },
     @{ Name = "Precio 35.00"; Pass = ($Text -match "35\.00") },
-    @{ Name = "JSON response"; Pass = ($Text -match "ContentService") }
+    @{ Name = "JSON response"; Pass = ($Text -match "ContentService") },
+    @{ Name = "Telefono obligatorio en servidor"; Pass = ($Text -match "telefonoPedidoValido_") },
+    @{ Name = "Email obligatorio en servidor"; Pass = ($Text -match "emailPedidoValido_") },
+    @{ Name = "Correo premium cliente"; Pass = ($Text -match "construirHtmlConfirmacionPedidoCliente_") },
+    @{ Name = "Correo premium interno"; Pass = ($Text -match "construirHtmlInterno_") },
+    @{ Name = "Alternativa HTML sin sustituir body"; Pass = (
+        ($Text -match "body:\s*body") -and
+        ($Text -match "htmlBody:\s*construirHtmlInterno_")
+    ) },
+    @{ Name = "Respuesta cliente dirigida a Takara"; Pass = ($Text -match "replyTo:\s*CFG\.DESTINO_PEDIDOS") },
+    @{ Name = "Paleta premium Takara"; Pass = (
+        $Text.Contains("#24170F") -and
+        $Text.Contains("#C89B4A") -and
+        $Text.Contains("#F7F3EE") -and
+        $Text.Contains("#FFFBF6")
+    ) },
+    @{ Name = "Contrato premium delimitado"; Pass = (
+        $Text.Contains("TAKARA EMAIL PEDIDO PREMIUM V1 START") -and
+        $Text.Contains("TAKARA EMAIL PEDIDO PREMIUM V1 END")
+    ) }
 )
 
 $Errors = 0
