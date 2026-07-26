@@ -3534,6 +3534,343 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
 }
 /* TAKARA_CONTACTO_WEB_FORM_V1 END */
 
+/* TAKARA FRAME TEXT PREVIEW V1 START */
+body.pedido-premium .pedido-stl-stage {
+  position: relative;
+}
+
+body.pedido-premium .takara-preview-v16-canvas {
+  position: relative;
+  z-index: 1;
+}
+
+body.pedido-premium .takara-frame-text-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+body.pedido-premium .takara-frame-text-overlay text {
+  fill: var(--takara-letter-color, #151515);
+  stroke: rgba(255, 255, 255, 0.38);
+  stroke-width: 0.75px;
+  paint-order: stroke fill;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-rendering: geometricPrecision;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.30));
+}
+
+body.pedido-premium .takara-frame-text-overlay text.is-invalid {
+  fill: #a63b31;
+  stroke: rgba(255, 240, 236, 0.72);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(255, 225, 185, 0.16);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.055);
+  color: #fff8ef;
+  cursor: pointer;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch__control {
+  position: relative;
+  width: 2.8rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: rgba(255, 248, 239, 0.30);
+  box-shadow: inset 0 1px 3px rgba(13, 10, 8, 0.38);
+  transition: background-color 160ms ease;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch__control::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: #fff8ef;
+  box-shadow: 0 2px 6px rgba(13, 10, 8, 0.35);
+  transition: transform 160ms ease;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch input:checked + .takara-frame-text-switch__control {
+  background: #c89b4a;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch input:checked + .takara-frame-text-switch__control::after {
+  transform: translateX(1.25rem);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch input:focus-visible + .takara-frame-text-switch__control {
+  outline: 3px solid rgba(200, 155, 74, 0.34);
+  outline-offset: 2px;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch strong,
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch small {
+  display: block;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch small {
+  margin-top: 0.12rem;
+  color: rgba(255, 248, 239, 0.62);
+}
+
+body.pedido-premium .takara-frame-text-editor {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.85rem;
+}
+
+body.pedido-premium .takara-frame-text-editor[hidden] {
+  display: none !important;
+}
+
+body.pedido-premium .takara-frame-text-sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-sides button {
+  position: relative;
+  min-height: 2.6rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 225, 185, 0.16);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 248, 239, 0.84);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-sides button.is-active {
+  border-color: rgba(225, 159, 75, 0.76);
+  background: rgba(225, 159, 75, 0.18);
+  color: #fff8ef;
+  box-shadow: inset 0 0 0 1px rgba(200, 155, 74, 0.18);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-sides button.is-active::after {
+  content: "✓";
+  position: absolute;
+  top: 0.3rem;
+  right: 0.42rem;
+  color: #e5a854;
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-sides button.is-editing {
+  border-color: #e5a854;
+  background: rgba(225, 159, 75, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 220, 166, 0.22),
+    0 0 0 2px rgba(200, 155, 74, 0.10);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-help {
+  margin: 0;
+  color: rgba(255, 248, 239, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+body.pedido-premium .takara-frame-text-colors {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-colors legend {
+  margin-bottom: 0.45rem;
+  color: rgba(255, 248, 239, 0.76);
+  font-size: 0.84rem;
+  font-weight: 760;
+}
+
+body.pedido-premium .takara-frame-text-color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+body.pedido-premium .takara-frame-text-color-grid label {
+  cursor: pointer;
+}
+
+body.pedido-premium .takara-frame-text-color-grid input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-color-grid span {
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.62rem;
+  border: 1px solid rgba(255, 225, 185, 0.16);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 248, 239, 0.84);
+  font-size: 0.77rem;
+  font-weight: 720;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-color-grid input:checked + span {
+  border-color: rgba(225, 159, 75, 0.76);
+  background: rgba(225, 159, 75, 0.18);
+  color: #fff8ef;
+  box-shadow: inset 0 0 0 1px rgba(200, 155, 74, 0.18);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-color-grid input:focus-visible + span {
+  outline: 3px solid rgba(200, 155, 74, 0.28);
+  outline-offset: 2px;
+}
+
+body.pedido-premium .takara-frame-text-color-grid i {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  border: 1px solid rgba(62, 42, 30, 0.25);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+}
+
+body.pedido-premium [data-color="actual"] { background: #c6a664; }
+body.pedido-premium [data-color="rosewood"] { background: #602c24; }
+body.pedido-premium [data-color="ebano"] { background: #2b211b; }
+body.pedido-premium [data-color="negro"] { background: #151515; }
+body.pedido-premium [data-color="blanco-mate"] { background: #eee9e0; }
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-contrast {
+  display: block;
+  min-height: 2.1em;
+  color: #e6b76f;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+body.pedido-premium .takara-frame-text-contrast[hidden] {
+  display: block !important;
+  visibility: hidden;
+}
+
+body.pedido-premium .takara-frame-text-fields {
+  display: grid;
+  gap: 0.7rem;
+  min-height: 4.9rem;
+}
+
+body.pedido-premium .takara-frame-text-fields label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+body.pedido-premium .takara-frame-text-fields label[hidden] {
+  display: none !important;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields label > span {
+  font-size: 0.84rem;
+  font-weight: 760;
+  color: rgba(255, 248, 239, 0.76);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 225, 185, 0.18);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.065);
+  color: #fff8ef;
+  font: inherit;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields input:focus {
+  border-color: rgba(225, 159, 75, 0.68);
+  outline: 3px solid rgba(200, 155, 74, 0.16);
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields small {
+  color: rgba(255, 248, 239, 0.62);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields small[data-state="error"] {
+  color: #ff9c8f;
+  font-weight: 700;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields small[data-state="warning"] {
+  color: #e6b76f;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields small[data-state="limit"] {
+  color: #ffd08a;
+  font-weight: 700;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-fields small[data-state="ok"] {
+  color: #8fce97;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 225, 185, 0.12);
+  color: rgba(255, 248, 239, 0.62);
+  font-size: 0.86rem;
+}
+
+body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-price strong {
+  color: #e5a854;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  body.pedido-premium .takara-frame-text-sides,
+  body.pedido-premium .takara-frame-text-color-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* TAKARA FRAME TEXT PREVIEW V1 END */
+
 /* TAKARA PEDIDO PREMIUM CONSOLIDADO START */
 body.pedido-premium {
   background:
@@ -3941,11 +4278,11 @@ body.pedido-premium .takara-preview-color-chip span:last-child {
   line-height: 1.1;
 }
 
-body.pedido-premium .takara-preview-color-chip--madera-clara .takara-preview-color-chip__dot { background: #dca24b; }
-body.pedido-premium .takara-preview-color-chip--rosewood .takara-preview-color-chip__dot { background: #6b2f24; }
-body.pedido-premium .takara-preview-color-chip--ebano .takara-preview-color-chip__dot { background: #11100f; }
-body.pedido-premium .takara-preview-color-chip--negro .takara-preview-color-chip__dot { background: #050505; }
-body.pedido-premium .takara-preview-color-chip--blanco .takara-preview-color-chip__dot { background: #eee7dc; }
+body.pedido-premium .takara-preview-color-chip--madera-clara .takara-preview-color-chip__dot { background: #c6a664; }
+body.pedido-premium .takara-preview-color-chip--rosewood .takara-preview-color-chip__dot { background: #602c24; }
+body.pedido-premium .takara-preview-color-chip--ebano .takara-preview-color-chip__dot { background: #2b211b; }
+body.pedido-premium .takara-preview-color-chip--negro .takara-preview-color-chip__dot { background: #151515; }
+body.pedido-premium .takara-preview-color-chip--blanco .takara-preview-color-chip__dot { background: #eee9e0; }
 
 body.pedido-premium .pedido-stl-preview > h2[data-takara-preview-title] {
   grid-area: title;
@@ -4328,10 +4665,7 @@ body.pedido-premium main .pedido-stl-preview {
   display: grid !important;
   grid-template-columns: minmax(15.5rem, 18rem) minmax(0, 1fr) !important;
   grid-template-areas:
-    'panel title'
-    'panel stage'
-    'panel controls'
-    'panel note'
+    'panel visual'
     'contact contact'
     'submit submit' !important;
   column-gap: clamp(1rem, 1.55vw, 1.65rem) !important;
@@ -4348,19 +4682,41 @@ body.pedido-premium main .takara-preview-config-panel {
   width: 100% !important;
   max-width: none !important;
 }
-body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title] {
+body.pedido-premium main .takara-preview-visual {
+  grid-area: visual !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: 3.65rem auto auto auto !important;
+  grid-template-areas:
+    'title'
+    'stage'
+    'controls'
+    'note' !important;
+  row-gap: 0.95rem !important;
+  align-content: start !important;
+  align-self: start !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title] {
   grid-area: title !important;
   justify-self: center !important;
+  align-self: stretch !important;
   width: 100% !important;
-  margin: 0.15rem auto 0.35rem !important;
+  min-height: 3.65rem !important;
+  margin: 0 !important;
   padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff8ef !important;
   text-align: center !important;
   white-space: nowrap !important;
   font-size: clamp(2.25rem, 3.1vw, 3.15rem) !important;
   line-height: 1 !important;
 }
-body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title]::before,
-body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title]::after {
+body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title]::before,
+body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title]::after {
   content: '' !important;
   display: inline-block !important;
   width: clamp(3.5rem, 7vw, 8rem) !important;
@@ -4369,7 +4725,7 @@ body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title]::af
   background: linear-gradient(90deg, transparent, rgba(215, 141, 45, 0.95), transparent) !important;
   vertical-align: middle !important;
 }
-body.pedido-premium main .pedido-stl-preview > .pedido-stl-stage {
+body.pedido-premium main .takara-preview-visual > .pedido-stl-stage {
   grid-area: stage !important;
   position: relative !important;
   justify-self: center !important;
@@ -4387,12 +4743,12 @@ body.pedido-premium main .pedido-stl-preview > .pedido-stl-stage {
   box-shadow: none !important;
   isolation: isolate !important;
 }
-body.pedido-premium main .pedido-stl-preview > .pedido-stl-stage[data-format="horizontal"] {
+body.pedido-premium main .takara-preview-visual > .pedido-stl-stage[data-format="horizontal"] {
   width: min(100%, 41rem) !important;
   max-width: 41rem !important;
   aspect-ratio: 6 / 5 !important;
 }
-body.pedido-premium main .pedido-stl-preview > .pedido-stl-stage canvas.pedido-stl-canvas {
+body.pedido-premium main .takara-preview-visual > .pedido-stl-stage canvas.pedido-stl-canvas {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -4416,7 +4772,7 @@ body.pedido-premium main .takara-preview-v16-controls {
   margin: 0.15rem auto 0 !important;
   transform: none !important;
 }
-body.pedido-premium main .pedido-stl-preview > .pedido-stl-note {
+body.pedido-premium main .takara-preview-visual > .pedido-stl-note {
   grid-area: note !important;
   justify-self: center !important;
   max-width: 40rem !important;
@@ -4564,12 +4920,19 @@ body.pedido-premium main .takara-submit-final__actions .btn {
   }
 }
 @media (max-width: 760px) {
-  body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title] {
+  body.pedido-premium main .takara-preview-visual {
+    display: contents !important;
+    grid-template-rows: none !important;
+  }
+  body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title] {
+    min-height: 0 !important;
+    margin: 0.15rem auto 0.35rem !important;
+    display: block !important;
     white-space: normal !important;
     font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
   }
-  body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title]::before,
-  body.pedido-premium main .pedido-stl-preview > h2[data-takara-preview-title]::after {
+  body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title]::before,
+  body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title]::after {
     width: clamp(0.75rem, 4vw, 1.5rem) !important;
     margin: 0 0.4rem 0.25rem !important;
   }

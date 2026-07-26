@@ -152,6 +152,7 @@
 
         <form id="takara-pedido-form-premium" class="pedido-stl-form" data-takara-pedido-form data-takara-pedido-web-v1 data-takara-endpoint="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" novalidate>
           <input type="hidden" name="formato" value="vertical" data-takara-format-value>
+          <input type="hidden" name="personalizacion_marco" value="" data-takara-frame-text-payload>
 
           <section class="pedido-stl-card">
             <div class="pedido-stl-card-head">
@@ -401,6 +402,91 @@
                 </label>
               </div>
             </section>
+
+            <section class="takara-preview-config-section takara-preview-config-section--frame-text" data-takara-frame-text-config>
+              <div class="takara-config-heading">
+                <p class="takara-preview-config-step">4</p>
+                <div>
+                  <h2>Texto en el marco</h2>
+                  <p>Añade nombres, una fecha o una frase corta en los lados que quieras.</p>
+                </div>
+              </div>
+
+              <label class="takara-frame-text-switch">
+                <input type="checkbox" data-takara-frame-text-enabled>
+                <span class="takara-frame-text-switch__control" aria-hidden="true"></span>
+                <span>
+                  <strong>Personalizar el marco</strong>
+                  <small>Desde +4 €</small>
+                </span>
+              </label>
+
+              <div class="takara-frame-text-editor" data-takara-frame-text-editor hidden>
+                <div class="takara-frame-text-sides" aria-label="Lados del marco">
+                  <button type="button" data-takara-frame-side-toggle="top" aria-pressed="false">Superior</button>
+                  <button type="button" data-takara-frame-side-toggle="right" aria-pressed="false">Derecho</button>
+                  <button type="button" data-takara-frame-side-toggle="bottom" aria-pressed="false">Inferior</button>
+                  <button type="button" data-takara-frame-side-toggle="left" aria-pressed="false">Izquierdo</button>
+                </div>
+
+                <p class="takara-frame-text-help">Selecciona un lado y escribe el texto. La frase nunca podrá invadir las esquinas.</p>
+
+                <fieldset class="takara-frame-text-colors">
+                  <legend>Color de todas las letras</legend>
+                  <div class="takara-frame-text-color-grid">
+                    <label>
+                      <input type="radio" name="color_texto_marco" value="actual">
+                      <span><i data-color="actual"></i>Madera clara</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="color_texto_marco" value="rosewood">
+                      <span><i data-color="rosewood"></i>Rosewood</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="color_texto_marco" value="ebano">
+                      <span><i data-color="ebano"></i>Ébano</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="color_texto_marco" value="negro" checked>
+                      <span><i data-color="negro"></i>Negro</span>
+                    </label>
+                    <label>
+                      <input type="radio" name="color_texto_marco" value="blanco-mate">
+                      <span><i data-color="blanco-mate"></i>Blanco mate</span>
+                    </label>
+                  </div>
+                  <small class="takara-frame-text-contrast" data-takara-frame-text-contrast hidden></small>
+                </fieldset>
+
+                <div class="takara-frame-text-fields">
+                  <label data-takara-frame-text-field="top" hidden>
+                    <span>Texto superior</span>
+                    <input type="text" autocomplete="off" data-takara-frame-text-input="top">
+                    <small data-takara-frame-text-status="top">Escribe una frase corta.</small>
+                  </label>
+                  <label data-takara-frame-text-field="right" hidden>
+                    <span>Texto derecho</span>
+                    <input type="text" autocomplete="off" data-takara-frame-text-input="right">
+                    <small data-takara-frame-text-status="right">Escribe una frase corta.</small>
+                  </label>
+                  <label data-takara-frame-text-field="bottom" hidden>
+                    <span>Texto inferior</span>
+                    <input type="text" autocomplete="off" data-takara-frame-text-input="bottom">
+                    <small data-takara-frame-text-status="bottom">Escribe una frase corta.</small>
+                  </label>
+                  <label data-takara-frame-text-field="left" hidden>
+                    <span>Texto izquierdo</span>
+                    <input type="text" autocomplete="off" data-takara-frame-text-input="left">
+                    <small data-takara-frame-text-status="left">Escribe una frase corta.</small>
+                  </label>
+                </div>
+
+                <div class="takara-frame-text-price" aria-live="polite">
+                  <span data-takara-frame-text-selection>Selecciona los lados</span>
+                  <strong data-takara-frame-text-price>+0 €</strong>
+                </div>
+              </div>
+            </section>
           </aside>
 
           <section class="takara-preview-contact-panel" aria-label="Datos de contacto">
@@ -463,13 +549,15 @@
             </div>
           </section>
 
-          <h2 data-takara-preview-title>Marco vertical</h2>
+          <div class="takara-preview-visual">
+            <h2 data-takara-preview-title>Marco vertical</h2>
 
-          <div class="pedido-stl-stage">
-            <canvas class="pedido-stl-canvas" width="1400" height="1050" data-takara-preview-canvas></canvas>
+            <div class="pedido-stl-stage">
+              <canvas class="pedido-stl-canvas" width="1400" height="1050" data-takara-preview-canvas></canvas>
+            </div>
+
+            <div class="pedido-stl-note">La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.</div>
           </div>
-
-                    <div class="pedido-stl-note">La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.</div>
         </div>
       </aside>
     </div>
@@ -524,6 +612,7 @@
     })();
   </script>
   <script src="assets/js/takara-pedido-preview.js" defer></script>
+  <script src="assets/js/takara-frame-text.js" defer></script>
   <script src="assets/js/takara-pedido-premium.js" defer></script>
 </body>
 </html>

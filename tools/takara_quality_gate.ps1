@@ -79,15 +79,19 @@ if (!(Test-Path ".git")) { Err "No parece un repo Git." } else { Ok "Repo Git de
 
 $RequiredFiles = @(
     "pedido.html",
+    "qr/index.html",
     "assets/css/styles.css",
+    "assets/css/qr.css",
     "assets/js/takara-pedido-preview.js",
+    "assets/js/takara-frame-text.js",
     "docs/ARCHITECTURE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/QUALITY_GATE.md",
     "docs/ERROR_REGISTRY.md",
     "docs/CLEANUP_POLICY.md",
     "docs/ORDER_ENGINE_CONTRACT.md",
-    "docs/PREVIEW_ENGINE_CONTRACT.md"
+    "docs/PREVIEW_ENGINE_CONTRACT.md",
+    "docs/QR_PAGE_CONTRACT.md"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -96,20 +100,37 @@ foreach ($File in $RequiredFiles) {
 
 $PreviewPath = Join-Path $Project "assets/js/takara-pedido-preview.js"
 $PedidoPath = Join-Path $Project "pedido.html"
+$QrPath = Join-Path $Project "qr/index.html"
+$QrCssPath = Join-Path $Project "assets/css/qr.css"
 
 if (Test-Path $PreviewPath) {
     $PreviewText = Read-Utf8 $PreviewPath
     $PreviewHash = (Get-FileHash $PreviewPath -Algorithm SHA256).Hash
     $ModeOn = "data-takara-litho-mode=" + [char]34 + "on" + [char]34
     $ModeOff = "data-takara-litho-mode=" + [char]34 + "off" + [char]34
-    if ($PreviewText.Contains("TAKARA PEDIDO PREVIEW LITHO REAL V16B-1")) { Ok "Preview V16B-1 detectado" } else { Err "Preview V16B-1 no detectado" }
+    if ($PreviewText.Contains("TAKARA PEDIDO PREVIEW LITHO REAL V16B-2")) { Ok "Preview V16B-2 detectado" } else { Err "Preview V16B-2 no detectado" }
     if ($PreviewText.Contains($ModeOn) -and $PreviewText.Contains($ModeOff)) { Ok "Preview contiene Encendida/Apagada" } else { Err "Preview no contiene Encendida/Apagada" }
     Ok ("Hash preview: " + $PreviewHash)
+    if ($PreviewHash -eq "334D40634EC854E779577E56E0029660CE72835C0CDB85AC076D5DC15AD04D78") {
+        Ok "Preview V16B-2 conserva el hash protegido"
+    } else {
+        Err ("Preview V16B-2 ha cambiado: " + $PreviewHash)
+    }
 }
 
 if (Test-Path $PedidoPath) {
     $PedidoText = Read-Utf8 $PedidoPath
     if ($PedidoText.Contains("takara-pedido-preview.js")) { Ok "pedido.html carga preview JS" } else { Err "pedido.html no carga preview JS" }
+    if ($PedidoText.Contains("assets/js/takara-frame-text.js") -and $PedidoText.Contains("data-takara-frame-text-config")) {
+        Ok "pedido.html carga personalizacion de texto V1"
+    } else {
+        Err "pedido.html no carga correctamente la personalizacion de texto V1"
+    }
+    if ($PedidoText.Contains('name="color_texto_marco"') -and $PedidoText.Contains("data-takara-frame-text-contrast")) {
+        Ok "pedido.html conserva selector unico de color de letras"
+    } else {
+        Err "pedido.html no contiene el selector contractual de color de letras"
+    }
 
 # TAKARA LEGACY ENGINE GUARDS START
 $ProductosPath = Join-Path $Project "productos.html"
@@ -119,6 +140,77 @@ if (Test-Path $ProductosPath) {
     if ($ProductosText.Contains("renderTakaraProducts") -and $ProductosText.Contains("assets/js/core/takara-catalogo.js") -and $ProductosText.Contains("assets/js/core/takara-pricing.js")) { Ok "productos.html conserva motor catalogo actual" } else { Err "productos.html no conserva motor catalogo actual" }
 } else {
     Err "No existe productos.html"
+}
+
+if ((Test-Path $QrPath) -and (Test-Path $QrCssPath)) {
+    $QrText = Read-Utf8 $QrPath
+    $QrCssText = Read-Utf8 $QrCssPath
+    $QrContractMarkers = @(
+        'href="https://takara3d.es/qr"',
+        "USB-C",
+        "5 V",
+        "Uso en interior",
+        "Primer uso",
+        "Limpieza",
+        "Cuidados cotidianos",
+        "ligeramente templada durante el uso es normal",
+        "calor es excesivo o llega a quemar",
+        "Necesito ayuda con mi pieza",
+        "Crear otro recuerdo",
+        "establecimiento donde conociste Takara 3D"
+    )
+
+    foreach ($Marker in $QrContractMarkers) {
+        if ($QrText.Contains($Marker)) {
+            Ok ("QR conserva contrato: " + $Marker)
+        } else {
+            Err ("QR no contiene contrato: " + $Marker)
+        }
+    }
+
+    if ($QrText.Contains("Comprar ahora")) {
+        Err "QR contiene una llamada comercial agresiva"
+    } else {
+        Ok "QR no contiene llamadas de compra agresivas"
+    }
+
+    if ($QrText.Contains("../pedido.html") -and $QrText.IndexOf("../pedido.html") -gt $QrText.IndexOf('id="ayuda"')) {
+        Ok "QR mantiene el acceso a pedido despues de guia y soporte"
+    } else {
+        Err "QR no mantiene la recurrencia comercial al final"
+    }
+
+    if ($QrCssText.Contains(".qr-page") -and !$QrCssText.Contains("!important")) {
+        Ok "CSS QR esta aislado y no usa important"
+    } else {
+        Err "CSS QR no esta correctamente aislado"
+    }
+}
+
+$FrameTextPath = Join-Path $Project "assets/js/takara-frame-text.js"
+if (Test-Path $FrameTextPath) {
+    $FrameText = Read-Utf8 $FrameTextPath
+    $FrameTextMarkers = @(
+        "TAKARA FRAME TEXT PREVIEW V1",
+        "FRAME_TEXT_GEOMETRY_VERTICAL_V1",
+        "FRAME_TEXT_GEOMETRY_HORIZONTAL_V1",
+        "TAKARA_FRAME_TEXT_V1",
+        "PRICE_BY_SIDE_COUNT",
+        "TAKARA_FRAME_TEXT_V1_4",
+        "TAKARA_FRAME_TEXT_V1_4_9_RENDER_SPACE_LOCK",
+        "LETTER_COLORS",
+        "fitTextToSafeArea",
+        "getPreviewRenderSpace",
+        "requestAnimationFrame",
+        "color_texto"
+    )
+    foreach ($Marker in $FrameTextMarkers) {
+        if ($FrameText.Contains($Marker)) {
+            Ok ("Frame text conserva contrato: " + $Marker)
+        } else {
+            Err ("Frame text no contiene contrato: " + $Marker)
+        }
+    }
 }
 
 if ($PedidoText.Contains('<script src="assets/js/pedido.js"></script>')) { Err "pedido.html carga motor legado pedido.js" } else { Ok "pedido.html no carga motor legado pedido.js" }

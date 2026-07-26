@@ -122,7 +122,7 @@ La web se organiza por capas. Cada capa tiene una responsabilidad clara.
 
 ### 6.1 Capa de contenido
 
-Contiene Home, Productos, Pedido, Contacto, FAQ, textos legales y contenido comercial.
+Contiene Home, Productos, Pedido, Contacto, QR, FAQ, textos legales y contenido comercial.
 Debe ser rapida, indexable y estable.
 
 ### 6.2 Capa de layout
@@ -154,6 +154,18 @@ La comunicacion debe hacerse mediante Order App -> Preview Bridge -> Preview Eng
 ### 6.7 Capa de calidad
 
 Cada iteracion debe ejecutar validaciones automaticas: contratos inamovibles, mojibake, temporales, marcadores experimentales, diff, catalogo, tests, build y estado Git.
+
+### 6.8 Capa de servicio QR
+
+La ruta `/qr` es la guía incluida físicamente en el producto.
+
+Su prioridad es uso, limpieza, cuidados, seguridad y soporte. La recurrencia
+comercial aparece únicamente al final y reconoce a la tienda colaboradora como
+una vía válida para solicitar otra pieza.
+
+Los QR exclusivos de tienda, su atribución y sus páginas cerradas de pedido son
+un flujo independiente. No deben resolverse enviando al cliente al catálogo
+general ni inventando identificadores en la página `/qr`.
 
 ---
 
@@ -221,7 +233,7 @@ Regla: si una decision visual puede afectar a mas de una pagina, no pertenece a 
 ## 9. Contrato del preview
 
 El motor actual protegido es assets/js/takara-pedido-preview.js.
-Debe contener el marcador TAKARA PEDIDO PREVIEW LITHO REAL V16B-1.
+Debe contener el marcador TAKARA PEDIDO PREVIEW LITHO REAL V16B-2.
 
 Reglas:
 

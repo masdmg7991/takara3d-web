@@ -1,4 +1,4 @@
-/* TAKARA PEDIDO PREVIEW LITHO REAL V16B-1 */
+/* TAKARA PEDIDO PREVIEW LITHO REAL V16B-2 */
 (function () {
   "use strict";
 
@@ -334,8 +334,13 @@
     updateUi();
 
     const bounds = stage.getBoundingClientRect();
-    const cssWidth = Math.max(320, Math.round(bounds.width || 790));
-    const cssHeight = Math.max(320, Math.round(bounds.height || 690));
+    const cssWidth = Math.round(bounds.width);
+    const cssHeight = Math.round(bounds.height);
+
+    // The stage is the only layout authority. A fixed canvas minimum made the
+    // bitmap overflow and become clipped whenever responsive layout reduced
+    // the stage below 320 CSS pixels (for example at high browser zoom).
+    if (cssWidth < 2 || cssHeight < 2) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
 
     canvas.width = Math.round(cssWidth * dpr);

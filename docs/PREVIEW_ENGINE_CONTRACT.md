@@ -10,7 +10,7 @@ Objetivo: proteger el preview actual y definir el contrato de cualquier motor fu
 
 El preview ayuda a vender y a orientar al cliente, pero no sustituye la revision humana de la imagen.
 
-El motor actual V16B-1 se considera protegido. No debe modificarse por accidente durante cambios de UI, estilos o arquitectura.
+El motor actual V16B-2 se considera protegido. No debe modificarse por accidente durante cambios de UI, estilos o arquitectura.
 
 Cualquier cambio de motor debe hacerse como fase propia, con benchmark, comparacion visual y rollback preparado.
 
@@ -20,9 +20,9 @@ Cualquier cambio de motor debe hacerse como fase propia, con benchmark, comparac
 
 Archivo protegido: assets/js/takara-pedido-preview.js
 
-Marcador obligatorio: TAKARA PEDIDO PREVIEW LITHO REAL V16B-1
+Marcador obligatorio: TAKARA PEDIDO PREVIEW LITHO REAL V16B-2
 
-Hash protegido actual: 1DE7F09D5CCC6A8C5E3990B4AC1B59499B5160887F317A3D4DBABE91F32BA4F6
+Hash protegido actual: 334D40634EC854E779577E56E0029660CE72835C0CDB85AC076D5DC15AD04D78
 
 Controles obligatorios detectables:
 
@@ -69,7 +69,7 @@ La UI puede envolver, mover o presentar el preview, pero no debe romper su contr
 
 Reglas obligatorias:
 
-- no editar el motor V16B-1 dentro de una fase de maquetacion;
+- no editar el motor V16B-2 dentro de una fase de maquetacion;
 - no sustituir el motor por un mock;
 - no eliminar Encendida y Apagada;
 - no duplicar scripts experimentales;
@@ -88,7 +88,7 @@ La sustitucion requiere:
 
 - fase especifica aprobada;
 - backup;
-- comparacion visual contra V16B-1;
+- comparacion visual contra V16B-2;
 - pruebas en imagenes reales;
 - prueba en movil;
 - medicion de rendimiento;
@@ -147,6 +147,6 @@ Comportamiento esperado:
 
 ## 10. Criterio de aceptacion
 
-El contrato estara cumplido cuando el preview pueda acompañar al pedido sin romper la venta, sin prometer exactitud absoluta y sin poner en riesgo el motor V16B-1.
+El contrato estara cumplido cuando el preview pueda acompañar al pedido sin romper la venta, sin prometer exactitud absoluta y sin poner en riesgo el motor V16B-2.
 
 Tambien estara cumplido cuando cualquier cambio futuro del motor pueda probarse, compararse, rechazarse o aprobarse de forma objetiva.
