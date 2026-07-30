@@ -127,7 +127,6 @@
     bindEvents();
 
     loadConfig()
-      .then(preloadAllFrames)
       .then(function () {
         updateUi();
         renderPreview();
@@ -299,16 +298,6 @@
           horizontal: FORMAT_META.horizontal.fallback
         };
       });
-  }
-
-  function preloadAllFrames() {
-    const tasks = [];
-    Object.keys(FRAME_SRC).forEach(function (format) {
-      Object.keys(FRAME_SRC[format]).forEach(function (color) {
-        tasks.push(loadFrame(FRAME_SRC[format][color]));
-      });
-    });
-    return Promise.allSettled(tasks);
   }
 
   function loadFrame(src) {

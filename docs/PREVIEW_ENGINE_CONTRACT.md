@@ -22,7 +22,18 @@ Archivo protegido: assets/js/takara-pedido-preview.js
 
 Marcador obligatorio: TAKARA PEDIDO PREVIEW LITHO REAL V16B-2
 
-Hash protegido actual: 334D40634EC854E779577E56E0029660CE72835C0CDB85AC076D5DC15AD04D78
+Hash protegido actual: 1117979A334AA90C305C360F6DB0262D7645CF56676818F20D92E5E341919E23
+
+## Política de carga de marcos
+
+- El motor carga únicamente el marco necesario para el estado visible.
+- Cada marco cargado se conserva en `state.frameCache` para reutilizarlo.
+- Se prohíbe precargar las diez combinaciones de formato y acabado al abrir
+  `pedido.html`.
+- `pedido.html` no debe incorporar un segundo precargador de marcos.
+
+Esta política reduce la transferencia inicial sin modificar geometría,
+composición, controles ni calidad visual del preview.
 
 Controles obligatorios detectables:
 

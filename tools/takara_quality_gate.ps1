@@ -121,16 +121,31 @@ if (Test-Path $PreviewPath) {
     if ($PreviewText.Contains("TAKARA PEDIDO PREVIEW LITHO REAL V16B-2")) { Ok "Preview V16B-2 detectado" } else { Err "Preview V16B-2 no detectado" }
     if ($PreviewText.Contains($ModeOn) -and $PreviewText.Contains($ModeOff)) { Ok "Preview contiene Encendida/Apagada" } else { Err "Preview no contiene Encendida/Apagada" }
     Ok ("Hash preview: " + $PreviewHash)
-    if ($PreviewHash -eq "334D40634EC854E779577E56E0029660CE72835C0CDB85AC076D5DC15AD04D78") {
+    if ($PreviewHash -eq "1117979A334AA90C305C360F6DB0262D7645CF56676818F20D92E5E341919E23") {
         Ok "Preview V16B-2 conserva el hash protegido"
     } else {
         Err ("Preview V16B-2 ha cambiado: " + $PreviewHash)
+    }
+    if (
+        !$PreviewText.Contains("preloadAllFrames") -and
+        $PreviewText.Contains("const frameImg = await loadFrame(frameSrc);") -and
+        $PreviewText.Contains("state.frameCache.has(src)") -and
+        $PreviewText.Contains("state.frameCache.set(src, img)")
+    ) {
+        Ok "Preview carga marcos bajo demanda y conserva cache"
+    } else {
+        Err "Preview no conserva el contrato de carga bajo demanda"
     }
 }
 
 if (Test-Path $PedidoPath) {
     $PedidoText = Read-Utf8 $PedidoPath
     if ($PedidoText.Contains("takara-pedido-preview.js")) { Ok "pedido.html carga preview JS" } else { Err "pedido.html no carga preview JS" }
+    if ($PedidoText.Contains('id="takara-frame-preload"')) {
+        Err "pedido.html contiene una precarga masiva duplicada de marcos"
+    } else {
+        Ok "pedido.html no precarga masivamente los marcos"
+    }
     if ($PedidoText.Contains("assets/js/takara-frame-text.js") -and $PedidoText.Contains("data-takara-frame-text-config")) {
         Ok "pedido.html carga personalizacion de texto V1"
     } else {
