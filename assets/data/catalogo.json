@@ -20,18 +20,28 @@
       "color_litofania_defecto": "Blanco natural",
       "colores_marco": [
         {
-          "codigo": "madera_clara",
+          "codigo": "actual",
           "nombre": "Madera clara",
           "estado": "activo"
         },
         {
-          "codigo": "madera_oscura",
-          "nombre": "Madera oscura",
+          "codigo": "rosewood",
+          "nombre": "Rosewood",
+          "estado": "activo"
+        },
+        {
+          "codigo": "ebano",
+          "nombre": "Ébano",
           "estado": "activo"
         },
         {
           "codigo": "negro",
           "nombre": "Negro",
+          "estado": "activo"
+        },
+        {
+          "codigo": "blanco-mate",
+          "nombre": "Blanco mate",
           "estado": "activo"
         }
       ],
@@ -88,14 +98,14 @@
         }
       ],
       "imagenes": {
-        "principal": "assets/img/productos/marco-litofania-principal.webp",
-        "vertical": "assets/brand/marco-preview-vertical-actual.png",
-        "horizontal": "assets/brand/marco-preview-horizontal-actual.png"
+        "principal": "assets/img/fotos/producto-marco-vertical-familia-card-v18.webp",
+        "vertical": "assets/img/fotos/producto-marco-vertical-familia-card-v18.webp",
+        "horizontal": "assets/img/fotos/producto-marco-horizontal-mascota.webp"
       },
       "pedido": {
         "requiere_foto": true,
         "formatos_imagen_aceptados": ["image/jpeg", "image/png", "image/webp"],
-        "tamano_maximo_foto_mb": 10
+        "tamano_maximo_foto_mb": 20
       }
     }
   ]

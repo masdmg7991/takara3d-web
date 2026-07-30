@@ -5,7 +5,7 @@
 - Web estática.
 - Compatible con GitHub Pages.
 - Sin compilación.
-- Sin backend.
+- Backend de pedidos mediante Google Apps Script.
 - Sin dependencias obligatorias.
 
 ## Rutas
@@ -17,13 +17,10 @@ Se usan rutas relativas (`assets/...`) para funcionar tanto en:
 
 ## Pedido
 
-El pedido no se guarda en servidor. Se genera un mensaje de WhatsApp con los datos del formulario.
-
-Motivo:
-- GitHub Pages no procesa formularios.
-- No se almacenan fotos ni datos personales.
-- Permite revisar la foto antes de fabricar.
-- Reduce fricción y riesgo en fase inicial.
+GitHub Pages sirve la interfaz estática. El pedido se valida en cliente y se
+entrega al endpoint versionado de Google Apps Script. La fotografía, los datos
+de contacto, la configuración, el desglose de precio y la ficha visual forman
+parte del contrato de pedido. WhatsApp se reserva para consultas y seguimiento.
 
 ## Imágenes
 
@@ -33,6 +30,7 @@ Los SVG actuales son placeholders de diseño. La versión de producción debe us
 
 - CSS centralizado en `assets/css/styles.css`.
 - JS común en `assets/js/main.js`.
-- Catálogo en `data/productos.json`.
-- Lógica específica de catálogo en `productos.js`.
-- Lógica específica de pedido en `pedido.js`.
+- Fuente operativa de catálogo en `assets/data/catalogo.json`.
+- Configuración comercial compartida en `assets/js/takara-config.js`.
+- Lógica de catálogo en `assets/js/core/takara-catalogo.js`.
+- Lógica de pedido en `assets/js/takara-pedido-web.js`.

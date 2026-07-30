@@ -7,6 +7,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "assets" / "data" / "catalogo.json"
+LEGACY_CATALOG_PATH = ROOT / "data" / "productos.json"
+
+EXPECTED_FRAME_COLORS = [
+    ("actual", "Madera clara"),
+    ("rosewood", "Rosewood"),
+    ("ebano", "Ébano"),
+    ("negro", "Negro"),
+    ("blanco-mate", "Blanco mate"),
+]
+EXPECTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
+EXPECTED_MAX_PHOTO_MB = 20
 
 
 class ValidationError(RuntimeError):
@@ -58,6 +69,42 @@ def validate_catalog(catalog: dict) -> None:
 
         if code == "MARCO_LITOFANIA_144X108":
             require(precio_base == "35.00", f"Precio base inesperado en {code}: {precio_base}")
+            require(product.get("precio_visible") == "35 €", f"Precio visible inesperado en {code}")
+
+            colors = product.get("colores_marco")
+            require(isinstance(colors, list), f"Colores de marco inválidos en {code}")
+            actual_colors = [
+                (color.get("codigo"), color.get("nombre"))
+                for color in colors
+                if color.get("estado") == "activo"
+            ]
+            require(
+                actual_colors == EXPECTED_FRAME_COLORS,
+                f"Acabados activos incoherentes en {code}: {actual_colors!r}",
+            )
+
+            images = product.get("imagenes")
+            require(isinstance(images, dict) and images, f"Imágenes no declaradas en {code}")
+            for image_role, relative_path in images.items():
+                require(
+                    isinstance(relative_path, str) and relative_path,
+                    f"Ruta de imagen inválida ({image_role}) en {code}",
+                )
+                image_path = ROOT / relative_path
+                require(image_path.is_file(), f"Imagen inexistente ({image_role}): {relative_path}")
+                require(image_path.stat().st_size > 0, f"Imagen vacía ({image_role}): {relative_path}")
+
+            order = product.get("pedido")
+            require(isinstance(order, dict), f"Contrato de pedido ausente en {code}")
+            require(order.get("requiere_foto") is True, f"La fotografía debe ser obligatoria en {code}")
+            require(
+                order.get("formatos_imagen_aceptados") == EXPECTED_IMAGE_TYPES,
+                f"Formatos de fotografía incoherentes en {code}",
+            )
+            require(
+                order.get("tamano_maximo_foto_mb") == EXPECTED_MAX_PHOTO_MB,
+                f"Límite de fotografía incoherente en {code}",
+            )
 
         variantes = product.get("variantes")
         require(isinstance(variantes, list) and variantes, f"Producto sin variantes: {code}")
@@ -87,6 +134,11 @@ def validate_catalog(catalog: dict) -> None:
 
 
 def main() -> int:
+    require(
+        not LEGACY_CATALOG_PATH.exists(),
+        "Existe el catálogo heredado data/productos.json; debe haber una única fuente de catálogo",
+    )
+
     catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8-sig"))
     validate_catalog(catalog)
 
@@ -99,6 +151,9 @@ def main() -> int:
     print("[OK] Catálogo válido:", CATALOG_PATH)
     print("[OK] Productos:", len(catalog["productos"]))
     print("[OK] Versión:", catalog["version"])
+    print("[OK] Fuente única: assets/data/catalogo.json")
+    print("[OK] Acabados activos:", len(EXPECTED_FRAME_COLORS))
+    print("[OK] Límite de fotografía:", EXPECTED_MAX_PHOTO_MB, "MB")
     return 0
 
 

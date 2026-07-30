@@ -16,11 +16,12 @@ takara3d-web/
 ├── sitemap.xml
 ├── assets/
 │   ├── css/styles.css
-│   ├── js/main.js
-│   ├── js/productos.js
-│   ├── js/pedido.js
+│   ├── data/catalogo.json
+│   ├── js/takara-config.js
+│   ├── js/takara-pedido-web.js
 │   └── img/
-└── data/productos.json
+├── apps-script/takara-pedidos-web/Code.gs
+└── tools/takara_quality_gate.ps1
 ```
 
 ## Publicación en GitHub Pages
@@ -36,36 +37,19 @@ takara3d-web/
 
 ## Ajustes obligatorios antes de producción real
 
-### 1. WhatsApp
+### 1. Catálogo y precios
 
-Editar `assets/js/main.js`:
+La fuente operativa del catálogo es `assets/data/catalogo.json`. El precio visible
+común también se publica mediante `assets/js/takara-config.js`; cualquier cambio
+comercial debe actualizarse de forma coordinada y superar el Quality Gate.
 
-```js
-whatsappNumber: "34600000000"
-```
-
-Sustituir por el número real en formato internacional sin `+`.
-
-### 2. Fotos reales
-
-Las imágenes actuales son placeholders SVG coherentes con la marca. Antes de producción conviene sustituir:
-
-- `assets/img/productos/*.svg`
-- `assets/img/ui/*.svg`
-- `assets/img/ejemplos/*.svg`
-
-por fotografías reales optimizadas en `.webp` o `.jpg`.
-
-### 3. Precios
-
-Editar `data/productos.json` para ajustar precios, nombres y características.
-
-### 4. Envíos y tiempos
+### 2. Envíos y tiempos
 
 Revisar textos de tiempos de fabricación, envío y recogida local antes de dejarlo público.
 
 ## Limitación técnica de GitHub Pages
 
-GitHub Pages no tiene backend. La subida de foto es local para previsualización. La foto no se almacena ni se envía automáticamente al servidor. El cliente debe adjuntarla en WhatsApp tras abrir el chat.
-
-Esto es intencionado para una primera fase segura, simple y sin costes de backend.
+GitHub Pages sirve el frontend estático. El pedido se entrega al endpoint
+versionado de Google Apps Script definido en `assets/js/takara-pedido-web.js`.
+La fotografía, los datos del pedido y la ficha visual se procesan mediante ese
+contrato; WhatsApp queda como canal de consulta y seguimiento.

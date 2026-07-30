@@ -98,6 +98,7 @@ $RequiredFiles = @(
     "docs/PREVIEW_ENGINE_CONTRACT.md",
     "docs/QR_PAGE_CONTRACT.md",
     "tools/takara_validar_personalizacion_pedido.py",
+    "tools/validar_catalogo.py",
     "tools/takara_test_personalizacion_pedido.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_validar_datos_estructurados.py"
