@@ -4,7 +4,7 @@ const CFG = Object.freeze({
   ROOT_FOLDER: "Takara3D",
   PEDIDOS_FOLDER: "Pedidos Web",
   VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_9_5_EXTERNAL_LOGO",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_11_2_PRICE_BREAKDOWN",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -16,7 +16,34 @@ const CFG = Object.freeze({
   ESTADO_ARCHIVO_INICIAL: "pendiente_descarga",
   ACEPTA_CUSTODIA_PROCESADO_IMAGEN: "s\u00ED",
   OBSERVACIONES_TECNICAS: "",
-  MAX_FOTO_BYTES: 20 * 1024 * 1024
+  MAX_FOTO_BYTES: 20 * 1024 * 1024,
+  VISUAL_PROOF_VERSION: "TAKARA_ORDER_VISUAL_PROOF_V1",
+  MAX_VISUAL_PROOF_BYTES: 900 * 1024,
+  FRAME_TEXT_VERSION: "TAKARA_FRAME_TEXT_V1_4",
+  FRAME_TEXT_MAX_CHARS: 40,
+  FRAME_TEXT_GEOMETRY: Object.freeze({
+    vertical: "FRAME_TEXT_GEOMETRY_VERTICAL_V1",
+    horizontal: "FRAME_TEXT_GEOMETRY_HORIZONTAL_V1"
+  }),
+  FRAME_TEXT_PRICE_BY_SIDE_COUNT: Object.freeze({
+    1: "4.00",
+    2: "6.00",
+    3: "8.00",
+    4: "8.00"
+  }),
+  FRAME_TEXT_COLOR_LABELS: Object.freeze({
+    actual: "Madera clara",
+    rosewood: "Rosewood",
+    ebano: "\u00C9bano",
+    negro: "Negro",
+    "blanco-mate": "Blanco mate"
+  }),
+  FRAME_TEXT_SIDE_LABELS: Object.freeze({
+    top: "Superior",
+    right: "Derecho",
+    bottom: "Inferior",
+    left: "Izquierdo"
+  })
 });
 
 function doGet() {
@@ -46,12 +73,29 @@ function doPost(e) {
 
     const folder = asegurarCarpetaPedido_(idPedidoWeb, now);
     const foto = guardarFoto_(idPedidoWeb, pedido.archivos, folder);
+    const fichaVisual = prepararFichaVisualSegura_(
+      idPedidoWeb,
+      pedido.archivos
+    );
 
     const subject = construirAsunto_(idPedidoWeb, pedido);
-    const body = construirCuerpoInterno_(idPedidoWeb, now, pedido, foto);
+    const body = construirCuerpoInterno_(
+      idPedidoWeb,
+      now,
+      pedido,
+      foto,
+      fichaVisual
+    );
 
-    enviarEmailInterno_(subject, body, idPedidoWeb, pedido, foto);
-    enviarConfirmacionCliente_(idPedidoWeb, pedido, foto);
+    enviarEmailInterno_(
+      subject,
+      body,
+      idPedidoWeb,
+      pedido,
+      foto,
+      fichaVisual
+    );
+    enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual);
 
     return json_({
       ok: true,
@@ -61,6 +105,9 @@ function doPost(e) {
       enlace_drive: foto.enlace_drive || "",
       id_archivo_drive: foto.id_archivo_drive || "",
       nombre_archivo_foto: foto.nombre_archivo_foto || "",
+      ficha_visual_recibida: !!fichaVisual.ficha_visual_recibida,
+      estado_ficha_visual: fichaVisual.estado || "",
+      nombre_archivo_ficha_visual: fichaVisual.nombre_archivo || "",
       version: CFG.VERSION_PLANTILLA,
       script: CFG.VERSION_SCRIPT
     });
@@ -389,6 +436,10 @@ function normalizarPedido_(payload) {
     producto.precio_mostrado_eur ||
     CFG.PRECIO_UNITARIO_MOSTRADO_EUR
   );
+  const personalizacionMarco = normalizarPersonalizacionMarco_(
+    producto.personalizacion_marco,
+    orientacion
+  );
 
   return {
     payload_version: texto_(payload.payload_version),
@@ -413,7 +464,8 @@ function normalizarPedido_(payload) {
       color_marco: texto_(producto.color_marco),
       color_litofania: texto_(producto.color_litofania) || CFG.COLOR_LITOFANIA,
       cantidad: normalizarCantidad_(producto.cantidad),
-      precio_unitario_mostrado_eur: precioUnitario
+      precio_unitario_mostrado_eur: precioUnitario,
+      personalizacion_marco: personalizacionMarco
     },
     archivos: {
       foto_base64: texto_(archivos.foto_base64),
@@ -422,7 +474,25 @@ function normalizarPedido_(payload) {
       size_bytes: normalizarTamanoArchivo_(archivos.size_bytes),
       foto_base64_presente: booleano_(archivos.foto_base64_presente),
       foto_base64_length: normalizarTamanoArchivo_(archivos.foto_base64_length),
-      foto_base64_prefix: texto_(archivos.foto_base64_prefix)
+      foto_base64_prefix: texto_(archivos.foto_base64_prefix),
+      ficha_visual_base64: texto_(archivos.ficha_visual_base64),
+      ficha_visual_nombre_archivo: texto_(archivos.ficha_visual_nombre_archivo),
+      ficha_visual_content_type: texto_(archivos.ficha_visual_content_type),
+      ficha_visual_size_bytes: normalizarTamanoArchivo_(
+        archivos.ficha_visual_size_bytes
+      ),
+      ficha_visual_version: texto_(archivos.ficha_visual_version),
+      ficha_visual_estado: texto_(archivos.ficha_visual_estado),
+      ficha_visual_modo: normalizarModoVisual_(archivos.ficha_visual_modo),
+      ficha_visual_base64_presente: booleano_(
+        archivos.ficha_visual_base64_presente
+      ),
+      ficha_visual_base64_length: normalizarTamanoArchivo_(
+        archivos.ficha_visual_base64_length
+      ),
+      ficha_visual_base64_prefix: texto_(
+        archivos.ficha_visual_base64_prefix
+      )
     },
     mensaje_cliente: texto_(payload.mensaje_cliente),
     control: {
@@ -471,6 +541,197 @@ function validarPedido_(pedido, payload) {
   if (pedido.archivos.size_bytes !== "" && pedido.archivos.size_bytes > CFG.MAX_FOTO_BYTES) {
     throw new Error("La foto supera el m\u00E1ximo permitido de 20 MB.");
   }
+
+  validarPersonalizacionMarco_(
+    pedido.producto.personalizacion_marco,
+    pedido.producto.orientacion,
+    pedido.producto.precio_unitario_mostrado_eur
+  );
+}
+
+function validarFichaVisual_(archivos) {
+  if (!archivos.ficha_visual_base64) {
+    return;
+  }
+
+  if (archivos.ficha_visual_version !== CFG.VISUAL_PROOF_VERSION) {
+    throw new Error("La versi\u00F3n de la ficha visual no es compatible.");
+  }
+
+  if (archivos.ficha_visual_estado !== "generada") {
+    throw new Error("El estado de la ficha visual no es coherente.");
+  }
+
+  if (archivos.ficha_visual_content_type !== "image/jpeg") {
+    throw new Error("La ficha visual debe recibirse en formato JPEG.");
+  }
+
+  if (
+    archivos.ficha_visual_size_bytes === "" ||
+    archivos.ficha_visual_size_bytes < 1 ||
+    archivos.ficha_visual_size_bytes > CFG.MAX_VISUAL_PROOF_BYTES
+  ) {
+    throw new Error("El tama\u00F1o declarado de la ficha visual no es v\u00E1lido.");
+  }
+}
+
+function normalizarModoVisual_(value) {
+  return texto_(value).toLowerCase() === "apagada" ? "apagada" : "encendida";
+}
+
+function normalizarPersonalizacionMarco_(value, orientacionPedido) {
+  if (value === null || value === undefined || value === "") {
+    return {
+      activa: false,
+      version: "",
+      geometry_contract: "",
+      orientacion: orientacionPedido,
+      numero_lados: 0,
+      suplemento_unitario_eur: "0.00",
+      color_texto: "",
+      color_texto_nombre: "",
+      lados: {},
+      claves_lados_recibidas: []
+    };
+  }
+
+  let source = value;
+
+  if (typeof source === "string") {
+    try {
+      source = JSON.parse(source);
+    } catch (error) {
+      throw new Error("La personalizaci\u00F3n del marco no contiene JSON v\u00E1lido.");
+    }
+  }
+
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    throw new Error("La personalizaci\u00F3n del marco no tiene un formato v\u00E1lido.");
+  }
+
+  const sidesSource = source.lados;
+  const receivedKeys = sidesSource && typeof sidesSource === "object" && !Array.isArray(sidesSource)
+    ? Object.keys(sidesSource)
+    : [];
+  const sides = {};
+
+  Object.keys(CFG.FRAME_TEXT_SIDE_LABELS).forEach(function (side) {
+    if (sidesSource && Object.prototype.hasOwnProperty.call(sidesSource, side)) {
+      if (typeof sidesSource[side] !== "string") {
+        throw new Error("El texto de uno de los lados no tiene un formato v\u00E1lido.");
+      }
+      sides[side] = texto_(sidesSource[side]);
+    }
+  });
+
+  return {
+    activa: true,
+    version: texto_(source.version),
+    geometry_contract: texto_(source.geometry_contract),
+    orientacion: texto_(source.orientacion).toLowerCase(),
+    numero_lados: numeroEnteroEstricto_(source.numero_lados),
+    suplemento_unitario_eur: normalizarImporteEstricto_(source.suplemento_unitario_eur),
+    color_texto: texto_(source.color_texto),
+    color_texto_nombre: texto_(source.color_texto_nombre),
+    lados: sides,
+    claves_lados_recibidas: receivedKeys
+  };
+}
+
+function validarPersonalizacionMarco_(personalizacion, orientacionPedido, precioUnitarioPedido) {
+  const baseCents = importeEnCentimos_(CFG.PRECIO_UNITARIO_MOSTRADO_EUR);
+  const unitCents = importeEnCentimos_(precioUnitarioPedido);
+
+  if (!personalizacion || !personalizacion.activa) {
+    if (unitCents !== baseCents) {
+      throw new Error("El precio del pedido sin texto personalizado no coincide con el precio base.");
+    }
+    return;
+  }
+
+  if (personalizacion.version !== CFG.FRAME_TEXT_VERSION) {
+    throw new Error("Versi\u00F3n de personalizaci\u00F3n del marco no compatible.");
+  }
+
+  if (personalizacion.orientacion !== orientacionPedido) {
+    throw new Error("La orientaci\u00F3n del texto no coincide con el formato del marco.");
+  }
+
+  if (personalizacion.geometry_contract !== CFG.FRAME_TEXT_GEOMETRY[orientacionPedido]) {
+    throw new Error("La geometr\u00EDa del texto no coincide con el formato del marco.");
+  }
+
+  const count = personalizacion.numero_lados;
+  if (!isFinite(count) || count < 1 || count > 4 || Math.floor(count) !== count) {
+    throw new Error("El n\u00FAmero de lados personalizados no es v\u00E1lido.");
+  }
+
+  const allowedSides = Object.keys(CFG.FRAME_TEXT_SIDE_LABELS);
+  const receivedKeys = personalizacion.claves_lados_recibidas || [];
+  const unexpectedSides = receivedKeys.filter(function (side) {
+    return allowedSides.indexOf(side) === -1;
+  });
+
+  if (unexpectedSides.length > 0) {
+    throw new Error("La personalizaci\u00F3n contiene un lado no permitido.");
+  }
+
+  const selectedSides = Object.keys(personalizacion.lados || {});
+  if (selectedSides.length !== count || receivedKeys.length !== count) {
+    throw new Error("Los textos recibidos no coinciden con el n\u00FAmero de lados seleccionado.");
+  }
+
+  selectedSides.forEach(function (side) {
+    const sideText = texto_(personalizacion.lados[side]);
+
+    if (!sideText) {
+      throw new Error("Falta el texto del lado " + CFG.FRAME_TEXT_SIDE_LABELS[side].toLowerCase() + ".");
+    }
+
+    if (/[\u0000-\u001F\u007F]/.test(sideText)) {
+      throw new Error("El texto personalizado contiene caracteres no permitidos.");
+    }
+
+    if (Array.from(sideText).length > CFG.FRAME_TEXT_MAX_CHARS) {
+      throw new Error("El texto del lado " + CFG.FRAME_TEXT_SIDE_LABELS[side].toLowerCase() + " supera el l\u00EDmite permitido.");
+    }
+  });
+
+  const expectedSupplement = CFG.FRAME_TEXT_PRICE_BY_SIDE_COUNT[count];
+  if (personalizacion.suplemento_unitario_eur !== expectedSupplement) {
+    throw new Error("El suplemento del texto no coincide con el n\u00FAmero de lados.");
+  }
+
+  const expectedColorName = CFG.FRAME_TEXT_COLOR_LABELS[personalizacion.color_texto];
+  if (!expectedColorName || personalizacion.color_texto_nombre !== expectedColorName) {
+    throw new Error("El color del texto del marco no es v\u00E1lido.");
+  }
+
+  const expectedUnitCents = baseCents + importeEnCentimos_(expectedSupplement);
+  if (unitCents !== expectedUnitCents) {
+    throw new Error("El precio del pedido no incluye correctamente el suplemento del texto.");
+  }
+}
+
+function numeroEnteroEstricto_(value) {
+  const number = Number(value);
+  return isFinite(number) && Math.floor(number) === number ? number : NaN;
+}
+
+function normalizarImporteEstricto_(value) {
+  const cents = importeEnCentimos_(value);
+  return isFinite(cents) ? (cents / 100).toFixed(2) : "";
+}
+
+function importeEnCentimos_(value) {
+  const raw = texto_(value).replace(",", ".");
+
+  if (!/^\d+(?:\.\d{1,2})?$/.test(raw)) {
+    return NaN;
+  }
+
+  const amount = Number(raw);
+  return isFinite(amount) && amount >= 0 ? Math.round(amount * 100) : NaN;
 }
 
 function construirAsunto_(idPedidoWeb, pedido) {
@@ -484,7 +745,17 @@ function construirAsunto_(idPedidoWeb, pedido) {
     pedido.cliente.nombre;
 }
 
-function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto) {
+function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto, fichaVisual) {
+  fichaVisual = fichaVisual || {
+    ficha_visual_recibida: false,
+    nombre_archivo: "",
+    content_type: "",
+    tamano_bytes: 0,
+    modo: "encendida",
+    estado: "no_generada",
+    nota: ""
+  };
+
   const fecha = Utilities.formatDate(now, CFG.TZ, "yyyy-MM-dd HH:mm:ss");
 
   return [
@@ -517,6 +788,20 @@ function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto) {
     "Precio unitario mostrado EUR: " + pedido.producto.precio_unitario_mostrado_eur,
     "Precio total mostrado EUR: " + calcularTotalMostrado_(pedido.producto.precio_unitario_mostrado_eur, pedido.producto.cantidad),
     "Moneda: " + CFG.MONEDA,
+    "",
+    "[PERSONALIZACION_MARCO]",
+    "Activa: " + siNo_(pedido.producto.personalizacion_marco.activa),
+    "Versi\u00F3n: " + pedido.producto.personalizacion_marco.version,
+    "Contrato geom\u00E9trico: " + pedido.producto.personalizacion_marco.geometry_contract,
+    "Orientaci\u00F3n: " + pedido.producto.personalizacion_marco.orientacion,
+    "N\u00FAmero de lados: " + pedido.producto.personalizacion_marco.numero_lados,
+    "Suplemento unitario EUR: " + pedido.producto.personalizacion_marco.suplemento_unitario_eur,
+    "Color texto c\u00F3digo: " + pedido.producto.personalizacion_marco.color_texto,
+    "Color texto: " + pedido.producto.personalizacion_marco.color_texto_nombre,
+    "Texto superior: " + textoLadoPersonalizacion_(pedido.producto.personalizacion_marco, "top"),
+    "Texto derecho: " + textoLadoPersonalizacion_(pedido.producto.personalizacion_marco, "right"),
+    "Texto inferior: " + textoLadoPersonalizacion_(pedido.producto.personalizacion_marco, "bottom"),
+    "Texto izquierdo: " + textoLadoPersonalizacion_(pedido.producto.personalizacion_marco, "left"),
     "",
     "[ARCHIVOS]",
     "Foto adjunta: " + (foto.foto_recibida ? "s\u00ED" : "no"),
@@ -551,12 +836,24 @@ function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto) {
 
 /* TAKARA EMAIL PEDIDO PREMIUM V1 START */
 
-function enviarEmailInterno_(subject, body, idPedidoWeb, pedido, foto) {
+function enviarEmailInterno_(
+  subject,
+  body,
+  idPedidoWeb,
+  pedido,
+  foto,
+  fichaVisual
+) {
+  fichaVisual = fichaVisual || {
+    ficha_visual_recibida: false,
+    blob: null
+  };
+
   const options = {
     to: CFG.DESTINO_PEDIDOS,
     subject: subject,
     body: body,
-    htmlBody: construirHtmlInterno_(idPedidoWeb, pedido, foto),
+    htmlBody: construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual),
     name: "Takara 3D \u00B7 Pedidos Web"
   };
 
@@ -564,10 +861,21 @@ function enviarEmailInterno_(subject, body, idPedidoWeb, pedido, foto) {
     options.replyTo = pedido.cliente.email;
   }
 
+  if (fichaVisual.ficha_visual_recibida && fichaVisual.blob) {
+    options.inlineImages = {
+      takaraOrderVisualProof: fichaVisual.blob
+    };
+    options.attachments = [
+      fichaVisual.blob.copyBlob().setName(
+        fichaVisual.nombre_archivo || idPedidoWeb + "_vista_previa.jpg"
+      )
+    ];
+  }
+
   MailApp.sendEmail(options);
 }
 
-function construirHtmlInterno_(idPedidoWeb, pedido, foto) {
+function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
   const safeId = escapeHtml_(idPedidoWeb);
   const safeNombre = escapeHtml_(pedido.cliente.nombre);
   const safeEmail = escapeHtml_(pedido.cliente.email);
@@ -579,12 +887,6 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto) {
   const safeColorMarco = escapeHtml_(pedido.producto.color_marco);
   const safeColorLitofania = escapeHtml_(pedido.producto.color_litofania);
   const safeCantidad = escapeHtml_(formatearCantidad_(pedido.producto.cantidad));
-  const safeTotal = escapeHtml_(formatearEuros_(
-    calcularTotalMostrado_(
-      pedido.producto.precio_unitario_mostrado_eur,
-      pedido.producto.cantidad
-    )
-  ));
   const safeMensaje = escapeHtml_(
     pedido.mensaje_cliente || "Sin observaciones."
   ).replace(/\n/g, "<br>");
@@ -646,9 +948,24 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto) {
     construirFilaResumenEmailPremium_("Medida", safeMedida, false),
     construirFilaResumenEmailPremium_("Color del marco", safeColorMarco, false),
     construirFilaResumenEmailPremium_("Color litofan\u00EDa", safeColorLitofania, false),
-    construirFilaResumenEmailPremium_("Cantidad", safeCantidad, false),
-    construirFilaResumenEmailPremium_("Total mostrado", safeTotal, true),
+    construirFilaResumenEmailPremium_("Cantidad", safeCantidad, false, true),
     '</table>',
+
+    construirTituloSeccionEmailPremium_("Desglose del precio"),
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" ',
+    'style="width:100%;margin:0 0 30px 0;border-collapse:collapse;">',
+    construirFilasDesglosePrecioEmailPremium_(pedido),
+    '</table>',
+
+    construirTituloSeccionEmailPremium_("Texto en el marco"),
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" ',
+    'style="width:100%;margin:0 0 30px 0;border-collapse:collapse;">',
+    construirFilasPersonalizacionEmailPremium_(pedido.producto.personalizacion_marco),
+    '</table>',
+
+    construirBloqueFichaVisualEmailPremium_(
+      fichaVisual
+    ),
 
     construirTituloSeccionEmailPremium_("Observaciones del cliente"),
     '<div style="margin:0 0 28px 0;padding:18px;border-radius:10px;color:#5F5045;',
@@ -664,7 +981,7 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto) {
     '<ul style="margin:0;padding-left:18px;color:#7A6758;font-family:Arial,Helvetica,sans-serif;',
     'font-size:13px;line-height:1.65;">',
     '<li>Comprobar la fotograf\u00EDa original y su encuadre.</li>',
-    '<li>Validar formato, color y precio mostrado.</li>',
+    '<li>Validar formato, colores, textos y precio mostrado.</li>',
     '<li>Contactar con el cliente antes de iniciar fabricaci\u00F3n.</li>',
     '</ul></div>',
     '</td></tr>'
@@ -679,7 +996,12 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto) {
   return envolverEmailPremium_(header + body + footer);
 }
 
-function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto) {
+function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual) {
+  fichaVisual = fichaVisual || {
+    ficha_visual_recibida: false,
+    blob: null
+  };
+
   if (!pedido.cliente.email) {
     return;
   }
@@ -708,13 +1030,12 @@ function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto) {
     "Color marco: " + pedido.producto.color_marco,
     "Cantidad: " + pedido.producto.cantidad,
     "Fotograf\u00EDa: " + (foto.foto_recibida ? "Recibida correctamente" : "Pendiente de asociar"),
-    "Precio por unidad: " + formatearEuros_(pedido.producto.precio_unitario_mostrado_eur),
-    "Total mostrado: " + formatearEuros_(
-      calcularTotalMostrado_(
-        pedido.producto.precio_unitario_mostrado_eur,
-        pedido.producto.cantidad
-      )
-    ),
+    "",
+    "DESGLOSE DEL PRECIO",
+    construirBloqueDesglosePrecioClienteTexto_(pedido),
+    "",
+    "TEXTO EN EL MARCO",
+    construirBloquePersonalizacionClienteTexto_(pedido.producto.personalizacion_marco),
     "",
     "QU\u00C9 OCURRIR\u00C1 AHORA",
     "",
@@ -738,15 +1059,31 @@ function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto) {
     to: pedido.cliente.email,
     subject: subject,
     body: body,
-    htmlBody: construirHtmlConfirmacionPedidoCliente_(idPedidoWeb, pedido, foto),
+    htmlBody: construirHtmlConfirmacionPedidoCliente_(
+      idPedidoWeb,
+      pedido,
+      foto,
+      fichaVisual
+    ),
     name: "Takara 3D",
     replyTo: CFG.DESTINO_PEDIDOS
   };
 
+  if (fichaVisual.ficha_visual_recibida && fichaVisual.blob) {
+    options.inlineImages = {
+      takaraOrderVisualProof: fichaVisual.blob
+    };
+  }
+
   MailApp.sendEmail(options);
 }
 
-function construirHtmlConfirmacionPedidoCliente_(idPedidoWeb, pedido, foto) {
+function construirHtmlConfirmacionPedidoCliente_(
+  idPedidoWeb,
+  pedido,
+  foto,
+  fichaVisual
+) {
   const safeId = escapeHtml_(idPedidoWeb);
   const safeNombre = escapeHtml_(pedido.cliente.nombre);
   const safeProducto = escapeHtml_(pedido.producto.producto);
@@ -754,15 +1091,6 @@ function construirHtmlConfirmacionPedidoCliente_(idPedidoWeb, pedido, foto) {
   const safeMedida = escapeHtml_(pedido.producto.medida);
   const safeColorMarco = escapeHtml_(pedido.producto.color_marco);
   const safeCantidad = escapeHtml_(formatearCantidad_(pedido.producto.cantidad));
-  const safePrecioUnitario = escapeHtml_(
-    formatearEuros_(pedido.producto.precio_unitario_mostrado_eur)
-  );
-  const safeTotal = escapeHtml_(formatearEuros_(
-    calcularTotalMostrado_(
-      pedido.producto.precio_unitario_mostrado_eur,
-      pedido.producto.cantidad
-    )
-  ));
   const safeFotoEstado = foto.foto_recibida
     ? "Recibida correctamente"
     : "Pendiente de asociar";
@@ -798,11 +1126,26 @@ function construirHtmlConfirmacionPedidoCliente_(idPedidoWeb, pedido, foto) {
     construirFilaResumenEmailPremium_(
       "Fotograf\u00EDa",
       '<span style="color:#376347;">' + safeFotoEstado + '</span>',
-      false
+      false,
+      true
     ),
-    construirFilaResumenEmailPremium_("Precio por unidad", safePrecioUnitario, false),
-    construirFilaResumenEmailPremium_("Total mostrado", safeTotal, true),
     '</table>',
+
+    construirTituloSeccionEmailPremium_("Desglose del precio"),
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" ',
+    'style="width:100%;margin:0 0 30px 0;border-collapse:collapse;">',
+    construirFilasDesglosePrecioEmailPremium_(pedido),
+    '</table>',
+
+    construirTituloSeccionEmailPremium_("Texto en el marco"),
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" ',
+    'style="width:100%;margin:0 0 30px 0;border-collapse:collapse;">',
+    construirFilasPersonalizacionEmailPremium_(pedido.producto.personalizacion_marco),
+    '</table>',
+
+    construirBloqueFichaVisualEmailPremium_(
+      fichaVisual
+    ),
 
     construirTituloSeccionEmailPremium_("Qu\u00E9 ocurrir\u00E1 ahora"),
     construirPasosClienteEmailPremium_(),
@@ -831,6 +1174,174 @@ function construirHtmlConfirmacionPedidoCliente_(idPedidoWeb, pedido, foto) {
   );
 
   return envolverEmailPremium_(header + body + footer);
+}
+
+function textoLadoPersonalizacion_(personalizacion, side) {
+  if (!personalizacion || !personalizacion.lados) {
+    return "";
+  }
+
+  return texto_(personalizacion.lados[side]);
+}
+
+function formatearNumeroLadosPersonalizados_(value) {
+  const numeroLados = parseInt(value, 10);
+
+  if (!isFinite(numeroLados) || numeroLados < 1 || numeroLados > 4) {
+    return "texto personalizado";
+  }
+
+  return numeroLados + (numeroLados === 1 ? " lado" : " lados");
+}
+
+function construirBloqueDesglosePrecioClienteTexto_(pedido) {
+  const personalizacion = pedido.producto.personalizacion_marco;
+  const lines = [
+    "Marco con litofan\u00EDa: " +
+      formatearEuros_(CFG.PRECIO_UNITARIO_MOSTRADO_EUR)
+  ];
+
+  if (personalizacion && personalizacion.activa) {
+    lines.push(
+      "Personalizaci\u00F3n de texto \u00B7 " +
+        formatearNumeroLadosPersonalizados_(personalizacion.numero_lados) +
+        ": +" +
+        formatearEuros_(personalizacion.suplemento_unitario_eur)
+    );
+  }
+
+  lines.push(
+    "Total por unidad: " +
+      formatearEuros_(pedido.producto.precio_unitario_mostrado_eur)
+  );
+  lines.push(
+    "Total del pedido: " +
+      formatearEuros_(
+        calcularTotalMostrado_(
+          pedido.producto.precio_unitario_mostrado_eur,
+          pedido.producto.cantidad
+        )
+      )
+  );
+
+  return lines.join("\n");
+}
+
+function construirFilasDesglosePrecioEmailPremium_(pedido) {
+  const personalizacion = pedido.producto.personalizacion_marco;
+  const rows = [
+    construirFilaResumenEmailPremium_(
+      "Marco con litofan\u00EDa",
+      escapeHtml_(formatearEuros_(CFG.PRECIO_UNITARIO_MOSTRADO_EUR)),
+      false
+    )
+  ];
+
+  if (personalizacion && personalizacion.activa) {
+    rows.push(construirFilaResumenEmailPremium_(
+      "Personalizaci\u00F3n de texto \u00B7 " +
+        formatearNumeroLadosPersonalizados_(personalizacion.numero_lados),
+      '<span style="color:#8A5D14;">+' +
+        escapeHtml_(formatearEuros_(personalizacion.suplemento_unitario_eur)) +
+        '</span>',
+      false
+    ));
+  }
+
+  rows.push(construirFilaResumenEmailPremium_(
+    "Total por unidad",
+    escapeHtml_(formatearEuros_(pedido.producto.precio_unitario_mostrado_eur)),
+    false
+  ));
+  rows.push(construirFilaResumenEmailPremium_(
+    "Total del pedido",
+    escapeHtml_(formatearEuros_(
+      calcularTotalMostrado_(
+        pedido.producto.precio_unitario_mostrado_eur,
+        pedido.producto.cantidad
+      )
+    )),
+    true
+  ));
+
+  return rows.join("");
+}
+
+function construirBloquePersonalizacionClienteTexto_(personalizacion) {
+  if (!personalizacion || !personalizacion.activa) {
+    return "Sin texto personalizado.";
+  }
+
+  const lines = [
+    "Lados personalizados: " + personalizacion.numero_lados,
+    "Color del texto: " + personalizacion.color_texto_nombre
+  ];
+
+  Object.keys(CFG.FRAME_TEXT_SIDE_LABELS).forEach(function (side) {
+    const sideText = textoLadoPersonalizacion_(personalizacion, side);
+    if (sideText) {
+      lines.push(CFG.FRAME_TEXT_SIDE_LABELS[side] + ": " + sideText);
+    }
+  });
+
+  return lines.join("\n");
+}
+
+function construirFilasPersonalizacionEmailPremium_(personalizacion) {
+  if (!personalizacion || !personalizacion.activa) {
+    return construirFilaResumenEmailPremium_(
+      "Personalizaci\u00F3n",
+      "Sin texto personalizado",
+      false,
+      true
+    );
+  }
+
+  const rows = [
+    construirFilaResumenEmailPremium_(
+      "Lados personalizados",
+      escapeHtml_(personalizacion.numero_lados),
+      false
+    ),
+    construirFilaResumenEmailPremium_(
+      "Color del texto",
+      escapeHtml_(personalizacion.color_texto_nombre),
+      false
+    )
+  ];
+
+  const sidesWithText = Object.keys(CFG.FRAME_TEXT_SIDE_LABELS).filter(function (side) {
+    return !!textoLadoPersonalizacion_(personalizacion, side);
+  });
+
+  sidesWithText.forEach(function (side, index) {
+    const sideText = textoLadoPersonalizacion_(personalizacion, side);
+    rows.push(construirFilaResumenEmailPremium_(
+      CFG.FRAME_TEXT_SIDE_LABELS[side],
+      escapeHtml_(sideText),
+      false,
+      index === sidesWithText.length - 1
+    ));
+  });
+
+  return rows.join("");
+}
+
+function construirBloqueFichaVisualEmailPremium_(fichaVisual) {
+  if (!fichaVisual || !fichaVisual.ficha_visual_recibida) {
+    return "";
+  }
+
+  return [
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" ',
+    'style="width:100%;margin:0 0 30px 0;border-collapse:collapse;">',
+    '<tr><td align="center" bgcolor="#F4EBDD" style="padding:16px;border:1px solid #E5D4BB;',
+    'border-radius:12px;">',
+    '<img src="cid:takaraOrderVisualProof" alt="Vista previa del marco configurado" ',
+    'width="520" style="display:block;width:100%;max-width:520px;height:auto;border:0;',
+    'border-radius:8px;">',
+    '</td></tr></table>'
+  ].join("");
 }
 
 function envolverEmailPremium_(content) {
@@ -904,8 +1415,10 @@ function construirTituloSeccionEmailPremium_(title) {
   ].join("");
 }
 
-function construirFilaResumenEmailPremium_(label, value, total) {
-  const border = total ? "border-bottom:0;" : "border-bottom:1px solid #EEE4D7;";
+function construirFilaResumenEmailPremium_(label, value, total, last) {
+  const border = total || last
+    ? "border-bottom:0;"
+    : "border-bottom:1px solid #EEE4D7;";
   const size = total ? "font-size:17px;" : "font-size:14px;";
   const labelColor = total ? "color:#24170F;font-weight:700;" : "color:#7A6758;";
 
@@ -1011,6 +1524,79 @@ function guardarFoto_(idPedidoWeb, archivos, folder) {
     estado_archivo: CFG.ESTADO_ARCHIVO_INICIAL,
     nota_archivo: "Foto recibida y guardada en Drive."
   };
+}
+
+function prepararFichaVisual_(idPedidoWeb, archivos) {
+  const vacio = {
+    ficha_visual_recibida: false,
+    nombre_archivo: "",
+    content_type: "",
+    tamano_bytes: 0,
+    modo: archivos.ficha_visual_modo || "encendida",
+    blob: null,
+    estado: "no_generada",
+    nota: "El navegador no adjunt\u00F3 una ficha visual; el pedido conserva los datos estructurados."
+  };
+
+  if (!archivos.ficha_visual_base64) {
+    return vacio;
+  }
+
+  const parsed = parseFotoBase64_(
+    archivos.ficha_visual_base64,
+    archivos.ficha_visual_content_type
+  );
+  const contentType = parsed.contentType || archivos.ficha_visual_content_type;
+
+  if (contentType !== "image/jpeg") {
+    throw new Error("La ficha visual recibida no es un JPEG v\u00E1lido.");
+  }
+
+  const bytes = Utilities.base64Decode(parsed.base64);
+
+  if (bytes.length < 1 || bytes.length > CFG.MAX_VISUAL_PROOF_BYTES) {
+    throw new Error("La ficha visual supera el l\u00EDmite de seguridad.");
+  }
+
+  if (
+    archivos.ficha_visual_size_bytes !== "" &&
+    bytes.length !== archivos.ficha_visual_size_bytes
+  ) {
+    throw new Error("El tama\u00F1o real de la ficha visual no coincide con el declarado.");
+  }
+
+  const filename = idPedidoWeb + "_vista_previa.jpg";
+  const blob = Utilities.newBlob(bytes, contentType, filename);
+
+  return {
+    ficha_visual_recibida: true,
+    nombre_archivo: filename,
+    content_type: contentType,
+    tamano_bytes: bytes.length,
+    modo: archivos.ficha_visual_modo || "encendida",
+    blob: blob,
+    estado: "preparada",
+    nota: "Ficha visual validada para los correos y no almacenada en Drive."
+  };
+}
+
+function prepararFichaVisualSegura_(idPedidoWeb, archivos) {
+  try {
+    validarFichaVisual_(archivos);
+    return prepararFichaVisual_(idPedidoWeb, archivos);
+  } catch (error) {
+    return {
+      ficha_visual_recibida: false,
+      nombre_archivo: "",
+      content_type: "",
+      tamano_bytes: 0,
+      modo: archivos.ficha_visual_modo || "encendida",
+      blob: null,
+      estado: "descartada",
+      nota: "Ficha visual descartada sin bloquear el pedido: " +
+        texto_(error && error.message ? error.message : error)
+    };
+  }
 }
 
 function parseFotoBase64_(value, fallbackContentType) {

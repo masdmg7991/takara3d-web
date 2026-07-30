@@ -8,6 +8,29 @@
   const DISPLAY_PRICE_EUR = "";
   const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V1";
   const ORDER_ID_PREFIX = "TK-WEB";
+  const FRAME_TEXT_VERSION = "TAKARA_FRAME_TEXT_V1_4";
+  const FRAME_TEXT_SIDES = Object.freeze(["top", "right", "bottom", "left"]);
+  const FRAME_TEXT_GEOMETRY_BY_FORMAT = Object.freeze({
+    vertical: "FRAME_TEXT_GEOMETRY_VERTICAL_V1",
+    horizontal: "FRAME_TEXT_GEOMETRY_HORIZONTAL_V1"
+  });
+  const FRAME_TEXT_PRICE_BY_SIDE_COUNT = Object.freeze({
+    1: "4.00",
+    2: "6.00",
+    3: "8.00",
+    4: "8.00"
+  });
+  const FRAME_TEXT_EXTRA_CODE_BY_COUNT = Object.freeze({
+    1: "personalizacion_texto_1_lado",
+    2: "personalizacion_texto_2_lados",
+    3: "personalizacion_texto_3_lados",
+    4: "personalizacion_texto_4_lados"
+  });
+  const VISUAL_PROOF_VERSION = "TAKARA_ORDER_VISUAL_PROOF_V1";
+  const VISUAL_PROOF_MAX_EDGE_PX = 960;
+  const VISUAL_PROOF_MAX_BYTES = 900 * 1024;
+  const VISUAL_PROOF_JPEG_QUALITY = 0.86;
+  const VISUAL_PROOF_READY_TIMEOUT_MS = 2000;
 
   const COLOR_LABELS = {
     actual: "Madera clara",
@@ -185,19 +208,29 @@
 
       const producto = payload.producto || {};
       const cliente = payload.cliente || {};
+      const personalizacionMarco = producto.personalizacion_marco || null;
+      const extraCodes = personalizacionMarco
+        ? [FRAME_TEXT_EXTRA_CODE_BY_COUNT[personalizacionMarco.numero_lados]]
+        : [];
 
-      const snapshot = snapshotApi.build({
+      const baseSnapshot = snapshotApi.build({
         catalog: catalog,
         selection: {
           product_code: PRODUCT_CODE,
           variant_code: normalizeVariantCode(producto.orientacion),
-          extra_codes: [],
+          extra_codes: extraCodes,
           quantity: producto.cantidad || 1
         },
         cliente: cliente,
         archivos: payload.archivos || {},
         mensaje_cliente: payload.mensaje_cliente || "",
         meta: payload.meta || {}
+      });
+
+      const snapshot = Object.assign({}, baseSnapshot, {
+        producto: Object.assign({}, baseSnapshot.producto, {
+          personalizacion_marco: personalizacionMarco
+        })
       });
 
       payload.snapshot_pedido = createPhotoBase64SafeCopy(snapshot);
@@ -219,7 +252,8 @@
         precio_mostrado_eur: snapshot.producto.precio_unitario_final_eur,
         origen_precio: snapshot.origen_precio,
         catalog_version: snapshot.catalog_version,
-        pricing_version: snapshot.pricing_version
+        pricing_version: snapshot.pricing_version,
+        personalizacion_marco: personalizacionMarco
       });
 
       return payload;
@@ -241,6 +275,10 @@
     const entorno = getEnvironment();
     const colorKey = checkedValue(form, "color_marco") || "actual";
     const colorMarco = COLOR_LABELS[colorKey] || COLOR_LABELS.actual;
+    const personalizacionMarco = parseFrameTextPersonalization(
+      value(form, "personalizacion_marco"),
+      formatoKey
+    );
     const notas = value(form, "notas");
     const aceptaContacto = isChecked(form, "acepta_contacto");
     const aceptaRevision = isChecked(form, "acepta_revision");
@@ -288,6 +326,7 @@
     }
 
     const photoBase64 = await readFileAsDataUrl(file);
+    const visualProof = await createVisualProofSafe(pedidoWebId, file.name);
 
     return {
       payload_version: ORDER_PAYLOAD_VERSION,
@@ -316,13 +355,21 @@
         color_marco: colorMarco,
         color_litofania: "Blanco natural",
         cantidad: cantidad,
-        precio_mostrado_eur: DISPLAY_PRICE_EUR
+        precio_mostrado_eur: DISPLAY_PRICE_EUR,
+        personalizacion_marco: personalizacionMarco
       },
       archivos: {
         foto_base64: photoBase64,
         nombre_archivo: file.name || "foto_original.jpg",
         content_type: file.type || "image/jpeg",
-        size_bytes: file.size || 0
+        size_bytes: file.size || 0,
+        ficha_visual_base64: visualProof.data_url,
+        ficha_visual_nombre_archivo: visualProof.filename,
+        ficha_visual_content_type: visualProof.content_type,
+        ficha_visual_size_bytes: visualProof.size_bytes,
+        ficha_visual_version: visualProof.version,
+        ficha_visual_estado: visualProof.status,
+        ficha_visual_modo: visualProof.preview_mode
       },
       mensaje_cliente: notas,
       control: {
@@ -331,6 +378,115 @@
         acepta_politica_privacidad: ""
       }
     };
+  }
+
+  function parseFrameTextPersonalization(rawValue, expectedFormat) {
+    const raw = String(rawValue || "").trim();
+
+    if (!raw) {
+      return null;
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new Error("No se ha podido leer la personalización del marco. Revísala antes de enviar.");
+    }
+
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("La personalización del marco no tiene un formato válido.");
+    }
+
+    const format = normalizeVariantCode(expectedFormat);
+    const count = Number(parsed.numero_lados);
+    const sidesSource = parsed.lados;
+
+    if (parsed.version !== FRAME_TEXT_VERSION) {
+      throw new Error("La personalización del marco está desactualizada. Recarga la página y vuelve a revisarla.");
+    }
+
+    if (parsed.orientacion !== format) {
+      throw new Error("La orientación del texto no coincide con el formato del marco.");
+    }
+
+    if (parsed.geometry_contract !== FRAME_TEXT_GEOMETRY_BY_FORMAT[format]) {
+      throw new Error("La geometría del texto no coincide con el formato del marco.");
+    }
+
+    if (!Number.isInteger(count) || count < 1 || count > 4) {
+      throw new Error("El número de lados personalizados no es válido.");
+    }
+
+    if (!sidesSource || typeof sidesSource !== "object" || Array.isArray(sidesSource)) {
+      throw new Error("Faltan los textos de la personalización del marco.");
+    }
+
+    const unexpectedSides = Object.keys(sidesSource).filter(function (side) {
+      return !FRAME_TEXT_SIDES.includes(side);
+    });
+
+    if (unexpectedSides.length > 0) {
+      throw new Error("La personalización contiene un lado no permitido.");
+    }
+
+    const sides = {};
+    FRAME_TEXT_SIDES.forEach(function (side) {
+      if (!Object.prototype.hasOwnProperty.call(sidesSource, side)) return;
+
+      if (typeof sidesSource[side] !== "string") {
+        throw new Error("El texto de uno de los lados no tiene un formato válido.");
+      }
+
+      const sideText = normalizeFrameTextValue(sidesSource[side]);
+      if (!sideText) {
+        throw new Error("Escribe el texto de todos los lados seleccionados.");
+      }
+
+      if (Array.from(sideText).length > 40) {
+        throw new Error("Uno de los textos del marco supera el límite permitido.");
+      }
+
+      sides[side] = sideText;
+    });
+
+    if (Object.keys(sides).length !== count) {
+      throw new Error("Los lados personalizados no coinciden con la selección.");
+    }
+
+    const expectedSupplement = FRAME_TEXT_PRICE_BY_SIDE_COUNT[count];
+    if (normalizeMoneyText(parsed.suplemento_unitario_eur) !== expectedSupplement) {
+      throw new Error("El suplemento de la personalización no coincide con los lados seleccionados.");
+    }
+
+    const colorCode = String(parsed.color_texto || "").trim();
+    const expectedColorName = COLOR_LABELS[colorCode];
+    if (!expectedColorName || String(parsed.color_texto_nombre || "").trim() !== expectedColorName) {
+      throw new Error("El color del texto del marco no es válido.");
+    }
+
+    return {
+      version: FRAME_TEXT_VERSION,
+      geometry_contract: FRAME_TEXT_GEOMETRY_BY_FORMAT[format],
+      orientacion: format,
+      numero_lados: count,
+      suplemento_unitario_eur: expectedSupplement,
+      color_texto: colorCode,
+      color_texto_nombre: expectedColorName,
+      lados: sides
+    };
+  }
+
+  function normalizeFrameTextValue(value) {
+    return String(value || "")
+      .replace(/[\u0000-\u001F\u007F]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function normalizeMoneyText(value) {
+    const amount = Number(String(value || "").replace(",", "."));
+    return Number.isFinite(amount) && amount >= 0 ? amount.toFixed(2) : "";
   }
 
   function getPageOrigin() {
@@ -346,6 +502,13 @@
 
     return "produccion";
   }
+
+  window.TAKARA_FRAME_TEXT_ORDER_V1 = Object.freeze({
+    parse: parseFrameTextPersonalization,
+    extraCodeForSideCount: function (count) {
+      return FRAME_TEXT_EXTRA_CODE_BY_COUNT[count] || "";
+    }
+  });
 
   function isDryRunEnabled() {
     if (getEnvironment() !== "local") {
@@ -384,25 +547,37 @@
 
   function createPhotoBase64SafeCopy(value) {
     const copy = JSON.parse(JSON.stringify(value));
-    stripPhotoBase64FromObject(copy);
+    stripBinaryBase64FromObject(copy);
     return copy;
   }
 
-  function stripPhotoBase64FromObject(value) {
+  function stripBinaryBase64FromObject(value) {
     if (!value || typeof value !== "object") {
       return;
     }
 
-    if (typeof value.foto_base64 === "string") {
-      value.foto_base64_presente = true;
-      value.foto_base64_length = value.foto_base64.length;
-      value.foto_base64_prefix = value.foto_base64.slice(0, 48);
-      delete value.foto_base64;
-    }
+    replaceBase64WithInspectionMetadata(value, "foto_base64", "foto_base64");
+    replaceBase64WithInspectionMetadata(
+      value,
+      "ficha_visual_base64",
+      "ficha_visual_base64"
+    );
 
     Object.keys(value).forEach(function (key) {
-      stripPhotoBase64FromObject(value[key]);
+      stripBinaryBase64FromObject(value[key]);
     });
+  }
+
+  function replaceBase64WithInspectionMetadata(value, fieldName, metadataPrefix) {
+    if (typeof value[fieldName] !== "string") {
+      return;
+    }
+
+    const encoded = value[fieldName];
+    value[metadataPrefix + "_presente"] = encoded.length > 0;
+    value[metadataPrefix + "_length"] = encoded.length;
+    value[metadataPrefix + "_prefix"] = encoded.slice(0, 48);
+    delete value[fieldName];
   }
 
   function downloadDryRunPayload(json, pedidoWebId) {
@@ -518,6 +693,266 @@
       reader.readAsDataURL(file);
     });
   }
+
+  async function createVisualProofSafe(pedidoWebId, expectedPhotoName) {
+    const fallback = {
+      data_url: "",
+      filename: "",
+      content_type: "",
+      size_bytes: 0,
+      version: VISUAL_PROOF_VERSION,
+      status: "no_generada",
+      preview_mode: getCurrentPreviewMode()
+    };
+
+    try {
+      const proof = await captureVisualProof(
+        pedidoWebId,
+        expectedPhotoName
+      );
+      return Object.assign({}, fallback, proof, { status: "generada" });
+    } catch (error) {
+      if (window.console && typeof window.console.warn === "function") {
+        window.console.warn(
+          "[Takara pedido] La ficha visual no pudo generarse; el pedido conserva todos los datos estructurados.",
+          error
+        );
+      }
+      return fallback;
+    }
+  }
+
+  async function captureVisualProof(pedidoWebId, expectedPhotoName) {
+    const sourceCanvas = document.querySelector("[data-takara-preview-canvas]");
+    const overlay = document.querySelector("[data-takara-frame-text-overlay]");
+
+    if (!sourceCanvas || sourceCanvas.width < 2 || sourceCanvas.height < 2) {
+      throw new Error("El preview todavía no está disponible.");
+    }
+
+    await waitForPreviewPhoto(expectedPhotoName);
+    await waitForStablePaint();
+
+    const sourceWidth = sourceCanvas.width;
+    const sourceHeight = sourceCanvas.height;
+    const maxSourceEdge = Math.max(sourceWidth, sourceHeight);
+    const outputScale = Math.min(1, VISUAL_PROOF_MAX_EDGE_PX / maxSourceEdge);
+    const outputWidth = Math.max(1, Math.round(sourceWidth * outputScale));
+    const outputHeight = Math.max(1, Math.round(sourceHeight * outputScale));
+    const output = document.createElement("canvas");
+    const outputContext = output.getContext("2d", { alpha: false });
+
+    if (!outputContext) {
+      throw new Error("El navegador no permite componer la ficha visual.");
+    }
+
+    output.width = outputWidth;
+    output.height = outputHeight;
+    outputContext.fillStyle = "#F7EFE4";
+    outputContext.fillRect(0, 0, outputWidth, outputHeight);
+    outputContext.drawImage(
+      sourceCanvas,
+      0,
+      0,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      outputWidth,
+      outputHeight
+    );
+
+    if (overlay) {
+      const overlayImage = await createOverlayImage(overlay, sourceCanvas);
+      outputContext.drawImage(overlayImage, 0, 0, outputWidth, outputHeight);
+    }
+
+    const blob = await canvasToBlob(
+      output,
+      "image/jpeg",
+      VISUAL_PROOF_JPEG_QUALITY
+    );
+
+    if (!blob || blob.size < 1) {
+      throw new Error("La ficha visual se generó vacía.");
+    }
+
+    if (blob.size > VISUAL_PROOF_MAX_BYTES) {
+      throw new Error("La ficha visual supera el límite de seguridad.");
+    }
+
+    return {
+      data_url: await blobToDataUrl(blob),
+      filename: safeFilename(pedidoWebId) + "_vista_previa.jpg",
+      content_type: "image/jpeg",
+      size_bytes: blob.size,
+      version: VISUAL_PROOF_VERSION,
+      preview_mode: getCurrentPreviewMode()
+    };
+  }
+
+  function waitForStablePaint() {
+    return new Promise(function (resolve) {
+      const schedule = typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame.bind(window)
+        : function (callback) { return window.setTimeout(callback, 0); };
+
+      schedule(function () {
+        schedule(resolve);
+      });
+    });
+  }
+
+  async function waitForPreviewPhoto(expectedPhotoName) {
+    const expected = String(expectedPhotoName || "").trim();
+    if (!expected) return;
+
+    const deadline = Date.now() + VISUAL_PROOF_READY_TIMEOUT_MS;
+
+    while (Date.now() <= deadline) {
+      const fileNameNode = document.querySelector("[data-takara-file-name]");
+      const renderedName = fileNameNode
+        ? String(fileNameNode.title || fileNameNode.textContent || "").trim()
+        : "";
+
+      if (renderedName === expected) {
+        return;
+      }
+
+      await new Promise(function (resolve) {
+        window.setTimeout(resolve, 25);
+      });
+    }
+
+    throw new Error("El preview todavía no ha terminado de cargar la fotografía.");
+  }
+
+  function createOverlayImage(sourceOverlay, sourceCanvas) {
+    const canvasRect = sourceCanvas.getBoundingClientRect();
+    const cssWidth = Number.parseFloat(sourceCanvas.style.width) || canvasRect.width;
+    const cssHeight = Number.parseFloat(sourceCanvas.style.height) || canvasRect.height;
+
+    if (cssWidth < 2 || cssHeight < 2) {
+      return Promise.reject(new Error("La capa de textos no tiene dimensiones válidas."));
+    }
+
+    const clone = sourceOverlay.cloneNode(true);
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("width", cssWidth);
+    clone.setAttribute("height", cssHeight);
+    clone.setAttribute("viewBox", "0 0 " + cssWidth + " " + cssHeight);
+    clone.setAttribute("preserveAspectRatio", "none");
+    clone.removeAttribute("class");
+    clone.removeAttribute("style");
+
+    const measurement = clone.querySelector("[data-takara-frame-text-measure]");
+    if (measurement) measurement.remove();
+
+    const sourceTextNodes = sourceOverlay.querySelectorAll(
+      "[data-takara-frame-text-render]"
+    );
+    const cloneTextNodes = clone.querySelectorAll(
+      "[data-takara-frame-text-render]"
+    );
+
+    sourceTextNodes.forEach(function (sourceNode, index) {
+      const cloneNode = cloneTextNodes[index];
+      if (!cloneNode) return;
+
+      const computed = window.getComputedStyle(sourceNode);
+      copyComputedSvgTextStyle(computed, cloneNode);
+      cloneNode.removeAttribute("class");
+      cloneNode.removeAttribute("style");
+    });
+
+    const serialized = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([serialized], {
+      type: "image/svg+xml;charset=utf-8"
+    });
+    const objectUrl = window.URL.createObjectURL(svgBlob);
+
+    return loadImageFromUrl(objectUrl).finally(function () {
+      window.URL.revokeObjectURL(objectUrl);
+    });
+  }
+
+  function copyComputedSvgTextStyle(computed, node) {
+    [
+      ["fill", computed.fill],
+      ["stroke", computed.stroke],
+      ["stroke-width", computed.strokeWidth],
+      ["paint-order", computed.paintOrder],
+      ["font-family", computed.fontFamily],
+      ["font-weight", computed.fontWeight],
+      ["letter-spacing", computed.letterSpacing],
+      ["text-rendering", computed.textRendering]
+    ].forEach(function (entry) {
+      if (entry[1]) node.setAttribute(entry[0], entry[1]);
+    });
+  }
+
+  function loadImageFromUrl(url) {
+    return new Promise(function (resolve, reject) {
+      const image = new Image();
+      image.onload = function () {
+        resolve(image);
+      };
+      image.onerror = function () {
+        reject(new Error("No se pudo incorporar la capa de textos a la ficha visual."));
+      };
+      image.src = url;
+    });
+  }
+
+  function canvasToBlob(canvas, contentType, quality) {
+    return new Promise(function (resolve, reject) {
+      if (typeof canvas.toBlob !== "function") {
+        reject(new Error("El navegador no admite la exportación segura del preview."));
+        return;
+      }
+
+      canvas.toBlob(function (blob) {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("El navegador no pudo codificar la ficha visual."));
+        }
+      }, contentType, quality);
+    });
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        resolve(String(reader.result || ""));
+      };
+      reader.onerror = function () {
+        reject(new Error("No se pudo preparar la ficha visual para el envío."));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function getCurrentPreviewMode() {
+    const activeMode = document.querySelector(
+      "[data-takara-litho-mode].is-active"
+    );
+    return activeMode && activeMode.getAttribute("data-takara-litho-mode") === "off"
+      ? "apagada"
+      : "encendida";
+  }
+
+  window.TAKARA_ORDER_VISUAL_PROOF_V1 = Object.freeze({
+    version: VISUAL_PROOF_VERSION,
+    maxBytes: VISUAL_PROOF_MAX_BYTES,
+    capture: function (pedidoWebId, expectedPhotoName) {
+      return createVisualProofSafe(
+        pedidoWebId || "TK-WEB-PREVIEW",
+        expectedPhotoName
+      );
+    }
+  });
 
 
 

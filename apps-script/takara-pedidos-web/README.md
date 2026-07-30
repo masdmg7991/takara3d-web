@@ -15,19 +15,33 @@ Responsabilidad:
 - Guardar foto original en Drive cuando se recibe en base64.
 - Exigir telefono y correo validos tambien en el servidor.
 - Conservar el cuerpo tecnico TAKARA_PEDIDO_WEB_V1 que procesa MicroFactory.
+- Normalizar y validar la personalización del marco antes de aceptar el pedido.
+- Incluir lados, textos, color y suplemento en los correos interno y cliente,
+  tanto en texto plano como en HTML.
+- Validar una ficha visual JPEG del marco configurado solo para el envío.
+- Mostrar esa ficha dentro de los dos correos HTML sin sustituir los datos
+  estructurados ni bloquear el pedido si la imagen auxiliar falla.
+- Adjuntar una copia JPG descargable solo al correo interno de Takara.
+- Mostrar al cliente el precio desglosado en producto, personalización,
+  total unitario y total del pedido.
+- No guardar una copia adicional de la ficha visual en Drive.
 - Responder siempre en JSON.
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_9_5_EXTERNAL_LOGO
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_11_2_PRICE_BREAKDOWN
 - TAKARA_PEDIDO_WEB_V1
+- TAKARA_ORDER_VISUAL_PROOF_V1
 - doGet()
 - doPost(e)
 - CONTACTO_WEB
 - MailApp.sendEmail
 - DriveApp
 - limite de foto 20 MB
+- limite de ficha visual 900 KiB
 - precio mostrado 35.00 EUR
+- suplementos de texto 4.00/6.00/8.00 EUR según el número de lados
+- desglose explícito del precio base, suplemento, total unitario y total
 - ContentService para respuesta JSON
 
 Reglas:
@@ -37,6 +51,5 @@ Reglas:
 - El endpoint real de despliegue no se documenta aqui.
 - Si se cambia el Apps Script real en Google, primero debe actualizarse este archivo y pasar el quality gate.
 
-Hash exacto versionado:
-
-- SHA256 B7FA96414E47B09D77EE9F792D6D81C7735772CBABA7CCA52342F89A23689103
+El hash exacto debe recalcularse después de validar y antes de desplegar cada
+nueva versión.

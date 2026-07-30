@@ -47,7 +47,7 @@ La personalización permite representar y contratar texto independiente en los
 bordes superior, derecho, inferior e izquierdo de los marcos vertical y
 horizontal.
 
-El motor protegido `takara-pedido-preview.js` V16B-1 no se modifica. El módulo
+El motor protegido `takara-pedido-preview.js` V16B-2 no se modifica. El módulo
 `takara-frame-text.js` calcula una capa SVG sincronizada con el mismo render STL
 y situada por encima del canvas.
 
@@ -119,7 +119,9 @@ bloquea la elección.
 | 3 | 8,00 € |
 | 4 | 8,00 € |
 
-## Payload local
+## Integración de pedido y correo
+
+Marcador contractual: `FRAME_TEXT_EMAIL_INTEGRATION_V1`.
 
 El campo oculto `personalizacion_marco` contiene JSON versionado con:
 
@@ -131,5 +133,33 @@ El campo oculto `personalizacion_marco` contiene JSON versionado con:
 - identificador y nombre del color único de las letras;
 - texto de cada lado seleccionado.
 
-La integración definitiva con catálogo, snapshot, Apps Script y correo se
-realizará después de validar visualmente la geometría en ambos formatos.
+Antes de enviar, `takara-pedido-web.js` debe leer y validar ese JSON. Si está
+presente, se conserva simultáneamente en:
+
+- `producto.personalizacion_marco`;
+- `snapshot_pedido.producto.personalizacion_marco`;
+- el bloque técnico `[PERSONALIZACION_MARCO]` del correo interno;
+- el HTML operativo recibido por Takara;
+- el texto plano de confirmación al cliente;
+- el HTML de confirmación al cliente.
+
+El catálogo contiene un extra activo e independiente para cada número de lados:
+
+| Código | Lados | Suplemento unitario |
+|---|---:|---:|
+| `personalizacion_texto_1_lado` | 1 | 4,00 € |
+| `personalizacion_texto_2_lados` | 2 | 6,00 € |
+| `personalizacion_texto_3_lados` | 3 | 8,00 € |
+| `personalizacion_texto_4_lados` | 4 | 8,00 € |
+
+El precio unitario final debe ser el precio base de 35,00 € más el suplemento
+correspondiente. El servidor vuelve a validar versión, orientación, contrato
+geométrico, número de lados, textos, color, suplemento y precio. Una
+personalización incoherente bloquea el pedido; nunca se elimina ni se corrige
+silenciosamente.
+
+El Quality Gate ejecuta el validador
+`tools/takara_validar_personalizacion_pedido.py`. Cuando Node.js está
+disponible, también ejecuta la prueba funcional
+`tools/takara_test_personalizacion_pedido.js`, que cubre los pedidos sin texto y
+con 1, 2, 3 y 4 lados, los cuatro cuerpos de correo y manipulaciones negativas.

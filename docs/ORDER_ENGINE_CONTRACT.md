@@ -124,6 +124,57 @@ Bloques minimos del cuerpo:
 
 El correo debe permitir trabajar el pedido sin tener que reconstruir informacion desde mensajes sueltos.
 
+### 7.1 Personalización del marco
+
+Cuando el cliente seleccione texto, el payload debe incluir el objeto
+`producto.personalizacion_marco` y conservarlo también dentro de
+`snapshot_pedido.producto.personalizacion_marco`.
+
+El correo interno y la confirmación al cliente deben mostrar:
+
+- número de lados;
+- color de las letras;
+- texto asociado a cada lado;
+- marco con litofanía a 35,00 EUR;
+- suplemento de personalización, cuando exista;
+- total por unidad;
+- total del pedido.
+
+La misma información debe existir en texto plano y HTML. Si cualquiera de esos
+datos es incoherente con el catálogo o con el formato del marco, el servidor
+debe rechazar la solicitud antes de enviar correos.
+
+El suplemento no debe repetirse en la sección de textos ni presentarse de una
+forma que pueda interpretarse como un importe todavía pendiente de sumar.
+
+### 7.2 Ficha visual del pedido
+
+El navegador puede generar una ficha visual a partir del canvas V16B-2 y de la
+capa SVG de textos ya renderizados. La ficha debe mostrar únicamente el marco,
+la fotografía y los textos visibles en el momento del envío.
+
+La ficha visual es evidencia complementaria y nunca sustituye a:
+
+- la fotografía original;
+- `producto.personalizacion_marco`;
+- el precio calculado desde catálogo;
+- los campos escritos de los correos en texto plano y HTML.
+
+Requisitos obligatorios:
+
+- versión `TAKARA_ORDER_VISUAL_PROOF_V1`;
+- JPEG con un máximo de 960 px en su lado mayor;
+- tamaño máximo de 900 KiB;
+- inclusión mediante `inlineImages` en los correos HTML interno y del cliente;
+- adjunto JPG explícito solo en el correo interno de Takara;
+- ausencia de `attachments` explícitos en la confirmación del cliente;
+- ausencia de almacenamiento adicional en Drive;
+- ausencia de datos personales dentro de la imagen.
+
+Si el navegador no puede generarla o el servidor la descarta por integridad,
+el pedido debe continuar con sus datos estructurados. Un fallo de la ficha
+visual nunca puede bloquear ni degradar la información principal del pedido.
+
 ---
 
 ## 8. Estados del pedido
@@ -163,7 +214,10 @@ Si un producto esta marcado como proximamente, no debe entrar como pedido normal
 
 El pedido puede usar preview para ayudar a decidir, pero el preview no sustituye la revision humana.
 
-El pedido no debe romper el motor V16B-1 ni acoplarse de forma fragil a su implementacion interna.
+El pedido no debe romper el motor V16B-2 ni acoplarse de forma fragil a su implementacion interna.
+
+La ficha visual solo puede leer el canvas y la capa SVG una vez renderizados.
+No puede modificar el estado, la geometría ni las funciones internas del motor.
 
 Cualquier motor futuro debe mantener un contrato estable de entrada y salida.
 

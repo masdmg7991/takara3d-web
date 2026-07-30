@@ -55,11 +55,35 @@
       ],
       "extras": [
         {
-          "codigo": "personalizacion_texto",
-          "nombre": "Texto personalizado",
-          "descripcion": "Añadir una frase corta o nombre al diseño cuando sea técnicamente viable.",
-          "precio_extra_eur": 2.0,
-          "estado": "preparado",
+          "codigo": "personalizacion_texto_1_lado",
+          "nombre": "Texto personalizado · 1 lado",
+          "descripcion": "Texto personalizado en un lado del marco.",
+          "precio_extra_eur": 4.0,
+          "estado": "activo",
+          "visible_en_web": false
+        },
+        {
+          "codigo": "personalizacion_texto_2_lados",
+          "nombre": "Texto personalizado · 2 lados",
+          "descripcion": "Texto personalizado en dos lados del marco.",
+          "precio_extra_eur": 6.0,
+          "estado": "activo",
+          "visible_en_web": false
+        },
+        {
+          "codigo": "personalizacion_texto_3_lados",
+          "nombre": "Texto personalizado · 3 lados",
+          "descripcion": "Texto personalizado en tres lados del marco.",
+          "precio_extra_eur": 8.0,
+          "estado": "activo",
+          "visible_en_web": false
+        },
+        {
+          "codigo": "personalizacion_texto_4_lados",
+          "nombre": "Texto personalizado · 4 lados",
+          "descripcion": "Texto personalizado en los cuatro lados del marco.",
+          "precio_extra_eur": 8.0,
+          "estado": "activo",
           "visible_en_web": false
         }
       ],

@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "B7FA96414E47B09D77EE9F792D6D81C7735772CBABA7CCA52342F89A23689103"
+$ExpectedHash = "B00E1C6077743422D8CD54698D05645B3BF468E8F4F5E1E85C8E42920C0F1165"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -28,7 +28,7 @@ if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_9"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_9_5_EXTERNAL_LOGO") },
+    @{ Name = "VERSION_SCRIPT V1_11_2"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_11_2_PRICE_BREAKDOWN") },
     @{ Name = "VERSION_PLANTILLA"; Pass = ($Text -match "TAKARA_PEDIDO_WEB_V1") },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },
@@ -42,6 +42,51 @@ $Checks = @(
     @{ Name = "Email obligatorio en servidor"; Pass = ($Text -match "emailPedidoValido_") },
     @{ Name = "Correo premium cliente"; Pass = ($Text -match "construirHtmlConfirmacionPedidoCliente_") },
     @{ Name = "Correo premium interno"; Pass = ($Text -match "construirHtmlInterno_") },
+    @{ Name = "Personalizacion normalizada"; Pass = ($Text -match "normalizarPersonalizacionMarco_") },
+    @{ Name = "Personalizacion validada"; Pass = ($Text -match "validarPersonalizacionMarco_") },
+    @{ Name = "Precio por numero de lados"; Pass = ($Text -match "FRAME_TEXT_PRICE_BY_SIDE_COUNT") },
+    @{ Name = "Bloque tecnico personalizacion"; Pass = ($Text -match "\[PERSONALIZACION_MARCO\]") },
+    @{ Name = "Personalizacion en correo cliente texto"; Pass = ($Text -match "construirBloquePersonalizacionClienteTexto_") },
+    @{ Name = "Personalizacion en correos HTML"; Pass = (
+        ([regex]::Matches($Text, "construirFilasPersonalizacionEmailPremium_\(")).Count -ge 3
+    ) },
+    @{ Name = "Ficha visual versionada"; Pass = ($Text -match "TAKARA_ORDER_VISUAL_PROOF_V1") },
+    @{ Name = "Ficha visual limitada a 900 KiB"; Pass = (
+        $Text -match "MAX_VISUAL_PROOF_BYTES:\s*900\s*\*\s*1024"
+    ) },
+    @{ Name = "Ficha visual preparada sin copia en Drive"; Pass = (
+        $Text -match "function\s+prepararFichaVisual_\s*\(" -and
+        ([regex]::Matches($Text, "folder\.createFile\(blob\)")).Count -eq 1 -and
+        $Text -notmatch "function\s+guardarFichaVisual_\s*\("
+    ) },
+    @{ Name = "Ficha visual no bloquea pedido"; Pass = (
+        $Text -match "function\s+prepararFichaVisualSegura_\s*\(" -and
+        $Text -match 'estado:\s*"descartada"'
+    ) },
+    @{ Name = "Ficha visual incluida en ambos correos"; Pass = (
+        ([regex]::Matches($Text, "options\.inlineImages")).Count -eq 2 -and
+        ([regex]::Matches(
+            $Text,
+            "takaraOrderVisualProof:\s*fichaVisual\.blob"
+        )).Count -eq 2 -and
+        $Text -match 'src="cid:takaraOrderVisualProof"' -and
+        ([regex]::Matches(
+            $Text,
+            "construirBloqueFichaVisualEmailPremium_\("
+        )).Count -eq 3
+    ) },
+    @{ Name = "Adjunto descargable solo para Takara"; Pass = (
+        ([regex]::Matches($Text, "options\.attachments")).Count -eq 1 -and
+        ([regex]::Matches($Text, "options\.inlineImages")).Count -eq 2
+    ) },
+    @{ Name = "Desglose de precio en ambos correos"; Pass = (
+        ([regex]::Matches($Text, 'construirTituloSeccionEmailPremium_\("Desglose del precio"\)')).Count -eq 2 -and
+        ([regex]::Matches($Text, "construirFilasDesglosePrecioEmailPremium_\(")).Count -eq 3 -and
+        $Text -match "construirBloqueDesglosePrecioClienteTexto_" -and
+        $Text -match "Marco con litofan" -and
+        $Text -match "Total por unidad" -and
+        $Text -match "Total del pedido"
+    ) },
     @{ Name = "Alternativa HTML sin sustituir body"; Pass = (
         ($Text -match "body:\s*body") -and
         ($Text -match "htmlBody:\s*construirHtmlInterno_")

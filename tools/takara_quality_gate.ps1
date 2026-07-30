@@ -82,16 +82,25 @@ $RequiredFiles = @(
     "qr/index.html",
     "assets/css/styles.css",
     "assets/css/qr.css",
+    "assets/data/catalogo.json",
+    "assets/js/takara-pedido-web.js",
     "assets/js/takara-pedido-preview.js",
     "assets/js/takara-frame-text.js",
+    "apps-script/takara-pedidos-web/Code.gs",
     "docs/ARCHITECTURE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/QUALITY_GATE.md",
     "docs/ERROR_REGISTRY.md",
     "docs/CLEANUP_POLICY.md",
     "docs/ORDER_ENGINE_CONTRACT.md",
+    "docs/SEO_STRUCTURED_DATA_CONTRACT.md",
+    "docs/FRAME_TEXT_CONTRACT.md",
     "docs/PREVIEW_ENGINE_CONTRACT.md",
-    "docs/QR_PAGE_CONTRACT.md"
+    "docs/QR_PAGE_CONTRACT.md",
+    "tools/takara_validar_personalizacion_pedido.py",
+    "tools/takara_test_personalizacion_pedido.js",
+    "tools/takara_test_ficha_visual_pedido.js",
+    "tools/takara_validar_datos_estructurados.py"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -130,6 +139,11 @@ if (Test-Path $PedidoPath) {
         Ok "pedido.html conserva selector unico de color de letras"
     } else {
         Err "pedido.html no contiene el selector contractual de color de letras"
+    }
+    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-visual-proof-v1")) {
+        Ok "pedido.html carga el motor de ficha visual sin cache obsoleta"
+    } else {
+        Err "pedido.html no carga la version contractual de ficha visual"
     }
 
 # TAKARA LEGACY ENGINE GUARDS START
@@ -275,6 +289,59 @@ if (Test-Path "tools/validar_catalogo.py") {
     if ($LASTEXITCODE -eq 0) { Ok "Catalogo valido" } else { Err "Fallo validar_catalogo.py" }
 } else {
     Warn "No existe tools/validar_catalogo.py"
+}
+
+if (Test-Path "tools/takara_validar_datos_estructurados.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_datos_estructurados.py"
+    py tools/takara_validar_datos_estructurados.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Datos estructurados de productos validos"
+    } else {
+        Err "Fallo takara_validar_datos_estructurados.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_datos_estructurados.py"
+}
+
+if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_personalizacion_pedido.py"
+    py tools/takara_validar_personalizacion_pedido.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Contrato de personalizacion, payload, precio y correo valido"
+    } else {
+        Err "Fallo takara_validar_personalizacion_pedido.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_personalizacion_pedido.py"
+}
+
+$NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_personalizacion_pedido.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_personalizacion_pedido.js"
+    node tools/takara_test_personalizacion_pedido.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Prueba funcional de personalizacion y cuatro correos superada"
+    } else {
+        Err "Fallo takara_test_personalizacion_pedido.js"
+    }
+} else {
+    Warn "Node.js no disponible; se conserva la validacion contractual Python obligatoria"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_ficha_visual_pedido.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_ficha_visual_pedido.js"
+    node tools/takara_test_ficha_visual_pedido.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Ficha visual, Drive y ambos correos validados"
+    } else {
+        Err "Fallo takara_test_ficha_visual_pedido.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba contractual de ficha visual"
 }
 
 Log-Line ""
