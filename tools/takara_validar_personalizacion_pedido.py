@@ -95,8 +95,12 @@ def validate_client() -> None:
         "Motor web lee el campo antes de enviarlo",
     )
     require(
-        "takara-pedido-web.js?v=auditoria-f1a-contencion-v1" in page,
+        "takara-pedido-web.js?v=pedido-consentimiento-resultado-v1" in page,
         "pedido.html fuerza la versión corregida del motor de envío",
+    )
+    require(
+        "assets/css/styles.css?v=pedido-consentimiento-color-v1" in page,
+        "pedido.html fuerza la recarga del CSS del consentimiento",
     )
     require(
         'acepta_politica_privacidad: "no"' in source,
@@ -115,12 +119,35 @@ def validate_client() -> None:
         and 'data-takara-accept-proxy="acepta_contacto" checked' not in page,
         "Consentimientos visibles no están premarcados",
     )
+    require(
+        'name="autoriza_publicacion_resultado" value="si"' in page
+        and 'name="autoriza_publicacion_resultado" value="si" required' not in page,
+        "Consentimiento de publicación es opcional y no está premarcado",
+    )
+    require(
+        'data-takara-accept-proxy="autoriza_publicacion_resultado"' in page,
+        "Consentimiento opcional visible está conectado al formulario real",
+    )
+    require(
+        "Esta opción no se aplicará a trabajos que incluyan imágenes de menores de edad." in page,
+        "La exclusión de menores aparece en el formulario",
+    )
+    require(
+        "Resultado final (opcional)." not in page
+        and "<strong>Opcional.</strong>" not in page
+        and "La autorización opcional se refiere" not in page,
+        "La interfaz no etiqueta la casilla con la palabra opcional",
+    )
+    require(
+        "autoriza_publicacion_resultado: autorizaPublicacionResultado" in source,
+        "Frontend envía el consentimiento opcional",
+    )
 
 
 def validate_server_and_emails() -> None:
     source = read_utf8(CODE_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT",
         "normalizarPersonalizacionMarco_",
         "validarPersonalizacionMarco_",
         "FRAME_TEXT_PRICE_BY_SIDE_COUNT",
@@ -133,6 +160,8 @@ def validate_server_and_emails() -> None:
         "construirFilasPersonalizacionEmailPremium_",
         "construirBloqueDesglosePrecioClienteTexto_",
         "construirFilasDesglosePrecioEmailPremium_",
+        "autoriza_publicacion_resultado",
+        "Publicaci\\u00F3n del resultado final",
     ]
 
     for marker in markers:
@@ -169,6 +198,10 @@ def validate_documentation() -> None:
     require(
         "personalizacion_marco" in order_contract,
         "Contrato de pedido documenta el campo personalizacion_marco",
+    )
+    require(
+        "control.autoriza_publicacion_resultado" in order_contract,
+        "Contrato de pedido documenta el consentimiento opcional",
     )
 
 

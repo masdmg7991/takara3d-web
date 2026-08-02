@@ -4,7 +4,7 @@ const CFG = Object.freeze({
   ROOT_FOLDER: "Takara3D",
   PEDIDOS_FOLDER: "Pedidos Web",
   VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -490,7 +490,10 @@ function normalizarPedido_(payload) {
     control: {
       acepta_contacto: booleano_(control.acepta_contacto),
       acepta_revision: booleano_(control.acepta_revision),
-      acepta_politica_privacidad: normalizarPrivacidad_(control.acepta_politica_privacidad)
+      acepta_politica_privacidad: normalizarPrivacidad_(control.acepta_politica_privacidad),
+      autoriza_publicacion_resultado: booleano_(
+        control.autoriza_publicacion_resultado
+      )
     }
   };
 }
@@ -813,6 +816,9 @@ function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto, fichaVisual) {
     "Acepta contacto: " + siNo_(pedido.control.acepta_contacto),
     "Acepta revisi\u00F3n de imagen: " + siNo_(pedido.control.acepta_revision),
     "Acepta pol\u00EDtica privacidad: " + pedido.control.acepta_politica_privacidad,
+    "Autoriza publicaci\u00F3n del resultado: " + siNo_(
+      Boolean(pedido.control && pedido.control.autoriza_publicacion_resultado)
+    ),
     "Acepta custodia/procesado de imagen: " + CFG.ACEPTA_CUSTODIA_PROCESADO_IMAGEN,
     "Estado inicial: recibido",
     "Prioridad inicial: normal",
@@ -880,6 +886,11 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
   const safeMensaje = escapeHtml_(
     pedido.mensaje_cliente || "Sin observaciones."
   ).replace(/\n/g, "<br>");
+  const safeAutorizacionResultado = Boolean(
+    pedido.control && pedido.control.autoriza_publicacion_resultado
+  )
+    ? "S\u00ED, autorizada (solo si no aparecen menores)"
+    : "No autorizada";
   const safeEstadoFoto = foto.foto_recibida
     ? "Fotograf\u00EDa guardada correctamente"
     : "Fotograf\u00EDa pendiente de asociar";
@@ -926,6 +937,11 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
     construirFilaResumenEmailPremium_(
       "Tel\u00E9fono",
       '<a href="tel:' + safeTelefono + '" style="color:#A77B2F;text-decoration:underline;">' + safeTelefono + '</a>',
+      false
+    ),
+    construirFilaResumenEmailPremium_(
+      "Publicaci\u00F3n del resultado",
+      safeAutorizacionResultado,
       false
     ),
     '</table>',
@@ -1020,6 +1036,11 @@ function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual) {
     "Color marco: " + pedido.producto.color_marco,
     "Cantidad: " + pedido.producto.cantidad,
     "Fotograf\u00EDa: " + (foto.foto_recibida ? "Recibida correctamente" : "Pendiente de asociar"),
+    "Publicaci\u00F3n del resultado final: " + (
+      Boolean(pedido.control && pedido.control.autoriza_publicacion_resultado)
+        ? "Autorizada, siempre que no aparezcan menores"
+        : "No autorizada"
+    ),
     "",
     "DESGLOSE DEL PRECIO",
     construirBloqueDesglosePrecioClienteTexto_(pedido),
@@ -1084,6 +1105,11 @@ function construirHtmlConfirmacionPedidoCliente_(
   const safeFotoEstado = foto.foto_recibida
     ? "Recibida correctamente"
     : "Pendiente de asociar";
+  const safeAutorizacionResultado = Boolean(
+    pedido.control && pedido.control.autoriza_publicacion_resultado
+  )
+    ? "Autorizada (no aplicable si aparecen menores)"
+    : "No autorizada";
   const introFoto = foto.foto_recibida
     ? "Hemos recibido tu solicitud y la fotograf\u00EDa correctamente. Ahora comienza nuestra revisi\u00F3n personal."
     : "Hemos recibido los datos de tu solicitud. La fotograf\u00EDa queda pendiente de asociar antes de comenzar la revisi\u00F3n.";
@@ -1116,6 +1142,11 @@ function construirHtmlConfirmacionPedidoCliente_(
     construirFilaResumenEmailPremium_(
       "Fotograf\u00EDa",
       '<span style="color:#376347;">' + safeFotoEstado + '</span>',
+      false
+    ),
+    construirFilaResumenEmailPremium_(
+      "Publicaci\u00F3n del resultado final",
+      safeAutorizacionResultado,
       false,
       true
     ),

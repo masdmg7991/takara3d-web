@@ -264,3 +264,11 @@ El pedido web no debe:
 El contrato estara cumplido cuando un cliente pueda preparar un pedido claro, revisable y enviable por Gmail, sin depender de conversaciones dispersas por WhatsApp.
 
 Tambien estara cumplido cuando Takara pueda recibir el pedido con datos suficientes para revisar imagen, confirmar precio, resolver dudas y fabricar sin perder informacion.
+
+## Consentimiento opcional de publicación del resultado
+
+- Campo: `control.autoriza_publicacion_resultado`.
+- Es opcional, se muestra desmarcado y no bloquea el envío.
+- El servidor lo normaliza como `false` cuando está ausente o no reconocido.
+- El correo interno y la confirmación al cliente registran el estado.
+- Aunque exista autorización, no se utilizarán trabajos con imágenes de menores.

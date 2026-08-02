@@ -21,6 +21,9 @@ Responsabilidad:
 - Normalizar la privacidad en modo fail-closed: solo una aceptación
   afirmativa reconocida se registra como sí; vacío, ausente o desconocido
   se registra como no.
+- Registrar por separado la autorización opcional para mostrar una fotografía
+  del producto terminado en la web o redes sociales. Debe permanecer
+  desmarcada por defecto y nunca se aplicará a trabajos con menores.
 - Conservar el cuerpo tecnico TAKARA_PEDIDO_WEB_V1 que procesa MicroFactory.
 - Normalizar y validar la personalización del marco antes de aceptar el pedido.
 - Incluir lados, textos, color y suplemento en los correos interno y cliente,
@@ -37,7 +40,7 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT
 - TAKARA_PEDIDO_WEB_V1
 - TAKARA_ORDER_VISUAL_PROOF_V1
 - doGet()

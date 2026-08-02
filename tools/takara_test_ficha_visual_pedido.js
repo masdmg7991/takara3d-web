@@ -218,7 +218,7 @@ function testStaticClientContract() {
   });
 
   ok(
-    page.includes("takara-pedido-web.js?v=auditoria-f1a-contencion-v1"),
+    page.includes("takara-pedido-web.js?v=pedido-consentimiento-resultado-v1"),
     "pedido.html invalida la caché del motor con ficha visual"
   );
   ok(

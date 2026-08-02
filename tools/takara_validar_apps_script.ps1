@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "74D105BCAE1BBCBB356FD8785FADD08882BF58CB2BDD1FAB226C4F05469A3173"
+$ExpectedHash = "80BB657608EF89F835ECF7A0AC91D93CBD158D0309D8040385CD31E3A22FCEC3"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -28,13 +28,18 @@ if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_12_2"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED") },
+    @{ Name = "VERSION_SCRIPT V1_12_3"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT") },
     @{ Name = "Privacidad fail-closed"; Pass = (
         $Text -match 'function\s+normalizarPrivacidad_\s*\(' -and
         $Text -match 'text\s*===\s*"si"' -and
         $Text -match 'text\s*===\s*"true"' -and
         $Text -match 'text\s*===\s*"1"' -and
         $Text -notmatch 'text\s*===\s*"no"\s*\|\|'
+    ) },
+    @{ Name = "Consentimiento opcional resultado"; Pass = (
+        $Text -match 'autoriza_publicacion_resultado:\s*booleano_' -and
+        $Text -match 'Autoriza publicaci\\u00F3n del resultado' -and
+        $Text -match 'Publicaci\\u00F3n del resultado final'
     ) },
     @{ Name = "VERSION_PLANTILLA"; Pass = ($Text -match "TAKARA_PEDIDO_WEB_V1") },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },

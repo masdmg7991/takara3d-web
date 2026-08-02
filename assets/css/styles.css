@@ -4151,7 +4151,8 @@ body.pedido-premium :has(> [data-takara-format-proxy="vertical"]):has(> [data-ta
 
 /* TAKARA PEDIDO CONTACT VALIDATION V1 START */
 html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_revision"]),
-html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_contacto"]) {
+html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_contacto"]),
+html body.pedido-premium :has(> input[data-takara-accept-proxy="autoriza_publicacion_resultado"]) {
   color: #fffaf2 !important;
   font-weight: 600;
   line-height: 1.45;
@@ -4159,7 +4160,8 @@ html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_contacto"
 }
 
 html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_revision"]) :where(span, strong, p, small),
-html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_contacto"]) :where(span, strong, p, small) {
+html body.pedido-premium :has(> input[data-takara-accept-proxy="acepta_contacto"]) :where(span, strong, p, small),
+html body.pedido-premium :has(> input[data-takara-accept-proxy="autoriza_publicacion_resultado"]) :where(span, strong, p, small) {
   color: inherit !important;
   opacity: 1 !important;
 }

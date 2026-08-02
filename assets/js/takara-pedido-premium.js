@@ -1,4 +1,4 @@
-/* TAKARA_PEDIDO_PREMIUM_JS_V4 */
+/* TAKARA_PEDIDO_PREMIUM_JS_V5 */
 (function () {
   "use strict";
 
@@ -19,7 +19,8 @@
       cantidad: pick(["[name=\"cantidad\"]", "[name=\"unidades\"]", "input[type=\"number\"]"]),
       observaciones: pick(["[name=\"observaciones\"]", "[name=\"notas\"]", "[name=\"mensaje\"]", "textarea"]),
       acepta_contacto: pick(["[name=\"acepta_contacto\"]"]),
-      acepta_revision: pick(["[name=\"acepta_revision\"]"])
+      acepta_revision: pick(["[name=\"acepta_revision\"]"]),
+      autoriza_publicacion_resultado: pick(["[name=\"autoriza_publicacion_resultado\"]"])
     };
   }
 
@@ -270,7 +271,7 @@
       });
     });
 
-    ["acepta_contacto", "acepta_revision"].forEach(function (name) {
+    ["acepta_contacto", "acepta_revision", "autoriza_publicacion_resultado"].forEach(function (name) {
       var real = document.querySelector("input[name=\"" + name + "\"]");
       var proxy = document.querySelector("[data-takara-accept-proxy=\"" + name + "\"]");
       if (real && proxy) proxy.checked = real.checked;

@@ -17,7 +17,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="assets/css/styles.css?v=pedido-premium-2ag">
+      <link rel="stylesheet" href="assets/css/styles.css?v=pedido-consentimiento-color-v1">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -299,7 +299,7 @@
                   <input type="checkbox" name="acepta_contacto" value="si" required>
                   <span>
                     <strong>Datos de contacto.</strong>
-                    Autorizo a Takara 3D a utilizar los datos enviados para gestionar mi solicitud y contactar conmigo.
+                    Acepto que Takara 3D utilice mis datos de contacto únicamente para gestionar esta solicitud y responderme.
                   </span>
                 </label>
               </div>
@@ -309,15 +309,23 @@
                   <input type="checkbox" name="acepta_revision" value="si" required>
                   <span>
                     <strong>Imagen enviada.</strong>
-                    Declaro que cuento con los derechos o permisos necesarios para solicitar este trabajo personalizado.
+                    Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo a Takara 3D a revisarla durante su preparación.
                   </span>
                 </label>
               </div>
 
+              <div class="pedido-stl-legal-item">
+                <label class="pedido-stl-check">
+                  <input type="checkbox" name="autoriza_publicacion_resultado" value="si">
+                  <span>
+                    Autorizo a Takara 3D a utilizar una fotografía del resultado final en su web y redes sociales. Esta opción no se aplicará a trabajos que incluyan imágenes de menores de edad.
+                  </span>
+                </label>
+              </div>
               <div class="pedido-stl-legal-item pedido-stl-legal-item--note">
                 <p class="pedido-stl-legal-note">
-                  <strong>Uso de la imagen.</strong>
-                  La imagen se utilizará únicamente para revisar el encuadre y preparar la litofanía solicitada.
+                  <strong>Uso de la imagen original.</strong>
+                  La fotografía original se utilizará únicamente para revisar el encuadre y preparar la litofanía solicitada. Esta autorización se refiere solo a una fotografía del producto terminado.
                 </p>
               </div>
             </div>
@@ -538,12 +546,16 @@
             <div class="takara-submit-final__checks">
               <label class="takara-submit-final__check">
                 <input type="checkbox" data-takara-accept-proxy="acepta_revision">
-                <span>Declaro que cuento con los derechos o permisos necesarios sobre la imagen enviada y autorizo su revisión para preparar la propuesta.</span>
+                <span>Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo a Takara 3D a revisarla durante su preparación.</span>
               </label>
 
               <label class="takara-submit-final__check">
                 <input type="checkbox" data-takara-accept-proxy="acepta_contacto">
-                <span>Autorizo a Takara 3D a utilizar mis datos de contacto exclusivamente para gestionar esta solicitud y responderme.</span>
+                <span>Acepto que Takara 3D utilice mis datos de contacto únicamente para gestionar esta solicitud y responderme.</span>
+              </label>
+              <label class="takara-submit-final__check">
+                <input type="checkbox" data-takara-accept-proxy="autoriza_publicacion_resultado">
+                <span>Autorizo a Takara 3D a utilizar una fotografía del resultado final en su web y redes sociales. Esta opción no se aplicará a trabajos que incluyan imágenes de menores de edad.</span>
               </label>
             </div>
 
@@ -590,10 +602,10 @@
   <script src="assets/js/core/takara-catalogo.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-pricing.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-order-snapshot.js?v=catalogo-v2b1"></script>
-  <script src="assets/js/takara-pedido-web.js?v=auditoria-f1a-contencion-v1"></script>
+  <script src="assets/js/takara-pedido-web.js?v=pedido-consentimiento-resultado-v1"></script>
   <!-- Motor legado desactivado: assets/js/pedido.js -->
   <script src="assets/js/takara-pedido-preview.js" defer></script>
   <script src="assets/js/takara-frame-text.js" defer></script>
-  <script src="assets/js/takara-pedido-premium.js" defer></script>
+  <script src="assets/js/takara-pedido-premium.js?v=consentimiento-resultado-v1" defer></script>
 </body>
 </html>

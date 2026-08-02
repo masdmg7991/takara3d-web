@@ -282,6 +282,10 @@
     const notas = value(form, "notas");
     const aceptaContacto = isChecked(form, "acepta_contacto");
     const aceptaRevision = isChecked(form, "acepta_revision");
+    const autorizaPublicacionResultado = isChecked(
+      form,
+      "autoriza_publicacion_resultado"
+    );
     const pedidoWebId = createPedidoWebId();
     const creadoEnIso = new Date().toISOString();
 
@@ -375,7 +379,8 @@
       control: {
         acepta_contacto: true,
         acepta_revision: true,
-        acepta_politica_privacidad: "no"
+        acepta_politica_privacidad: "no",
+        autoriza_publicacion_resultado: autorizaPublicacionResultado
       }
     };
   }

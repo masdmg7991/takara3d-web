@@ -157,10 +157,27 @@ if (Test-Path $PedidoPath) {
     } else {
         Err "pedido.html no contiene el selector contractual de color de letras"
     }
-    if ($PedidoText.Contains("takara-pedido-web.js?v=auditoria-f1a-contencion-v1")) {
-        Ok "pedido.html carga el motor de ficha visual sin cache obsoleta"
+    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-consentimiento-resultado-v1")) {
+        Ok "pedido.html carga el motor de pedido sin cache obsoleta"
     } else {
-        Err "pedido.html no carga la version contractual de ficha visual"
+        Err "pedido.html no carga la version contractual del motor de pedido"
+    }
+    if ($PedidoText.Contains("assets/css/styles.css?v=pedido-consentimiento-color-v1")) {
+        Ok "pedido.html invalida la cache CSS del consentimiento"
+    } else {
+        Err "pedido.html no carga la version CSS contractual del consentimiento"
+    }
+    if (
+        $PedidoText.Contains('name="autoriza_publicacion_resultado" value="si"') -and
+        $PedidoText.Contains('data-takara-accept-proxy="autoriza_publicacion_resultado"') -and
+        $PedidoText.Contains("web y redes sociales") -and
+        $PedidoText.Contains("menores de edad.") -and
+        -not $PedidoText.Contains("Resultado final (opcional).") -and
+        -not $PedidoText.Contains("<strong>Opcional.</strong>")
+    ) {
+        Ok "pedido.html conserva consentimiento opcional de publicacion"
+    } else {
+        Err "pedido.html no conserva consentimiento opcional contractual"
     }
 
 # TAKARA LEGACY ENGINE GUARDS START
