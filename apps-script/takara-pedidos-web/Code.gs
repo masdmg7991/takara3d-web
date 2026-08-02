@@ -4,7 +4,7 @@ const CFG = Object.freeze({
   ROOT_FOLDER: "Takara3D",
   PEDIDOS_FOLDER: "Pedidos Web",
   VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -1889,11 +1889,16 @@ function capitalizar_(value) {
 function normalizarPrivacidad_(value) {
   const text = texto_(value).toLowerCase();
 
-  if (text === "no" || text === "false" || text === "0") {
-    return "no";
+  if (
+    text === "si" ||
+    text === "s\u00ED" ||
+    text === "true" ||
+    text === "1"
+  ) {
+    return "s\u00ED";
   }
 
-  return "s\u00ED";
+  return "no";
 }
 
 function extensionDesdeContentType_(contentType, filename) {

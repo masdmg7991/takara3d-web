@@ -18,6 +18,9 @@ Responsabilidad:
 - Validar el tamano real y la firma JPG, PNG o WEBP antes de crear la carpeta
   del pedido en Drive.
 - Exigir telefono y correo validos tambien en el servidor.
+- Normalizar la privacidad en modo fail-closed: solo una aceptación
+  afirmativa reconocida se registra como sí; vacío, ausente o desconocido
+  se registra como no.
 - Conservar el cuerpo tecnico TAKARA_PEDIDO_WEB_V1 que procesa MicroFactory.
 - Normalizar y validar la personalización del marco antes de aceptar el pedido.
 - Incluir lados, textos, color y suplemento en los correos interno y cliente,
@@ -34,7 +37,7 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED
 - TAKARA_PEDIDO_WEB_V1
 - TAKARA_ORDER_VISUAL_PROOF_V1
 - doGet()

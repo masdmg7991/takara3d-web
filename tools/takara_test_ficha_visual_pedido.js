@@ -218,7 +218,7 @@ function testStaticClientContract() {
   });
 
   ok(
-    page.includes("takara-pedido-web.js?v=pedido-visual-proof-v1"),
+    page.includes("takara-pedido-web.js?v=auditoria-f1a-contencion-v1"),
     "pedido.html invalida la caché del motor con ficha visual"
   );
   ok(
@@ -629,8 +629,31 @@ function testVisualBinaryValidation() {
   );
 }
 
+function testPrivacyNormalizationFailClosed() {
+  const server = loadServerContext();
+  const cases = [
+    { input: undefined, expected: "no", name: "valor ausente" },
+    { input: "", expected: "no", name: "valor vacío" },
+    { input: "desconocido", expected: "no", name: "valor desconocido" },
+    { input: "no", expected: "no", name: "no explícito" },
+    { input: "false", expected: "no", name: "false" },
+    { input: "0", expected: "no", name: "cero" },
+    { input: "si", expected: "sí", name: "si sin tilde" },
+    { input: "sí", expected: "sí", name: "sí con tilde" },
+    { input: "true", expected: "sí", name: "true" },
+    { input: "1", expected: "sí", name: "uno" }
+  ];
+
+  cases.forEach(function (entry) {
+    ok(
+      server.normalizarPrivacidad_(entry.input) === entry.expected,
+      "Privacidad fail-closed normaliza " + entry.name
+    );
+  });
+}
 async function main() {
   testStaticClientContract();
+  testPrivacyNormalizationFailClosed();
   await testClientComposition();
   testServerEmailOnly();
   testVisualFailureCannotBlockOrder();

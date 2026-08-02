@@ -95,15 +95,32 @@ def validate_client() -> None:
         "Motor web lee el campo antes de enviarlo",
     )
     require(
-        "takara-pedido-web.js?v=pedido-visual-proof-v1" in page,
+        "takara-pedido-web.js?v=auditoria-f1a-contencion-v1" in page,
         "pedido.html fuerza la versión corregida del motor de envío",
+    )
+    require(
+        'acepta_politica_privacidad: "no"' in source,
+        "Frontend F1A registra privacidad como no",
+    )
+    require(
+        'acepta_politica_privacidad: ""' not in source,
+        "Frontend F1A no envía privacidad vacía",
+    )
+    require(
+        "Hemos recibido tu solicitud" not in source,
+        "Frontend F1A no afirma recepción opaca del pedido",
+    )
+    require(
+        'data-takara-accept-proxy="acepta_revision" checked' not in page
+        and 'data-takara-accept-proxy="acepta_contacto" checked' not in page,
+        "Consentimientos visibles no están premarcados",
     )
 
 
 def validate_server_and_emails() -> None:
     source = read_utf8(CODE_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED",
         "normalizarPersonalizacionMarco_",
         "validarPersonalizacionMarco_",
         "FRAME_TEXT_PRICE_BY_SIDE_COUNT",

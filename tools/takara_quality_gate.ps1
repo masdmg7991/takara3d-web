@@ -157,7 +157,7 @@ if (Test-Path $PedidoPath) {
     } else {
         Err "pedido.html no contiene el selector contractual de color de letras"
     }
-    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-visual-proof-v1")) {
+    if ($PedidoText.Contains("takara-pedido-web.js?v=auditoria-f1a-contencion-v1")) {
         Ok "pedido.html carga el motor de ficha visual sin cache obsoleta"
     } else {
         Err "pedido.html no carga la version contractual de ficha visual"

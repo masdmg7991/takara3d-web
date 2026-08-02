@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "F934A6C0FFA6AE670FF70F44059E2A6C4566C919A10B0A51CB9AA804B2AD408D"
+$ExpectedHash = "74D105BCAE1BBCBB356FD8785FADD08882BF58CB2BDD1FAB226C4F05469A3173"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -28,7 +28,14 @@ if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_12_1"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF") },
+    @{ Name = "VERSION_SCRIPT V1_12_2"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED") },
+    @{ Name = "Privacidad fail-closed"; Pass = (
+        $Text -match 'function\s+normalizarPrivacidad_\s*\(' -and
+        $Text -match 'text\s*===\s*"si"' -and
+        $Text -match 'text\s*===\s*"true"' -and
+        $Text -match 'text\s*===\s*"1"' -and
+        $Text -notmatch 'text\s*===\s*"no"\s*\|\|'
+    ) },
     @{ Name = "VERSION_PLANTILLA"; Pass = ($Text -match "TAKARA_PEDIDO_WEB_V1") },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },

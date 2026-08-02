@@ -53,10 +53,16 @@ assets/js/takara-pedido-preview.js
 
 El backend ligero de pedidos/contacto está publicado en Google Apps Script.
 
-Versión esperada:
+Versión actualmente publicada:
 
 ```text
 TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF
+```
+
+Candidato local pendiente de validación, commit y despliegue:
+
+```text
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_2_PRIVACY_FAIL_CLOSED
 ```
 
 La comprobación GET debe validar el campo JSON `script` y no comparar la respuesta completa como texto plano.

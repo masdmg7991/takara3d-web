@@ -88,9 +88,9 @@
         body: payload
       });
 
-      form.reset();
 
-      setStatus(statusNode, "Consulta enviada correctamente. Te responderemos por correo lo antes posible.", "success");
+
+      setStatus(statusNode, "Consulta transmitida. La recepción quedará confirmada cuando recibas el correo automático de Takara 3D. Hemos conservado los datos del formulario por si necesitas revisarlos o volver a intentarlo.", "success");
     } catch (error) {
       setStatus(statusNode, error && error.message ? error.message : "No se pudo enviar la consulta.", "error");
     } finally {

@@ -106,7 +106,7 @@
 
       setStatus(
         statusNode,
-        "Solicitud enviada correctamente. Hemos recibido tu solicitud. Revisa tu correo; te contactaremos para confirmar viabilidad, plazo y entrega.",
+        "Solicitud transmitida. La recepción quedará confirmada cuando recibas el correo automático de Takara 3D. Si no lo recibes, los datos siguen en pantalla para que puedas revisarlos o volver a intentarlo.",
         "success"
       );
     } catch (error) {
@@ -375,7 +375,7 @@
       control: {
         acepta_contacto: true,
         acepta_revision: true,
-        acepta_politica_privacidad: ""
+        acepta_politica_privacidad: "no"
       }
     };
   }
@@ -1035,7 +1035,7 @@
       "opacity:.74"
     ].join(";");
 
-    title.textContent = safeState === "success" ? "Solicitud enviada correctamente" : "Falta completar algo";
+    title.textContent = safeState === "success" ? (message.indexOf("Modo prueba local:") === 0 ? "Prueba local completada" : "Solicitud transmitida") : "Falta completar algo";
     title.style.cssText = [
       "display:block",
       "margin:0 0 10px",
