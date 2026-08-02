@@ -16,6 +16,21 @@ const CODE_GS = path.join(
 
 let checks = 0;
 
+const TEST_JPEG_BASE64 =
+  "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkM" +
+  "EQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4I" +
+  "CA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4e" +
+  "Hh4eHh7/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQF" +
+  "BgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEI" +
+  "I0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNk" +
+  "ZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLD" +
+  "xMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEB" +
+  "AQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJB" +
+  "UQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZH" +
+  "SElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaan" +
+  "qKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oA" +
+  "DAMBAAIRAxEAPwD7LooooA//2Q==";
+
 function ok(condition, message) {
   if (!condition) {
     throw new Error("[FAIL] " + message);
@@ -27,6 +42,8 @@ function ok(condition, message) {
 
 function loadServerContext() {
   const sentEmails = [];
+  const createdBlobs = [];
+  const base64DecodeCalls = [];
 
   function createTestBlob(bytes, contentType, filename) {
     return {
@@ -58,10 +75,14 @@ function loadServerContext() {
         return "2026-07-29 12:00:00";
       },
       base64Decode: function (value) {
-        return Array.from(Buffer.from(String(value || ""), "base64"));
+        const encoded = String(value || "");
+        base64DecodeCalls.push(encoded.length);
+        return Array.from(Buffer.from(encoded, "base64"));
       },
       newBlob: function (bytes, contentType, filename) {
-        return createTestBlob(bytes, contentType, filename);
+        const blob = createTestBlob(bytes, contentType, filename);
+        createdBlobs.push(blob);
+        return blob;
       }
     },
     DriveApp: {},
@@ -96,11 +117,13 @@ function loadServerContext() {
     filename: CODE_GS
   });
   context.sentEmails = sentEmails;
+  context.createdBlobs = createdBlobs;
+  context.base64DecodeCalls = base64DecodeCalls;
   return context;
 }
 
 function makeVisualFiles(overrides) {
-  const jpegBytes = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+  const jpegBytes = Buffer.from(TEST_JPEG_BASE64, "base64");
   return Object.assign({
     ficha_visual_base64: "data:image/jpeg;base64," + jpegBytes.toString("base64"),
     ficha_visual_nombre_archivo: "TK-WEB-TEST_vista_previa.jpg",
@@ -521,11 +544,97 @@ function testVisualFailureCannotBlockOrder() {
   );
 }
 
+function testVisualBinaryValidation() {
+  const realJpeg = Buffer.from(TEST_JPEG_BASE64, "base64");
+  const pngDisguised = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44
+  ]);
+  const cases = [
+    {
+      name: "PNG disfrazado como JPEG",
+      bytes: pngDisguised
+    },
+    {
+      name: "contenido textual disfrazado como JPEG",
+      bytes: Buffer.from("contenido que no es una imagen", "utf8")
+    },
+    {
+      name: "JPEG truncado sin marcador final",
+      bytes: realJpeg.subarray(0, realJpeg.length - 2)
+    },
+    {
+      name: "secuencia JPEG artificial demasiado corta",
+      bytes: Buffer.from([0xff, 0xd8, 0xff, 0xd9])
+    }
+  ];
+
+  cases.forEach(function (entry) {
+    const server = loadServerContext();
+    const before = server.createdBlobs.length;
+    const result = server.prepararFichaVisualSegura_(
+      "TK-WEB-TEST",
+      makeVisualFiles({
+        ficha_visual_base64:
+          "data:image/jpeg;base64," + entry.bytes.toString("base64"),
+        ficha_visual_size_bytes: entry.bytes.length
+      })
+    );
+
+    ok(result.ficha_visual_recibida === false, "Servidor descarta " + entry.name);
+    ok(result.estado === "descartada", "Servidor registra " + entry.name);
+    ok(
+      server.createdBlobs.length === before,
+      "Servidor no crea blob para " + entry.name
+    );
+  });
+
+  const sizeServer = loadServerContext();
+  const sizeResult = sizeServer.prepararFichaVisualSegura_(
+    "TK-WEB-TEST",
+    makeVisualFiles({
+      ficha_visual_size_bytes: realJpeg.length + 1
+    })
+  );
+  ok(sizeResult.ficha_visual_recibida === false, "Servidor descarta tamaño declarado falso");
+  ok(sizeResult.estado === "descartada", "Servidor registra el tamaño declarado falso");
+  ok(sizeServer.createdBlobs.length === 0, "Tamaño falso no crea blob");
+
+  const mimeServer = loadServerContext();
+  const mimeResult = mimeServer.prepararFichaVisualSegura_(
+    "TK-WEB-TEST",
+    makeVisualFiles({
+      ficha_visual_base64: "data:image/png;base64," + TEST_JPEG_BASE64
+    })
+  );
+  ok(mimeResult.ficha_visual_recibida === false, "Servidor descarta MIME interno incoherente");
+  ok(mimeResult.estado === "descartada", "Servidor registra MIME interno incoherente");
+  ok(mimeServer.createdBlobs.length === 0, "MIME incoherente no crea blob");
+
+  const oversizedBytes = Buffer.alloc((900 * 1024) + 1, 0x41);
+  const oversizedServer = loadServerContext();
+  const oversizedResult = oversizedServer.prepararFichaVisualSegura_(
+    "TK-WEB-TEST",
+    makeVisualFiles({
+      ficha_visual_base64: oversizedBytes.toString("base64"),
+      ficha_visual_size_bytes: 1
+    })
+  );
+  ok(oversizedResult.ficha_visual_recibida === false, "Servidor descarta Base64 sobredimensionado");
+  ok(oversizedResult.estado === "descartada", "Servidor registra Base64 sobredimensionado");
+  ok(oversizedServer.createdBlobs.length === 0, "Base64 sobredimensionado no crea blob");
+  ok(
+    oversizedServer.base64DecodeCalls.length === 0,
+    "Base64 sobredimensionado se rechaza antes de decodificar"
+  );
+}
+
 async function main() {
   testStaticClientContract();
   await testClientComposition();
   testServerEmailOnly();
   testVisualFailureCannotBlockOrder();
+  testVisualBinaryValidation();
   process.stdout.write(
     "[TAKARA_ORDER_VISUAL_PROOF_TEST_OK] " + checks + " comprobaciones\n"
   );

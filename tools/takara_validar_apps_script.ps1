@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "B00E1C6077743422D8CD54698D05645B3BF468E8F4F5E1E85C8E42920C0F1165"
+$ExpectedHash = "F934A6C0FFA6AE670FF70F44059E2A6C4566C919A10B0A51CB9AA804B2AD408D"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -28,7 +28,7 @@ if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_11_2"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_11_2_PRICE_BREAKDOWN") },
+    @{ Name = "VERSION_SCRIPT V1_12_1"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF") },
     @{ Name = "VERSION_PLANTILLA"; Pass = ($Text -match "TAKARA_PEDIDO_WEB_V1") },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },
@@ -40,6 +40,23 @@ $Checks = @(
     @{ Name = "JSON response"; Pass = ($Text -match "ContentService") },
     @{ Name = "Telefono obligatorio en servidor"; Pass = ($Text -match "telefonoPedidoValido_") },
     @{ Name = "Email obligatorio en servidor"; Pass = ($Text -match "emailPedidoValido_") },
+    @{ Name = "Foto original obligatoria en servidor"; Pass = (
+        $Text -match 'if\s*\(\s*!pedido\.archivos\.foto_base64\s*\)' -and
+        $Text -match 'throw new Error\("Falta la foto del pedido\."\)' -and
+        $Text -notmatch "function\s+esPedidoLigeroSinFoto_" -and
+        $Text -notmatch "payload\.modo_prueba\s*!==\s*true"
+    ) },
+    @{ Name = "Foto validada por firma y tamano real"; Pass = (
+        $Text -match "function\s+prepararFotoOriginal_\s*\(" -and
+        $Text -match "function\s+detectarContentTypeImagen_\s*\(" -and
+        $Text -match "MAX_FOTO_BASE64_CHARS" -and
+        $Text -match "archivos\.size_bytes\s*!==\s*bytes\.length"
+    ) },
+    @{ Name = "Foto validada antes de crear carpeta Drive"; Pass = (
+        $Text.IndexOf("const fotoPreparada = prepararFotoOriginal_(") -ge 0 -and
+        $Text.IndexOf("const fotoPreparada = prepararFotoOriginal_(") -lt
+            $Text.IndexOf("const folder = asegurarCarpetaPedido_(")
+    ) },
     @{ Name = "Correo premium cliente"; Pass = ($Text -match "construirHtmlConfirmacionPedidoCliente_") },
     @{ Name = "Correo premium interno"; Pass = ($Text -match "construirHtmlInterno_") },
     @{ Name = "Personalizacion normalizada"; Pass = ($Text -match "normalizarPersonalizacionMarco_") },
@@ -52,11 +69,18 @@ $Checks = @(
     ) },
     @{ Name = "Ficha visual versionada"; Pass = ($Text -match "TAKARA_ORDER_VISUAL_PROOF_V1") },
     @{ Name = "Ficha visual limitada a 900 KiB"; Pass = (
-        $Text -match "MAX_VISUAL_PROOF_BYTES:\s*900\s*\*\s*1024"
+        $Text -match "MAX_VISUAL_PROOF_BYTES:\s*900\s*\*\s*1024" -and
+        $Text -match "MAX_VISUAL_PROOF_BASE64_CHARS"
+    ) },
+    @{ Name = "Ficha visual validada por firma JPEG completa"; Pass = (
+        $Text -match "function\s+esJpegCompletoPorFirma_\s*\(" -and
+        $Text -match 'detectarContentTypeImagen_\(bytes\)\s*!==\s*"image/jpeg"' -and
+        $Text -match "bytes\.length\s*-\s*2" -and
+        $Text -match "La ficha visual no tiene una firma JPEG"
     ) },
     @{ Name = "Ficha visual preparada sin copia en Drive"; Pass = (
         $Text -match "function\s+prepararFichaVisual_\s*\(" -and
-        ([regex]::Matches($Text, "folder\.createFile\(blob\)")).Count -eq 1 -and
+        ([regex]::Matches($Text, "folder\.createFile\(")).Count -eq 1 -and
         $Text -notmatch "function\s+guardarFichaVisual_\s*\("
     ) },
     @{ Name = "Ficha visual no bloquea pedido"; Pass = (

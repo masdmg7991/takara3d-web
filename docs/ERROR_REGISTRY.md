@@ -1,6 +1,6 @@
 # TAKARA ERROR REGISTRY
 
-Estado: CORE V1-R0D
+Estado: CORE V1-R0I
 Proyecto: Takara3D Web
 Objetivo: registrar errores reales, aprender de ellos y convertirlos en validaciones automaticas.
 
@@ -124,3 +124,39 @@ Detector automatico: ejecutar Quality Gate despues de crear documentacion que en
 Prevencion: separar escaneo de encoding para todo el repo y escaneo de marcadores solo para archivos productivos.
 
 Estado: corregido en CORE V1-R0I-1R.
+
+### TK-WEB-009 - Foto obligatoria eludible mediante campos del payload
+
+Sintoma: un POST manipulado puede omitir la fotografia y declarar un modo de
+transporte, una bandera de presencia o un modo de prueba para que el servidor
+acepte una solicitud incompleta.
+
+Causa: la validacion del backend confiaba en campos enviados por el mismo
+cliente que debia validar.
+
+Detector automatico: prueba funcional que envia los tres bypasses conocidos y
+exige que todos terminen con el error de foto ausente.
+
+Prevencion: la foto original es obligatoria en servidor; se decodifica, se
+limita por tamano real y se identifica por firma binaria antes de crear carpetas
+en Drive.
+
+Estado: corregido en CORE V1-R0I.
+
+### TK-WEB-010 - Ficha visual acepta bytes arbitrarios declarados como JPEG
+
+Sintoma: una ficha visual opcional con `image/jpeg` declarado puede llegar a
+los correos aunque sus bytes correspondan a PNG, texto o un JPEG truncado.
+
+Causa: el backend comprobaba el MIME y el tamano declarados por el cliente,
+pero no verificaba la firma binaria completa antes de crear el blob.
+
+Detector automatico: prueba adversaria permanente con JPEG real, PNG
+disfrazado, texto, JPEG truncado, secuencia demasiado corta, MIME interno
+incoherente, tamano declarado falso y Base64 sobredimensionado.
+
+Prevencion: limitar el Base64 antes de decodificar, comparar el tamano binario
+real y exigir marcadores JPEG de inicio y fin. Una ficha invalida se descarta
+sin crear blob, sin adjuntarse a correos y sin bloquear el pedido principal.
+
+Estado: corregido en Apps Script V1.12.1, pendiente de despliegue controlado.

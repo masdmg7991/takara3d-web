@@ -1,6 +1,6 @@
 # TAKARA ORDER ENGINE CONTRACT
 
-Estado: CORE V1-R0H
+Estado: CORE V1-R0I
 Proyecto: Takara3D Web
 Objetivo: definir el contrato funcional del pedido web antes de tocar UI o logica nueva.
 
@@ -49,6 +49,25 @@ Un pedido no debe considerarse completo sin:
 - confirmacion de que Takara puede contactar para validar el pedido.
 
 Si falta un dato critico, el sistema debe bloquear el envio o marcar el pedido como incompleto.
+
+### 3.1 Frontera de confianza de la fotografia
+
+El pedido publico actual exige la fotografia original dentro del mismo envio.
+El servidor no puede aceptar su ausencia basandose en campos controlados por el
+remitente, incluidos modos de prueba, modos de transporte o banderas que solo
+declaren que la foto estaba presente.
+
+Antes de crear una carpeta en Drive, el servidor debe:
+
+- confirmar que existe contenido base64;
+- decodificarlo sin errores;
+- calcular su tamano real y compararlo con el declarado cuando exista;
+- limitarlo a 20 MB;
+- reconocer por firma binaria JPG, PNG o WEBP;
+- asignar nombre, extension y tipo MIME desde datos controlados por el servidor.
+
+La validacion del navegador mejora la experiencia, pero nunca sustituye esta
+validacion del servidor.
 
 ---
 
@@ -165,6 +184,9 @@ Requisitos obligatorios:
 - versión `TAKARA_ORDER_VISUAL_PROOF_V1`;
 - JPEG con un máximo de 960 px en su lado mayor;
 - tamaño máximo de 900 KiB;
+- límite del Base64 aplicado antes de decodificar;
+- tipo JPEG reconocido por firma binaria, con marcadores de inicio y fin;
+- coincidencia entre tamaño binario real y tamaño declarado;
 - inclusión mediante `inlineImages` en los correos HTML interno y del cliente;
 - adjunto JPG explícito solo en el correo interno de Takara;
 - ausencia de `attachments` explícitos en la confirmación del cliente;
@@ -174,6 +196,7 @@ Requisitos obligatorios:
 Si el navegador no puede generarla o el servidor la descarta por integridad,
 el pedido debe continuar con sus datos estructurados. Un fallo de la ficha
 visual nunca puede bloquear ni degradar la información principal del pedido.
+La ficha descartada no puede crear blobs, adjuntos ni imágenes inline.
 
 ---
 

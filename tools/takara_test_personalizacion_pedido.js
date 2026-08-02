@@ -216,7 +216,6 @@ function buildServerPayload(personalization, count, overrides) {
   const payload = {
     payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V1",
     pedido_web_id: "TK-WEB-TEST01",
-    modo_prueba: true,
     cliente: {
       nombre: "Cliente prueba",
       email: "cliente@example.com",
@@ -238,7 +237,12 @@ function buildServerPayload(personalization, count, overrides) {
       precio_mostrado_eur: EXPECTED_UNIT[count],
       personalizacion_marco: personalization
     },
-    archivos: {},
+    archivos: {
+      foto_base64: "data:image/jpeg;base64,/9j/2Q==",
+      nombre_archivo: "foto-prueba.jpg",
+      content_type: "image/jpeg",
+      size_bytes: 4
+    },
     mensaje_cliente: "Prueba contractual",
     control: {
       acepta_contacto: true,
@@ -366,7 +370,7 @@ function testServerAndEmails() {
   const noTextPayload = buildServerPayload(null, 0);
   const noTextOrder = server.normalizarPedido_(noTextPayload);
 
-  server.validarPedido_(noTextOrder, noTextPayload);
+  server.validarPedido_(noTextOrder);
   ok(noTextOrder.producto.personalizacion_marco.activa === false, "Servidor conserva pedido sin texto");
 
   const photo = {
@@ -385,7 +389,7 @@ function testServerAndEmails() {
     const payload = buildServerPayload(personalization, count);
     const order = server.normalizarPedido_(payload);
 
-    server.validarPedido_(order, payload);
+    server.validarPedido_(order);
 
     const internalText = server.construirCuerpoInterno_(
       "TK-WEB-TEST01",
@@ -421,7 +425,7 @@ function testServerAndEmails() {
     function () {
       const payload = buildServerPayload(tamperedSupplement, 1);
       const order = server.normalizarPedido_(payload);
-      server.validarPedido_(order, payload);
+      server.validarPedido_(order);
     },
     /suplemento/i,
     "Servidor rechaza suplemento manipulado"
@@ -433,7 +437,7 @@ function testServerAndEmails() {
       const payload = buildServerPayload(tamperedPrice, 1);
       payload.producto.precio_mostrado_eur = "35.00";
       const order = server.normalizarPedido_(payload);
-      server.validarPedido_(order, payload);
+      server.validarPedido_(order);
     },
     /precio/i,
     "Servidor rechaza precio sin suplemento"
@@ -445,7 +449,7 @@ function testServerAndEmails() {
     function () {
       const payload = buildServerPayload(mismatchedSides, 2);
       const order = server.normalizarPedido_(payload);
-      server.validarPedido_(order, payload);
+      server.validarPedido_(order);
     },
     /no coinciden/i,
     "Servidor rechaza número de lados incoherente"
@@ -466,7 +470,7 @@ function testServerAndEmails() {
   htmlSensitive.lados.top = "<b>Tesoro & luz</b>";
   const htmlPayload = buildServerPayload(htmlSensitive, 1);
   const htmlOrder = server.normalizarPedido_(htmlPayload);
-  server.validarPedido_(htmlOrder, htmlPayload);
+  server.validarPedido_(htmlOrder);
   const safeHtml = server.construirHtmlConfirmacionPedidoCliente_(
     "TK-WEB-TEST01",
     htmlOrder,

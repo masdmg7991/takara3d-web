@@ -56,7 +56,7 @@ El backend ligero de pedidos/contacto está publicado en Google Apps Script.
 Versión esperada:
 
 ```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_8
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF
 ```
 
 La comprobación GET debe validar el campo JSON `script` y no comparar la respuesta completa como texto plano.

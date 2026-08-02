@@ -103,7 +103,7 @@ def validate_client() -> None:
 def validate_server_and_emails() -> None:
     source = read_utf8(CODE_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_11_2_PRICE_BREAKDOWN",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_1_SECURE_VISUAL_PROOF",
         "normalizarPersonalizacionMarco_",
         "validarPersonalizacionMarco_",
         "FRAME_TEXT_PRICE_BY_SIDE_COUNT",

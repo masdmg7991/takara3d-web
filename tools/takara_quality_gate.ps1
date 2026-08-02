@@ -101,6 +101,7 @@ $RequiredFiles = @(
     "tools/validar_catalogo.py",
     "tools/takara_test_personalizacion_pedido.js",
     "tools/takara_test_ficha_visual_pedido.js",
+    "tools/takara_test_seguridad_foto_pedido.js",
     "tools/takara_validar_datos_estructurados.py"
 )
 
@@ -358,6 +359,19 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_ficha_visual_pedid
     }
 } else {
     Err "No se pudo ejecutar la prueba contractual de ficha visual"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_seguridad_foto_pedido.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_seguridad_foto_pedido.js"
+    node tools/takara_test_seguridad_foto_pedido.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Foto obligatoria y bypasses del pedido validados"
+    } else {
+        Err "Fallo takara_test_seguridad_foto_pedido.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba de seguridad de la foto"
 }
 
 Log-Line ""
