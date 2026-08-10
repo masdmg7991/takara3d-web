@@ -1,4 +1,4 @@
-/* TAKARA PEDIDOS GMAIL V1 */
+/* TAKARA PEDIDOS GMAIL V2 */
 (function () {
   "use strict";
 
@@ -6,7 +6,9 @@
   const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
   const PRODUCT_CODE = "MARCO_LITOFANIA_144X108";
   const DISPLAY_PRICE_EUR = "";
-  const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V1";
+  const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V2";
+  const ORDER_SNAPSHOT_VERSION = "TAKARA_ORDER_SNAPSHOT_V2";
+  const DELIVERY_VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC";
   const ORDER_ID_PREFIX = "TK-WEB";
   const FRAME_TEXT_VERSION = "TAKARA_FRAME_TEXT_V1_4";
   const FRAME_TEXT_SIDES = Object.freeze(["top", "right", "bottom", "left"]);
@@ -205,15 +207,20 @@
   function enrichPayloadWithCatalogSnapshot(payload) {
     return loadCatalogForPedido().then(function (catalog) {
       const snapshotApi = getTakaraCore("TAKARA_ORDER_SNAPSHOT_V1");
-
       const producto = payload.producto || {};
       const cliente = payload.cliente || {};
       const personalizacionMarco = producto.personalizacion_marco || null;
+      const deliveryApi = getTakaraCore("TAKARA_DELIVERY_CORE_V2");
       const extraCodes = personalizacionMarco
         ? [FRAME_TEXT_EXTRA_CODE_BY_COUNT[personalizacionMarco.numero_lados]]
         : [];
 
-      const baseSnapshot = snapshotApi.build({
+      /*
+       * El motor de catálogo V1 se reutiliza únicamente como calculadora
+       * determinista mientras exista un solo catálogo. El contrato de
+       * transporte que sale de aquí ya es V2 y no hereda su versión.
+       */
+      const catalogQuote = snapshotApi.build({
         catalog: catalog,
         selection: {
           product_code: PRODUCT_CODE,
@@ -227,33 +234,81 @@
         meta: payload.meta || {}
       });
 
-      const snapshot = Object.assign({}, baseSnapshot, {
-        producto: Object.assign({}, baseSnapshot.producto, {
-          personalizacion_marco: personalizacionMarco
-        })
+      const deliveryQuote = deliveryApi.quote({
+        postalCode: payload.entrega && payload.entrega.codigo_postal,
+        locationCode: payload.entrega && payload.entrega.ubicacion_codigo,
+        quantity: catalogQuote.producto.cantidad
       });
 
-      payload.snapshot_pedido = createPhotoBase64SafeCopy(snapshot);
-      payload.producto = Object.assign({}, producto, {
-        producto: snapshot.producto.producto,
-        codigo_producto: snapshot.producto.codigo_producto,
-        variante_codigo: snapshot.producto.variante_codigo,
-        formato: snapshot.producto.formato,
-        orientacion: snapshot.producto.orientacion,
-        medida: snapshot.producto.medida,
-        extras: snapshot.producto.extras,
-        cantidad: snapshot.producto.cantidad,
-        moneda: snapshot.producto.moneda,
-        precio_base_eur: snapshot.producto.precio_base_eur,
-        precio_variante_eur: snapshot.producto.precio_variante_eur,
-        precio_extras_eur: snapshot.producto.precio_extras_eur,
-        precio_unitario_final_eur: snapshot.producto.precio_unitario_final_eur,
-        precio_total_eur: snapshot.producto.precio_total_eur,
-        precio_mostrado_eur: snapshot.producto.precio_unitario_final_eur,
-        origen_precio: snapshot.origen_precio,
-        catalog_version: snapshot.catalog_version,
-        pricing_version: snapshot.pricing_version,
+      if (!deliveryQuote.valid) {
+        throw new Error(
+          [deliveryQuote.customer_text, deliveryQuote.suggestion]
+            .filter(Boolean)
+            .join(" ")
+        );
+      }
+
+      const delivery = deliveryPayloadFromQuote(deliveryQuote);
+      const rawTotals = deliveryApi.calculateTotals(
+        catalogQuote.producto.precio_total_eur,
+        deliveryQuote
+      );
+      const product = Object.assign({}, producto, {
+        producto: catalogQuote.producto.producto,
+        codigo_producto: catalogQuote.producto.codigo_producto,
+        variante_codigo: catalogQuote.producto.variante_codigo,
+        formato: catalogQuote.producto.formato,
+        orientacion: catalogQuote.producto.orientacion,
+        medida: catalogQuote.producto.medida,
+        atributos: Object.assign({}, producto.atributos || {}, {
+          familia: "litofania"
+        }),
+        extras: catalogQuote.producto.extras || [],
+        cantidad: catalogQuote.producto.cantidad,
+        moneda: catalogQuote.producto.moneda,
+        precio_base_eur: catalogQuote.producto.precio_base_eur,
+        precio_variante_eur: catalogQuote.producto.precio_variante_eur,
+        precio_extras_eur: catalogQuote.producto.precio_extras_eur,
+        precio_unitario_final_eur: catalogQuote.producto.precio_unitario_final_eur,
+        precio_total_eur: catalogQuote.producto.precio_total_eur,
+        origen_precio: catalogQuote.origen_precio,
+        catalog_version: catalogQuote.catalog_version,
+        pricing_version: catalogQuote.pricing_version,
         personalizacion_marco: personalizacionMarco
+      });
+      const totals = {
+        version: DELIVERY_VERSION,
+        precio_base_eur: product.precio_base_eur,
+        precio_variante_eur: product.precio_variante_eur,
+        precio_extras_eur: product.precio_extras_eur,
+        precio_unitario_final_eur: product.precio_unitario_final_eur,
+        subtotal_productos_eur: product.precio_total_eur,
+        precio_entrega_eur: rawTotals.delivery_eur,
+        total_estimado_eur: rawTotals.estimated_total_eur,
+        estado_total: rawTotals.total_status,
+        moneda: rawTotals.currency,
+        origen_precio: product.origen_precio,
+        catalog_version: product.catalog_version,
+        pricing_version: product.pricing_version
+      };
+
+      payload.producto = product;
+      payload.entrega = delivery;
+      payload.totales = totals;
+      payload.snapshot_pedido = createPhotoBase64SafeCopy({
+        snapshot_version: ORDER_SNAPSHOT_VERSION,
+        payload_version: ORDER_PAYLOAD_VERSION,
+        pedido_web_id: payload.pedido_web_id,
+        creado_en_iso: payload.creado_en_iso,
+        modo_prueba: payload.modo_prueba === true,
+        cliente: payload.cliente,
+        producto: product,
+        entrega: delivery,
+        totales: totals,
+        archivos: payload.archivos || {},
+        mensaje_cliente: payload.mensaje_cliente || "",
+        control: payload.control || {},
+        meta: payload.meta || {}
       });
 
       return payload;
@@ -280,6 +335,19 @@
       formatoKey
     );
     const notas = value(form, "notas");
+    const codigoPostalEntrega = value(form, "codigo_postal_entrega");
+    const ubicacionEntregaCodigo = value(form, "ubicacion_entrega_codigo");
+    const localidadEntregaInformativa = value(form, "localidad_entrega_informativa");
+    const municipioEntregaCodigo = value(form, "municipio_entrega_codigo");
+    const municipioEntregaNombre = value(form, "municipio_entrega_nombre");
+    const provinciaEntregaNombre = value(form, "provincia_entrega_nombre");
+    const municipioEntregaFuente = value(form, "municipio_entrega_fuente");
+    const deliveryApi = getTakaraCore("TAKARA_DELIVERY_CORE_V2");
+    const deliveryQuote = deliveryApi.quote({
+      postalCode: codigoPostalEntrega,
+      locationCode: ubicacionEntregaCodigo,
+      quantity: cantidad
+    });
     const aceptaContacto = isChecked(form, "acepta_contacto");
     const aceptaRevision = isChecked(form, "acepta_revision");
     const autorizaPublicacionResultado = isChecked(
@@ -307,6 +375,10 @@
 
     if (!emailValido(email)) {
       throw new Error("Introduce un correo electr\u00f3nico v\u00e1lido, por ejemplo nombre@gmail.com.");
+    }
+
+    if (!deliveryQuote.valid) {
+      throw new Error([deliveryQuote.customer_text, deliveryQuote.suggestion].filter(Boolean).join(" "));
     }
 
     if (!file) {
@@ -360,8 +432,16 @@
         color_litofania: "Blanco natural",
         cantidad: cantidad,
         precio_mostrado_eur: DISPLAY_PRICE_EUR,
+        atributos: { familia: "litofania" },
+        extras: [],
         personalizacion_marco: personalizacionMarco
       },
+      entrega: deliveryPayloadFromQuote(deliveryQuote, localidadEntregaInformativa, {
+        code: municipioEntregaCodigo,
+        name: municipioEntregaNombre,
+        province: provinciaEntregaNombre,
+        source: municipioEntregaFuente
+      }),
       archivos: {
         foto_base64: photoBase64,
         nombre_archivo: file.name || "foto_original.jpg",
@@ -377,11 +457,71 @@
       },
       mensaje_cliente: notas,
       control: {
-        acepta_contacto: true,
-        acepta_revision: true,
-        acepta_politica_privacidad: "no",
+        consiente_gestion_datos: true,
+        declara_derechos_y_autoriza_revision_imagen: true,
         autoriza_publicacion_resultado: autorizaPublicacionResultado
       }
+    };
+  }
+
+  function deliveryPayloadFromQuote(quote, informativeLocality, municipalityMeta) {
+    const municipality = normalizeMunicipalityMeta(municipalityMeta);
+    const hasCommercialLocation = Boolean(quote.location_required);
+    return {
+      version: DELIVERY_VERSION,
+      modalidad_solicitada: quote.requested_mode,
+      modalidad_resuelta: quote.mode,
+      codigo_postal: quote.postal_code,
+      zona_codigo: quote.zone_code,
+      zona_nombre: quote.zone_name,
+      area_codigo: quote.area_code || "",
+      fuente_decision: quote.decision_source,
+      ubicacion_requerida: quote.location_required,
+      ubicacion_codigo: quote.location_code || "",
+      ubicacion_nombre: quote.location_name || "",
+      localidad_informativa: hasCommercialLocation
+        ? ""
+        : (municipality.name || normalizeInformativeLocality(informativeLocality)),
+      municipio_codigo: hasCommercialLocation ? "" : municipality.code,
+      municipio_nombre: hasCommercialLocation ? "" : municipality.name,
+      provincia_nombre: hasCommercialLocation ? "" : municipality.province,
+      municipio_fuente: hasCommercialLocation ? "" : municipality.source,
+      precio_eur: quote.price_eur,
+      moneda: quote.currency,
+      estado_precio: quote.price_status,
+      direccion_completa_solicitada: false,
+      texto_cliente: quote.customer_text
+    };
+  }
+
+  function normalizeInformativeLocality(value) {
+    return Array.from(String(value || "").replace(/\s+/g, " ").trim())
+      .slice(0, 80)
+      .join("");
+  }
+
+  function normalizeMunicipalityMeta(value) {
+    const source = value || {};
+    const allowedSources = new Set([
+      "cartociudad_automatico",
+      "cartociudad_seleccion",
+      "manual",
+      "sin_dato"
+    ]);
+    const code = /^\d{5}$/.test(String(source.code || ""))
+      ? String(source.code)
+      : "";
+    const name = normalizeInformativeLocality(source.name);
+    const province = normalizeInformativeLocality(source.province);
+    const normalizedSource = allowedSources.has(String(source.source || ""))
+      ? String(source.source)
+      : "";
+
+    return {
+      code: code,
+      name: name,
+      province: province,
+      source: normalizedSource
     };
   }
 
@@ -516,16 +656,7 @@
   });
 
   function isDryRunEnabled() {
-    if (getEnvironment() !== "local") {
-      return false;
-    }
-
-    try {
-      const params = new URLSearchParams(window.location.search || "");
-      return params.get("takara_dry_run") === "1";
-    } catch (error) {
-      return false;
-    }
+    return getEnvironment() === "local";
   }
 
   function persistDryRunPayload(payload) {

@@ -18,6 +18,7 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="assets/css/styles.css?v=pedido-consentimiento-color-v1">
+      <link rel="stylesheet" href="assets/css/takara-pedido-delivery.css?v=entrega-v2-2">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -285,7 +286,20 @@
                 <span>Cantidad</span>
                 <input type="number" name="cantidad" value="1" min="1" max="20" step="1" inputmode="numeric" required>
               </label>
-<label class="pedido-stl-field-full pedido-stl-observaciones">
+
+              <div data-takara-delivery-real hidden>
+                <input type="hidden" name="modalidad_entrega" value="">
+                <input type="hidden" name="codigo_postal_entrega" value="">
+                <input type="hidden" name="ubicacion_entrega_codigo" value="">
+                <input type="hidden" name="ubicacion_entrega_nombre" value="">
+                <input type="hidden" name="localidad_entrega_informativa" value="">
+                <input type="hidden" name="municipio_entrega_codigo" value="">
+                <input type="hidden" name="municipio_entrega_nombre" value="">
+                <input type="hidden" name="provincia_entrega_nombre" value="">
+                <input type="hidden" name="municipio_entrega_fuente" value="">
+              </div>
+
+              <label class="pedido-stl-field-full pedido-stl-observaciones">
                 <span>Observaciones</span>
                 <textarea name="notas" rows="4" placeholder="Cuéntanos cualquier detalle útil: fecha aproximada, encuadre, acabado o información importante para revisar el pedido."></textarea>
               </label>
@@ -537,7 +551,80 @@
             </div>
           </section>
 
-                    <section class="takara-preview-submit-panel takara-submit-final" aria-label="Revisión y envío">
+          <section class="takara-preview-delivery-panel" aria-labelledby="takara-delivery-title" data-takara-delivery-panel>
+            <div class="takara-delivery-head">
+              <div class="takara-delivery-head__copy">
+                <h2 id="takara-delivery-title">Entrega</h2>
+                <p>Escribe tu código postal y calcularemos automáticamente la opción de entrega más económica que corresponda.</p>
+              </div>
+              <p class="takara-delivery-local-review" data-takara-local-review hidden>Vista local · ningún pedido se enviará</p>
+            </div>
+
+            <div class="takara-delivery-layout">
+              <div class="takara-delivery-choice">
+                <div class="takara-delivery-calculator">
+                  <div class="takara-delivery-fields">
+                    <label class="takara-delivery-field">
+                      <span>Código postal de entrega</span>
+                      <input type="text" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder="28911" data-takara-delivery-postal>
+                    </label>
+
+                    <label class="takara-delivery-field" data-takara-delivery-locality-wrap>
+                      <span><span data-takara-delivery-locality-label>Localidad o municipio</span> <small data-takara-delivery-locality-optional hidden>(opcional)</small></span>
+                      <input type="text" autocomplete="address-level2" maxlength="80" placeholder="Se completará al introducir el código postal" data-takara-delivery-locality readonly aria-readonly="true">
+                    </label>
+
+                    <label class="takara-delivery-field" data-takara-delivery-municipality-wrap hidden>
+                      <span>Selecciona tu municipio</span>
+                      <select data-takara-delivery-municipality disabled>
+                        <option value="">Selecciona tu municipio</option>
+                      </select>
+                    </label>
+
+                    <label class="takara-delivery-field" data-takara-delivery-location-wrap hidden>
+                      <span>Confirma tu localidad o distrito</span>
+                      <select data-takara-delivery-location disabled>
+                        <option value="">Selecciona tu localidad o distrito</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <p class="takara-delivery-location-note" data-takara-delivery-location-note hidden></p>
+                  <p class="takara-delivery-status" data-takara-delivery-status data-state="neutral" role="status">Introduce tu código postal para calcular automáticamente la entrega.</p>
+                </div>
+
+                <p class="takara-delivery-tariffs"><strong>Tarifas iniciales:</strong> Leganés gratis · zona cercana de Madrid Sur 3 € · resto de Península 6,50 €. Baleares, Canarias, Ceuta y Melilla se confirman aparte.</p>
+                <p class="takara-delivery-source">Municipios según CartoCiudad · IGN/CNIG.</p>
+              </div>
+
+              <aside class="takara-delivery-summary" aria-label="Resumen de precio">
+                <div class="takara-delivery-summary__head">
+                  <strong>Resumen estimado</strong>
+                  <span data-takara-delivery-quantity>1 unidad</span>
+                </div>
+                <div class="takara-delivery-summary__row">
+                  <span>Marco con litofanía</span>
+                  <strong data-takara-delivery-product>35,00 €</strong>
+                </div>
+                <div class="takara-delivery-summary__row">
+                  <span>Personalización de texto</span>
+                  <strong data-takara-delivery-personalization>Sin personalización</strong>
+                </div>
+                <div class="takara-delivery-summary__row">
+                  <span>Entrega</span>
+                  <strong data-takara-delivery-price>—</strong>
+                </div>
+                <div class="takara-delivery-summary__row takara-delivery-summary__row--total">
+                  <span>Total estimado</span>
+                  <strong data-takara-delivery-total>—</strong>
+                </div>
+              </aside>
+            </div>
+
+            <p class="takara-delivery-privacy"><strong>Sin pedirte datos de más.</strong> La dirección completa se solicitará únicamente después de revisar la fotografía y confirmar el pedido contigo.</p>
+          </section>
+
+          <section class="takara-preview-submit-panel takara-submit-final" aria-label="Revisión y envío">
             <div class="takara-submit-final__copy">
               <h2>Revisión y envío</h2>
               <p>Revisamos tu foto y te confirmamos por WhatsApp antes de fabricar.</p>
@@ -602,10 +689,13 @@
   <script src="assets/js/core/takara-catalogo.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-pricing.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-order-snapshot.js?v=catalogo-v2b1"></script>
-  <script src="assets/js/takara-pedido-web.js?v=pedido-consentimiento-resultado-v1"></script>
+  <script src="assets/js/core/takara-delivery.js?v=entrega-v2-2"></script>
+  <script src="assets/js/core/takara-postal-national.js?v=postal-nacional-v1"></script>
+  <script src="assets/js/takara-pedido-delivery.js?v=entrega-v2-2"></script>
+  <script src="assets/js/takara-pedido-web.js?v=pedido-entrega-v2-2"></script>
   <!-- Motor legado desactivado: assets/js/pedido.js -->
   <script src="assets/js/takara-pedido-preview.js" defer></script>
   <script src="assets/js/takara-frame-text.js" defer></script>
-  <script src="assets/js/takara-pedido-premium.js?v=consentimiento-resultado-v1" defer></script>
+  <script src="assets/js/takara-pedido-premium.js?v=entrega-v2-2" defer></script>
 </body>
 </html>

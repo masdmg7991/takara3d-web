@@ -104,9 +104,454 @@
       },
       "pedido": {
         "requiere_foto": true,
-        "formatos_imagen_aceptados": ["image/jpeg", "image/png", "image/webp"],
+        "formatos_imagen_aceptados": [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ],
         "tamano_maximo_foto_mb": 20
       }
     }
-  ]
+  ],
+  "entrega": {
+    "version": "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+    "moneda": "EUR",
+    "direccion_completa_en_solicitud": false,
+    "decision": "codigo_postal_automatico",
+    "fuente_snapshot": {
+      "version": "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03",
+      "generado_en": "2026-08-03T16:10:37+00:00",
+      "atribucion": "CartoCiudad (IGN/CNIG) y Ayuntamiento de Madrid",
+      "informe_sha256": "8C2EE244E5BB215C55BEF28A937E9A4F910F3676CC5DE3BA7892352063F66A33",
+      "candidato_sha256": "4D9A0FDB46A64B547C39CDFC65B534414C75B23C941A10ACE99180025BA292DA"
+    },
+    "precios_eur": {
+      "leganes": 0.0,
+      "madrid_sur_cercano": 3.0,
+      "peninsula_seguimiento": 6.5
+    },
+    "cantidad_maxima_tarifa_peninsular_fija": 1,
+    "automatico": {
+      "leganes_gratis": [
+        "28911",
+        "28912",
+        "28913",
+        "28915",
+        "28916",
+        "28918",
+        "28919"
+      ],
+      "madrid_sur_3_eur_por_area": {
+        "carabanchel": [
+          "28019",
+          "28025"
+        ],
+        "getafe_villaverde": [
+          "28021"
+        ],
+        "getafe": [
+          "28901",
+          "28902",
+          "28903",
+          "28904",
+          "28905",
+          "28906",
+          "28907",
+          "28909"
+        ],
+        "alcorcon": [
+          "28921",
+          "28922",
+          "28923",
+          "28924"
+        ],
+        "mostoles": [
+          "28931",
+          "28932",
+          "28933",
+          "28934",
+          "28935",
+          "28937",
+          "28938"
+        ],
+        "alcorcon_mostoles": [
+          "28936"
+        ],
+        "mostoles_fuenlabrada": [
+          "28942"
+        ],
+        "fuenlabrada": [
+          "28943",
+          "28944",
+          "28945",
+          "28946",
+          "28947"
+        ]
+      },
+      "etiquetas_area": {
+        "carabanchel": "Carabanchel",
+        "getafe_villaverde": "Getafe / Villaverde",
+        "getafe": "Getafe",
+        "alcorcon": "Alcorcón",
+        "mostoles": "Móstoles",
+        "alcorcon_mostoles": "Alcorcón / Móstoles",
+        "mostoles_fuenlabrada": "Móstoles / Fuenlabrada",
+        "fuenlabrada": "Fuenlabrada"
+      }
+    },
+    "codigos_ambiguos": {
+      "28011": [
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_latina",
+          "label": "Latina (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Latina (Madrid)",
+          "area_code": "madrid_latina",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        },
+        {
+          "code": "madrid_moncloa_aravaca",
+          "label": "Moncloa-Aravaca (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Moncloa-Aravaca (Madrid)",
+          "area_code": "madrid_moncloa_aravaca",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        },
+        {
+          "code": "madrid_centro",
+          "label": "Centro (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Centro (Madrid)",
+          "area_code": "madrid_centro",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28024": [
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_latina",
+          "label": "Latina (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Latina (Madrid)",
+          "area_code": "madrid_latina",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        },
+        {
+          "code": "pozuelo_de_alarcon",
+          "label": "Pozuelo de Alarcón",
+          "zone_code": "peninsula",
+          "zone_name": "Pozuelo de Alarcón",
+          "area_code": "pozuelo_de_alarcon",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28041": [
+        {
+          "code": "madrid_villaverde",
+          "label": "Villaverde (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Villaverde",
+          "area_code": "villaverde",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_usera",
+          "label": "Usera (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Usera (Madrid)",
+          "area_code": "madrid_usera",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        },
+        {
+          "code": "madrid_puente_vallecas",
+          "label": "Puente de Vallecas (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Puente de Vallecas (Madrid)",
+          "area_code": "madrid_puente_vallecas",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28044": [
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_latina",
+          "label": "Latina (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Latina (Madrid)",
+          "area_code": "madrid_latina",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28047": [
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_latina",
+          "label": "Latina (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Latina (Madrid)",
+          "area_code": "madrid_latina",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28054": [
+        {
+          "code": "leganes",
+          "label": "Leganés",
+          "zone_code": "leganes",
+          "zone_name": "Leganés",
+          "area_code": "leganes",
+          "mode": "entrega_local",
+          "price_eur": 0.0
+        },
+        {
+          "code": "madrid_carabanchel",
+          "label": "Carabanchel (Madrid)",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Carabanchel",
+          "area_code": "carabanchel",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid_latina",
+          "label": "Latina (Madrid)",
+          "zone_code": "peninsula",
+          "zone_name": "Latina (Madrid)",
+          "area_code": "madrid_latina",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28668": [
+        {
+          "code": "alcorcon",
+          "label": "Alcorcón",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Alcorcón",
+          "area_code": "alcorcon",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "boadilla_del_monte",
+          "label": "Boadilla del Monte",
+          "zone_code": "peninsula",
+          "zone_name": "Boadilla del Monte",
+          "area_code": "boadilla_del_monte",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28670": [
+        {
+          "code": "alcorcon",
+          "label": "Alcorcón",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Alcorcón",
+          "area_code": "alcorcon",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "villaviciosa_de_odon",
+          "label": "Villaviciosa de Odón",
+          "zone_code": "peninsula",
+          "zone_name": "Villaviciosa de Odón",
+          "area_code": "villaviciosa_de_odon",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28914": [
+        {
+          "code": "leganes",
+          "label": "Leganés",
+          "zone_code": "leganes",
+          "zone_name": "Leganés",
+          "area_code": "leganes",
+          "mode": "entrega_local",
+          "price_eur": 0.0
+        },
+        {
+          "code": "fuenlabrada",
+          "label": "Fuenlabrada",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Fuenlabrada",
+          "area_code": "fuenlabrada",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        }
+      ],
+      "28917": [
+        {
+          "code": "leganes",
+          "label": "Leganés",
+          "zone_code": "leganes",
+          "zone_name": "Leganés",
+          "area_code": "leganes",
+          "mode": "entrega_local",
+          "price_eur": 0.0
+        },
+        {
+          "code": "alcorcon",
+          "label": "Alcorcón",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Alcorcón",
+          "area_code": "alcorcon",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        }
+      ],
+      "28925": [
+        {
+          "code": "leganes",
+          "label": "Leganés",
+          "zone_code": "leganes",
+          "zone_name": "Leganés",
+          "area_code": "leganes",
+          "mode": "entrega_local",
+          "price_eur": 0.0
+        },
+        {
+          "code": "alcorcon",
+          "label": "Alcorcón",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Alcorcón",
+          "area_code": "alcorcon",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "madrid",
+          "label": "Madrid",
+          "zone_code": "peninsula",
+          "zone_name": "Madrid",
+          "area_code": "madrid",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28939": [
+        {
+          "code": "mostoles",
+          "label": "Móstoles",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Móstoles",
+          "area_code": "mostoles",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        },
+        {
+          "code": "arroyomolinos",
+          "label": "Arroyomolinos",
+          "zone_code": "peninsula",
+          "zone_name": "Arroyomolinos",
+          "area_code": "arroyomolinos",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        },
+        {
+          "code": "batres",
+          "label": "Batres",
+          "zone_code": "peninsula",
+          "zone_name": "Batres",
+          "area_code": "batres",
+          "mode": "envio_seguimiento",
+          "price_eur": 6.5
+        }
+      ],
+      "28941": [
+        {
+          "code": "leganes",
+          "label": "Leganés",
+          "zone_code": "leganes",
+          "zone_name": "Leganés",
+          "area_code": "leganes",
+          "mode": "entrega_local",
+          "price_eur": 0.0
+        },
+        {
+          "code": "fuenlabrada",
+          "label": "Fuenlabrada",
+          "zone_code": "madrid_sur_cercano",
+          "zone_name": "Fuenlabrada",
+          "area_code": "fuenlabrada",
+          "mode": "entrega_local",
+          "price_eur": 3.0
+        }
+      ]
+    },
+    "prefijos_coste_pendiente": {
+      "07": "Baleares",
+      "35": "Las Palmas",
+      "38": "Santa Cruz de Tenerife",
+      "51": "Ceuta",
+      "52": "Melilla"
+    },
+    "mapa_municipios_nacional": {
+      "version": "TAKARA_POSTAL_NATIONAL_V1_2026_08_03",
+      "ruta": "assets/data/takara-postal-national-v1.json",
+      "carga": "diferida_al_completar_codigo_postal",
+      "uso": "autocompletado_informativo_sin_decidir_tarifa",
+      "prioridad": "reglas_comerciales_madrid_sur",
+      "codigos_postales": 10851,
+      "automaticos": 7282,
+      "con_selector": 3422,
+      "revision_manual": 147,
+      "atribucion": "CartoCiudad (IGN/CNIG)",
+      "auditoria_zip_sha256": "1F655DE42071692A785EC35C64256E101485F26025A37E431C429D49813A7374"
+    }
+  }
 }

@@ -44,3 +44,23 @@ para esos campos.
 `tools/takara_validar_datos_estructurados.py` debe parsear el JSON-LD, comprobar
 las tres entidades `Product`, validar sus imágenes locales y confirmar precio,
 moneda y disponibilidad antes de cualquier commit o push.
+## Política de entrega en revisión local
+
+F3 define una política comercial real para la solicitud de pedido mediante el
+contrato `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`: cálculo automático por código
+postal, selección oficial en códigos compartidos, entrega local en Leganés y
+zona cercana, envío peninsular con seguimiento y destinos especiales sujetos
+a confirmación.
+
+Esta política todavía no autoriza a publicar `shippingDetails` en JSON-LD.
+Antes deben completarse estas condiciones:
+
+- aprobación visual y funcional de la interfaz local;
+- publicación efectiva de la política visible;
+- definición pública de los plazos de tránsito y del ámbito exacto de cada
+  servicio;
+- comprobación de que el marcado coincide con lo que se ofrece al cliente.
+
+`hasMerchantReturnPolicy` continúa excluido hasta que exista una política real,
+pública y revisada para productos personalizados. Ninguno de estos campos se
+añade solo para silenciar Search Console.

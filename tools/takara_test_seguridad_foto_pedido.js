@@ -71,9 +71,11 @@ function loadServerContext() {
 }
 
 function validPayload() {
-  return {
-    payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V1",
+  const payload = {
+    payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V2",
     pedido_web_id: "TK-WEB-SECURITY-TEST",
+    creado_en_iso: "2026-08-10T20:30:00.000Z",
+    modo_prueba: false,
     cliente: {
       nombre: "Cliente prueba",
       email: "cliente@example.com",
@@ -86,14 +88,55 @@ function validPayload() {
     producto: {
       producto: "Marco litofania personalizado",
       codigo_producto: "MARCO_LITOFANIA_144X108",
+      variante_codigo: "vertical",
       formato: "Marco vertical",
       orientacion: "vertical",
       medida: "108 x 144 mm",
       color_marco: "Madera clara",
       color_litofania: "Blanco natural",
+      atributos: { familia: "litofania" },
+      extras: [],
       cantidad: 1,
-      precio_mostrado_eur: "35.00",
+      precio_base_eur: "35.00",
+      precio_variante_eur: "0.00",
+      precio_extras_eur: "0.00",
+      precio_unitario_final_eur: "35.00",
+      precio_total_eur: "35.00",
+      origen_precio: "web_catalogo",
+      catalog_version: "TAKARA_CATALOGO_V1",
+      pricing_version: "TAKARA_PRICING_V1",
       personalizacion_marco: null
+    },
+    entrega: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      modalidad_solicitada: "entrega_local",
+      modalidad_resuelta: "entrega_local",
+      codigo_postal: "28911",
+      zona_codigo: "leganes",
+      zona_nombre: "Leganés",
+      area_codigo: "leganes",
+      fuente_decision: "codigo_postal_automatico",
+      ubicacion_requerida: false,
+      ubicacion_codigo: "",
+      ubicacion_nombre: "Leganés",
+      localidad_informativa: "Leganés",
+      municipio_codigo: "28074",
+      municipio_nombre: "Leganés",
+      provincia_nombre: "Madrid",
+      municipio_fuente: "cartociudad_automatico",
+      precio_eur: "0.00",
+      moneda: "EUR",
+      estado_precio: "confirmado",
+      direccion_completa_solicitada: false,
+      texto_cliente: "Entrega local gratuita en Leganés. Acordaremos contigo el día y el lugar."
+    },
+    totales: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      subtotal_productos_eur: "35.00",
+      precio_entrega_eur: "0.00",
+      total_estimado_eur: "35.00",
+      estado_total: "confirmado",
+      moneda: "EUR"
     },
     archivos: {
       foto_base64: "data:image/jpeg;base64,/9j/2Q==",
@@ -101,11 +144,29 @@ function validPayload() {
       content_type: "image/jpeg",
       size_bytes: 4
     },
+    mensaje_cliente: "",
     control: {
-      acepta_contacto: true,
-      acepta_revision: true
+      consiente_gestion_datos: true,
+      declara_derechos_y_autoriza_revision_imagen: true,
+      autoriza_publicacion_resultado: false
     }
   };
+  payload.snapshot_pedido = JSON.parse(JSON.stringify({
+    snapshot_version: "TAKARA_ORDER_SNAPSHOT_V2",
+    payload_version: payload.payload_version,
+    pedido_web_id: payload.pedido_web_id,
+    creado_en_iso: payload.creado_en_iso,
+    modo_prueba: payload.modo_prueba,
+    cliente: payload.cliente,
+    producto: payload.producto,
+    entrega: payload.entrega,
+    totales: payload.totales,
+    archivos: payload.archivos,
+    mensaje_cliente: payload.mensaje_cliente,
+    control: payload.control,
+    meta: payload.meta
+  }));
+  return payload;
 }
 
 function clone(value) {

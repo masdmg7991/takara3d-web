@@ -70,7 +70,7 @@ def validate_client() -> None:
         "FRAME_TEXT_EXTRA_CODE_BY_COUNT",
         "extra_codes: extraCodes",
         "personalizacion_marco: personalizacionMarco",
-        "snapshot.producto",
+        "payload.snapshot_pedido",
         "TAKARA_FRAME_TEXT_ORDER_V1",
     ]
 
@@ -95,7 +95,7 @@ def validate_client() -> None:
         "Motor web lee el campo antes de enviarlo",
     )
     require(
-        "takara-pedido-web.js?v=pedido-consentimiento-resultado-v1" in page,
+        "takara-pedido-web.js?v=pedido-entrega-v2-2" in page,
         "pedido.html fuerza la versión corregida del motor de envío",
     )
     require(
@@ -103,12 +103,18 @@ def validate_client() -> None:
         "pedido.html fuerza la recarga del CSS del consentimiento",
     )
     require(
-        'acepta_politica_privacidad: "no"' in source,
-        "Frontend F1A registra privacidad como no",
+        "TAKARA_WEB_ORDER_PAYLOAD_V2" in source
+        and "TAKARA_ORDER_SNAPSHOT_V2" in source,
+        "Frontend usa payload y snapshot V2",
     )
     require(
-        'acepta_politica_privacidad: ""' not in source,
-        "Frontend F1A no envía privacidad vacía",
+        "consiente_gestion_datos: true" in source
+        and "declara_derechos_y_autoriza_revision_imagen: true" in source,
+        "Frontend emite controles canónicos V2",
+    )
+    require(
+        "acepta_politica_privacidad:" not in source,
+        "Frontend V2 elimina el alias antiguo de privacidad",
     )
     require(
         "Hemos recibido tu solicitud" not in source,
@@ -147,7 +153,10 @@ def validate_client() -> None:
 def validate_server_and_emails() -> None:
     source = read_utf8(CODE_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2",
+        "TAKARA_PEDIDO_WEB_V2",
+        "TAKARA_WEB_ORDER_PAYLOAD_V2",
+        "TAKARA_ORDER_SNAPSHOT_V2",
         "normalizarPersonalizacionMarco_",
         "validarPersonalizacionMarco_",
         "FRAME_TEXT_PRICE_BY_SIDE_COUNT",

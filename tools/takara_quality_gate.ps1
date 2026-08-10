@@ -82,8 +82,13 @@ $RequiredFiles = @(
     "qr/index.html",
     "assets/css/styles.css",
     "assets/css/qr.css",
+    "assets/css/takara-pedido-delivery.css",
     "assets/data/catalogo.json",
+    "assets/data/takara-postal-national-v1.json",
     "assets/js/takara-pedido-web.js",
+    "assets/js/takara-pedido-delivery.js",
+    "assets/js/core/takara-delivery.js",
+    "assets/js/core/takara-postal-national.js",
     "assets/js/takara-pedido-preview.js",
     "assets/js/takara-frame-text.js",
     "apps-script/takara-pedidos-web/Code.gs",
@@ -98,8 +103,13 @@ $RequiredFiles = @(
     "docs/PREVIEW_ENGINE_CONTRACT.md",
     "docs/QR_PAGE_CONTRACT.md",
     "tools/takara_validar_personalizacion_pedido.py",
+    "tools/takara_validar_entrega_pedido.py",
+    "tools/takara_validar_contrato_v2.py",
     "tools/validar_catalogo.py",
     "tools/takara_test_personalizacion_pedido.js",
+    "tools/takara_test_entrega_pedido.js",
+    "tools/takara_test_order_contract_v2.js",
+    "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_test_seguridad_foto_pedido.js",
     "tools/takara_validar_datos_estructurados.py"
@@ -157,7 +167,7 @@ if (Test-Path $PedidoPath) {
     } else {
         Err "pedido.html no contiene el selector contractual de color de letras"
     }
-    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-consentimiento-resultado-v1")) {
+    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-entrega-v2-2")) {
         Ok "pedido.html carga el motor de pedido sin cache obsoleta"
     } else {
         Err "pedido.html no carga la version contractual del motor de pedido"
@@ -178,6 +188,47 @@ if (Test-Path $PedidoPath) {
         Ok "pedido.html conserva consentimiento opcional de publicacion"
     } else {
         Err "pedido.html no conserva consentimiento opcional contractual"
+    }
+    # Keep this structural check ASCII-only for Windows PowerShell 5.1.
+    # Exact visible copy, official postal map and prices are validated in Python/Node.
+    if (
+        $PedidoText.Contains('type="hidden" name="modalidad_entrega"') -and
+        $PedidoText.Contains('name="codigo_postal_entrega"') -and
+        $PedidoText.Contains('name="ubicacion_entrega_codigo"') -and
+        $PedidoText.Contains('name="ubicacion_entrega_nombre"') -and
+        $PedidoText.Contains('name="localidad_entrega_informativa"') -and
+        $PedidoText.Contains("data-takara-delivery-panel") -and
+        $PedidoText.Contains("data-takara-delivery-postal") -and
+        $PedidoText.Contains("data-takara-delivery-locality") -and
+        $PedidoText.Contains("data-takara-delivery-municipality") -and
+        $PedidoText.Contains("data-takara-delivery-location") -and
+        $PedidoText.Contains('name="municipio_entrega_codigo"') -and
+        $PedidoText.Contains('name="municipio_entrega_nombre"') -and
+        $PedidoText.Contains("data-takara-delivery-status") -and
+        $PedidoText.Contains("data-takara-delivery-price") -and
+        $PedidoText.Contains("data-takara-delivery-total") -and
+        -not $PedidoText.Contains("data-takara-delivery-mode") -and
+        -not $PedidoText.Contains("modalidad_entrega_visible")
+    ) {
+        Ok "pedido.html conserva calculo postal automatico de entrega"
+    } else {
+        Err "pedido.html no conserva la interfaz postal automatica contractual"
+    }
+    if (
+        $PedidoText.Contains("assets/css/takara-pedido-delivery.css?v=entrega-v2-2") -and
+        $PedidoText.Contains("assets/js/core/takara-delivery.js?v=entrega-v2-2") -and
+        $PedidoText.Contains("assets/js/core/takara-postal-national.js?v=postal-nacional-v1") -and
+        $PedidoText.Contains("assets/js/takara-pedido-delivery.js?v=entrega-v2-2") -and
+        $PedidoText.Contains("assets/js/takara-pedido-premium.js?v=entrega-v2-2")
+    ) {
+        Ok "pedido.html carga modulos de entrega versionados"
+    } else {
+        Err "pedido.html no carga todos los modulos de entrega"
+    }
+    if ($PedidoText -notmatch 'name=["''][ ]*(direccion|calle|numero|número|piso|puerta)["'']') {
+        Ok "pedido.html no solicita direccion completa inicialmente"
+    } else {
+        Err "pedido.html contiene campos prematuros de direccion completa"
     }
 
 # TAKARA LEGACY ENGINE GUARDS START
@@ -338,6 +389,32 @@ if (Test-Path "tools/takara_validar_datos_estructurados.py") {
     Err "No existe tools/takara_validar_datos_estructurados.py"
 }
 
+if (Test-Path "tools/takara_validar_entrega_pedido.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_entrega_pedido.py"
+    py tools/takara_validar_entrega_pedido.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Contrato de entrega, codigo postal, tarifas y servidor validos"
+    } else {
+        Err "Fallo takara_validar_entrega_pedido.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_entrega_pedido.py"
+}
+
+if (Test-Path "tools/takara_validar_contrato_v2.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_contrato_v2.py"
+    py tools/takara_validar_contrato_v2.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Contrato V2 y ausencia de referencias activas obsoletas validados"
+    } else {
+        Err "Fallo takara_validar_contrato_v2.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_contrato_v2.py"
+}
+
 if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {
     Log-Line ""
     Log-Line "[RUN] py tools/takara_validar_personalizacion_pedido.py"
@@ -352,6 +429,45 @@ if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_contract_v2.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_contract_v2.js ."
+    node tools/takara_test_order_contract_v2.js . 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Payload, snapshot, correo V2 y rechazos de manipulacion validados"
+    } else {
+        Err "Fallo takara_test_order_contract_v2.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba de contrato V2"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_transition_v1_v2.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_transition_v1_v2.js"
+    node tools/takara_test_transition_v1_v2.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Puente temporal V1/V2 y despliegue backend-first validados"
+    } else {
+        Err "Fallo takara_test_transition_v1_v2.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba de transición V1/V2"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_entrega_pedido.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_entrega_pedido.js"
+    node tools/takara_test_entrega_pedido.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Entrega, totales, correos y proteccion contra manipulacion validados"
+    } else {
+        Err "Fallo takara_test_entrega_pedido.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba contractual de entrega"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_personalizacion_pedido.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_personalizacion_pedido.js"

@@ -154,7 +154,11 @@ function makeFolder() {
 }
 
 function makeOrder() {
-  return {
+  const payload = {
+    payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V2",
+    pedido_web_id: "TK-WEB-VISUAL-TEST",
+    creado_en_iso: "2026-08-10T20:30:00.000Z",
+    modo_prueba: true,
     cliente: {
       nombre: "Cliente prueba",
       email: "cliente@example.com",
@@ -162,29 +166,104 @@ function makeOrder() {
     },
     producto: {
       producto: "Marco litofanía personalizado",
+      codigo_producto: "MARCO_LITOFANIA_144X108",
+      variante_codigo: "vertical",
       formato: "Marco vertical",
       orientacion: "vertical",
       medida: "108 x 144 mm",
       color_marco: "Madera clara",
       color_litofania: "Blanco natural",
+      atributos: { familia: "litofania" },
+      extras: [{
+        codigo: "personalizacion_texto_1_lado",
+        nombre: "Texto personalizado · 1 lado",
+        precio_extra_eur: "4.00"
+      }],
       cantidad: 1,
-      precio_unitario_mostrado_eur: "39.00",
+      precio_base_eur: "35.00",
+      precio_variante_eur: "0.00",
+      precio_extras_eur: "4.00",
+      precio_unitario_final_eur: "39.00",
+      precio_total_eur: "39.00",
+      origen_precio: "web_catalogo",
+      catalog_version: "TAKARA_CATALOGO_V1",
+      pricing_version: "TAKARA_PRICING_V1",
       personalizacion_marco: {
+        version: "TAKARA_FRAME_TEXT_V1_4",
+        geometry_contract: "FRAME_TEXT_GEOMETRY_VERTICAL_V1",
+        orientacion: "vertical",
         activa: true,
         numero_lados: 1,
         suplemento_unitario_eur: "4.00",
+        color_texto: "negro",
         color_texto_nombre: "Negro",
-        lados: {
-          top: "Siempre juntos"
-        }
+        lados: { top: "Siempre juntos" }
       }
     },
+    entrega: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      modalidad_solicitada: "entrega_local",
+      modalidad_resuelta: "entrega_local",
+      codigo_postal: "28911",
+      zona_codigo: "leganes",
+      zona_nombre: "Leganés",
+      area_codigo: "leganes",
+      fuente_decision: "codigo_postal_automatico",
+      ubicacion_requerida: false,
+      ubicacion_codigo: "",
+      ubicacion_nombre: "Leganés",
+      localidad_informativa: "Leganés",
+      municipio_codigo: "28074",
+      municipio_nombre: "Leganés",
+      provincia_nombre: "Madrid",
+      municipio_fuente: "cartociudad_automatico",
+      precio_eur: "0.00",
+      moneda: "EUR",
+      estado_precio: "confirmado",
+      direccion_completa_solicitada: false,
+      texto_cliente: "Entrega local gratuita en Leganés. Acordaremos contigo el día y el lugar."
+    },
+    totales: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      subtotal_productos_eur: "39.00",
+      precio_entrega_eur: "0.00",
+      total_estimado_eur: "39.00",
+      estado_total: "confirmado",
+      moneda: "EUR"
+    },
+    archivos: {
+      foto_base64: "data:image/jpeg;base64,/9j/2Q==",
+      nombre_archivo: "foto-prueba.jpg",
+      content_type: "image/jpeg",
+      size_bytes: 4
+    },
     mensaje_cliente: "",
+    control: {
+      consiente_gestion_datos: true,
+      declara_derechos_y_autoriza_revision_imagen: true,
+      autoriza_publicacion_resultado: false
+    },
     meta: {
       pagina_origen: "http://localhost/pedido.html",
       entorno: "local"
     }
   };
+  payload.snapshot_pedido = JSON.parse(JSON.stringify({
+    snapshot_version: "TAKARA_ORDER_SNAPSHOT_V2",
+    payload_version: payload.payload_version,
+    pedido_web_id: payload.pedido_web_id,
+    creado_en_iso: payload.creado_en_iso,
+    modo_prueba: payload.modo_prueba,
+    cliente: payload.cliente,
+    producto: payload.producto,
+    entrega: payload.entrega,
+    totales: payload.totales,
+    archivos: payload.archivos,
+    mensaje_cliente: payload.mensaje_cliente,
+    control: payload.control,
+    meta: payload.meta
+  }));
+  return payload;
 }
 
 function makePhoto() {
@@ -218,7 +297,7 @@ function testStaticClientContract() {
   });
 
   ok(
-    page.includes("takara-pedido-web.js?v=pedido-consentimiento-resultado-v1"),
+    page.includes("takara-pedido-web.js?v=pedido-entrega-v2-2"),
     "pedido.html invalida la caché del motor con ficha visual"
   );
   ok(
@@ -445,7 +524,7 @@ function testServerEmailOnly() {
     "Servidor aplica nombre trazable por ID de pedido"
   );
 
-  const order = makeOrder();
+  const order = server.normalizarPedido_(makeOrder());
   const photo = makePhoto();
 
   server.sentEmails.length = 0;
@@ -528,7 +607,7 @@ function testVisualFailureCannotBlockOrder() {
   );
   ok(emptyResult.estado === "no_generada", "Servidor acepta pedidos sin ficha visual");
 
-  const order = makeOrder();
+  const order = server.normalizarPedido_(makeOrder());
   const photo = makePhoto();
   server.sentEmails.length = 0;
   server.enviarConfirmacionCliente_(

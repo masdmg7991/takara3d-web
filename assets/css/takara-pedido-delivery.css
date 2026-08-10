@@ -1,0 +1,331 @@
+/* TAKARA PEDIDO DELIVERY UI V2.2 NATIONAL MUNICIPALITY */
+body.pedido-premium main .pedido-stl-preview {
+  grid-template-areas:
+    "panel visual"
+    "contact contact"
+    "delivery delivery"
+    "submit submit" !important;
+}
+
+body.pedido-premium main .takara-preview-delivery-panel {
+  grid-area: delivery !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding: 1.15rem !important;
+  border: 1px solid rgba(255, 225, 185, 0.16) !important;
+  border-radius: 1rem !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025)),
+    rgba(13, 10, 8, 0.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  color: #fff8ef !important;
+  backdrop-filter: blur(12px);
+}
+
+body.pedido-premium main .takara-delivery-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+body.pedido-premium main .takara-delivery-head__copy {
+  min-width: 0;
+}
+
+body.pedido-premium main .takara-delivery-head h2 {
+  margin: 0 !important;
+  color: #fff8ef !important;
+  font-size: 1.35rem !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.025em !important;
+}
+
+body.pedido-premium main .takara-delivery-head p {
+  max-width: 48rem;
+  margin: 0.28rem 0 0 !important;
+  color: rgba(255, 246, 232, 0.72) !important;
+  font-size: 0.84rem !important;
+  line-height: 1.45 !important;
+}
+
+body.pedido-premium main .takara-delivery-local-review {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(111, 214, 151, 0.34);
+  border-radius: 999px;
+  background: rgba(63, 149, 97, 0.14);
+  color: #d9f8e4 !important;
+  font-size: 0.69rem !important;
+  font-weight: 850;
+  line-height: 1.2 !important;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+body.pedido-premium main .takara-delivery-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.65fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+body.pedido-premium main .takara-delivery-choice {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+body.pedido-premium main .takara-delivery-calculator {
+  display: grid;
+  gap: 0.72rem;
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 226, 186, 0.14);
+  border-radius: 0.9rem;
+  background:
+    linear-gradient(135deg, rgba(225, 159, 75, 0.08), rgba(255, 255, 255, 0.035)),
+    rgba(255, 255, 255, 0.025);
+}
+
+body.pedido-premium main .takara-delivery-fields {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.42fr) minmax(14rem, 0.58fr);
+  gap: 0.75rem;
+  align-items: end;
+}
+
+body.pedido-premium main .takara-delivery-field {
+  display: grid;
+  gap: 0.32rem;
+  min-width: 0;
+}
+
+body.pedido-premium main .takara-delivery-field span {
+  color: rgba(255, 248, 239, 0.78);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+body.pedido-premium main .takara-delivery-field span small {
+  color: rgba(255, 246, 232, 0.5);
+  font-size: 0.68rem;
+  font-weight: 650;
+}
+
+body.pedido-premium main .takara-delivery-field[hidden],
+body.pedido-premium main .takara-delivery-location-note[hidden] {
+  display: none !important;
+}
+
+body.pedido-premium main .takara-delivery-field input,
+body.pedido-premium main .takara-delivery-field select {
+  width: 100%;
+  min-height: 2.85rem;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 225, 185, 0.18);
+  border-radius: 0.78rem;
+  background: rgba(255, 255, 255, 0.065);
+  color: #fff8ef;
+  padding: 0.66rem 0.72rem;
+  font: inherit;
+  font-size: 0.88rem;
+  outline: none;
+}
+
+body.pedido-premium main .takara-delivery-field [data-takara-delivery-postal] {
+  letter-spacing: 0.08em;
+}
+
+body.pedido-premium main .takara-delivery-field input[readonly] {
+  cursor: default;
+  color: rgba(255, 248, 239, 0.88);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+body.pedido-premium main .takara-delivery-field select {
+  cursor: pointer;
+}
+
+body.pedido-premium main .takara-delivery-field select option {
+  background: #251a13;
+  color: #fff8ef;
+}
+
+body.pedido-premium main .takara-delivery-field input::placeholder {
+  color: rgba(255, 248, 239, 0.38);
+}
+
+body.pedido-premium main .takara-delivery-field input:focus,
+body.pedido-premium main .takara-delivery-field select:focus {
+  border-color: rgba(225, 159, 75, 0.7);
+  box-shadow: 0 0 0 3px rgba(225, 159, 75, 0.14);
+}
+
+body.pedido-premium main .takara-delivery-location-note {
+  margin: 0 !important;
+  color: rgba(255, 246, 232, 0.58) !important;
+  font-size: 0.69rem !important;
+  line-height: 1.4 !important;
+}
+
+body.pedido-premium main .takara-delivery-status {
+  min-height: 2.85rem;
+  display: flex;
+  align-items: center;
+  margin: 0 !important;
+  padding: 0.66rem 0.76rem;
+  border: 1px solid rgba(255, 226, 186, 0.12);
+  border-radius: 0.78rem;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 246, 232, 0.7) !important;
+  font-size: 0.76rem !important;
+  line-height: 1.4 !important;
+}
+
+body.pedido-premium main .takara-delivery-status[data-state="success"] {
+  border-color: rgba(111, 214, 151, 0.28);
+  background: rgba(63, 149, 97, 0.1);
+  color: #d9f8e4 !important;
+}
+
+body.pedido-premium main .takara-delivery-status[data-state="pending"] {
+  border-color: rgba(225, 159, 75, 0.32);
+  background: rgba(225, 159, 75, 0.09);
+  color: #ffe2b7 !important;
+}
+
+body.pedido-premium main .takara-delivery-status[data-state="error"] {
+  border-color: rgba(236, 126, 102, 0.35);
+  background: rgba(177, 58, 40, 0.12);
+  color: #ffd9d0 !important;
+}
+
+body.pedido-premium main .takara-delivery-tariffs {
+  margin: 0 !important;
+  color: rgba(255, 246, 232, 0.56) !important;
+  font-size: 0.7rem !important;
+  line-height: 1.45 !important;
+}
+
+body.pedido-premium main .takara-delivery-tariffs strong {
+  color: rgba(255, 248, 239, 0.84);
+}
+
+body.pedido-premium main .takara-delivery-source {
+  margin: -0.3rem 0 0 !important;
+  color: rgba(255, 246, 232, 0.42) !important;
+  font-size: 0.64rem !important;
+  line-height: 1.35 !important;
+}
+
+body.pedido-premium main .takara-delivery-summary {
+  display: grid;
+  align-content: start;
+  gap: 0;
+  min-width: 0;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(255, 226, 186, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.13);
+}
+
+body.pedido-premium main .takara-delivery-summary__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+body.pedido-premium main .takara-delivery-summary__head strong {
+  color: #fff8ef;
+  font-size: 0.86rem;
+}
+
+body.pedido-premium main .takara-delivery-summary__head span {
+  color: rgba(255, 246, 232, 0.52);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+body.pedido-premium main .takara-delivery-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.48rem 0;
+  border-top: 1px solid rgba(255, 226, 186, 0.09);
+  color: rgba(255, 246, 232, 0.68);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+body.pedido-premium main .takara-delivery-summary__row strong {
+  flex: 0 0 auto;
+  color: #fff8ef;
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+body.pedido-premium main .takara-delivery-summary__row--total {
+  margin-top: 0.15rem;
+  padding-top: 0.7rem;
+  border-top-color: rgba(225, 159, 75, 0.38);
+  color: #fff8ef;
+  font-weight: 850;
+}
+
+body.pedido-premium main .takara-delivery-summary__row--total strong {
+  color: #ffd49a;
+  font-size: 1.03rem;
+}
+
+body.pedido-premium main .takara-delivery-privacy {
+  margin: 0.85rem 0 0 !important;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 226, 186, 0.1);
+  color: rgba(255, 246, 232, 0.58) !important;
+  font-size: 0.72rem !important;
+  line-height: 1.45 !important;
+}
+
+body.pedido-premium main .takara-delivery-privacy strong {
+  color: rgba(255, 248, 239, 0.82);
+}
+
+@media (max-width: 980px) {
+  body.pedido-premium main .takara-delivery-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  body.pedido-premium main .pedido-stl-preview {
+    grid-template-areas:
+      "title"
+      "panel"
+      "stage"
+      "controls"
+      "note"
+      "contact"
+      "delivery"
+      "submit" !important;
+  }
+
+  body.pedido-premium main .takara-delivery-head {
+    display: grid;
+  }
+
+  body.pedido-premium main .takara-delivery-local-review {
+    justify-self: start;
+  }
+
+  body.pedido-premium main .takara-delivery-fields {
+    grid-template-columns: 1fr;
+  }
+}

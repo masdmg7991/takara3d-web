@@ -26,6 +26,7 @@ El motor de pedido debe gestionar:
 - imagen del cliente;
 - texto personalizado si aplica;
 - cantidad;
+- modalidad de entrega y código postal;
 - datos de contacto;
 - observaciones;
 - consentimiento basico;
@@ -97,6 +98,9 @@ Validaciones minimas:
 - producto existente en catalogo;
 - formato compatible con producto;
 - cantidad mayor o igual a uno;
+- modalidad de entrega válida;
+- código postal español de cinco cifras;
+- coherencia entre código postal, zona, tarifa y cantidad;
 - texto personalizado dentro de limite;
 - imagen presente o pendiente declarada;
 - consentimiento basico marcado.
@@ -113,6 +117,8 @@ Antes de enviar, el cliente debe ver un resumen con:
 - formato;
 - precio base si aplica;
 - extras si aplica;
+- entrega y coste, o indicación clara de confirmación pendiente;
+- total estimado cuando pueda cerrarse;
 - imagen o estado de imagen pendiente;
 - datos de contacto;
 - aviso de revision humana antes de fabricar.
@@ -136,7 +142,7 @@ Bloques minimos del cuerpo:
 - producto y formato;
 - personalizacion;
 - imagen;
-- precio o estado pendiente de confirmar;
+- precio del producto, entrega y total, o estado pendiente de confirmar;
 - observaciones;
 - consentimiento;
 - fecha y origen web.
@@ -197,6 +203,130 @@ Si el navegador no puede generarla o el servidor la descarta por integridad,
 el pedido debe continuar con sus datos estructurados. Un fallo de la ficha
 visual nunca puede bloquear ni degradar la información principal del pedido.
 La ficha descartada no puede crear blobs, adjuntos ni imágenes inline.
+
+### 7.3 Entrega y cálculo inicial
+
+La solicitud web incorpora el contrato
+`TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`. Su finalidad es mostrar una
+estimación transparente sin pedir todavía la dirección completa ni obligar al
+cliente a escoger una modalidad de transporte.
+
+El cliente introduce el código postal. La web determina automáticamente la
+opción de entrega más económica conforme a la política de Takara 3D y, tras
+completar las cinco cifras, carga de forma diferida el mapa compacto
+`TAKARA_POSTAL_NATIONAL_V1_2026_08_03`. Cuando el código tiene un solo municipio,
+lo completa automáticamente; cuando tiene varios, ofrece un selector nacional;
+y cuando requiere revisión interprovincial o no existe en el mapa, mantiene una
+entrada manual opcional. Las 13 reglas comerciales de Madrid Sur conservan
+prioridad y usan su selector específico cuando la localidad o el distrito cambia
+la tarifa.
+
+Campos contractuales del payload:
+
+- `entrega.version`;
+- `entrega.modalidad_solicitada`, calculada y no elegida por el cliente;
+- `entrega.modalidad_resuelta`;
+- `entrega.codigo_postal`;
+- `entrega.zona_codigo`;
+- `entrega.zona_nombre`;
+- `entrega.area_codigo`;
+- `entrega.fuente_decision`;
+- `entrega.ubicacion_requerida`;
+- `entrega.ubicacion_codigo`;
+- `entrega.ubicacion_nombre`;
+- `entrega.localidad_informativa`;
+- `entrega.municipio_codigo`, código INE informativo;
+- `entrega.municipio_nombre`;
+- `entrega.provincia_nombre`;
+- `entrega.municipio_fuente`;
+- `entrega.precio_eur`;
+- `entrega.moneda`;
+- `entrega.estado_precio`;
+- `entrega.direccion_completa_solicitada`, siempre `false` en esta fase;
+- `entrega.texto_cliente`;
+- `totales.subtotal_productos_eur`;
+- `totales.precio_entrega_eur`;
+- `totales.total_estimado_eur`;
+- `totales.moneda`;
+- `totales.estado_total`.
+
+Política inicial:
+
+- códigos exclusivos de Leganés: entrega local gratuita;
+- códigos seguros de Alcorcón, Móstoles, Fuenlabrada, Getafe, Carabanchel y
+  Villaverde: entrega local por 3,00 EUR;
+- códigos compartidos con la misma tarifa, como `28021`, se resuelven
+  automáticamente;
+- códigos compartidos con tarifas diferentes, como `28914`, `28917`, `28925`,
+  `28044` o `28054`, requieren seleccionar una localidad o distrito de la
+  lista oficial;
+- el mapa nacional contiene 10.851 códigos postales y 8.085 municipios: 7.282 resoluciones automáticas, 3.422 selectores y 147 casos de revisión manual;
+- el municipio nacional se usa únicamente para autocompletar o ayudar a ubicar el pedido y nunca decide la tarifa;
+- en los casos manuales o sin cobertura el cliente puede indicar opcionalmente una localidad; el servidor la limita a 80 caracteres;
+- resto de España peninsular: envío estándar con seguimiento por 6,50 EUR
+  para una unidad;
+- Baleares, Canarias, Ceuta y Melilla: precio pendiente de confirmación;
+- dos o más unidades con envío: precio pendiente de confirmación según el
+  embalaje final.
+
+La tabla postal se basa en el snapshot oficial
+`TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03`, elaborado con CartoCiudad
+(IGN/CNIG) y el callejero del Ayuntamiento de Madrid. La clasificación
+automática conserva 7 códigos exclusivos de Leganés, 29 códigos seguros de
+zona cercana y 13 códigos compartidos que requieren una selección oficial.
+
+El mapa nacional procede de la auditoría de 52 provincias de CartoCiudad, con
+15.619.049 direcciones procesadas. El artefacto de producción elimina calles,
+portales, coordenadas y contadores de evidencia; conserva únicamente la relación
+compacta código postal–municipio–provincia. Pesa menos de 700 KB y se solicita
+solo cuando el código postal tiene cinco cifras. Su atribución es CartoCiudad
+(IGN/CNIG). Si la carga falla, el pedido vuelve de forma segura a localidad
+manual opcional y la tarifa sigue calculándose con las reglas locales.
+
+La entrega local se acuerda previamente con el cliente. No promete reparto
+inmediato ni una fecha cerrada desde la web.
+
+El navegador puede calcular y mostrar la estimación, pero el servidor es la
+fuente de verdad para modalidad, zona, localidad o distrito comercial, precio y
+total. Debe recalcularlos a partir del código postal, la ubicación comercial
+oficial cuando proceda y la cantidad. El municipio nacional se normaliza y se
+conserva en el pedido, pero no participa en el cálculo económico. Cualquier modalidad, zona, ubicación, tarifa o total manipulado
+debe rechazarse.
+
+Durante la transición, el backend puede aceptar temporalmente el frontend
+anterior sin objeto `entrega`, pero debe registrarlo como pendiente de
+confirmación y nunca inventar un coste.
+
+La dirección completa se solicitará únicamente después de revisar la
+fotografía y confirmar el pedido con el cliente. La solicitud inicial no debe
+incluir campos de calle, número, piso o puerta.
+
+Los correos interno y del cliente deben mostrar la modalidad calculada, el
+código postal, la zona, la localidad o distrito cuando haya sido necesaria,
+el estado del precio, el coste de entrega confirmado y el total estimado
+cuando pueda calcularse.
+
+### 7.4 Contrato de transporte V2
+
+La frontera activa del candidato local es:
+
+- payload: `TAKARA_WEB_ORDER_PAYLOAD_V2`;
+- snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
+- correo técnico: `TAKARA_PEDIDO_WEB_V2`;
+- entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
+- Apps Script: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`.
+
+Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
+precio o entrega debe rechazarse. No se degrada silenciosamente a V1. Los
+controles canónicos son `consiente_gestion_datos`,
+`declara_derechos_y_autoriza_revision_imagen` y
+`autoriza_publicacion_resultado`. Los nombres de checkboxes históricos de la UI
+pueden mantenerse internamente como puente visual, pero no forman parte del
+payload V2 ni del correo técnico.
+
+El transporte admite códigos de producto y variantes estables sin fijar la capa
+de recepción a una única familia. La aceptación para producción sigue
+requiriendo un mapeo explícito de catálogo/normalización.
 
 ---
 
@@ -272,3 +402,13 @@ Tambien estara cumplido cuando Takara pueda recibir el pedido con datos suficien
 - El servidor lo normaliza como `false` cuando está ausente o no reconocido.
 - El correo interno y la confirmación al cliente registran el estado.
 - Aunque exista autorización, no se utilizarán trabajos con imágenes de menores.
+
+
+### Compatibilidad de transición V1/V2
+
+Mientras la web pública continúe emitiendo V1, Apps Script puede aceptar
+`TAKARA_WEB_ORDER_PAYLOAD_V1` por una ruta compat aislada que conserva el correo
+`TAKARA_PEDIDO_WEB_V1`. La ruta primaria sigue siendo V2. Cualquier payload que
+declare V2 y sea inválido o incompleto debe rechazarse sin downgrade. El puente
+existe solo para permitir un despliegue backend-first sin interrumpir pedidos y
+se retirará después de validar el flujo V2 real.

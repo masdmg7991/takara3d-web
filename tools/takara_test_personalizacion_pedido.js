@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "..");
 const ORDER_JS = path.join(ROOT, "assets", "js", "takara-pedido-web.js");
 const PRICING_JS = path.join(ROOT, "assets", "js", "core", "takara-pricing.js");
 const SNAPSHOT_JS = path.join(ROOT, "assets", "js", "core", "takara-order-snapshot.js");
+const DELIVERY_JS = path.join(ROOT, "assets", "js", "core", "takara-delivery.js");
 const CATALOG_JSON = path.join(ROOT, "assets", "data", "catalogo.json");
 const CODE_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs");
 
@@ -148,6 +149,7 @@ function loadFullClientContext(catalog) {
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(PRICING_JS, "utf8"), context, { filename: PRICING_JS });
   vm.runInContext(fs.readFileSync(SNAPSHOT_JS, "utf8"), context, { filename: SNAPSHOT_JS });
+  vm.runInContext(fs.readFileSync(DELIVERY_JS, "utf8"), context, { filename: DELIVERY_JS });
   context.window.TAKARA_CATALOGO_CORE_V1 = {
     loadCatalog: function () {
       return Promise.resolve(catalog);
@@ -213,9 +215,16 @@ function loadServerContext() {
 }
 
 function buildServerPayload(personalization, count, overrides) {
+  const unit = EXPECTED_UNIT[count];
+  const supplement = EXPECTED_SUPPLEMENT[count];
+  const extraCode = count > 0
+    ? "personalizacion_texto_" + count + (count === 1 ? "_lado" : "_lados")
+    : "";
   const payload = {
-    payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V1",
+    payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V2",
     pedido_web_id: "TK-WEB-TEST01",
+    creado_en_iso: "2026-08-10T20:30:00.000Z",
+    modo_prueba: true,
     cliente: {
       nombre: "Cliente prueba",
       email: "cliente@example.com",
@@ -228,14 +237,59 @@ function buildServerPayload(personalization, count, overrides) {
     producto: {
       producto: "Marco litofanía personalizado",
       codigo_producto: "MARCO_LITOFANIA_144X108",
+      variante_codigo: "vertical",
       formato: "Marco vertical",
       orientacion: "vertical",
       medida: "108 x 144 mm",
       color_marco: "Madera clara",
       color_litofania: "Blanco natural",
+      atributos: { familia: "litofania" },
+      extras: count > 0 ? [{
+        codigo: extraCode,
+        nombre: "Texto personalizado",
+        precio_extra_eur: supplement
+      }] : [],
       cantidad: 1,
-      precio_mostrado_eur: EXPECTED_UNIT[count],
+      precio_base_eur: "35.00",
+      precio_variante_eur: "0.00",
+      precio_extras_eur: supplement,
+      precio_unitario_final_eur: unit,
+      precio_total_eur: unit,
+      origen_precio: "web_catalogo",
+      catalog_version: "TAKARA_CATALOGO_V1",
+      pricing_version: "TAKARA_PRICING_V1",
       personalizacion_marco: personalization
+    },
+    entrega: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      modalidad_solicitada: "entrega_local",
+      modalidad_resuelta: "entrega_local",
+      codigo_postal: "28911",
+      zona_codigo: "leganes",
+      zona_nombre: "Leganés",
+      area_codigo: "leganes",
+      fuente_decision: "codigo_postal_automatico",
+      ubicacion_requerida: false,
+      ubicacion_codigo: "",
+      ubicacion_nombre: "Leganés",
+      localidad_informativa: "Leganés",
+      municipio_codigo: "28074",
+      municipio_nombre: "Leganés",
+      provincia_nombre: "Madrid",
+      municipio_fuente: "cartociudad_automatico",
+      precio_eur: "0.00",
+      moneda: "EUR",
+      estado_precio: "confirmado",
+      direccion_completa_solicitada: false,
+      texto_cliente: "Entrega local gratuita en Leganés. Acordaremos contigo el día y el lugar."
+    },
+    totales: {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      subtotal_productos_eur: unit,
+      precio_entrega_eur: "0.00",
+      total_estimado_eur: unit,
+      estado_total: "confirmado",
+      moneda: "EUR"
     },
     archivos: {
       foto_base64: "data:image/jpeg;base64,/9j/2Q==",
@@ -245,13 +299,29 @@ function buildServerPayload(personalization, count, overrides) {
     },
     mensaje_cliente: "Prueba contractual",
     control: {
-      acepta_contacto: true,
-      acepta_revision: true,
-      acepta_politica_privacidad: "sí"
+      consiente_gestion_datos: true,
+      declara_derechos_y_autoriza_revision_imagen: true,
+      autoriza_publicacion_resultado: false
     }
   };
 
-  return Object.assign(payload, overrides || {});
+  Object.assign(payload, overrides || {});
+  payload.snapshot_pedido = JSON.parse(JSON.stringify({
+    snapshot_version: "TAKARA_ORDER_SNAPSHOT_V2",
+    payload_version: payload.payload_version,
+    pedido_web_id: payload.pedido_web_id,
+    creado_en_iso: payload.creado_en_iso,
+    modo_prueba: payload.modo_prueba,
+    cliente: payload.cliente,
+    producto: payload.producto,
+    entrega: payload.entrega,
+    totales: payload.totales,
+    archivos: payload.archivos,
+    mensaje_cliente: payload.mensaje_cliente,
+    control: payload.control,
+    meta: payload.meta
+  }));
+  return payload;
 }
 
 function testClientParserAndPricing() {
@@ -321,6 +391,10 @@ async function testFullClientPayload() {
     email: { value: "cliente@example.com" },
     whatsapp: { value: "600123123" },
     cantidad: { value: "2" },
+    modalidad_entrega: { value: "" },
+    codigo_postal_entrega: { value: "15001" },
+    ubicacion_entrega_codigo: { value: "" },
+    ubicacion_entrega_nombre: { value: "" },
     formato: { value: "vertical" },
     color_marco: { value: "actual", checked: true },
     personalizacion_marco: { value: makeRawPersonalization(2) },
@@ -357,6 +431,8 @@ async function testFullClientPayload() {
   ok(payload.producto.personalizacion_marco.lados.right === SIDE_TEXT.right, "Payload real conserva texto derecho");
   ok(payload.producto.precio_unitario_final_eur === "41.00", "Payload real calcula 41,00 EUR por unidad");
   ok(payload.producto.precio_total_eur === "82.00", "Payload real calcula 82,00 EUR para dos unidades");
+  ok(payload.entrega.estado_precio === "pendiente_confirmacion", "Payload real deja pendiente el envío de dos unidades");
+  ok(payload.totales.total_estimado_eur === null, "Payload real no inventa total cerrado para dos unidades");
   ok(payload.snapshot_pedido.producto.personalizacion_marco.numero_lados === 2, "Snapshot real conserva personalización");
   ok(payload.snapshot_pedido.producto.extras[0].codigo === "personalizacion_texto_2_lados", "Snapshot real conserva extra contractual");
   ok(
@@ -427,7 +503,7 @@ function testServerAndEmails() {
       const order = server.normalizarPedido_(payload);
       server.validarPedido_(order);
     },
-    /suplemento/i,
+    /(suplemento|precio de extras)/i,
     "Servidor rechaza suplemento manipulado"
   );
 
@@ -435,11 +511,12 @@ function testServerAndEmails() {
   expectThrow(
     function () {
       const payload = buildServerPayload(tamperedPrice, 1);
-      payload.producto.precio_mostrado_eur = "35.00";
+      payload.producto.precio_unitario_final_eur = "35.00";
+      payload.snapshot_pedido.producto.precio_unitario_final_eur = "35.00";
       const order = server.normalizarPedido_(payload);
       server.validarPedido_(order);
     },
-    /precio/i,
+    /(precio|snapshot|subtotal)/i,
     "Servidor rechaza precio sin suplemento"
   );
 
