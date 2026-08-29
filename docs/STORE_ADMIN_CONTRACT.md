@@ -263,3 +263,41 @@ blocking new Store sessions/orders according to the existing Store domain.
 
 F4F will add the Admin deployment boundary and cumulative Admin SystemScenario
 on top of this same Admin UI.
+
+## F4F Admin deployment boundary + SystemScenario
+
+F4F freezes the deployable Admin boundary without deploying or routing it yet.
+
+Boundary contract:
+
+- `TAKARA_STORE_ADMIN_DEPLOYMENT_V1`
+- internal `getStoreAdminUiDeploymentOutput_()`
+- F4A `requireStoreAdminAccess_()` executes before any Admin HTML is created
+- authorized output is created only from canonical `StoreAdminUi`
+- the boundary has no `doGet` and no `doPost`
+- no public URL or route is introduced in F4F
+- no push and no deployment occur in F4F.
+
+The boundary stays in the existing `StoreAdminUiBridge.gs`; F4F does not create a
+second Admin surface, service, persistence adapter or access authority.
+
+Cumulative Admin SystemScenario:
+
+`deployment boundary`
+→ F4A owner access
+→ same Store Admin UI
+→ F4B list/get
+→ F4D create/edit
+→ F4E activate/deactivate
+→ existing Store Runtime
+→ existing Store Service/Registry
+→ existing StoreSheetsRepository.
+
+System fields remain fail closed. Browser `status` is still rejected by
+create/edit and lifecycle is exposed only through the dedicated F4E operations.
+Unauthorized deployment reaches zero `HtmlService` calls and unauthorized
+mutations reach zero Runtime writes.
+
+F5 owns actual route integration, deployment, remote E2E and production
+verification. F4F only certifies the deployable boundary and cumulative
+SystemScenario on the current repository baseline.

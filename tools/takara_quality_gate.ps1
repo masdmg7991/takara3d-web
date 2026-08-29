@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreAdminSystemF4FValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_system_f4f.py"
+
+if (Test-Path $StoreAdminSystemF4FValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_admin_system_f4f.py"
+    py tools/takara_validar_store_admin_system_f4f.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4F Store Admin deployment/SystemScenario static validado" } else { Err "Fallo takara_validar_store_admin_system_f4f.py" }
+} else {
+    Err "No existe tools/takara_validar_store_admin_system_f4f.py"
+}
+
 $StoreAdminLifecycleValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_lifecycle.py"
 
 if (Test-Path $StoreAdminLifecycleValidatorPath) {
@@ -847,6 +858,15 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_system_f4f.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_admin_system_f4f.js"
+    node tools/takara_test_store_admin_system_f4f.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4F Store Admin deployment/SystemScenario functional validado" } else { Err "Fallo takara_test_store_admin_system_f4f.js" }
+} else {
+    Err "No se pudo ejecutar F4F Store Admin SystemScenario"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_lifecycle.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_admin_lifecycle.js"

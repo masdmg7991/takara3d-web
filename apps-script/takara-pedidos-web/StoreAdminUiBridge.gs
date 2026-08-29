@@ -29,3 +29,14 @@ function activateStoreAdminUiStore(storeId) {
 function deactivateStoreAdminUiStore(storeId) {
   return deactivateStoreAdmin_(storeId);
 }
+
+const TAKARA_STORE_ADMIN_DEPLOYMENT_BOUNDARY_VERSION =
+  "TAKARA_STORE_ADMIN_DEPLOYMENT_V1";
+
+function getStoreAdminUiDeploymentOutput_() {
+  requireStoreAdminAccess_();
+
+  return HtmlService
+    .createHtmlOutputFromFile("StoreAdminUi")
+    .setTitle("Takara · Store Admin");
+}
