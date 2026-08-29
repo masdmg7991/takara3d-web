@@ -473,7 +473,37 @@ if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {
     Err "No existe tools/takara_validar_personalizacion_pedido.py"
 }
 
+$StoreRegistryValidatorPath = Join-Path $Project "tools/takara_validar_store_registry.py"
+
+if (Test-Path $StoreRegistryValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_registry.py"
+    py tools/takara_validar_store_registry.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Registry: dominio, application y adapter Sheets validados"
+    } else {
+        Err "Fallo takara_validar_store_registry.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_registry.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_registry.js"
+    node tools/takara_test_store_registry.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Registry core funcional validado"
+    } else {
+        Err "Fallo takara_test_store_registry.js"
+    }
+} else {
+    Err "No se pudo ejecutar la prueba funcional Store Registry"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_contract_v2.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_contract_v2.js ."

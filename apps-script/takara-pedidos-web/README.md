@@ -6,6 +6,17 @@ Archivo principal:
 
 - Code.gs
 
+Módulos Store V1 del mismo proyecto Apps Script:
+
+- `StoreDomain.gs`: dominio puro, identidad, estados e invariantes.
+- `StoreRegistry.gs`: casos de uso y puerto de repositorio.
+- `StoreSheetsRepository.gs`: único adapter de persistencia Google Sheets.
+
+Estos módulos no crean un segundo backend. Forman parte del mismo proyecto Apps
+Script y deben desplegarse junto a `Code.gs` cuando Store llegue a fase de
+integración. `Code.gs` conserva por ahora el pedido/contacto existente sin
+dependencia Store.
+
 Responsabilidad:
 
 - Recibir solicitudes desde la web publica.
@@ -48,8 +59,7 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2 (candidato local)
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT (publicado)
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2 (publicado)
 - TAKARA_WEB_ORDER_PAYLOAD_V2
 - TAKARA_ORDER_SNAPSHOT_V2
 - TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC
