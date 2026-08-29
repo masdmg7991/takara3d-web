@@ -716,6 +716,22 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$OrderSystemF3FValidatorPath = Join-Path $Project "tools/takara_validar_order_system_f3f.py"
+
+if (Test-Path $OrderSystemF3FValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_system_f3f.py"
+    py tools/takara_validar_order_system_f3f.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3F order SystemScenario static validado"
+    } else {
+        Err "Fallo takara_validar_order_system_f3f.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_system_f3f.py"
+}
+
 $OrderDownstreamHandoffValidatorPath = Join-Path $Project "tools/takara_validar_order_downstream_handoff.py"
 
 if (Test-Path $OrderDownstreamHandoffValidatorPath) {
@@ -733,6 +749,20 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_system_f3f.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_system_f3f.js"
+    node tools/takara_test_order_system_f3f.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3F order SystemScenario horizontal validado"
+    } else {
+        Err "Fallo takara_test_order_system_f3f.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3F order SystemScenario"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_downstream_handoff.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_downstream_handoff.js"

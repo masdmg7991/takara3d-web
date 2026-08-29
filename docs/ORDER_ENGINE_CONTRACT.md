@@ -576,3 +576,29 @@ Garantías:
   conjugación o frase literal completa cuando la prosa no es la autoridad.
 - los validadores que inspeccionan tests verifican la mecánica de la prueba
   (inputs, llamadas y aserciones) y no el texto humano de sus mensajes `ok`.
+
+## Order phase SystemScenario (F3F)
+
+F3F certifica horizontalmente el sistema de atribución de pedido ya
+implementado por F3A-F3E. No introduce otra autoridad ni otro payload.
+
+Flujo certificado:
+
+`StoreContext V1 -> F3A transport -> F3B resolution -> F3C attribution ->
+F3D doPost -> technical body -> F3E MailApp handoff`.
+
+Escenarios obligatorios:
+
+- STORE válido conserva `store_ref`, resuelve `store_id` en backend y congela
+  `store_name_snapshot`.
+- DIRECT no transporta StoreContext y realiza cero consultas Store.
+- payload manipulado o Store inexistente falla cerrado antes de validación,
+  cuerpo técnico o efectos.
+- rename conserva `store_ref` y `store_id`; solo pedidos nuevos congelan el
+  nombre nuevo y pedidos previos permanecen inmutables.
+- INACTIVE bloquea tanto resolución pública nueva como un transporte browser
+  previamente válido, porque backend re-resuelve estado autoritativo.
+- el handoff interno conserva byte-for-byte el cuerpo técnico atribuido.
+- F3F preserva la separación Product QR != Store QR y no crea dependencias
+  Product QR -> Store.
+- F3G realizará el cierre acumulativo/certificación de F3.
