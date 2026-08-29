@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "BE6CD2BDD8F097CD4A5055B21B830237D480DE9D7147C5DAFA92DE76325CA68C"
+$ExpectedHash = "CAE0DB1E5586AF7A082FA850C09F6DFA35F9A61FF7E4C5EB349B275563670C38"
 
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -115,6 +115,13 @@ $Checks = @(
         $Text -match 'Payload V2 declarado pero no compatible o incompleto'
     ) },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
+    @{ Name = "Store GET bridge aditivo"; Pass = (
+        $Text -match 'function\s+doGet\s*\(e\)' -and
+        $Text -match 'const storeResponse = routeStorePublicGet_\(e\);' -and
+        $Text -match 'if \(storeResponse !== null\)' -and
+        $Text -match 'service:\s*"Takara Pedidos Web"' -and
+        $Text -match 'status:\s*"online"'
+    ) },
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },
     @{ Name = "CONTACTO_WEB"; Pass = ($Text -match "CONTACTO_WEB") },
     @{ Name = "MailApp.sendEmail"; Pass = ($Text -match "MailApp\.sendEmail") },

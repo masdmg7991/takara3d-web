@@ -88,7 +88,12 @@ const PRODUCT_RULES_V2 = Object.freeze({
 });
 
 
-function doGet() {
+function doGet(e) {
+  const storeResponse = routeStorePublicGet_(e);
+  if (storeResponse !== null) {
+    return storeResponse;
+  }
+
   return json_({
     ok: true,
     service: "Takara Pedidos Web",

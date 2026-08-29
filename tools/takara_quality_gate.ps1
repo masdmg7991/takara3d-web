@@ -530,7 +530,25 @@ if (Test-Path $StorePublicApiValidatorPath) {
     else { Err "Fallo takara_validar_store_public_api.py" }
 } else { Err "No existe tools/takara_validar_store_public_api.py" }
 
+$StoreHttpValidatorPath = Join-Path $Project "tools/takara_validar_store_http_bridge.py"
+
+if (Test-Path $StoreHttpValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_http_bridge.py"
+    py tools/takara_validar_store_http_bridge.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Store HTTP bridge JSON/JSONP validado" }
+    else { Err "Fallo takara_validar_store_http_bridge.py" }
+} else { Err "No existe tools/takara_validar_store_http_bridge.py" }
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_http_bridge.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_http_bridge.js"
+    node tools/takara_test_store_http_bridge.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Store HTTP bridge y callback injection validados" }
+    else { Err "Fallo takara_test_store_http_bridge.js" }
+} else { Err "No se pudo ejecutar Store HTTP bridge test" }
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_api.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_public_api.js"
