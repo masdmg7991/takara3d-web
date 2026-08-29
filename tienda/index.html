@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="googlebot" content="noindex,nofollow,noarchive">
+  <title>Tienda asociada | Takara 3D</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/takara-store-public.css">
+</head>
+<body class="takara-store-channel">
+  <main
+    class="takara-store-shell"
+    data-takara-store-app
+    data-store-endpoint=""
+    data-state="loading"
+  >
+    <header class="takara-store-brand" aria-label="Takara 3D">
+      <span class="takara-store-brand__mark" aria-hidden="true">T</span>
+      <span class="takara-store-brand__name">Takara 3D</span>
+    </header>
+
+    <section
+      class="takara-store-panel takara-store-panel--loading"
+      data-store-loading
+      aria-live="polite"
+    >
+      <p class="takara-store-kicker">Canal de establecimiento colaborador</p>
+      <h1>Abriendo esta tienda…</h1>
+      <p>Estamos verificando el establecimiento asociado a este enlace.</p>
+    </section>
+
+    <section
+      class="takara-store-panel takara-store-panel--active"
+      data-store-active
+      hidden
+    >
+      <p class="takara-store-kicker">Pedido a través de</p>
+      <h1 data-store-name></h1>
+      <p class="takara-store-intro">
+        Este acceso pertenece a un establecimiento colaborador de Takara 3D.
+        El canal se mantiene vinculado a esta tienda durante la solicitud.
+      </p>
+
+      <article class="takara-store-product" aria-labelledby="store-product-title">
+        <div>
+          <p class="takara-store-product__eyebrow">Producto disponible</p>
+          <h2 id="store-product-title">Marco con litofanía personalizada</h2>
+          <p>
+            Una fotografía convertida en litofanía y montada en un marco
+            fabricado por Takara 3D.
+          </p>
+        </div>
+        <p class="takara-store-product__price">
+          <span>Desde</span>
+          <strong data-takara-price="marco">35 €</strong>
+        </p>
+      </article>
+
+      <div class="takara-store-next" aria-live="polite">
+        <strong>Canal Store verificado.</strong>
+        <span>
+          La configuración y el pedido se habilitarán únicamente conservando
+          esta atribución de tienda.
+        </span>
+      </div>
+    </section>
+
+    <section
+      class="takara-store-panel takara-store-panel--error"
+      data-store-error
+      hidden
+      role="alert"
+    >
+      <p class="takara-store-kicker">Enlace no disponible</p>
+      <h1>No podemos abrir esta tienda.</h1>
+      <p data-store-error-message>
+        Revisa el QR o solicita un enlace válido al establecimiento.
+      </p>
+    </section>
+
+    <footer class="takara-store-footer">
+      <p>
+        Producto fabricado y gestionado por Takara 3D.
+        Este acceso identifica únicamente al establecimiento colaborador.
+      </p>
+    </footer>
+  </main>
+
+  <script src="../assets/js/takara-config.js"></script>
+  <script src="../assets/js/takara-store-public.js"></script>
+</body>
+</html>

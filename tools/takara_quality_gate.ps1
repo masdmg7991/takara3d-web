@@ -556,7 +556,37 @@ if (Test-Path $StoreF1ValidatorPath) {
     Err "No existe tools/takara_validar_store_backend_f1.py"
 }
 
+$StoreF2AValidatorPath = Join-Path $Project "tools/takara_validar_store_public_f2a.py"
+
+if (Test-Path $StoreF2AValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_public_f2a.py"
+    py tools/takara_validar_store_public_f2a.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store F2A route, closed UI y client validados"
+    } else {
+        Err "Fallo takara_validar_store_public_f2a.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_public_f2a.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_client.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_public_client.js"
+    node tools/takara_test_store_public_client.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store F2A client JSONP fail-closed validado"
+    } else {
+        Err "Fallo takara_test_store_public_client.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store F2A client test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_backend_f1.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_backend_f1.js"
