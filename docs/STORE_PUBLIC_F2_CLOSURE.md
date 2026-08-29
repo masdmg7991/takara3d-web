@@ -24,3 +24,16 @@ Garantías de cierre:
 
 F2F no añade una nueva autoridad de producto. Es el gate de certificación
 acumulativo de la fase Store Public.
+
+
+## Post-F2 ownership
+
+La ausencia de atribución dentro del motor de pedido fue una condición de cierre
+de F2, no una prohibición permanente para fases futuras.
+
+Desde F3, `takara-pedido-web.js` puede transportar `TAKARA_STORE_CONTEXT_V1`
+de forma aditiva. F2 conserva como regresión permanente que Store Public no se
+convierta en autoridad de `store_id`, `source_type` ni
+`TAKARA_STORE_ATTRIBUTION_V1`.
+
+La autoridad de atribución pertenece al backend de pedido de F3.

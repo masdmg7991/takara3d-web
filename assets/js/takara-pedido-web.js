@@ -9,6 +9,12 @@
   const ORDER_PAYLOAD_VERSION = "TAKARA_WEB_ORDER_PAYLOAD_V2";
   const ORDER_SNAPSHOT_VERSION = "TAKARA_ORDER_SNAPSHOT_V2";
   const DELIVERY_VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC";
+  const STORE_CONTEXT_VERSION = "TAKARA_STORE_CONTEXT_V1";
+  const ORDER_STORE_CONTEXT_BRIDGE_VERSION =
+    "TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1";
+  const STORE_REF_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
+
+  let orderStoreContextTransport = null;
   const ORDER_ID_PREFIX = "TK-WEB";
   const FRAME_TEXT_VERSION = "TAKARA_FRAME_TEXT_V1_4";
   const FRAME_TEXT_SIDES = Object.freeze(["top", "right", "bottom", "left"]);
@@ -343,6 +349,96 @@
     });
   }
 
+  function orderStoreContextError(code) {
+    const error = new Error(code);
+    error.code = code;
+    return error;
+  }
+
+  function normalizeVerifiedStoreContext(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
+    }
+
+    const allowedKeys = [
+      "version",
+      "store_ref",
+      "display_name",
+      "status",
+    ];
+
+    const unexpectedKeys = Object.keys(value).filter(function (key) {
+      return allowedKeys.indexOf(key) === -1;
+    });
+
+    if (unexpectedKeys.length > 0) {
+      throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
+    }
+
+    if (value.version !== STORE_CONTEXT_VERSION) {
+      throw orderStoreContextError(
+        "ORDER_STORE_CONTEXT_VERSION_INVALID"
+      );
+    }
+
+    const storeRef = String(value.store_ref || "").trim();
+
+    if (!STORE_REF_PATTERN.test(storeRef)) {
+      throw orderStoreContextError("ORDER_STORE_REF_INVALID");
+    }
+
+    if (value.status !== "ACTIVE") {
+      throw orderStoreContextError("ORDER_STORE_NOT_ACTIVE");
+    }
+
+    const displayName = String(value.display_name || "").trim();
+
+    if (!displayName || displayName.length > 120) {
+      throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
+    }
+
+    return Object.freeze({
+      version: STORE_CONTEXT_VERSION,
+      store_ref: storeRef,
+    });
+  }
+
+  function setVerifiedOrderStoreContext(value) {
+    orderStoreContextTransport =
+      normalizeVerifiedStoreContext(value);
+
+    return orderStoreContextTransport;
+  }
+
+  function clearOrderStoreContext() {
+    orderStoreContextTransport = null;
+  }
+
+  function getOrderStoreContextTransport() {
+    return orderStoreContextTransport;
+  }
+
+  function getOrderStoreContextMeta() {
+    const transport = getOrderStoreContextTransport();
+
+    if (!transport) {
+      return {};
+    }
+
+    return {
+      store_context: transport,
+    };
+  }
+
+  window.TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1 = Object.freeze({
+    version: ORDER_STORE_CONTEXT_BRIDGE_VERSION,
+    context_version: STORE_CONTEXT_VERSION,
+    setVerifiedContext: setVerifiedOrderStoreContext,
+    clear: clearOrderStoreContext,
+    getTransport: getOrderStoreContextTransport,
+    getMeta: getOrderStoreContextMeta,
+  });
+
   async function buildPayload(form) {
     const photoInput = form.querySelector("[data-takara-photo-input]");
     const file = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
@@ -443,13 +539,13 @@
         telefono: telefono,
         contacto_preferido: contactoPreferido
       },
-      meta: {
+      meta: Object.assign({
         pagina_origen: paginaOrigen,
         entorno: entorno,
         pedido_web_id: pedidoWebId,
         payload_version: ORDER_PAYLOAD_VERSION,
         creado_en_iso: creadoEnIso
-      },
+      }, getOrderStoreContextMeta()),
       producto: {
         producto: "Marco litofanía personalizado",
         codigo_producto: PRODUCT_CODE,

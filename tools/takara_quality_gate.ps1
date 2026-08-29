@@ -652,7 +652,37 @@ if (Test-Path $StorePublicF2ClosureValidatorPath) {
     Err "No existe tools/takara_validar_store_public_f2.py"
 }
 
+$OrderStoreContextValidatorPath = Join-Path $Project "tools/takara_validar_order_store_context.py"
+
+if (Test-Path $OrderStoreContextValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_store_context.py"
+    py tools/takara_validar_order_store_context.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3A StoreContext order transport static validado"
+    } else {
+        Err "Fallo takara_validar_order_store_context.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_store_context.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_store_context.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_store_context.js"
+    node tools/takara_test_order_store_context.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3A StoreContext order transport functional validado"
+    } else {
+        Err "Fallo takara_test_order_store_context.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3A StoreContext order test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_readiness.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_public_readiness.js"

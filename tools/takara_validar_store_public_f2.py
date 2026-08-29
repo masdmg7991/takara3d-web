@@ -5,8 +5,6 @@ ROOT = Path(__file__).resolve().parents[1]
 HTML = ROOT / "tienda" / "index.html"
 STORE_JS = ROOT / "assets" / "js" / "takara-store-public.js"
 CONFIG_JS = ROOT / "assets" / "js" / "takara-config.js"
-ORDER_HTML = ROOT / "pedido.html"
-ORDER_JS = ROOT / "assets" / "js" / "takara-pedido-web.js"
 PRODUCT_QR = ROOT / "qr" / "index.html"
 
 CLOSURE = ROOT / "docs" / "STORE_PUBLIC_F2_CLOSURE.md"
@@ -41,8 +39,6 @@ def main() -> int:
     html = read(HTML)
     store_js = read(STORE_JS)
     config_js = read(CONFIG_JS)
-    order_html = read(ORDER_HTML)
-    order_js = read(ORDER_JS)
     product_qr = read(PRODUCT_QR)
     closure = read(CLOSURE)
     system = read(SYSTEM)
@@ -139,20 +135,21 @@ def main() -> int:
             f"Product QR no conoce {forbidden}",
         )
 
+    # Permanent F2 ownership boundary. Future phases may evolve the order
+    # engine, but Store Public itself must never become attribution authority.
     for forbidden in (
         "TAKARA_STORE_ATTRIBUTION_V1",
-        "source_type = STORE",
-        '"source_type":"STORE"',
-        '"store_id"',
-        "store_context",
+        "source_type:",
+        "snapshot_pedido",
+        "pedido_web_id",
     ):
         require(
-            forbidden not in order_html,
-            f"F2 pedido HTML aún no contiene {forbidden}",
+            forbidden not in html,
+            f"F2 Store HTML no posee {forbidden}",
         )
         require(
-            forbidden not in order_js,
-            f"F2 order engine aún no contiene {forbidden}",
+            forbidden not in store_js,
+            f"F2 Store client no posee {forbidden}",
         )
 
     # Closure contract.
@@ -166,6 +163,9 @@ def main() -> int:
         "F2 no introduce todavía atribución persistente en el pedido.",
         "la atribución Store del pedido pertenece exclusivamente a F3.",
         "F2F no añade una nueva autoridad de producto.",
+        "## Post-F2 ownership",
+        "Desde F3, `takara-pedido-web.js` puede transportar `TAKARA_STORE_CONTEXT_V1`",
+        "La autoridad de atribución pertenece al backend de pedido de F3.",
     ):
         require(marker in closure, f"F2 closure conserva {marker}")
 
@@ -199,7 +199,7 @@ def main() -> int:
         "F2C QR marker",
     )
 
-    print("[TAKARA_STORE_PUBLIC_F2_CLOSURE_STATIC_OK] 57 comprobaciones")
+    print("[TAKARA_STORE_PUBLIC_F2_CLOSURE_STATIC_OK] 59 comprobaciones")
     return 0
 
 

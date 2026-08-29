@@ -412,3 +412,23 @@ Mientras la web pública continúe emitiendo V1, Apps Script puede aceptar
 declare V2 y sea inválido o incompleto debe rechazarse sin downgrade. El puente
 existe solo para permitir un despliegue backend-first sin interrumpir pedidos y
 se retirará después de validar el flujo V2 real.
+
+## StoreContext transport bridge (F3A)
+
+F3A añade un transporte aditivo y explícito entre el StoreContext público ya
+resuelto y el pedido V2.
+
+Contrato de transporte:
+- API puente: `TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1`.
+- Contexto de entrada: `TAKARA_STORE_CONTEXT_V1`.
+- Payload STORE: `meta.store_context = { version, store_ref }`.
+- Payload DIRECT: `meta.store_context` ausente.
+- `display_name` y `status` se usan para validar el contexto recibido, pero no se
+  transportan dentro del pedido.
+- `store_id` nunca se acepta ni se transporta desde navegador.
+- el frontend no deriva `source_type`, `store_id` ni
+  `TAKARA_STORE_ATTRIBUTION_V1`.
+- la autoridad para resolver `store_ref`, verificar estado y congelar la
+  atribución pertenece al backend de pedido en F3B/F3C.
+- `snapshot_pedido.meta` hereda de forma aditiva el mismo `payload.meta`; no se
+  crea un segundo contrato paralelo.
