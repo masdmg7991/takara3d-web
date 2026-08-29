@@ -224,3 +224,42 @@ F4D deliberately does not expose ACTIVE/INACTIVE controls. F4E adds lifecycle
 operations on this same UI after its own authorization and regression gates.
 
 Store Registry remains the unique Store persistence authority.
+
+## F4E authorized ACTIVE/INACTIVE lifecycle
+
+F4E adds lifecycle controls to the same Admin UI and does not create another
+Store state authority.
+
+Dependency chain:
+
+`StoreAdminUi.html`
+→ `StoreAdminUiBridge`
+→ `StoreAdminWrite`
+→ F4A `requireStoreAdminAccess_()`
+→ canonical `activateStoreRuntime_()` / `deactivateStoreRuntime_()`
+→ existing `setStoreStatusService_()`
+→ existing Store repository
+→ existing `StoreSheetsRepository`.
+
+`status` remains non-editable browser/system state. It is never accepted by the
+create/edit form and cannot be patched through `updateStoreAdmin_()`.
+
+Lifecycle is expressed only through dedicated operations:
+
+- `activateStoreAdmin_(store_id)`
+- `deactivateStoreAdmin_(store_id)`
+
+Both authorize first, validate immutable `store_id`, delegate to the existing
+Runtime lifecycle authority and return the F4B Admin read model.
+
+Unauthorized or invalid lifecycle requests reach zero Runtime lifecycle writes.
+
+The same Admin UI now exposes a deliberate `Activar` / `Desactivar` action with
+confirmation. Local preview lifecycle mutations are in-memory DEMO only and
+reset when the preview is reloaded.
+
+There is still no DELETE. INACTIVE preserves Store identity/history/QR while
+blocking new Store sessions/orders according to the existing Store domain.
+
+F4F will add the Admin deployment boundary and cumulative Admin SystemScenario
+on top of this same Admin UI.

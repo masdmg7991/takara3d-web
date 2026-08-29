@@ -78,3 +78,23 @@ function updateStoreAdmin_(storeId, patch) {
     updateStoreRuntime_(normalizedStoreId, updatePatch)
   );
 }
+
+function activateStoreAdmin_(storeId) {
+  requireStoreAdminAccess_();
+
+  const normalizedStoreId = assertStoreId_(storeId);
+
+  return toStoreAdminReadModel_(
+    activateStoreRuntime_(normalizedStoreId)
+  );
+}
+
+function deactivateStoreAdmin_(storeId) {
+  requireStoreAdminAccess_();
+
+  const normalizedStoreId = assertStoreId_(storeId);
+
+  return toStoreAdminReadModel_(
+    deactivateStoreRuntime_(normalizedStoreId)
+  );
+}

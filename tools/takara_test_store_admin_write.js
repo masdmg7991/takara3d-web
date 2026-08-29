@@ -229,12 +229,19 @@ const html = fs.readFileSync(path.join(APP, "StoreAdminUi.html"), "utf8");
 for (const marker of [
   "Nueva tienda", "Editar tienda", "Crear tienda", "Guardar cambios",
   "createStoreAdminUiStore", "updateStoreAdminUiStore",
-  "ACTIVE/INACTIVE se gestiona en F4E", 'mode !== "MANAGE"',
+  'mode !== "MANAGE"',
 ]) {
   ok(html.includes(marker), "UI F4D contains " + marker);
 }
+ok(
+  html.includes("Nueva tienda") &&
+    html.includes("Editar tienda") &&
+    html.includes("Guardar cambios"),
+  "F4D create/edit foundation remains under F4E"
+);
+
 for (const forbiddenUi of [
-  'name = "status"', 'name="status"', "Desactivar tienda", "Activar tienda",
+  'name = "status"', 'name="status"',
   "Eliminar tienda", "SpreadsheetApp", "TAKARA_STORE_ADMIN_OWNER_EMAIL",
 ]) {
   ok(!html.includes(forbiddenUi), "UI F4D excludes " + forbiddenUi);

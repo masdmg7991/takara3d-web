@@ -146,18 +146,22 @@ def main() -> int:
     for marker in (
         "Nueva tienda", "Editar tienda", "Crear tienda", "Guardar cambios",
         "createStoreAdminUiStore", "updateStoreAdminUiStore",
-        'result.mode !== "MANAGE"', "ACTIVE/INACTIVE se gestiona en F4E",
-        "TAKARA_STORE_ADMIN_PREVIEW_DATA",
+        'result.mode !== "MANAGE"', "TAKARA_STORE_ADMIN_PREVIEW_DATA",
     ):
         require(marker in ui, f"UI F4D conserva {marker}")
 
     for forbidden in (
-        'name = "status"', 'name="status"', "Desactivar tienda",
-        "Activar tienda", "Eliminar tienda", "SpreadsheetApp",
+        'name = "status"', 'name="status"', "Eliminar tienda", "SpreadsheetApp",
         "TAKARA_STORE_ADMIN_OWNER_EMAIL",
     ):
         require(forbidden not in ui, f"UI F4D excluye {forbidden}")
 
+    require(
+        "Nueva tienda" in ui
+        and "Editar tienda" in ui
+        and "Guardar cambios" in ui,
+        "F4D create/edit foundation permanece bajo F4E",
+    )
     require("innerHTML" not in ui, "UI sigue sin innerHTML")
     require("textContent" in ui, "UI sigue usando textContent")
 

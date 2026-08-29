@@ -21,3 +21,11 @@ function createStoreAdminUiStore(input) {
 function updateStoreAdminUiStore(storeId, patch) {
   return updateStoreAdmin_(storeId, patch);
 }
+
+function activateStoreAdminUiStore(storeId) {
+  return activateStoreAdmin_(storeId);
+}
+
+function deactivateStoreAdminUiStore(storeId) {
+  return deactivateStoreAdmin_(storeId);
+}

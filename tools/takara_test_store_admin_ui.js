@@ -111,8 +111,6 @@ for (const forbidden of [
   "SpreadsheetApp",
   "PropertiesService",
   "createStoreSheetsRepository_",
-  "activateStoreAdmin_",
-  "deactivateStoreAdmin_",
 ]) {
   ok(!bridge.includes(forbidden), "bridge excludes " + forbidden);
 }
@@ -147,6 +145,11 @@ for (const forbidden of [
 }
 
 ok(!html.includes("innerHTML"), "UI avoids innerHTML");
+ok(
+  bridge.includes("listStoresAdmin_()") &&
+    bridge.includes("getStoreAdmin_(storeId)"),
+  "F4C read bridge remains while later capabilities evolve"
+);
 ok(html.includes("textContent"), "UI uses textContent");
 ok(
   html.includes("getStoreAdminUiBootstrap") &&

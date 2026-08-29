@@ -48,6 +48,11 @@ def main() -> int:
         "detail reutiliza F4B get",
     )
     require(
+        "listStoresAdmin_()" in bridge
+        and "getStoreAdmin_(storeId)" in bridge,
+        "F4C read foundation permanece aunque evolucionen capacidades posteriores",
+    )
+    require(
         "SpreadsheetApp" not in bridge
         and "PropertiesService" not in bridge
         and "createStoreSheetsRepository_" not in bridge,
@@ -74,8 +79,6 @@ def main() -> int:
         require(marker in ui, f"UI conserva {marker}")
 
     for forbidden in (
-        "activateStoreAdmin_",
-        "deactivateStoreAdmin_",
         "deleteStore",
         "SpreadsheetApp",
         "TAKARA_STORE_ADMIN_OWNER_EMAIL",

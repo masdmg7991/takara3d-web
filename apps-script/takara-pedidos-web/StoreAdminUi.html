@@ -202,6 +202,18 @@
 
     .secondary:hover { background: var(--soft); }
 
+    .danger {
+      border: 1px solid #b96a5e;
+      border-radius: 12px;
+      background: #fff4f1;
+      color: #7a2d25;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .danger:hover { background: #fbe8e3; }
+
     .detail-actions {
       display: flex;
       gap: 8px;
@@ -414,11 +426,11 @@
         <p class="eyebrow">Takara · canal Store</p>
         <h1>Store Admin</h1>
         <p class="subtitle">
-          Gestión privada de tiendas colaboradoras. Crear y editar ya están
-          habilitados; ACTIVE/INACTIVE seguirá separado hasta F4E.
+          Gestión privada de tiendas colaboradoras. Crear, editar y gestionar
+          ACTIVE/INACTIVE están habilitados sobre las autoridades Store.
         </p>
       </div>
-      <div class="mode" aria-label="Modo actual">GESTIÓN · SIN CAMBIO DE ESTADO</div>
+      <div class="mode" aria-label="Modo actual">GESTIÓN COMPLETA STORE</div>
     </header>
 
     <p id="preview-note" class="preview-note" role="status">
@@ -579,6 +591,52 @@
 
               return Promise.resolve(cloneStore(preview.stores[index]));
             },
+            activateStore: function (storeId) {
+              const index = preview.stores.findIndex(function (item) {
+                return item.store_id === storeId;
+              });
+
+              if (index < 0) {
+                return Promise.reject(new Error("STORE_NOT_FOUND"));
+              }
+
+              preview.stores[index] = Object.assign(
+                {},
+                preview.stores[index],
+                {
+                  status: "ACTIVE",
+                  updated_at: new Date().toISOString(),
+                  deactivated_at: "",
+                  version: Number(preview.stores[index].version || 0) + 1,
+                }
+              );
+
+              return Promise.resolve(cloneStore(preview.stores[index]));
+            },
+            deactivateStore: function (storeId) {
+              const index = preview.stores.findIndex(function (item) {
+                return item.store_id === storeId;
+              });
+
+              if (index < 0) {
+                return Promise.reject(new Error("STORE_NOT_FOUND"));
+              }
+
+              const now = new Date().toISOString();
+
+              preview.stores[index] = Object.assign(
+                {},
+                preview.stores[index],
+                {
+                  status: "INACTIVE",
+                  updated_at: now,
+                  deactivated_at: now,
+                  version: Number(preview.stores[index].version || 0) + 1,
+                }
+              );
+
+              return Promise.resolve(cloneStore(preview.stores[index]));
+            },
           };
         }
 
@@ -620,6 +678,22 @@
                   .updateStoreAdminUiStore(storeId, patch);
               });
             },
+            activateStore: function (storeId) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .activateStoreAdminUiStore(storeId);
+              });
+            },
+            deactivateStore: function (storeId) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .deactivateStoreAdminUiStore(storeId);
+              });
+            },
           };
         }
 
@@ -634,6 +708,8 @@
           getStore: unavailable,
           createStore: unavailable,
           updateStore: unavailable,
+          activateStore: unavailable,
+          deactivateStore: unavailable,
         };
       }
 
@@ -758,6 +834,18 @@
           renderStoreForm("edit", store);
         });
         actions.appendChild(edit);
+
+        const lifecycle = createNode(
+          "button",
+          store.status === "ACTIVE" ? "danger" : "secondary",
+          store.status === "ACTIVE" ? "Desactivar" : "Activar"
+        );
+        lifecycle.type = "button";
+        lifecycle.addEventListener("click", function () {
+          changeStoreLifecycle(store);
+        });
+        actions.appendChild(lifecycle);
+
         head.appendChild(actions);
         els.detail.appendChild(head);
 
@@ -785,10 +873,48 @@
           createNode(
             "div",
             "footnote",
-            "F4D · identidad, código público, estado, timestamps y versión " +
-              "son de solo lectura. ACTIVE/INACTIVE se gestiona en F4E."
+            "F4E · ACTIVE/INACTIVE se gestiona mediante una operación " +
+              "dedicada. Identidad, código público, timestamps y versión " +
+              "siguen siendo de solo lectura."
           )
         );
+      }
+
+      async function changeStoreLifecycle(store) {
+        const nextActive = store.status !== "ACTIVE";
+        const actionLabel = nextActive ? "activar" : "desactivar";
+        const confirmed = window.confirm(
+          "¿Quieres " + actionLabel + " \"" + store.display_name + "\"?"
+        );
+
+        if (!confirmed) return;
+
+        els.detail.textContent = "";
+        els.detail.appendChild(
+          createNode(
+            "div",
+            "loading",
+            nextActive ? "Activando tienda…" : "Desactivando tienda…"
+          )
+        );
+
+        try {
+          const saved = nextActive
+            ? await client.activateStore(store.store_id)
+            : await client.deactivateStore(store.store_id);
+
+          upsertStore(saved);
+        } catch (error) {
+          els.detail.textContent = "";
+          els.detail.appendChild(
+            createNode(
+              "div",
+              "error",
+              "No se pudo cambiar el estado. " +
+                text(error && (error.message || error))
+            )
+          );
+        }
       }
 
       const EDITABLE_FIELDS = Object.freeze([
