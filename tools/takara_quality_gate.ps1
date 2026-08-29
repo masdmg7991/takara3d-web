@@ -588,7 +588,37 @@ if (Test-Path $SharedEndpointValidatorPath) {
     Err "No existe tools/takara_validar_shared_endpoint.py"
 }
 
+$StoreQrContractValidatorPath = Join-Path $Project "tools/takara_validar_store_qr_contract.py"
+
+if (Test-Path $StoreQrContractValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_qr_contract.py"
+    py tools/takara_validar_store_qr_contract.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store QR URL V1 y separación Product/Store validados"
+    } else {
+        Err "Fallo takara_validar_store_qr_contract.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_qr_contract.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_qr_contract.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_qr_contract.js"
+    node tools/takara_test_store_qr_contract.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store QR physical URL contract validado"
+    } else {
+        Err "Fallo takara_test_store_qr_contract.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store QR contract test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_shared_endpoint.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_shared_endpoint.js"

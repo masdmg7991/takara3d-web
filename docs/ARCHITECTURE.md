@@ -371,3 +371,19 @@ El codigo debe sentirse modular, predecible, documentado, testeable, sin duplici
 ## 15. Criterio de exito
 
 Esta arquitectura sera correcta si dentro de meses podemos aniadir nuevos productos, formatos, colores, precios por cantidad, cupones, resenias, usuarios, panel interno, backend de produccion futuro y motor preview mejorado sin rehacer la web ni romper lo que funciona.
+## Store QR URL Contract V1
+
+`PRODUCT_QR != STORE_QR`.
+
+El Store QR físico usa exclusivamente `TAKARA_STORE_QR_URL_V1`:
+
+`https://takara3d.es/tienda/?s=<store_public_code>`
+
+La URL canónica exige HTTPS, host `takara3d.es`, ruta `/tienda/`, un único
+parámetro `s`, ausencia de hash y ausencia de parámetros auxiliares.
+
+`store_id` nunca forma parte del Store QR. `/qr` pertenece al Product QR y no es una ruta válida del Store QR.
+
+El `store_public_code` es opaco, público, inmutable y no secuencial.
+Store Registry sigue siendo la autoridad de `store_id`, estado y nombre.
+Resolver esa referencia no convierte al navegador en autoridad de identidad.

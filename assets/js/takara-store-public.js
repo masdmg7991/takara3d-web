@@ -7,6 +7,9 @@
   const STORE_REF_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
   const CALLBACK_PATTERN = /^takaraStoreCb_[A-Za-z0-9_]{8,64}$/;
   const DEFAULT_TIMEOUT_MS = 8000;
+  const STORE_QR_CONTRACT_VERSION = "TAKARA_STORE_QR_URL_V1";
+  const STORE_PUBLIC_CANONICAL_ORIGIN = "https://takara3d.es";
+  const STORE_PUBLIC_CANONICAL_PATH = "/tienda/";
 
   function fail(code, message) {
     const error = new Error(message || code);
@@ -25,6 +28,101 @@
   function readStoreRef(search) {
     const params = new URLSearchParams(String(search || ""));
     return normalizeStoreRef(params.get("s"));
+  }
+
+  function buildStorePublicUrl(storeRef) {
+    const ref = normalizeStoreRef(storeRef);
+
+    if (!isValidStoreRef(ref)) {
+      throw fail(
+        "STORE_PUBLIC_CODE_INVALID",
+        "Store public reference is invalid."
+      );
+    }
+
+    return (
+      STORE_PUBLIC_CANONICAL_ORIGIN +
+      STORE_PUBLIC_CANONICAL_PATH +
+      "?s=" +
+      encodeURIComponent(ref)
+    );
+  }
+
+  function parseStorePublicUrl(value) {
+    const rawValue = String(value || "");
+    let parsed = null;
+
+    try {
+      parsed = new URL(rawValue);
+    } catch (error) {
+      throw fail(
+        "STORE_QR_URL_INVALID",
+        "Store QR URL is invalid."
+      );
+    }
+
+    if (
+      rawValue !== parsed.href ||
+      parsed.protocol !== "https:" ||
+      parsed.origin !== STORE_PUBLIC_CANONICAL_ORIGIN ||
+      parsed.pathname !== STORE_PUBLIC_CANONICAL_PATH ||
+      parsed.username ||
+      parsed.password ||
+      parsed.port ||
+      parsed.hash
+    ) {
+      throw fail(
+        "STORE_QR_URL_INVALID",
+        "Store QR URL is not canonical."
+      );
+    }
+
+    const keys = Array.from(parsed.searchParams.keys());
+    const refs = parsed.searchParams.getAll("s");
+
+    if (
+      keys.length !== 1 ||
+      keys[0] !== "s" ||
+      refs.length !== 1
+    ) {
+      throw fail(
+        "STORE_QR_URL_INVALID",
+        "Store QR URL parameters are invalid."
+      );
+    }
+
+    const storeRef = normalizeStoreRef(refs[0]);
+
+    if (!isValidStoreRef(storeRef)) {
+      throw fail(
+        "STORE_PUBLIC_CODE_INVALID",
+        "Store public reference is invalid."
+      );
+    }
+
+    const canonicalUrl = buildStorePublicUrl(storeRef);
+
+    if (parsed.href !== canonicalUrl) {
+      throw fail(
+        "STORE_QR_URL_INVALID",
+        "Store QR URL is not canonical."
+      );
+    }
+
+    return Object.freeze({
+      version: STORE_QR_CONTRACT_VERSION,
+      store_ref: storeRef,
+      url: canonicalUrl,
+    });
+  }
+
+  function isStorePublicUrl(value) {
+    try {
+      parseStorePublicUrl(value);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   function assertEndpoint(endpoint) {
@@ -374,6 +472,9 @@
     normalizeStoreRef: normalizeStoreRef,
     isValidStoreRef: isValidStoreRef,
     readStoreRef: readStoreRef,
+    buildStorePublicUrl: buildStorePublicUrl,
+    parseStorePublicUrl: parseStorePublicUrl,
+    isStorePublicUrl: isStorePublicUrl,
     assertEndpoint: assertEndpoint,
     getCentralAppsScriptEndpoint: getCentralAppsScriptEndpoint,
     createCallbackName: createCallbackName,
