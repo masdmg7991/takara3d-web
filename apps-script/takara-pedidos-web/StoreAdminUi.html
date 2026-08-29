@@ -178,6 +178,96 @@
 
     .refresh:hover { background: var(--soft); }
 
+    .primary,
+    .secondary {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .primary {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .primary:hover { opacity: .9; }
+
+    .secondary {
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .secondary:hover { background: var(--soft); }
+
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .form {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .form-field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .form-field label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .form-field input,
+    .form-field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafaf7;
+      padding: 10px 11px;
+      color: var(--ink);
+      outline: none;
+      resize: vertical;
+    }
+
+    .form-field input:focus,
+    .form-field textarea:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+    }
+
+    .form-error {
+      border: 1px solid #e1b8b1;
+      border-radius: 10px;
+      background: #fff0ed;
+      padding: 10px 12px;
+      color: #7a2d25;
+      font-size: 12px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
     .store-list {
       min-height: 360px;
       max-height: 660px;
@@ -308,6 +398,8 @@
       .stats { grid-template-columns: 1fr; }
       .workspace { grid-template-columns: 1fr; }
       .detail { position: static; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-field-wide { grid-column: auto; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -322,11 +414,11 @@
         <p class="eyebrow">Takara · canal Store</p>
         <h1>Store Admin</h1>
         <p class="subtitle">
-          Gestión privada de tiendas colaboradoras. Esta primera vista es
-          deliberadamente de solo lectura.
+          Gestión privada de tiendas colaboradoras. Crear y editar ya están
+          habilitados; ACTIVE/INACTIVE seguirá separado hasta F4E.
         </p>
       </div>
-      <div class="mode" aria-label="Modo actual">SOLO LECTURA</div>
+      <div class="mode" aria-label="Modo actual">GESTIÓN · SIN CAMBIO DE ESTADO</div>
     </header>
 
     <p id="preview-note" class="preview-note" role="status">
@@ -358,6 +450,7 @@
             autocomplete="off"
             placeholder="Buscar por tienda, Store ID, ciudad…"
             aria-label="Buscar tiendas">
+          <button id="new-store" class="primary" type="button">Nueva tienda</button>
           <button id="refresh" class="refresh" type="button">Actualizar</button>
         </div>
         <div id="store-list" class="store-list" aria-live="polite">
@@ -385,6 +478,7 @@
         selectedId: "",
         query: "",
         loading: false,
+        editorMode: "",
       };
 
       const els = {
@@ -392,6 +486,7 @@
         detail: document.getElementById("detail"),
         search: document.getElementById("search"),
         refresh: document.getElementById("refresh"),
+        newStore: document.getElementById("new-store"),
         total: document.getElementById("stat-total"),
         active: document.getElementById("stat-active"),
         inactive: document.getElementById("stat-inactive"),
@@ -421,12 +516,18 @@
       function createClient() {
         if (isPreviewMode()) {
           const preview = window.TAKARA_STORE_ADMIN_PREVIEW_DATA;
+          let previewSequence = preview.stores.length + 1;
+
+          function cloneStore(store) {
+            return Object.assign({}, store);
+          }
+
           return {
             bootstrap: function () {
               return Promise.resolve({
                 version: UI_VERSION,
-                mode: "READ_ONLY",
-                stores: preview.stores.slice(),
+                mode: "MANAGE",
+                stores: preview.stores.map(cloneStore),
               });
             },
             getStore: function (storeId) {
@@ -434,8 +535,49 @@
                 return item.store_id === storeId;
               });
               return store
-                ? Promise.resolve(Object.assign({}, store))
+                ? Promise.resolve(cloneStore(store))
                 : Promise.reject(new Error("STORE_NOT_FOUND"));
+            },
+            createStore: function (input) {
+              const now = new Date().toISOString();
+              const id = "STO_" + String(previewSequence).padStart(6, "0");
+              previewSequence += 1;
+
+              const store = Object.assign({
+                contract_version: "TAKARA_STORE_ADMIN_READ_V1",
+                store_id: id,
+                store_public_code:
+                  "st_PREVIEW_" + id.replace("STO_", "") + "_LOCAL_ONLY",
+                status: "ACTIVE",
+                created_at: now,
+                updated_at: now,
+                deactivated_at: "",
+                version: 1,
+              }, input);
+
+              preview.stores.push(store);
+              return Promise.resolve(cloneStore(store));
+            },
+            updateStore: function (storeId, patch) {
+              const index = preview.stores.findIndex(function (item) {
+                return item.store_id === storeId;
+              });
+
+              if (index < 0) {
+                return Promise.reject(new Error("STORE_NOT_FOUND"));
+              }
+
+              preview.stores[index] = Object.assign(
+                {},
+                preview.stores[index],
+                patch,
+                {
+                  updated_at: new Date().toISOString(),
+                  version: Number(preview.stores[index].version || 0) + 1,
+                }
+              );
+
+              return Promise.resolve(cloneStore(preview.stores[index]));
             },
           };
         }
@@ -462,16 +604,36 @@
                   .getStoreAdminUiStore(storeId);
               });
             },
+            createStore: function (input) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .createStoreAdminUiStore(input);
+              });
+            },
+            updateStore: function (storeId, patch) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .updateStoreAdminUiStore(storeId, patch);
+              });
+            },
           };
         }
 
+        function unavailable() {
+          return Promise.reject(
+            new Error("STORE_ADMIN_UI_BACKEND_UNAVAILABLE")
+          );
+        }
+
         return {
-          bootstrap: function () {
-            return Promise.reject(new Error("STORE_ADMIN_UI_BACKEND_UNAVAILABLE"));
-          },
-          getStore: function () {
-            return Promise.reject(new Error("STORE_ADMIN_UI_BACKEND_UNAVAILABLE"));
-          },
+          bootstrap: unavailable,
+          getStore: unavailable,
+          createStore: unavailable,
+          updateStore: unavailable,
         };
       }
 
@@ -588,6 +750,15 @@
         head.appendChild(createNode("h2", "detail-title", store.display_name));
         head.appendChild(createNode("div", "detail-id", store.store_id));
         head.appendChild(statusNode(store.status));
+
+        const actions = createNode("div", "detail-actions");
+        const edit = createNode("button", "secondary", "Editar");
+        edit.type = "button";
+        edit.addEventListener("click", function () {
+          renderStoreForm("edit", store);
+        });
+        actions.appendChild(edit);
+        head.appendChild(actions);
         els.detail.appendChild(head);
 
         const fields = createNode("dl", "fields");
@@ -614,10 +785,184 @@
           createNode(
             "div",
             "footnote",
-            "F4C · vista de solo lectura. Crear, editar y cambiar estado " +
-              "se habilitará en las siguientes capacidades certificadas."
+            "F4D · identidad, código público, estado, timestamps y versión " +
+              "son de solo lectura. ACTIVE/INACTIVE se gestiona en F4E."
           )
         );
+      }
+
+      const EDITABLE_FIELDS = Object.freeze([
+        "display_name",
+        "contact_name",
+        "email",
+        "phone",
+        "address_line",
+        "postal_code",
+        "city",
+        "province",
+        "notes",
+      ]);
+
+      function formInput(name, label, value, options) {
+        const config = options || {};
+        const wrapper = createNode(
+          "div",
+          "form-field" + (config.wide ? " form-field-wide" : "")
+        );
+        const labelNode = createNode("label", "", label);
+        labelNode.htmlFor = "store-form-" + name;
+
+        const control = config.multiline
+          ? document.createElement("textarea")
+          : document.createElement("input");
+
+        control.id = "store-form-" + name;
+        control.name = name;
+        control.value = value || "";
+
+        if (!config.multiline) {
+          control.type = config.type || "text";
+        } else {
+          control.rows = 4;
+        }
+
+        if (config.required) {
+          control.required = true;
+        }
+
+        wrapper.appendChild(labelNode);
+        wrapper.appendChild(control);
+        return wrapper;
+      }
+
+      function collectForm(form) {
+        const payload = {};
+        EDITABLE_FIELDS.forEach(function (name) {
+          const control = form.elements[name];
+          payload[name] = control ? String(control.value || "").trim() : "";
+        });
+        return payload;
+      }
+
+      function upsertStore(store) {
+        const index = state.stores.findIndex(function (item) {
+          return item.store_id === store.store_id;
+        });
+
+        if (index < 0) {
+          state.stores.push(store);
+        } else {
+          state.stores[index] = store;
+        }
+
+        state.stores.sort(function (a, b) {
+          return String(a.store_id).localeCompare(String(b.store_id));
+        });
+
+        state.selectedId = store.store_id;
+        renderStats();
+        renderList();
+        renderDetail(store);
+      }
+
+      function renderStoreForm(mode, store) {
+        const editing = mode === "edit";
+        state.editorMode = mode;
+        els.detail.textContent = "";
+
+        const head = createNode("div", "detail-head");
+        head.appendChild(
+          createNode(
+            "h2",
+            "detail-title",
+            editing ? "Editar tienda" : "Nueva tienda"
+          )
+        );
+
+        if (editing && store) {
+          head.appendChild(createNode("div", "detail-id", store.store_id));
+          head.appendChild(statusNode(store.status));
+        }
+
+        els.detail.appendChild(head);
+
+        const form = createNode("form", "form");
+        const grid = createNode("div", "form-grid");
+
+        [
+          ["display_name", "Nombre visible", { required: true, wide: true }],
+          ["contact_name", "Contacto", {}],
+          ["email", "Email", { type: "email" }],
+          ["phone", "Teléfono", {}],
+          ["address_line", "Dirección", { wide: true }],
+          ["postal_code", "CP", {}],
+          ["city", "Ciudad", {}],
+          ["province", "Provincia", {}],
+          ["notes", "Notas", { multiline: true, wide: true }],
+        ].forEach(function (entry) {
+          grid.appendChild(
+            formInput(
+              entry[0],
+              entry[1],
+              store ? store[entry[0]] : "",
+              entry[2]
+            )
+          );
+        });
+
+        form.appendChild(grid);
+
+        const errorBox = createNode("div", "form-error");
+        errorBox.hidden = true;
+        form.appendChild(errorBox);
+
+        const actions = createNode("div", "form-actions");
+        const cancel = createNode("button", "secondary", "Cancelar");
+        cancel.type = "button";
+        cancel.addEventListener("click", function () {
+          state.editorMode = "";
+          if (editing && store) {
+            renderDetail(store);
+          } else {
+            renderDetail(null);
+          }
+        });
+
+        const save = createNode(
+          "button",
+          "primary",
+          editing ? "Guardar cambios" : "Crear tienda"
+        );
+        save.type = "submit";
+
+        actions.appendChild(cancel);
+        actions.appendChild(save);
+        form.appendChild(actions);
+
+        form.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          errorBox.hidden = true;
+          save.disabled = true;
+
+          try {
+            const payload = collectForm(form);
+            const saved = editing
+              ? await client.updateStore(store.store_id, payload)
+              : await client.createStore(payload);
+
+            state.editorMode = "";
+            upsertStore(saved);
+          } catch (error) {
+            errorBox.textContent =
+              "No se pudo guardar. " +
+              text(error && (error.message || error));
+            errorBox.hidden = false;
+          } finally {
+            save.disabled = false;
+          }
+        });
+
+        els.detail.appendChild(form);
       }
 
       function renderError(error) {
@@ -665,7 +1010,7 @@
           if (
             !result ||
             result.version !== UI_VERSION ||
-            result.mode !== "READ_ONLY" ||
+            result.mode !== "MANAGE" ||
             !Array.isArray(result.stores)
           ) {
             throw new Error("STORE_ADMIN_UI_CONTRACT_INVALID");
@@ -705,6 +1050,11 @@
         renderList();
       });
       els.refresh.addEventListener("click", load);
+      els.newStore.addEventListener("click", function () {
+        state.selectedId = "";
+        renderList();
+        renderStoreForm("create", null);
+      });
 
       if (isPreviewMode()) {
         els.previewNote.setAttribute("data-visible", "true");
@@ -712,6 +1062,7 @@
 
       window.TAKARA_STORE_ADMIN_UI_TEST = Object.freeze({
         version: UI_VERSION,
+        editableFields: EDITABLE_FIELDS.slice(),
         filteredStores: filteredStores,
       });
 

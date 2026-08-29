@@ -40,6 +40,10 @@ def main() -> int:
         "bootstrap reutiliza F4B list",
     )
     require(
+        'mode: "MANAGE"' in bridge,
+        "F4C read foundation opera bajo modo MANAGE desde F4D",
+    )
+    require(
         "getStoreAdmin_(storeId)" in bridge,
         "detail reutiliza F4B get",
     )
@@ -52,7 +56,7 @@ def main() -> int:
 
     for marker in (
         "<h1>Store Admin</h1>",
-        "SOLO LECTURA",
+        "Store Admin",
         'id="stat-total"',
         'id="stat-active"',
         'id="stat-inactive"',
@@ -70,8 +74,6 @@ def main() -> int:
         require(marker in ui, f"UI conserva {marker}")
 
     for forbidden in (
-        "createStoreAdmin_",
-        "updateStoreAdmin_",
         "activateStoreAdmin_",
         "deactivateStoreAdmin_",
         "deleteStore",

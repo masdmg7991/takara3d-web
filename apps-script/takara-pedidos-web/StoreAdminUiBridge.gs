@@ -5,11 +5,19 @@ function getStoreAdminUiBootstrap() {
 
   return Object.freeze({
     version: TAKARA_STORE_ADMIN_UI_VERSION,
-    mode: "READ_ONLY",
+    mode: "MANAGE",
     stores: stores,
   });
 }
 
 function getStoreAdminUiStore(storeId) {
   return getStoreAdmin_(storeId);
+}
+
+function createStoreAdminUiStore(input) {
+  return createStoreAdmin_(input);
+}
+
+function updateStoreAdminUiStore(storeId, patch) {
+  return updateStoreAdmin_(storeId, patch);
 }

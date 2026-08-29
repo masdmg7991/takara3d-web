@@ -84,7 +84,7 @@ vm.runInContext(
 
 const bootstrap = context.getStoreAdminUiBootstrap();
 ok(bootstrap.version === "TAKARA_STORE_ADMIN_UI_V1", "bootstrap version");
-ok(bootstrap.mode === "READ_ONLY", "bootstrap read-only mode");
+ok(bootstrap.mode === "MANAGE", "bootstrap mode evolved by F4D");
 ok(Array.isArray(bootstrap.stores), "bootstrap stores array");
 ok(bootstrap.stores.length === 2, "bootstrap returns F4B stores");
 ok(listCalls === 1, "bootstrap calls F4B list once");
@@ -111,8 +111,6 @@ for (const forbidden of [
   "SpreadsheetApp",
   "PropertiesService",
   "createStoreSheetsRepository_",
-  "createStoreAdmin_",
-  "updateStoreAdmin_",
   "activateStoreAdmin_",
   "deactivateStoreAdmin_",
 ]) {
@@ -126,7 +124,7 @@ const html = fs.readFileSync(
 
 for (const marker of [
   "Store Admin",
-  "SOLO LECTURA",
+  "Store Admin",
   "Buscar por tienda",
   "ACTIVE",
   "INACTIVE",
@@ -139,8 +137,6 @@ for (const marker of [
 }
 
 for (const forbidden of [
-  "Crear tienda",
-  "Editar tienda",
   "Eliminar tienda",
   "Desactivar tienda",
   "Activar tienda",
@@ -152,6 +148,11 @@ for (const forbidden of [
 
 ok(!html.includes("innerHTML"), "UI avoids innerHTML");
 ok(html.includes("textContent"), "UI uses textContent");
+ok(
+  html.includes("getStoreAdminUiBootstrap") &&
+    html.includes("getStoreAdminUiStore"),
+  "F4C read foundation remains under F4D"
+);
 
 console.log(
   "[TAKARA_STORE_ADMIN_UI_F4C_OK] " +

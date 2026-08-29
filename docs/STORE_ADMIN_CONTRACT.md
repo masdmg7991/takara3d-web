@@ -66,10 +66,10 @@ Service/Runtime; they do not duplicate either authority.
 
 - F4A — owner-only Admin access authority
 - F4B — authorized Store list/read
-- F4C — authorized Store create
-- F4D — authorized Store inspect/edit
+- F4C — tangible Admin UI foundation
+- F4D — authorized Store create + inspect/edit
 - F4E — authorized ACTIVE/INACTIVE lifecycle
-- F4F — Admin UI/SystemScenario
+- F4F — Admin deployment boundary + SystemScenario
 - F4G — cumulative F4 phase closure
 
 F4A certification does not mean the Admin UI exists yet.
@@ -159,3 +159,68 @@ F4 roadmap after the tangible UI:
 - F4E — authorized ACTIVE/INACTIVE lifecycle on this same UI
 - F4F — Admin deployment boundary + SystemScenario
 - F4G — cumulative F4 closure
+
+## F4D authorized create + inspect/edit
+
+Contract: `TAKARA_STORE_ADMIN_WRITE_V1`.
+
+F4D extends the same F4C Admin UI; it does not introduce a second Admin
+surface or another Store persistence authority.
+
+This F4D section is the current authority for the F4C→F4D capability
+transition and supersedes earlier forward-looking roadmap prose.
+
+Write dependency chain:
+
+`StoreAdminUi.html`
+→ `StoreAdminUiBridge`
+→ `StoreAdminWrite`
+→ F4A `requireStoreAdminAccess_()`
+→ canonical `createStoreRuntime_()` / `updateStoreRuntime_()`
+→ existing Store Service
+→ existing Store repository port
+→ existing `StoreSheetsRepository`.
+
+`StoreAdminWrite` is an authorization/transport boundary only. F4B remains
+the Admin read-model authority used for mutation responses. StoreAdminWrite
+never opens Google Sheets, does not know Registry configuration and does not
+recreate Store domain validation.
+
+Browser-writable fields are explicitly limited to:
+
+- `display_name`
+- `contact_name`
+- `email`
+- `phone`
+- `address_line`
+- `postal_code`
+- `city`
+- `province`
+- `notes`
+
+Create requires a `display_name` key and delegates value validation to the
+canonical Store domain/runtime.
+
+The browser cannot write or override `store_id`, `store_public_code`, `status`,
+`created_at`, `updated_at`, `deactivated_at`, `version`, order attribution or
+source metadata. Unexpected fields fail closed before Runtime mutation.
+
+`store_id` remains immutable and is used only as the update target. The Runtime
+continues to own generated identity, timestamps, versioning and Store
+persistence.
+
+The same F4C Admin UI now exposes:
+
+- `Nueva tienda`
+- `Editar`
+- create form
+- edit form
+- immutable identity/status metadata as read-only detail
+- in-memory create/edit behavior in local DEMO preview only
+
+The preview never persists mutations and resets when reloaded.
+
+F4D deliberately does not expose ACTIVE/INACTIVE controls. F4E adds lifecycle
+operations on this same UI after its own authorization and regression gates.
+
+Store Registry remains the unique Store persistence authority.
