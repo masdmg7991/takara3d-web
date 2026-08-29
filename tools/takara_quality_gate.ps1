@@ -489,7 +489,37 @@ if (Test-Path $StoreRegistryValidatorPath) {
     Err "No existe tools/takara_validar_store_registry.py"
 }
 
+$StoreRuntimeValidatorPath = Join-Path $Project "tools/takara_validar_store_runtime.py"
+
+if (Test-Path $StoreRuntimeValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_runtime.py"
+    py tools/takara_validar_store_runtime.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Runtime: composition root y frontera Sheets validadas"
+    } else {
+        Err "Fallo takara_validar_store_runtime.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_runtime.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_runtime_integration.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_runtime_integration.js"
+    node tools/takara_test_store_runtime_integration.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Runtime + Sheets adapter integrados"
+    } else {
+        Err "Fallo takara_test_store_runtime_integration.js"
+    }
+} else {
+    Err "No se pudo ejecutar integración Store Runtime"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_registry.js"

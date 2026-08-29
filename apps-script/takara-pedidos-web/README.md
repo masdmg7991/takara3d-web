@@ -11,6 +11,7 @@ Módulos Store V1 del mismo proyecto Apps Script:
 - `StoreDomain.gs`: dominio puro, identidad, estados e invariantes.
 - `StoreRegistry.gs`: casos de uso y puerto de repositorio.
 - `StoreSheetsRepository.gs`: único adapter de persistencia Google Sheets.
+- `StoreRuntime.gs`: composition root que conecta casos de uso con el adapter; no crea rutas HTTP.
 
 Estos módulos no crean un segundo backend. Forman parte del mismo proyecto Apps
 Script y deben desplegarse junto a `Code.gs` cuando Store llegue a fase de
