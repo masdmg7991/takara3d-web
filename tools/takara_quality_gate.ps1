@@ -505,7 +505,35 @@ if (Test-Path $StoreRuntimeValidatorPath) {
     Err "No existe tools/takara_validar_store_runtime.py"
 }
 
+$StoreSetupValidatorPath = Join-Path $Project "tools/takara_validar_store_registry_setup.py"
+
+if (Test-Path $StoreSetupValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_registry_setup.py"
+    py tools/takara_validar_store_registry_setup.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Registry setup y health validados"
+    } else {
+        Err "Fallo takara_validar_store_registry_setup.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_registry_setup.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry_setup.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_registry_setup.js"
+    node tools/takara_test_store_registry_setup.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Registry setup idempotente validado"
+    } else {
+        Err "Fallo takara_test_store_registry_setup.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store Registry setup test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_runtime_integration.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_runtime_integration.js"
