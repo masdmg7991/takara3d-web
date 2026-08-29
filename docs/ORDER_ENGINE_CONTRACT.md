@@ -543,3 +543,36 @@ Garantías:
 - el SHA previo que se promueve debe proceder de la autoridad observada en
   el repo/validador real del baseline, no de un snapshot asumido o histórico;
   si difiere, se aborta antes de escribir y se reconcilia.
+
+## Downstream attribution handoff (F3E)
+
+F3E certifica la frontera downstream existente sin introducir otro modelo de
+pedido ni otra autoridad.
+
+Frontera contractual:
+
+`pedido.attribution`
+→ `construirCuerpoInterno_`
+→ cuerpo técnico
+→ `enviarEmailInterno_`
+→ `MailApp.sendEmail(options)`.
+
+Garantías:
+
+- `options.body` recibe byte-for-byte el cuerpo técnico ya construido.
+- STORE conserva `TAKARA_STORE_ATTRIBUTION_V1`, `source_type=STORE`,
+  `store_id` y `store_name_snapshot` hasta el correo técnico interno.
+- DIRECT conserva `source_type=DIRECT` y no inventa identidad Store.
+- `enviarEmailInterno_` no resuelve Store, no consulta Registry/Sheets y no
+  recalcula atribución.
+- la confirmación del cliente y la respuesta HTTP no exponen `store_id`,
+  `store_name_snapshot` ni la atribución interna.
+- el cuerpo técnico interno es la única representación downstream de
+  atribución dentro de Takara Web; no se crea un payload paralelo.
+- F3E no cambia runtime de producto: instala evidencia y regresiones
+  permanentes sobre la frontera ya implementada por F3D.
+- F5 verificará el despliegue/E2E más allá de esta frontera del repositorio.
+- los validadores documentales verifican invariantes semánticos y no una
+  conjugación o frase literal completa cuando la prosa no es la autoridad.
+- los validadores que inspeccionan tests verifican la mecánica de la prueba
+  (inputs, llamadas y aserciones) y no el texto humano de sus mensajes `ok`.

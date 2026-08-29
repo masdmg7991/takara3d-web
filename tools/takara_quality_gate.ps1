@@ -716,7 +716,37 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$OrderDownstreamHandoffValidatorPath = Join-Path $Project "tools/takara_validar_order_downstream_handoff.py"
+
+if (Test-Path $OrderDownstreamHandoffValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_downstream_handoff.py"
+    py tools/takara_validar_order_downstream_handoff.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3E downstream attribution handoff static validado"
+    } else {
+        Err "Fallo takara_validar_order_downstream_handoff.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_downstream_handoff.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_downstream_handoff.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_downstream_handoff.js"
+    node tools/takara_test_order_downstream_handoff.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3E downstream attribution handoff functional validado"
+    } else {
+        Err "Fallo takara_test_order_downstream_handoff.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3E downstream handoff test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_attribution_flow.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_attribution_flow.js"
