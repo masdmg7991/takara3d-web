@@ -716,6 +716,22 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$OrderPhaseF3ValidatorPath = Join-Path $Project "tools/takara_validar_order_phase_f3.py"
+
+if (Test-Path $OrderPhaseF3ValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_phase_f3.py"
+    py tools/takara_validar_order_phase_f3.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3G cumulative Order Attribution phase closure validado"
+    } else {
+        Err "Fallo takara_validar_order_phase_f3.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_phase_f3.py"
+}
+
 $OrderSystemF3FValidatorPath = Join-Path $Project "tools/takara_validar_order_system_f3f.py"
 
 if (Test-Path $OrderSystemF3FValidatorPath) {

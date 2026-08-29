@@ -602,3 +602,38 @@ Escenarios obligatorios:
 - F3F preserva la separación Product QR != Store QR y no crea dependencias
   Product QR -> Store.
 - F3G realizará el cierre acumulativo/certificación de F3.
+
+## F3 cumulative phase closure (F3G)
+
+F3G cierra y certifica la fase Order Attribution sin introducir funcionalidad
+nueva ni una segunda autoridad.
+
+Mapa de autoridad certificado:
+
+- F3A: `TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1` transporta únicamente el
+  `store_ref` público verificado y nunca `store_id`.
+- F3B: backend re-resuelve `store_ref` mediante Store Runtime y solo acepta
+  identidad Store ACTIVE.
+- F3C: `TAKARA_STORE_ATTRIBUTION_V1` es la única autoridad DIRECT/STORE;
+  consume la identidad F3B y congela `store_id` + `store_name_snapshot`.
+- F3D: `doPost` orquesta la autoridad F3C antes de validación/efectos y
+  persiste atribución en los cuerpos técnicos V1/V2.
+- F3E: el handoff downstream conserva el cuerpo técnico y no re-resuelve ni
+  recalcula atribución.
+- F3F: el SystemScenario horizontal prueba STORE, DIRECT, manipulación,
+  Store inexistente, rename e INACTIVE sobre una única historia de identidad.
+
+Garantías de cierre:
+
+- `AUTHOR != AUTHORITY`: tests, harness y documentación no sustituyen las
+  autoridades runtime.
+- `Product QR != Store QR`: Product QR continúa independiente de Store.
+- DIRECT realiza cero consultas Store en el SystemScenario.
+- STORE inválido/inexistente/INACTIVE nunca degrada a DIRECT.
+- rename conserva `store_ref` + `store_id`; pedidos anteriores mantienen su
+  snapshot y pedidos nuevos congelan el nombre vigente.
+- la respuesta/confirmación pública no expone `store_id`.
+- F3G no modifica runtime de producto; instala el gate acumulativo de fase.
+- declarar `F3 7/7` exige F3A-F3F GREEN, Quality Gate completo GREEN y
+  certificación independiente GREEN.
+- F4 Store Admin comienza únicamente después de este cierre certificado.
