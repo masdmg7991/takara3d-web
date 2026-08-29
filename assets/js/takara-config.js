@@ -1,4 +1,4 @@
-﻿// TAKARA 3D · CONFIGURACION CENTRAL V1
+// TAKARA 3D · CONFIGURACION CENTRAL V1
 // Fuente unica para catalogo, precios visibles y precios tecnicos.
 // Para cambiar un precio base: tocar solo este archivo.
 
@@ -8,6 +8,12 @@
   const config = Object.freeze({
     version: "TAKARA_CONFIG_V1",
     moneda: "EUR",
+    servicios: Object.freeze({
+      apps_script: Object.freeze({
+        version: "TAKARA_APPS_SCRIPT_ENDPOINT_V1",
+        url: "https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec"
+      })
+    }),
     productos: Object.freeze({
       marco_litofania_144x108: Object.freeze({
         codigo: "MARCO_LITOFANIA_144X108",
@@ -36,6 +42,10 @@
   });
 
   window.TAKARA_CONFIG = config;
+
+  window.TAKARA_GET_APPS_SCRIPT_ENDPOINT = function TAKARA_GET_APPS_SCRIPT_ENDPOINT() {
+    return config.servicios.apps_script.url;
+  };
 
   window.TAKARA_GET_PRODUCTO = function TAKARA_GET_PRODUCTO(codigo) {
     if (codigo === "MARCO_LITOFANIA_144X108") {

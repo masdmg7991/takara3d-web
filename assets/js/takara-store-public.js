@@ -51,6 +51,21 @@
     return value;
   }
 
+  function getCentralAppsScriptEndpoint(windowApi) {
+    const resolver =
+      windowApi &&
+      windowApi.TAKARA_GET_APPS_SCRIPT_ENDPOINT;
+
+    if (typeof resolver !== "function") {
+      throw fail(
+        "STORE_ENDPOINT_NOT_CONFIGURED",
+        "Store resolver endpoint is not configured."
+      );
+    }
+
+    return assertEndpoint(resolver());
+  }
+
   function createCallbackName(cryptoApi) {
     if (
       !cryptoApi ||
@@ -329,7 +344,14 @@
       return;
     }
 
-    const endpoint = root.getAttribute("data-store-endpoint") || "";
+    let endpoint = "";
+
+    try {
+      endpoint = getCentralAppsScriptEndpoint(window);
+    } catch (error) {
+      renderError(root, error);
+      return;
+    }
 
     resolveStoreContextJsonp({
       endpoint: endpoint,
@@ -353,6 +375,7 @@
     isValidStoreRef: isValidStoreRef,
     readStoreRef: readStoreRef,
     assertEndpoint: assertEndpoint,
+    getCentralAppsScriptEndpoint: getCentralAppsScriptEndpoint,
     createCallbackName: createCallbackName,
     buildResolveUrl: buildResolveUrl,
     validateStoreContextResponse: validateStoreContextResponse,

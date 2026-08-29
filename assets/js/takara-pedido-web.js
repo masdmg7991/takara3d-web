@@ -55,10 +55,38 @@
 
   document.addEventListener("DOMContentLoaded", init);
 
+  function getCentralAppsScriptEndpoint() {
+    const resolver = window.TAKARA_GET_APPS_SCRIPT_ENDPOINT;
+
+    if (typeof resolver !== "function") {
+      return "";
+    }
+
+    return String(resolver() || "").trim();
+  }
+
+  function applyCentralEndpoint(form) {
+    const endpoint = getCentralAppsScriptEndpoint();
+
+    if (!form || typeof form.setAttribute !== "function") {
+      return endpoint;
+    }
+
+    form.setAttribute("data-takara-endpoint", endpoint);
+    return endpoint;
+  }
+
+  window.TAKARA_PEDIDO_ENDPOINT_V1 = Object.freeze({
+    version: "TAKARA_APPS_SCRIPT_ENDPOINT_V1",
+    get: getCentralAppsScriptEndpoint,
+    applyToForm: applyCentralEndpoint,
+  });
+
   function init() {
     const form = document.querySelector("[data-takara-pedido-form][data-takara-pedido-web-v1]");
     if (!form) return;
 
+    applyCentralEndpoint(form);
     configurarTelefonos();
     document.addEventListener("input", filtrarTelefono, true);
 

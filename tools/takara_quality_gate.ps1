@@ -572,7 +572,37 @@ if (Test-Path $StoreF2AValidatorPath) {
     Err "No existe tools/takara_validar_store_public_f2a.py"
 }
 
+$SharedEndpointValidatorPath = Join-Path $Project "tools/takara_validar_shared_endpoint.py"
+
+if (Test-Path $SharedEndpointValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_shared_endpoint.py"
+    py tools/takara_validar_shared_endpoint.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Apps Script endpoint authority compartida validada"
+    } else {
+        Err "Fallo takara_validar_shared_endpoint.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_shared_endpoint.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_shared_endpoint.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_shared_endpoint.js"
+    node tools/takara_test_shared_endpoint.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Apps Script endpoint compartido en Pedido y Store"
+    } else {
+        Err "Fallo takara_test_shared_endpoint.js"
+    }
+} else {
+    Err "No se pudo ejecutar shared endpoint test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_client.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_public_client.js"

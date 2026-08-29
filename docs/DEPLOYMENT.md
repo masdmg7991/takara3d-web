@@ -135,3 +135,14 @@ Apps Script activa conservando la misma URL; validar GET y un POST V2 en
 el formulario público V1 continúa operativo. Tras confirmar la web V2 y la
 ingesta real de MicroFactory, la compatibilidad V1 podrá retirarse en una fase
 posterior explícita.
+## Autoridad compartida del endpoint Apps Script
+
+Desde `STORE-F2B`, la única autoridad web para la URL publicada del Apps Script es
+`assets/js/takara-config.js`, contrato `TAKARA_APPS_SCRIPT_ENDPOINT_V1`.
+
+`pedido.html` y `tienda/index.html` no conservan copias literales de esa URL.
+Los clientes la resuelven mediante `TAKARA_GET_APPS_SCRIPT_ENDPOINT`.
+
+Esta regla supersede cualquier referencia anterior que tratase `pedido.html`
+como autoridad física del endpoint. El despliegue sigue conservando la misma URL
+Apps Script hasta una migración explícita y certificada.
