@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreAdminReadValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_read.py"
+
+if (Test-Path $StoreAdminReadValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_admin_read.py"
+    py tools/takara_validar_store_admin_read.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4B Store Admin read static validado" } else { Err "Fallo takara_validar_store_admin_read.py" }
+} else {
+    Err "No existe tools/takara_validar_store_admin_read.py"
+}
+
 $StoreAdminAccessValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_access.py"
 
 if (Test-Path $StoreAdminAccessValidatorPath) {
@@ -776,6 +787,15 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_read.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_admin_read.js"
+    node tools/takara_test_store_admin_read.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4B Store Admin read functional validado" } else { Err "Fallo takara_test_store_admin_read.js" }
+} else {
+    Err "No se pudo ejecutar F4B Store Admin read test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_access.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_admin_access.js"

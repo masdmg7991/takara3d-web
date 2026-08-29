@@ -73,3 +73,46 @@ Service/Runtime; they do not duplicate either authority.
 - F4G — cumulative F4 phase closure
 
 F4A certification does not mean the Admin UI exists yet.
+
+## F4B authorized Store list/read
+
+Contract: `TAKARA_STORE_ADMIN_READ_V1`.
+
+F4B extends the canonical Store read path; it does not create an Admin
+persistence adapter.
+
+Dependency chain:
+
+`requireStoreAdminAccess_()`
+→ `StoreAdminRead`
+→ `StoreRuntime`
+→ `StoreRegistry application service`
+→ Store repository port
+→ `StoreSheetsRepository`.
+
+The repository gains a read-only `listAll()` capability. The existing general
+Store repository contract is not broadened globally; F4B uses the narrower
+`assertStoreReadRepositoryPort_()` so historical consumers are not forced to
+implement a capability they do not need.
+
+Authorized operations:
+
+- `listStoresAdmin_()` returns ACTIVE and INACTIVE stores ordered
+  deterministically by immutable `store_id`.
+- `getStoreAdmin_(store_id)` reads one Store by immutable internal id.
+- Admin read models use `TAKARA_STORE_ADMIN_READ_V1` and are immutable.
+- Admin may read the internal Store fields required for later inspect/edit,
+  including `store_public_code`, status, timestamps, contact data and notes.
+
+Security and authority:
+
+- F4A authorization runs before any Registry/Sheets read.
+- unauthenticated, misconfigured or non-owner access reaches zero Registry
+  reads.
+- `StoreAdminRead.gs` contains no SpreadsheetApp/PropertiesService/LockService
+  dependency and never opens Sheets directly.
+- F4B performs no create/update/status mutation/delete.
+- Store Registry remains the unique Store persistence authority.
+- public Store/Pedido APIs gain no Admin read action.
+- F4C will add authorized Store creation on top of F4A and existing Store
+  creation authority.

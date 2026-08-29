@@ -71,6 +71,59 @@ function createStoreService_(repository, input, dependencies) {
   });
 }
 
+function assertStoreReadRepositoryPort_(repository) {
+  if (!repository) {
+    throw storeDomainError_(
+      "STORE_REPOSITORY_REQUIRED",
+      "Store repository is required."
+    );
+  }
+
+  ["findById", "listAll"].forEach(function (method) {
+    if (typeof repository[method] !== "function") {
+      throw storeDomainError_(
+        "STORE_REPOSITORY_INVALID",
+        "Store read repository does not implement " + method + "."
+      );
+    }
+  });
+
+  return repository;
+}
+
+function getStoreService_(repository, storeId) {
+  const repo = assertStoreReadRepositoryPort_(repository);
+  const normalizedStoreId = assertStoreId_(storeId);
+  const store = repo.findById(normalizedStoreId);
+
+  if (!store) {
+    throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
+  }
+
+  return Object.assign({}, store);
+}
+
+function listStoresService_(repository) {
+  const repo = assertStoreReadRepositoryPort_(repository);
+  const stores = repo.listAll();
+
+  if (!Array.isArray(stores)) {
+    throw storeDomainError_(
+      "STORE_REPOSITORY_INVALID",
+      "Store read repository returned an invalid list."
+    );
+  }
+
+  return stores
+    .map(function (store) {
+      assertStoreId_(store && store.store_id);
+      return Object.assign({}, store);
+    })
+    .sort(function (left, right) {
+      return String(left.store_id).localeCompare(String(right.store_id));
+    });
+}
+
 function resolveStoreContextService_(repository, storePublicCode) {
   const repo = assertStoreRepositoryPort_(repository);
   const publicCode = assertStorePublicCode_(storePublicCode);

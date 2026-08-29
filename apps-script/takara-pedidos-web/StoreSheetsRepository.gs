@@ -179,6 +179,25 @@ function createStoreSheetsRepository_() {
       return maxSequence + 1;
     },
 
+    listAll: function () {
+      const sheet = openStoreRegistrySheet_();
+      const lastRow = sheet.getLastRow();
+
+      if (lastRow < 2) {
+        return [];
+      }
+
+      return sheet
+        .getRange(
+          2,
+          1,
+          lastRow - 1,
+          TAKARA_STORE_REGISTRY_HEADERS.length
+        )
+        .getValues()
+        .map(storeRowToRecord_);
+    },
+
     findById: function (storeId) {
       const result = findStoreRowByField_(
         openStoreRegistrySheet_(),

@@ -36,6 +36,19 @@ function resolveStoreOrderIdentityRuntime_(storePublicCode) {
   );
 }
 
+function getStoreRuntime_(storeId) {
+  return getStoreService_(
+    getStoreRuntimeRepository_(),
+    storeId
+  );
+}
+
+function listStoresRuntime_() {
+  return listStoresService_(
+    getStoreRuntimeRepository_()
+  );
+}
+
 function updateStoreRuntime_(storeId, patch) {
   return updateStoreService_(
     getStoreRuntimeRepository_(),
