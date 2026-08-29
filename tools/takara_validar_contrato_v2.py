@@ -144,8 +144,13 @@ def main() -> int:
         require(EXPECTED["email"] in doc, f"{name} documenta correo V2")
 
     require(
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT" in deployment,
-        "DEPLOYMENT distingue versión pública V1.12.3 de candidato local V1.14.1 dual-stack",
+        "Versión publicada verificada mediante GET" in deployment
+        and "endpoint productivo" in deployment,
+        "DEPLOYMENT documenta V1.14.1 publicada y autoridad GET",
+    )
+    require(
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT" not in deployment,
+        "DEPLOYMENT no conserva V1.12.3 como versión pública activa",
     )
 
     print("[TAKARA_ORDER_CONTRACT_V2_STATIC_OK]")

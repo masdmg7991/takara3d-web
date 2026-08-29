@@ -53,34 +53,64 @@ assets/js/takara-pedido-preview.js
 
 El backend ligero de pedidos/contacto está publicado en Google Apps Script.
 
-Versión actualmente publicada:
-
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT
-```
-
-Candidato local en revisión, todavía no desplegado:
+Versión publicada verificada mediante GET del endpoint usado por `pedido.html`
+el 2026-08-29:
 
 ```text
 TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2
 ```
 
-El candidato local integra `TAKARA_WEB_ORDER_PAYLOAD_V2`,
-`TAKARA_ORDER_SNAPSHOT_V2`, `TAKARA_PEDIDO_WEB_V2` y
-`TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`. El correo técnico V2 ya ha sido
-validado de forma cruzada contra el parser real de MicroFactory antes y después
-de aplicar el candidato local. Mantiene cálculo automático por código postal y
-el mapa compacto `TAKARA_POSTAL_NATIONAL_V1_2026_08_03`.
-La localidad se completa automáticamente en 7.282 códigos, ofrece selector
-nacional en 3.422 y mantiene entrada manual en 147 casos de revisión o códigos
-sin cobertura. Las 13 reglas comerciales de Madrid Sur conservan prioridad
-porque pueden modificar la tarifa. El servidor recalcula siempre la entrega y
-el municipio nacional solo aporta información de ubicación. La versión pública
-permanece en V1.12.3 hasta aprobar la interfaz local, validar el candidato y
-realizar un despliegue manual controlado.
+Versión declarada por el `Code.gs` local en este baseline:
 
+```text
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2
+```
+
+La implementación V1.14.1 mantiene como contratos vigentes:
+
+```text
+TAKARA_WEB_ORDER_PAYLOAD_V2
+TAKARA_ORDER_SNAPSHOT_V2
+TAKARA_PEDIDO_WEB_V2
+TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC
+```
+
+El backend activo conserva compatibilidad V1/V2 durante la transición. El V2 es
+la ruta primaria y un payload que declare V2 pero esté incompleto se rechaza:
+nunca degrada silenciosamente a V1.
+
+La autoridad sobre la versión realmente publicada es la respuesta GET del
+endpoint productivo, no una etiqueta histórica conservada en documentación.
 La comprobación GET debe validar el campo JSON `script` y no comparar la respuesta completa como texto plano.
 
+## Store Channel V1
+
+STORE-F0 congela la siguiente topologia:
+
+```text
+Store Public:
+https://takara3d.es/tienda/?s=<store_public_code>
+
+Frontend:
+GitHub Pages existente
+
+Backend:
+Google Apps Script existente
+
+Store Registry:
+Google Spreadsheet dedicado
+
+Admin:
+Google Apps Script Web App con acceso restringido
+```
+
+No se migra DNS para Store V1.
+
+No se introduce Cloudflare Worker, D1 ni servidor propio.
+
+El detalle contractual vive en `docs/STORE_SYSTEM_CONTRACT.md`.
+
+El Store QR y el Product QR (`/qr`) son flujos independientes.
 ## Commit y push
 
 Commit recomendado para documentación:

@@ -166,6 +166,26 @@ una vía válida para solicitar otra pieza.
 Los QR exclusivos de tienda, su atribución y sus páginas cerradas de pedido son
 un flujo independiente. No deben resolverse enviando al cliente al catálogo
 general ni inventando identificadores en la página `/qr`.
+### 6.9 Capa Store
+
+El canal de establecimientos colaboradores se gobierna por
+`docs/STORE_SYSTEM_CONTRACT.md`.
+
+Store y Product QR son capacidades diferentes:
+
+`PRODUCT_QR != STORE_QR`
+
+Store V1 conserva una sola autoridad logica (`TAKARA_STORE_REGISTRY_V1`), usa
+`store_id` interno inmutable y `store_public_code` publico inmutable, y resuelve
+la experiencia publica desde `/tienda/?s=<store_public_code>`.
+
+El frontend publico permanece static-first en GitHub Pages. El adapter backend
+V1 reutiliza Google Apps Script y la persistencia Store V1 usa un Google
+Spreadsheet dedicado. El Admin Store es privado y no carga Analytics comercial.
+
+Pedido puede consumir una atribucion Store validada, pero Store no se mezcla con
+Product QR ni con el motor protegido de preview. Una referencia Store invalida o
+inactiva falla cerrada y nunca degrada silenciosamente a pedido directo.
 
 ---
 

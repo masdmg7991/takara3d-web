@@ -102,6 +102,7 @@ $RequiredFiles = @(
     "docs/FRAME_TEXT_CONTRACT.md",
     "docs/PREVIEW_ENGINE_CONTRACT.md",
     "docs/QR_PAGE_CONTRACT.md",
+    "docs/STORE_SYSTEM_CONTRACT.md",
     "tools/takara_validar_personalizacion_pedido.py",
     "tools/takara_validar_entrega_pedido.py",
     "tools/takara_validar_contrato_v2.py",
@@ -123,6 +124,7 @@ $PreviewPath = Join-Path $Project "assets/js/takara-pedido-preview.js"
 $PedidoPath = Join-Path $Project "pedido.html"
 $QrPath = Join-Path $Project "qr/index.html"
 $QrCssPath = Join-Path $Project "assets/css/qr.css"
+$StoreContractPath = Join-Path $Project "docs/STORE_SYSTEM_CONTRACT.md"
 
 if (Test-Path $PreviewPath) {
     $PreviewText = Read-Utf8 $PreviewPath
@@ -286,6 +288,49 @@ if ((Test-Path $QrPath) -and (Test-Path $QrCssPath)) {
     }
 }
 
+if (Test-Path $StoreContractPath) {
+    $StoreContractText = Read-Utf8 $StoreContractPath
+    $StoreContractMarkers = @(
+        "TAKARA_STORE_SYSTEM_CONTRACT_V1",
+        "PRODUCT_QR != STORE_QR",
+        "TAKARA_STORE_REGISTRY_V1",
+        "TAKARA_STORE_CONTEXT_V1",
+        "TAKARA_STORE_ATTRIBUTION_V1",
+        "/tienda/?s=<store_public_code>",
+        "source_type = STORE",
+        "source_type = DIRECT",
+        "ACTIVE",
+        "INACTIVE",
+        "LockService.getScriptLock()",
+        "Google Spreadsheet",
+        "Analytics comercial OFF"
+    )
+
+    foreach ($Marker in $StoreContractMarkers) {
+        if ($StoreContractText.Contains($Marker)) {
+            Ok ("Store conserva contrato: " + $Marker)
+        } else {
+            Err ("Store no contiene contrato: " + $Marker)
+        }
+    }
+}
+
+if (Test-Path $QrPath) {
+    $QrStoreForbiddenMarkers = @(
+        "store_id",
+        "store_public_code",
+        "TAKARA_STORE_CONTEXT_V1",
+        "TAKARA_STORE_REGISTRY_V1"
+    )
+
+    foreach ($Marker in $QrStoreForbiddenMarkers) {
+        if ($QrText.Contains($Marker)) {
+            Err ("Product QR contiene identidad Store prohibida: " + $Marker)
+        } else {
+            Ok ("Product QR aislado de Store: " + $Marker)
+        }
+    }
+}
 $FrameTextPath = Join-Path $Project "assets/js/takara-frame-text.js"
 if (Test-Path $FrameTextPath) {
     $FrameText = Read-Utf8 $FrameTextPath

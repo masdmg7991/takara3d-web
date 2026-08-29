@@ -277,8 +277,9 @@ def validate_docs() -> None:
         "servidor es la\nfuente de verdad", "dirección completa",
     ):
         require(marker in order_contract, f"Contrato de pedido documenta: {marker}")
-    require("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT" in deployment, "DEPLOYMENT conserva backend público V1.12.3")
-    require(BACKEND in deployment and "todavía no desplegado" in deployment, "DEPLOYMENT documenta candidato V2 no publicado")
+    require(BACKEND in deployment, "DEPLOYMENT documenta backend público V1.14.1")
+    require("Versión publicada verificada mediante GET" in deployment, "DEPLOYMENT documenta verificación GET del backend publicado")
+    require("endpoint productivo" in deployment and "no una etiqueta histórica" in deployment, "DEPLOYMENT fija autoridad de despliegue en endpoint productivo")
     require(PAYLOAD_V2 in deployment and SNAPSHOT_V2 in deployment and EMAIL_V2 in deployment, "DEPLOYMENT documenta payload, snapshot y correo V2")
     require(VERSION in seo and "todavía no autoriza a publicar `shippingDetails`" in seo, "Contrato SEO mantiene shippingDetails pendiente")
     require("hasMerchantReturnPolicy" in seo, "Contrato SEO mantiene pendiente política de devoluciones")
