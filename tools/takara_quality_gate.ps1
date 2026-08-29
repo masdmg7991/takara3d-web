@@ -620,7 +620,37 @@ if (Test-Path $StorePublicSystemValidatorPath) {
     Err "No existe tools/takara_validar_store_public_system.py"
 }
 
+$StorePublicReadinessValidatorPath = Join-Path $Project "tools/takara_validar_store_public_readiness.py"
+
+if (Test-Path $StorePublicReadinessValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_public_readiness.py"
+    py tools/takara_validar_store_public_readiness.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Public F2E readiness static validado"
+    } else {
+        Err "Fallo takara_validar_store_public_readiness.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_public_readiness.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_readiness.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_public_readiness.js"
+    node tools/takara_test_store_public_readiness.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Public F2E accessibility/closed-flow validado"
+    } else {
+        Err "Fallo takara_test_store_public_readiness.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store Public F2E readiness test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_system.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_public_system.js"

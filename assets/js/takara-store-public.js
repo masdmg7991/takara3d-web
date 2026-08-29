@@ -384,6 +384,10 @@
     const error = root.querySelector("[data-store-error]");
 
     root.setAttribute("data-state", state);
+    root.setAttribute(
+      "aria-busy",
+      state === "loading" ? "true" : "false"
+    );
 
     if (loading) loading.hidden = state !== "loading";
     if (active) active.hidden = state !== "active";
@@ -395,6 +399,8 @@
     if (name) {
       name.textContent = context.display_name;
     }
+
+    document.title = context.display_name + " | Takara 3D";
     setPanelState(root, "active");
   }
 
@@ -420,6 +426,7 @@
       }
     }
 
+    document.title = "Tienda no disponible | Takara 3D";
     setPanelState(root, "error");
   }
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="googlebot" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
   <title>Tienda asociada | Takara 3D</title>
   <link rel="stylesheet" href="../assets/css/styles.css">
   <link rel="stylesheet" href="../assets/css/takara-store-public.css">
@@ -15,6 +16,7 @@
     data-takara-store-app
     data-store-endpoint=""
     data-state="loading"
+    aria-busy="true"
   >
     <header class="takara-store-brand" aria-label="Takara 3D">
       <span class="takara-store-brand__mark" aria-hidden="true">T</span>
@@ -24,7 +26,9 @@
     <section
       class="takara-store-panel takara-store-panel--loading"
       data-store-loading
+      role="status"
       aria-live="polite"
+      aria-atomic="true"
     >
       <p class="takara-store-kicker">Canal de establecimiento colaborador</p>
       <h1>Abriendo esta tienda…</h1>
@@ -34,10 +38,11 @@
     <section
       class="takara-store-panel takara-store-panel--active"
       data-store-active
+      aria-labelledby="takara-store-active-title"
       hidden
     >
       <p class="takara-store-kicker">Pedido a través de</p>
-      <h1 data-store-name></h1>
+      <h1 id="takara-store-active-title" data-store-name></h1>
       <p class="takara-store-intro">
         Este acceso pertenece a un establecimiento colaborador de Takara 3D.
         El canal se mantiene vinculado a esta tienda durante la solicitud.
@@ -72,18 +77,31 @@
       data-store-error
       hidden
       role="alert"
+      aria-labelledby="takara-store-error-title"
     >
       <p class="takara-store-kicker">Enlace no disponible</p>
-      <h1>No podemos abrir esta tienda.</h1>
+      <h1 id="takara-store-error-title">No podemos abrir esta tienda.</h1>
       <p data-store-error-message>
         Revisa el QR o solicita un enlace válido al establecimiento.
       </p>
     </section>
 
+    <noscript>
+      <section class="takara-store-panel takara-store-panel--error" role="alert">
+        <p class="takara-store-kicker">JavaScript necesario</p>
+        <h1>No podemos verificar esta tienda.</h1>
+        <p>
+          Este canal necesita JavaScript para comprobar el establecimiento.
+          No continuaremos sin una atribución Store válida.
+        </p>
+      </section>
+    </noscript>
+
     <footer class="takara-store-footer">
       <p>
-        Producto fabricado y gestionado por Takara 3D.
-        Este acceso identifica únicamente al establecimiento colaborador.
+        <strong>Operador del producto: Takara 3D.</strong>
+        El establecimiento colaborador identifica el canal comercial; la fabricación
+        y gestión técnica del producto corresponden a Takara 3D.
       </p>
     </footer>
   </main>
