@@ -732,6 +732,28 @@ if (Test-Path $StoreAdminUiValidatorPath) {
     Err "No existe tools/takara_validar_store_admin_ui.py"
 }
 
+$StoreAdminPreviewPath = Join-Path $Project "tools/takara_store_admin_preview.ps1"
+
+if (Test-Path $StoreAdminPreviewPath) {
+    Log-Line ""
+    Log-Line "[RUN] powershell takara_store_admin_preview.ps1 -ValidateOnly"
+
+    powershell.exe `
+        -NoProfile `
+        -ExecutionPolicy Bypass `
+        -File $StoreAdminPreviewPath `
+        -Repo $Project `
+        -ValidateOnly 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F4C Store Admin preview local executable validado"
+    } else {
+        Err "Fallo takara_store_admin_preview.ps1 -ValidateOnly"
+    }
+} else {
+    Err "No existe tools/takara_store_admin_preview.ps1"
+}
+
 $StoreAdminReadValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_read.py"
 
 if (Test-Path $StoreAdminReadValidatorPath) {

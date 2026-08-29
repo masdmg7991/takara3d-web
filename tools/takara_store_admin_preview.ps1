@@ -2,7 +2,8 @@
 [CmdletBinding()]
 param(
   [string]$Repo = "C:\Users\Miky\Desktop\takara3d-web",
-  [int]$Port = 8765
+  [int]$Port = 8765,
+  [switch]$ValidateOnly
 )
 
 Set-StrictMode -Version Latest
@@ -106,16 +107,19 @@ $html = [IO.File]::ReadAllText(
   [Text.Encoding]::UTF8
 )
 
-if ($html.IndexOf("</head>", [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+$headIndex = $html.IndexOf(
+  "</head>",
+  [StringComparison]::OrdinalIgnoreCase
+)
+
+if ($headIndex -lt 0) {
   throw "StoreAdminUi.html no contiene </head>."
 }
 
-$html = [regex]::Replace(
-  $html,
-  "</head>",
-  ($injection + "</head>"),
-  1,
-  [Text.RegularExpressions.RegexOptions]::IgnoreCase
+$html = (
+  $html.Substring(0, $headIndex) +
+  $injection +
+  $html.Substring($headIndex)
 )
 
 $PreviewPath = Join-Path $TempRoot "index.html"
@@ -124,6 +128,44 @@ $PreviewPath = Join-Path $TempRoot "index.html"
   $html,
   (New-Object Text.UTF8Encoding($false))
 )
+
+if ($ValidateOnly) {
+  $generated = [IO.File]::ReadAllText(
+    $PreviewPath,
+    [Text.Encoding]::UTF8
+  )
+
+  if (
+    $generated.IndexOf(
+      "window.TAKARA_STORE_ADMIN_PREVIEW_DATA=",
+      [StringComparison]::Ordinal
+    ) -lt 0
+  ) {
+    throw "Preview self-test: payload DEMO no inyectado."
+  }
+
+  if (
+    $generated.IndexOf(
+      "<h1>Store Admin</h1>",
+      [StringComparison]::Ordinal
+    ) -lt 0
+  ) {
+    throw "Preview self-test: UI real no preservada."
+  }
+
+  Write-Host (
+    "[TAKARA_STORE_ADMIN_PREVIEW_SELFTEST_OK] " +
+    $PreviewPath
+  ) -ForegroundColor Green
+
+  Remove-Item `
+    -LiteralPath $TempRoot `
+    -Recurse `
+    -Force `
+    -ErrorAction SilentlyContinue
+
+  exit 0
+}
 
 $url = "http://127.0.0.1:$Port/"
 

@@ -105,6 +105,24 @@ def main() -> int:
         require(marker in preview, f"Preview conserva {marker}")
 
     require(
+        "ValidateOnly" in preview,
+        "Preview expone modo determinista de self-test",
+    )
+    require(
+        "TAKARA_STORE_ADMIN_PREVIEW_SELFTEST_OK" in preview,
+        "Preview conserva marcador de ejecución real",
+    )
+    require(
+        "[regex]::Replace(" not in preview,
+        "Preview no depende de overload ambiguo Regex.Replace",
+    )
+    require(
+        "$html.Substring(0, $headIndex)" in preview
+        and "$html.Substring($headIndex)" in preview,
+        "Preview inyecta DEMO por frontera estructural </head>",
+    )
+
+    require(
         "TAKARA_STORE_ADMIN_OWNER_EMAIL" not in preview,
         "Preview no configura owner",
     )
