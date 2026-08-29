@@ -636,6 +636,22 @@ if (Test-Path $StorePublicReadinessValidatorPath) {
     Err "No existe tools/takara_validar_store_public_readiness.py"
 }
 
+$StorePublicF2ClosureValidatorPath = Join-Path $Project "tools/takara_validar_store_public_f2.py"
+
+if (Test-Path $StorePublicF2ClosureValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_public_f2.py"
+    py tools/takara_validar_store_public_f2.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Public F2 cumulative closure validado"
+    } else {
+        Err "Fallo takara_validar_store_public_f2.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_public_f2.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_readiness.js")) {
     Log-Line ""
