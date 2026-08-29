@@ -684,7 +684,37 @@ if (Test-Path $StoreOrderResolutionValidatorPath) {
     Err "No existe tools/takara_validar_store_order_resolution.py"
 }
 
+$OrderAttributionValidatorPath = Join-Path $Project "tools/takara_validar_order_attribution.py"
+
+if (Test-Path $OrderAttributionValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_attribution.py"
+    py tools/takara_validar_order_attribution.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3C authoritative DIRECT/STORE attribution static validado"
+    } else {
+        Err "Fallo takara_validar_order_attribution.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_attribution.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_attribution.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_attribution.js"
+    node tools/takara_test_order_attribution.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3C authoritative DIRECT/STORE attribution functional validado"
+    } else {
+        Err "Fallo takara_test_order_attribution.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3C order attribution test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_order_resolution.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_order_resolution.js"

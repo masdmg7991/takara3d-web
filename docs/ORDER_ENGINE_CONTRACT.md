@@ -454,3 +454,43 @@ Reglas:
 - la identidad interna queda congelada y conserva el `store_ref` solicitado.
 - F3B no crea `source_type`, `store_name_snapshot` ni `TAKARA_STORE_ATTRIBUTION_V1`.
 - F3C será el owner de convertir la identidad validada en atribución de pedido.
+
+# Order Attribution Contract F3C
+
+F3C materializa la atribución exclusivamente en backend y después de F3B.
+
+## DIRECT
+
+Cuando `payload.meta.store_context` está ausente:
+
+```json
+{
+  "version": "TAKARA_STORE_ATTRIBUTION_V1",
+  "source_type": "DIRECT"
+}
+```
+
+DIRECT no contiene `store_id` ni `store_name_snapshot`.
+
+## STORE
+
+Cuando F3B resuelve una identidad Store autoritativa y `ACTIVE`:
+
+```json
+{
+  "version": "TAKARA_STORE_ATTRIBUTION_V1",
+  "source_type": "STORE",
+  "store_id": "STO_000001",
+  "store_name_snapshot": "Foto García"
+}
+```
+
+Reglas:
+- Order consume `TAKARA_STORE_ORDER_IDENTITY_V1`; no lee Store Registry ni Sheets.
+- `store_id` y nombre proceden de Store Service, nunca del navegador.
+- el nombre se congela como snapshot de pedido.
+- no existe fallback silencioso de STORE inválido a DIRECT.
+- navegador no puede aportar `source_type`, `store_id`, `store_name_snapshot`
+  ni una atribución ya construida.
+- el resultado se congela y es la única fuente para persistir atribución.
+- F3C define el contrato; F3D lo conectará al procesamiento real `doPost`.
