@@ -668,7 +668,37 @@ if (Test-Path $OrderStoreContextValidatorPath) {
     Err "No existe tools/takara_validar_order_store_context.py"
 }
 
+$StoreOrderResolutionValidatorPath = Join-Path $Project "tools/takara_validar_store_order_resolution.py"
+
+if (Test-Path $StoreOrderResolutionValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_order_resolution.py"
+    py tools/takara_validar_store_order_resolution.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3B authoritative Store order resolution static validado"
+    } else {
+        Err "Fallo takara_validar_store_order_resolution.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_order_resolution.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_order_resolution.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_order_resolution.js"
+    node tools/takara_test_store_order_resolution.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3B authoritative Store order resolution functional validado"
+    } else {
+        Err "Fallo takara_test_store_order_resolution.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3B Store order resolution test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_store_context.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_store_context.js"

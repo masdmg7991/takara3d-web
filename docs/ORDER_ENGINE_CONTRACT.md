@@ -432,3 +432,25 @@ Contrato de transporte:
   atribución pertenece al backend de pedido en F3B/F3C.
 - `snapshot_pedido.meta` hereda de forma aditiva el mismo `payload.meta`; no se
   crea un segundo contrato paralelo.
+
+## Backend authoritative Store resolution (F3B)
+
+F3B introduce una frontera backend explícita y Store-owned:
+
+`payload.meta.store_context.store_ref`
+→ `StoreOrderResolution`
+→ `Store Runtime`
+→ `Store Service`
+→ `Store Registry`
+→ `TAKARA_STORE_ORDER_IDENTITY_V1`.
+
+Reglas:
+
+- DIRECT, sin `meta.store_context`, no consulta Store Registry.
+- STORE acepta exclusivamente `{version, store_ref}` desde navegador.
+- `store_id`, `display_name`, `status` y `source_type` enviados por navegador se rechazan.
+- Store Service es la única autoridad que materializa `store_id`, nombre actual y estado.
+- Store inexistente o `INACTIVE` falla cerrado.
+- la identidad interna queda congelada y conserva el `store_ref` solicitado.
+- F3B no crea `source_type`, `store_name_snapshot` ni `TAKARA_STORE_ATTRIBUTION_V1`.
+- F3C será el owner de convertir la identidad validada en atribución de pedido.

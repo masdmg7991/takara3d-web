@@ -8,6 +8,7 @@
 const TAKARA_STORE_SYSTEM_CONTRACT_VERSION = "TAKARA_STORE_SYSTEM_CONTRACT_V1";
 const TAKARA_STORE_REGISTRY_VERSION = "TAKARA_STORE_REGISTRY_V1";
 const TAKARA_STORE_CONTEXT_VERSION = "TAKARA_STORE_CONTEXT_V1";
+const TAKARA_STORE_ORDER_IDENTITY_VERSION = "TAKARA_STORE_ORDER_IDENTITY_V1";
 
 const TAKARA_STORE_STATUS = Object.freeze({
   ACTIVE: "ACTIVE",
@@ -196,4 +197,22 @@ function toStoreContext_(store) {
     display_name: normalizeStoreDisplayName_(store.display_name),
     status: TAKARA_STORE_STATUS.ACTIVE,
   };
+}
+
+function toStoreOrderIdentity_(store) {
+  if (!store) {
+    throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
+  }
+
+  if (store.status !== TAKARA_STORE_STATUS.ACTIVE) {
+    throw storeDomainError_("STORE_INACTIVE", "Store is inactive.");
+  }
+
+  return Object.freeze({
+    version: TAKARA_STORE_ORDER_IDENTITY_VERSION,
+    store_ref: assertStorePublicCode_(store.store_public_code),
+    store_id: assertStoreId_(store.store_id),
+    display_name: normalizeStoreDisplayName_(store.display_name),
+    status: TAKARA_STORE_STATUS.ACTIVE,
+  });
 }

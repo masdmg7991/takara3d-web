@@ -83,6 +83,18 @@ function resolveStoreContextService_(repository, storePublicCode) {
   return toStoreContext_(store);
 }
 
+function resolveStoreOrderIdentityService_(repository, storePublicCode) {
+  const repo = assertStoreRepositoryPort_(repository);
+  const publicCode = assertStorePublicCode_(storePublicCode);
+  const store = repo.findByPublicCode(publicCode);
+
+  if (!store) {
+    throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
+  }
+
+  return toStoreOrderIdentity_(store);
+}
+
 function updateStoreService_(repository, storeId, patch, dependencies) {
   const repo = assertStoreRepositoryPort_(repository);
   const deps = dependencies || {};
