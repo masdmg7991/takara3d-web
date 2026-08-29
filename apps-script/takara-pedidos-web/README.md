@@ -16,6 +16,10 @@ Módulos Store V1 del mismo proyecto Apps Script:
 - `StorePublicApi.gs`: frontera pública read-only para `store.resolve`; devuelve `TAKARA_STORE_CONTEXT_V1` y no posee HTTP, Admin ni persistencia.
 - `StoreHttpBridge.gs`: adapter GET; JSON para clientes normales y JSONP con callback Takara validado para navegador cross-origin.
 
+Cierre backend Store F1:
+- provisioning, Registry, Runtime, Public API y HTTP Bridge se validan también mediante una prueba horizontal única.
+- el cierre exige conservación de Product QR, pedido existente y fail-closed Store.
+
 Estos módulos no crean un segundo backend. Forman parte del mismo proyecto Apps
 Script y deben desplegarse junto a `Code.gs` cuando Store llegue a fase de
 integración. `Code.gs` conserva por ahora el pedido/contacto existente sin

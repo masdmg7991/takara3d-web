@@ -540,7 +540,37 @@ if (Test-Path $StoreHttpValidatorPath) {
     else { Err "Fallo takara_validar_store_http_bridge.py" }
 } else { Err "No existe tools/takara_validar_store_http_bridge.py" }
 
+$StoreF1ValidatorPath = Join-Path $Project "tools/takara_validar_store_backend_f1.py"
+
+if (Test-Path $StoreF1ValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_backend_f1.py"
+    py tools/takara_validar_store_backend_f1.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store F1 backend horizontal static validado"
+    } else {
+        Err "Fallo takara_validar_store_backend_f1.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_backend_f1.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_backend_f1.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_backend_f1.js"
+    node tools/takara_test_store_backend_f1.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store F1 backend horizontal funcional validado"
+    } else {
+        Err "Fallo takara_test_store_backend_f1.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store F1 horizontal test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_http_bridge.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_http_bridge.js"
