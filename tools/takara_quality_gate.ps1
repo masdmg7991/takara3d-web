@@ -520,7 +520,25 @@ if (Test-Path $StoreSetupValidatorPath) {
     Err "No existe tools/takara_validar_store_registry_setup.py"
 }
 
+$StorePublicApiValidatorPath = Join-Path $Project "tools/takara_validar_store_public_api.py"
+
+if (Test-Path $StorePublicApiValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_public_api.py"
+    py tools/takara_validar_store_public_api.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Store Public API read-only validada" }
+    else { Err "Fallo takara_validar_store_public_api.py" }
+} else { Err "No existe tools/takara_validar_store_public_api.py" }
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_api.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_public_api.js"
+    node tools/takara_test_store_public_api.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Store Public API fail-closed validada" }
+    else { Err "Fallo takara_test_store_public_api.js" }
+} else { Err "No se pudo ejecutar Store Public API test" }
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry_setup.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_registry_setup.js"

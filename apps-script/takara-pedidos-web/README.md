@@ -13,6 +13,7 @@ Módulos Store V1 del mismo proyecto Apps Script:
 - `StoreSheetsRepository.gs`: único adapter de persistencia Google Sheets.
 - `StoreRuntime.gs`: composition root que conecta casos de uso con el adapter; no crea rutas HTTP.
 - `StoreRegistrySetup.gs`: provisioning explícito e idempotente del Registry; crea/configura una única Spreadsheet y valida su schema.
+- `StorePublicApi.gs`: frontera pública read-only para `store.resolve`; devuelve `TAKARA_STORE_CONTEXT_V1` y no posee HTTP, Admin ni persistencia.
 
 Estos módulos no crean un segundo backend. Forman parte del mismo proyecto Apps
 Script y deben desplegarse junto a `Code.gs` cuando Store llegue a fase de
