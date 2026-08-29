@@ -116,3 +116,46 @@ Security and authority:
 - public Store/Pedido APIs gain no Admin read action.
 - F4C will add authorized Store creation on top of F4A and existing Store
   creation authority.
+
+## F4C tangible read-only Admin UI
+
+Contract: `TAKARA_STORE_ADMIN_UI_V1`.
+
+F4C introduces the first tangible Store Admin surface without adding Store
+mutation authority.
+
+Runtime boundary:
+
+`StoreAdminUi.html`
+→ `getStoreAdminUiBootstrap()` / `getStoreAdminUiStore(store_id)`
+→ F4B `listStoresAdmin_()` / `getStoreAdmin_()`
+→ F4A authorization
+→ canonical Store Runtime / Registry.
+
+The UI is read-only:
+
+- shows total, ACTIVE and INACTIVE counts
+- lists Stores deterministically
+- supports local client-side search
+- displays one Store detail including internal contact fields
+- exposes no create/edit/status/delete/order/analytics action
+- does not know Google Sheets or Registry configuration
+- does not contain owner identity or secrets
+- fails closed when neither Apps Script `google.script.run` nor explicit
+  preview data is available
+
+`tools/takara_store_admin_preview.ps1` is development-only evidence tooling.
+It serves the exact tracked `StoreAdminUi.html` on `127.0.0.1` and injects
+temporary demonstration data into
+`window.TAKARA_STORE_ADMIN_PREVIEW_DATA`.
+
+Preview data is not Store authority, is never written to the repository, and
+never reaches the real Registry. Production Admin data continues to come only
+from F4B.
+
+F4 roadmap after the tangible UI:
+
+- F4D — authorized create + inspect/edit on this same UI
+- F4E — authorized ACTIVE/INACTIVE lifecycle on this same UI
+- F4F — Admin deployment boundary + SystemScenario
+- F4G — cumulative F4 closure

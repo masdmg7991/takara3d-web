@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Takara Store Admin</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f4f0;
+      --panel: #ffffff;
+      --ink: #1a1a18;
+      --muted: #6b6b63;
+      --line: #deded5;
+      --soft: #ecece5;
+      --ok: #285f3d;
+      --ok-bg: #e6f1e9;
+      --off: #744239;
+      --off-bg: #f4e7e3;
+      --focus: #11110f;
+      --shadow: 0 14px 36px rgba(0,0,0,.07);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, #ffffff 0, transparent 34rem),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    button, input { font: inherit; }
+
+    .shell {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .subtitle {
+      max-width: 680px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .mode {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      padding: 9px 13px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      white-space: nowrap;
+    }
+
+    .preview-note {
+      display: none;
+      margin: 0 0 18px;
+      border: 1px dashed #b6a36d;
+      border-radius: 14px;
+      background: #fff9e9;
+      padding: 12px 15px;
+      color: #645326;
+      font-size: 13px;
+    }
+
+    .preview-note[data-visible="true"] { display: block; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .stat-value {
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fafaf7;
+      padding: 11px 13px;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+    }
+
+    .refresh {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .refresh:hover { background: var(--soft); }
+
+    .store-list {
+      min-height: 360px;
+      max-height: 660px;
+      overflow: auto;
+    }
+
+    .store-row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      padding: 15px 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .store-row:hover,
+    .store-row[aria-current="true"] {
+      background: #f7f7f2;
+    }
+
+    .store-name {
+      display: block;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .store-meta {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      align-self: center;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .05em;
+    }
+
+    .status-active {
+      background: var(--ok-bg);
+      color: var(--ok);
+    }
+
+    .status-inactive {
+      background: var(--off-bg);
+      color: var(--off);
+    }
+
+    .empty,
+    .loading,
+    .error {
+      padding: 34px 20px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .error { color: #7a2d25; }
+
+    .detail {
+      position: sticky;
+      top: 18px;
+    }
+
+    .detail-head {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -.03em;
+    }
+
+    .detail-id {
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    .fields {
+      display: grid;
+      gap: 0;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 14px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .field:last-child { border-bottom: 0; }
+
+    .field dt {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+    }
+
+    .footnote {
+      padding: 15px 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 880px) {
+      .topbar { flex-direction: column; }
+      .stats { grid-template-columns: 1fr; }
+      .workspace { grid-template-columns: 1fr; }
+      .detail { position: static; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Takara · canal Store</p>
+        <h1>Store Admin</h1>
+        <p class="subtitle">
+          Gestión privada de tiendas colaboradoras. Esta primera vista es
+          deliberadamente de solo lectura.
+        </p>
+      </div>
+      <div class="mode" aria-label="Modo actual">SOLO LECTURA</div>
+    </header>
+
+    <p id="preview-note" class="preview-note" role="status">
+      Vista local de desarrollo · datos de demostración · sin acceso al Registry real.
+    </p>
+
+    <section class="stats" aria-label="Resumen de tiendas">
+      <article class="stat">
+        <div class="stat-label">Total</div>
+        <div id="stat-total" class="stat-value">—</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Active</div>
+        <div id="stat-active" class="stat-value">—</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Inactive</div>
+        <div id="stat-inactive" class="stat-value">—</div>
+      </article>
+    </section>
+
+    <section class="workspace">
+      <section class="panel" aria-label="Listado de tiendas">
+        <div class="toolbar">
+          <input
+            id="search"
+            class="search"
+            type="search"
+            autocomplete="off"
+            placeholder="Buscar por tienda, Store ID, ciudad…"
+            aria-label="Buscar tiendas">
+          <button id="refresh" class="refresh" type="button">Actualizar</button>
+        </div>
+        <div id="store-list" class="store-list" aria-live="polite">
+          <div class="loading">Cargando tiendas…</div>
+        </div>
+      </section>
+
+      <aside class="panel detail" aria-label="Detalle de tienda">
+        <div id="detail">
+          <div class="empty">
+            Selecciona una tienda para ver su ficha.
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const UI_VERSION = "TAKARA_STORE_ADMIN_UI_V1";
+      const state = {
+        stores: [],
+        selectedId: "",
+        query: "",
+        loading: false,
+      };
+
+      const els = {
+        list: document.getElementById("store-list"),
+        detail: document.getElementById("detail"),
+        search: document.getElementById("search"),
+        refresh: document.getElementById("refresh"),
+        total: document.getElementById("stat-total"),
+        active: document.getElementById("stat-active"),
+        inactive: document.getElementById("stat-inactive"),
+        previewNote: document.getElementById("preview-note"),
+      };
+
+      function text(value) {
+        return value === null || value === undefined || value === ""
+          ? "—"
+          : String(value);
+      }
+
+      function createNode(tag, className, value) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (value !== undefined) node.textContent = text(value);
+        return node;
+      }
+
+      function isPreviewMode() {
+        return Boolean(
+          window.TAKARA_STORE_ADMIN_PREVIEW_DATA &&
+          window.TAKARA_STORE_ADMIN_PREVIEW_DATA.version === UI_VERSION
+        );
+      }
+
+      function createClient() {
+        if (isPreviewMode()) {
+          const preview = window.TAKARA_STORE_ADMIN_PREVIEW_DATA;
+          return {
+            bootstrap: function () {
+              return Promise.resolve({
+                version: UI_VERSION,
+                mode: "READ_ONLY",
+                stores: preview.stores.slice(),
+              });
+            },
+            getStore: function (storeId) {
+              const store = preview.stores.find(function (item) {
+                return item.store_id === storeId;
+              });
+              return store
+                ? Promise.resolve(Object.assign({}, store))
+                : Promise.reject(new Error("STORE_NOT_FOUND"));
+            },
+          };
+        }
+
+        if (
+          window.google &&
+          google.script &&
+          google.script.run
+        ) {
+          return {
+            bootstrap: function () {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .getStoreAdminUiBootstrap();
+              });
+            },
+            getStore: function (storeId) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .getStoreAdminUiStore(storeId);
+              });
+            },
+          };
+        }
+
+        return {
+          bootstrap: function () {
+            return Promise.reject(new Error("STORE_ADMIN_UI_BACKEND_UNAVAILABLE"));
+          },
+          getStore: function () {
+            return Promise.reject(new Error("STORE_ADMIN_UI_BACKEND_UNAVAILABLE"));
+          },
+        };
+      }
+
+      const client = createClient();
+
+      function filteredStores() {
+        const q = state.query.trim().toLowerCase();
+        if (!q) return state.stores.slice();
+
+        return state.stores.filter(function (store) {
+          return [
+            store.display_name,
+            store.store_id,
+            store.status,
+            store.city,
+            store.province,
+            store.email,
+          ].some(function (value) {
+            return String(value || "").toLowerCase().includes(q);
+          });
+        });
+      }
+
+      function renderStats() {
+        const active = state.stores.filter(function (store) {
+          return store.status === "ACTIVE";
+        }).length;
+        const inactive = state.stores.filter(function (store) {
+          return store.status === "INACTIVE";
+        }).length;
+
+        els.total.textContent = String(state.stores.length);
+        els.active.textContent = String(active);
+        els.inactive.textContent = String(inactive);
+      }
+
+      function statusNode(status) {
+        const normalized = status === "ACTIVE" ? "ACTIVE" : "INACTIVE";
+        return createNode(
+          "span",
+          "status " +
+            (normalized === "ACTIVE"
+              ? "status-active"
+              : "status-inactive"),
+          normalized
+        );
+      }
+
+      function renderList() {
+        const stores = filteredStores();
+        els.list.textContent = "";
+
+        if (!stores.length) {
+          els.list.appendChild(
+            createNode(
+              "div",
+              "empty",
+              state.stores.length
+                ? "No hay tiendas que coincidan con la búsqueda."
+                : "No hay tiendas registradas."
+            )
+          );
+          return;
+        }
+
+        stores.forEach(function (store) {
+          const button = createNode("button", "store-row");
+          button.type = "button";
+          button.setAttribute(
+            "aria-current",
+            store.store_id === state.selectedId ? "true" : "false"
+          );
+
+          const main = createNode("span");
+          main.appendChild(createNode("span", "store-name", store.display_name));
+          main.appendChild(
+            createNode(
+              "span",
+              "store-meta",
+              store.store_id + " · " + text(store.city)
+            )
+          );
+
+          button.appendChild(main);
+          button.appendChild(statusNode(store.status));
+          button.addEventListener("click", function () {
+            selectStore(store.store_id);
+          });
+
+          els.list.appendChild(button);
+        });
+      }
+
+      function field(label, value) {
+        const row = createNode("div", "field");
+        const dt = createNode("dt", "", label);
+        const dd = createNode("dd", "", value);
+        row.appendChild(dt);
+        row.appendChild(dd);
+        return row;
+      }
+
+      function renderDetail(store) {
+        els.detail.textContent = "";
+
+        if (!store) {
+          els.detail.appendChild(
+            createNode("div", "empty", "Selecciona una tienda para ver su ficha.")
+          );
+          return;
+        }
+
+        const head = createNode("div", "detail-head");
+        head.appendChild(createNode("h2", "detail-title", store.display_name));
+        head.appendChild(createNode("div", "detail-id", store.store_id));
+        head.appendChild(statusNode(store.status));
+        els.detail.appendChild(head);
+
+        const fields = createNode("dl", "fields");
+        [
+          ["Código público", store.store_public_code],
+          ["Contacto", store.contact_name],
+          ["Email", store.email],
+          ["Teléfono", store.phone],
+          ["Dirección", store.address_line],
+          ["CP", store.postal_code],
+          ["Ciudad", store.city],
+          ["Provincia", store.province],
+          ["Creada", store.created_at],
+          ["Actualizada", store.updated_at],
+          ["Desactivada", store.deactivated_at],
+          ["Versión", store.version],
+          ["Notas", store.notes],
+        ].forEach(function (entry) {
+          fields.appendChild(field(entry[0], entry[1]));
+        });
+        els.detail.appendChild(fields);
+
+        els.detail.appendChild(
+          createNode(
+            "div",
+            "footnote",
+            "F4C · vista de solo lectura. Crear, editar y cambiar estado " +
+              "se habilitará en las siguientes capacidades certificadas."
+          )
+        );
+      }
+
+      function renderError(error) {
+        els.list.textContent = "";
+        els.list.appendChild(
+          createNode(
+            "div",
+            "error",
+            "No se pudo cargar Store Admin. " +
+              text(error && (error.message || error))
+          )
+        );
+      }
+
+      async function selectStore(storeId) {
+        state.selectedId = storeId;
+        renderList();
+        els.detail.textContent = "";
+        els.detail.appendChild(
+          createNode("div", "loading", "Cargando ficha…")
+        );
+
+        try {
+          const store = await client.getStore(storeId);
+          if (state.selectedId !== storeId) return;
+          renderDetail(store);
+        } catch (error) {
+          if (state.selectedId !== storeId) return;
+          els.detail.textContent = "";
+          els.detail.appendChild(
+            createNode("div", "error", "No se pudo cargar la ficha.")
+          );
+        }
+      }
+
+      async function load() {
+        if (state.loading) return;
+        state.loading = true;
+        els.refresh.disabled = true;
+        els.list.textContent = "";
+        els.list.appendChild(createNode("div", "loading", "Cargando tiendas…"));
+
+        try {
+          const result = await client.bootstrap();
+          if (
+            !result ||
+            result.version !== UI_VERSION ||
+            result.mode !== "READ_ONLY" ||
+            !Array.isArray(result.stores)
+          ) {
+            throw new Error("STORE_ADMIN_UI_CONTRACT_INVALID");
+          }
+
+          state.stores = result.stores.slice().sort(function (a, b) {
+            return String(a.store_id).localeCompare(String(b.store_id));
+          });
+          renderStats();
+          renderList();
+
+          if (
+            state.selectedId &&
+            state.stores.some(function (store) {
+              return store.store_id === state.selectedId;
+            })
+          ) {
+            selectStore(state.selectedId);
+          } else {
+            state.selectedId = "";
+            renderDetail(null);
+          }
+        } catch (error) {
+          state.stores = [];
+          state.selectedId = "";
+          renderStats();
+          renderError(error);
+          renderDetail(null);
+        } finally {
+          state.loading = false;
+          els.refresh.disabled = false;
+        }
+      }
+
+      els.search.addEventListener("input", function () {
+        state.query = els.search.value;
+        renderList();
+      });
+      els.refresh.addEventListener("click", load);
+
+      if (isPreviewMode()) {
+        els.previewNote.setAttribute("data-visible", "true");
+      }
+
+      window.TAKARA_STORE_ADMIN_UI_TEST = Object.freeze({
+        version: UI_VERSION,
+        filteredStores: filteredStores,
+      });
+
+      load();
+    }());
+  </script>
+</body>
+</html>

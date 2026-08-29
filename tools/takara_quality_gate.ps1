@@ -716,6 +716,22 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreAdminUiValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_ui.py"
+
+if (Test-Path $StoreAdminUiValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_admin_ui.py"
+    py tools/takara_validar_store_admin_ui.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F4C tangible Store Admin UI static validado"
+    } else {
+        Err "Fallo takara_validar_store_admin_ui.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_admin_ui.py"
+}
+
 $StoreAdminReadValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_read.py"
 
 if (Test-Path $StoreAdminReadValidatorPath) {
@@ -787,6 +803,20 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_ui.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_admin_ui.js"
+    node tools/takara_test_store_admin_ui.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F4C tangible Store Admin UI functional validado"
+    } else {
+        Err "Fallo takara_test_store_admin_ui.js"
+    }
+} else {
+    Err "No se pudo ejecutar F4C Store Admin UI test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_read.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_admin_read.js"
