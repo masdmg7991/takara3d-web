@@ -337,3 +337,39 @@ authority over immutable Store identity.
 F4G certification performs no push and no deployment.
 
 F4 phase closed. F5 is the next active phase.
+
+## F5A route and deployment authority reconciliation
+
+F5A starts deployment work without mutating production routing.
+
+Current route authorities are reconciled from repository bytes before F5B:
+
+- `Code.gs::doGet` is the single existing GET route authority.
+- `Code.gs::doPost` is the existing POST/order authority.
+- `StoreAdminUiBridge.gs::getStoreAdminUiDeploymentOutput_()` is the certified
+  owner-only Admin HTML boundary from F4F.
+- F5A does not connect that Admin boundary to `doGet`.
+- F5A does not create a second `doGet` or `doPost`.
+- the Apps Script endpoint remains centralized in `assets/js/takara-config.js`
+  through `window.TAKARA_GET_APPS_SCRIPT_ENDPOINT()`.
+- `assets/js/takara-store-public.js` is the Store Public endpoint consumer.
+- `tienda/index.html` loads `takara-config.js` before `takara-store-public.js`.
+
+F5A requires the protected `Code.gs` SHA from the F4-closed baseline and records
+the structural fingerprint of the actual `doGet`/`doPost` bodies. F5B must extend
+the existing `Code.gs::doGet` route authority using the observed current
+structure; it must not rely on guessed historical prose or create parallel
+routing infrastructure.
+
+F5A performs no push and no deployment.
+
+F5A certification output includes:
+
+- `Code.gs` SHA-256
+- `doGet` body SHA-256
+- `doPost` body SHA-256
+- parameter tokens observed inside `doGet`
+- direct callable identifiers observed inside `doGet`
+- explicit `admin_route_integrated=false`.
+
+F5B is the next gate and owns the actual Admin route integration candidate.

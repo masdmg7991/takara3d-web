@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreF5ARouteAuthorityValidatorPath = Join-Path $Project "tools/takara_validar_store_f5a_route_authority.py"
+
+if (Test-Path $StoreF5ARouteAuthorityValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_f5a_route_authority.py"
+    py tools/takara_validar_store_f5a_route_authority.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F5A Store route/deployment authority reconciliado" } else { Err "Fallo takara_validar_store_f5a_route_authority.py" }
+} else {
+    Err "No existe tools/takara_validar_store_f5a_route_authority.py"
+}
+
 $StoreAdminPhaseF4ValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_phase_f4.py"
 
 if (Test-Path $StoreAdminPhaseF4ValidatorPath) {
