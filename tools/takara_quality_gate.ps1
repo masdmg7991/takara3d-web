@@ -604,7 +604,37 @@ if (Test-Path $StoreQrContractValidatorPath) {
     Err "No existe tools/takara_validar_store_qr_contract.py"
 }
 
+$StorePublicSystemValidatorPath = Join-Path $Project "tools/takara_validar_store_public_system.py"
+
+if (Test-Path $StorePublicSystemValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_public_system.py"
+    py tools/takara_validar_store_public_system.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Public SystemScenario F2D static validado"
+    } else {
+        Err "Fallo takara_validar_store_public_system.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_store_public_system.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_system.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_public_system.js"
+    node tools/takara_test_store_public_system.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Public SystemScenario F2D horizontal validado"
+    } else {
+        Err "Fallo takara_test_store_public_system.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store Public SystemScenario F2D"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_qr_contract.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_qr_contract.js"
