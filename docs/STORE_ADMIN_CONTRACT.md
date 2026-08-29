@@ -301,3 +301,39 @@ mutations reach zero Runtime writes.
 F5 owns actual route integration, deployment, remote E2E and production
 verification. F4F only certifies the deployable boundary and cumulative
 SystemScenario on the current repository baseline.
+
+## F4G cumulative F4 phase closure
+
+F4G closes Store Admin F4 without adding another product capability.
+
+Certified cumulative chain:
+
+F4A owner-only access
+→ F4B authorized list/get
+→ F4C tangible Admin UI
+→ F4D authorized create/edit
+→ F4E dedicated ACTIVE/INACTIVE lifecycle
+→ F4F owner-only deployment boundary + cumulative SystemScenario
+→ F4G phase closure.
+
+F4 phase closed means all F4A–F4F functional tests and static contracts remain
+GREEN together on one clean repository baseline, and F4G itself adds no new
+runtime, persistence, routing, identity or authorization authority.
+
+The following remain outside F4:
+
+- public Admin route integration
+- `doGet` / `doPost` integration for the Admin surface
+- push
+- deployment
+- remote/production E2E.
+
+Those responsibilities remain in F5.
+
+F4 closes with no DELETE, no editable browser `status`, no direct Admin
+Spreadsheet authority, no duplicated Store persistence, and no browser
+authority over immutable Store identity.
+
+F4G certification performs no push and no deployment.
+
+F4 phase closed. F5 is the next active phase.

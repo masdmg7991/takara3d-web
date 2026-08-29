@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreAdminPhaseF4ValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_phase_f4.py"
+
+if (Test-Path $StoreAdminPhaseF4ValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_admin_phase_f4.py"
+    py tools/takara_validar_store_admin_phase_f4.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4G Store Admin phase closure static validado" } else { Err "Fallo takara_validar_store_admin_phase_f4.py" }
+} else {
+    Err "No existe tools/takara_validar_store_admin_phase_f4.py"
+}
+
 $StoreAdminSystemF4FValidatorPath = Join-Path $Project "tools/takara_validar_store_admin_system_f4f.py"
 
 if (Test-Path $StoreAdminSystemF4FValidatorPath) {
@@ -858,6 +869,15 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_phase_f4.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_admin_phase_f4.js"
+    node tools/takara_test_store_admin_phase_f4.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F4G Store Admin cumulative phase closure validado" } else { Err "Fallo takara_test_store_admin_phase_f4.js" }
+} else {
+    Err "No se pudo ejecutar F4G Store Admin phase closure"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_system_f4f.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_admin_system_f4f.js"
