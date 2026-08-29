@@ -11,8 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "CAE0DB1E5586AF7A082FA850C09F6DFA35F9A61FF7E4C5EB349B275563670C38"
-
+$ExpectedHash = "B6E1421D215A8894E5327591328276A3E474107AC23D3DB126787253BE3CC943"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -113,6 +112,20 @@ $Checks = @(
         $Text -match 'function\s+validarPedidoV1Compat_\s*\(' -and
         $Text -match 'function\s+construirCuerpoInternoV1Compat_\s*\(' -and
         $Text -match 'Payload V2 declarado pero no compatible o incompleto'
+    ) },
+    @{ Name = "Atribucion F3D construida antes de validar"; Pass = (
+        $Text -match 'pedido\.attribution\s*=\s*buildAuthoritativeOrderAttribution_\(payload\)' -and
+        $Text.IndexOf("pedido.attribution = buildAuthoritativeOrderAttribution_(payload);") -ge 0 -and
+        $Text.IndexOf("validarPedido_(pedido);") -ge 0 -and
+        $Text.IndexOf("pedido.attribution = buildAuthoritativeOrderAttribution_(payload);") -lt
+            $Text.IndexOf("validarPedido_(pedido);")
+    ) },
+    @{ Name = "Bloque tecnico atribucion V1/V2"; Pass = (
+        ([regex]::Matches($Text, "\[ATRIBUCION\]")).Count -eq 2 -and
+        ([regex]::Matches($Text, "pedido\.attribution\.version")).Count -eq 2 -and
+        ([regex]::Matches($Text, "pedido\.attribution\.source_type")).Count -eq 2 -and
+        ([regex]::Matches($Text, "pedido\.attribution\.store_id")).Count -eq 2 -and
+        ([regex]::Matches($Text, "pedido\.attribution\.store_name_snapshot")).Count -eq 2
     ) },
     @{ Name = "doGet"; Pass = ($Text -match "function\s+doGet\s*\(") },
     @{ Name = "Store GET bridge aditivo"; Pass = (

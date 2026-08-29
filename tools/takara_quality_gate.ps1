@@ -700,7 +700,37 @@ if (Test-Path $OrderAttributionValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution.py"
 }
 
+$OrderAttributionFlowValidatorPath = Join-Path $Project "tools/takara_validar_order_attribution_flow.py"
+
+if (Test-Path $OrderAttributionFlowValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_attribution_flow.py"
+    py tools/takara_validar_order_attribution_flow.py 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3D real doPost attribution wiring static validado"
+    } else {
+        Err "Fallo takara_validar_order_attribution_flow.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_attribution_flow.py"
+}
+
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_attribution_flow.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_attribution_flow.js"
+    node tools/takara_test_order_attribution_flow.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "F3D real doPost attribution wiring functional validado"
+    } else {
+        Err "Fallo takara_test_order_attribution_flow.js"
+    }
+} else {
+    Err "No se pudo ejecutar F3D doPost attribution flow test"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_attribution.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_attribution.js"

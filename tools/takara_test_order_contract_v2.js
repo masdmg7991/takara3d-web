@@ -177,6 +177,10 @@ function basePayload() {
 
 function normalizeAndValidate(context, payload) {
   const pedido = context.normalizarPedido_(payload);
+  pedido.attribution = Object.freeze({
+    version: "TAKARA_STORE_ATTRIBUTION_V1",
+    source_type: "DIRECT",
+  });
   pedido.recibido_apps_script_iso = "2026-08-10T20:30:01.000Z";
   context.validarPedido_(pedido);
   return pedido;
@@ -244,6 +248,11 @@ function run() {
 
   [
     "[TAKARA_PEDIDO_WEB_V2]",
+    "[ATRIBUCION]",
+    "Versión atribución: TAKARA_STORE_ATTRIBUTION_V1",
+    "Origen pedido: DIRECT",
+    "Store ID: ",
+    "Store nombre snapshot: ",
     "[CLIENTE]",
     "[PRODUCTO]",
     "[IMPORTES]",

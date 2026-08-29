@@ -115,6 +115,7 @@ function doPost(e) {
     const now = new Date();
     const idPedidoWeb = resolverIdPedidoWeb_(payload, now);
     const pedido = normalizarPedido_(payload);
+    pedido.attribution = buildAuthoritativeOrderAttribution_(payload);
     pedido.recibido_apps_script_iso = now.toISOString();
 
     validarPedido_(pedido);
@@ -1908,6 +1909,12 @@ function construirCuerpoInternoV1Compat_(idPedidoWeb, now, pedido, foto, fichaVi
     "Modo transporte: " + (pedido.modo_transporte || "pedido_con_foto_base64"),
     "Payload version: " + pedido.payload_version,
     "",
+    "[ATRIBUCION]",
+    "Versión atribución: " + pedido.attribution.version,
+    "Origen pedido: " + pedido.attribution.source_type,
+    "Store ID: " + (pedido.attribution.store_id || ""),
+    "Store nombre snapshot: " + (pedido.attribution.store_name_snapshot || ""),
+    "",
     "[CLIENTE]",
     "Nombre: " + pedido.cliente.nombre,
     "Email: " + pedido.cliente.email,
@@ -1987,6 +1994,12 @@ function construirCuerpoInternoV2_(idPedidoWeb, now, pedido, foto, fichaVisual) 
     "Página origen: " + pedido.meta.pagina_origen,
     "Entorno: " + pedido.meta.entorno,
     "Canal entrada: " + CFG.CANAL_ENTRADA,
+    "",
+    "[ATRIBUCION]",
+    "Versión atribución: " + pedido.attribution.version,
+    "Origen pedido: " + pedido.attribution.source_type,
+    "Store ID: " + (pedido.attribution.store_id || ""),
+    "Store nombre snapshot: " + (pedido.attribution.store_name_snapshot || ""),
     "",
     "[CLIENTE]",
     "Nombre: " + pedido.cliente.nombre,

@@ -11,6 +11,24 @@ const SNAPSHOT_JS = path.join(ROOT, "assets", "js", "core", "takara-order-snapsh
 const DELIVERY_JS = path.join(ROOT, "assets", "js", "core", "takara-delivery.js");
 const CATALOG_JSON = path.join(ROOT, "assets", "data", "catalogo.json");
 const CODE_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs");
+const STORE_DOMAIN = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreDomain.gs"
+);
+const STORE_ORDER_RESOLUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreOrderResolution.gs"
+);
+const ORDER_ATTRIBUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderAttribution.gs"
+);
 
 const SIDE_ORDER = ["top", "right", "bottom", "left"];
 const SIDE_TEXT = {
@@ -209,7 +227,25 @@ function loadServerContext() {
   };
 
   vm.createContext(context);
+  [STORE_DOMAIN, STORE_ORDER_RESOLUTION, ORDER_ATTRIBUTION].forEach(
+    function (file) {
+      vm.runInContext(
+        fs.readFileSync(file, "utf8"),
+        context,
+        { filename: file }
+      );
+    }
+  );
+
   vm.runInContext(fs.readFileSync(CODE_GS, "utf8"), context, { filename: CODE_GS });
+
+  const originalNormalizePedido = context.normalizarPedido_;
+  context.normalizarPedido_ = function (payload) {
+    const order = originalNormalizePedido(payload);
+    order.attribution =
+      context.buildAuthoritativeOrderAttribution_(payload);
+    return order;
+  };
   context.sentEmails = sentEmails;
   return context;
 }
@@ -480,6 +516,11 @@ function testServerAndEmails() {
     server.enviarConfirmacionCliente_("TK-WEB-TEST01", order, photo);
     const customerText = server.sentEmails[0].body;
 
+    ok(internalText.includes("[ATRIBUCION]"), "Correo interno plano incluye atribución");
+    ok(
+      internalText.includes("Origen pedido: DIRECT"),
+      "Personalización legacy conserva origen DIRECT"
+    );
     ok(internalText.includes("[PERSONALIZACION_MARCO]"), "Correo interno plano incluye bloque contractual");
     ok(internalText.includes("Texto superior: " + SIDE_TEXT.top), "Correo interno plano incluye texto superior");
     ok(internalHtml.includes("Texto en el marco"), "Correo interno HTML incluye personalización");

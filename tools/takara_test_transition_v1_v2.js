@@ -7,6 +7,24 @@ const vm = require("vm");
 
 const ROOT = path.resolve(__dirname, "..");
 const CODE = path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs");
+const STORE_DOMAIN = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreDomain.gs"
+);
+const STORE_ORDER_RESOLUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreOrderResolution.gs"
+);
+const ORDER_ATTRIBUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderAttribution.gs"
+);
 
 function fail(message) { throw new Error(message); }
 function ok(condition, message) { if (!condition) fail(message); }
@@ -26,6 +44,17 @@ function loadServer() {
     },
   };
   vm.createContext(context);
+
+  [STORE_DOMAIN, STORE_ORDER_RESOLUTION, ORDER_ATTRIBUTION].forEach(
+    function (file) {
+      vm.runInContext(
+        fs.readFileSync(file, "utf8"),
+        context,
+        { filename: file }
+      );
+    }
+  );
+
   vm.runInContext(source, context, { filename: CODE });
   return { context, source };
 }
@@ -205,13 +234,27 @@ function main() {
   ok(source.includes('TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2'), "Versión dual-stack presente");
   ok(source.includes('PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1"'), "V1 compat explícito");
 
-  const v1 = context.normalizarPedido_(v1Payload());
+  const v1Source = v1Payload();
+  const v1 = context.normalizarPedido_(v1Source);
+  v1.attribution =
+    context.buildAuthoritativeOrderAttribution_(v1Source);
   context.validarPedido_(v1);
   ok(v1.contrato_entrada === "v1_compat", "V1 se enruta por compatibilidad explícita");
   ok(v1.control.autoriza_publicacion_resultado === false, "Publicación sigue opcional en V1");
   ok(v1.entrega.estado_precio === "pendiente_confirmacion", "V1 no inventa entrega durante transición");
   const bodyV1 = context.construirCuerpoInterno_(v1.pedido_web_id, new Date(), v1, fakePhoto(), null);
   ok(bodyV1.includes("[TAKARA_PEDIDO_WEB_V1]"), "V1 conserva marcador técnico");
+  ok(bodyV1.includes("[ATRIBUCION]"), "V1 conserva sección de atribución");
+  ok(
+    bodyV1.includes("Versión atribución: TAKARA_STORE_ATTRIBUTION_V1"),
+    "V1 conserva contrato de atribución"
+  );
+  ok(bodyV1.includes("Origen pedido: DIRECT"), "V1 sigue siendo DIRECT");
+  ok(bodyV1.includes("Store ID: "), "V1 DIRECT no inventa Store ID");
+  ok(
+    bodyV1.includes("Store nombre snapshot: "),
+    "V1 DIRECT no inventa Store nombre"
+  );
   ok(bodyV1.includes("Acepta contacto: sí"), "V1 conserva control legacy");
   ok(bodyV1.includes("Acepta política privacidad: no"), "V1 conserva exactamente la privacidad enviada por la web pública");
   ok(!bodyV1.includes("[IMPORTES]"), "V1 no se convierte silenciosamente en email V2");
@@ -219,6 +262,8 @@ function main() {
   const v1ParserPayload = v1Payload();
   v1ParserPayload.control.acepta_politica_privacidad = "sí";
   const v1Parser = context.normalizarPedido_(v1ParserPayload);
+  v1Parser.attribution =
+    context.buildAuthoritativeOrderAttribution_(v1ParserPayload);
   context.validarPedido_(v1Parser);
   const bodyV1Parser = context.construirCuerpoInterno_(
     v1Parser.pedido_web_id,
@@ -256,6 +301,12 @@ function main() {
   );
   const bodyV2 = String(dryRun.technical_email_body || "");
   ok(bodyV2.includes("[TAKARA_PEDIDO_WEB_V2]"), "V2 conserva marcador técnico");
+  ok(bodyV2.includes("[ATRIBUCION]"), "V2 conserva sección de atribución");
+  ok(
+    bodyV2.includes("Versión atribución: TAKARA_STORE_ATTRIBUTION_V1"),
+    "V2 conserva contrato de atribución"
+  );
+  ok(bodyV2.includes("Origen pedido: DIRECT"), "V2 DIRECT sigue siendo DIRECT");
   ok(bodyV2.includes("[IMPORTES]"), "V2 conserva importes estructurados");
   ok(bodyV2.includes("Código postal: 15001"), "V2 conserva entrega postal");
   const receivedIsoMatch = bodyV2.match(/^Recibido Apps Script ISO:\s*(.+)$/m);
@@ -286,6 +337,8 @@ function main() {
     v1_parser_compatible_fixture_emitted: true,
     v1_shipping_pending_not_zero: true,
     v2_primary: true,
+    v1_v2_attribution_direct_preserved: true,
+    f3c_authority_loaded_in_transition_vm: true,
     v2_email_emitted_through_real_doPost_dry_run: true,
     v2_received_apps_script_iso_valid: true,
     v2_incomplete_rejected_without_downgrade: true,

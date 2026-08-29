@@ -494,3 +494,52 @@ Reglas:
   ni una atribución ya construida.
 - el resultado se congela y es la única fuente para persistir atribución.
 - F3C define el contrato; F3D lo conectará al procesamiento real `doPost`.
+
+## Real doPost attribution wiring (F3D)
+
+F3D conecta `TAKARA_STORE_ATTRIBUTION_V1` al procesamiento real de pedidos.
+
+Flujo:
+
+`parsePayload_ -> normalizarPedido_ -> buildAuthoritativeOrderAttribution_
+-> pedido.attribution -> validarPedido_ -> dry-run / efectos laterales`.
+
+Garantías:
+
+- `pedido.attribution` se materializa exactamente una vez.
+- la materialización ocurre antes de cualquier efecto lateral.
+- `CONTACTO_WEB` permanece fuera del flujo de atribución de pedidos.
+- DIRECT y STORE usan el mismo contrato autoritativo F3C.
+- un STORE inválido falla antes de Drive, email o persistencia.
+- `Code.gs` no deriva `source_type`, `store_id` ni nombre; consume el builder F3C.
+- el cuerpo técnico interno V1/V2 persiste `[ATRIBUCION]`, versión, origen,
+  `store_id` y `store_name_snapshot`.
+- DIRECT persiste `source_type=DIRECT` con campos Store vacíos.
+- el navegador no recibe `store_id`; la identidad interna permanece en el
+  canal técnico backend.
+- el snapshot procedente del navegador no se convierte en autoridad de
+  atribución.
+- los tests que invocan constructores downstream directamente deben aportar
+  una atribución autoritativa explícita; producción nunca inventa DIRECT como
+  fallback por ausencia de `pedido.attribution`.
+- los harness que ejecutan `doPost` fuera de Apps Script deben cargar las
+  dependencias backend Store/Order reales que producción carga como archivos
+  del mismo proyecto; no se reemplazan por stubs de atribución.
+- los harness históricos de entrega/personalización que saltan `doPost` y
+  llaman cuerpos técnicos downstream deben materializar DIRECT mediante el
+  builder F3C real antes de usar esos helpers.
+- las mutaciones de harness no deben depender de bloques multilinea completos:
+  usar anclas semánticas pequeñas, únicas y con conteo exacto para tolerar EOL,
+  espacios y cambios de formato no semánticos.
+- cuando muchos fixtures comparten la misma precondición downstream, preferir
+  decorar una única frontera del harness (por ejemplo el normalizador real)
+  antes que reescribir cada llamada individual.
+- cuando `Code.gs` cambia legítimamente, el validador canónico de identidad
+  debe evolucionar su SHA exacto en el mismo ticket y verificar además la
+  semántica nueva; nunca se desactiva el hash ni se acepta cualquier versión.
+- la autoridad SHA del validador debe localizarse estructuralmente como una
+  única asignación `$ExpectedHash` de 64 hex y comprobar primero el SHA previo
+  certificado; no depender de una línea literal completa para promoverla.
+- el SHA previo que se promueve debe proceder de la autoridad observada en
+  el repo/validador real del baseline, no de un snapshot asumido o histórico;
+  si difiere, se aborta antes de escribir y se reconcilia.

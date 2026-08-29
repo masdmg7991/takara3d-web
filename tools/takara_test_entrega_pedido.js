@@ -14,6 +14,24 @@ const ORDER_HTML = path.join(ROOT, "pedido.html");
 const DELIVERY_CSS = path.join(ROOT, "assets", "css", "takara-pedido-delivery.css");
 const CATALOG_JSON = path.join(ROOT, "assets", "data", "catalogo.json");
 const CODE_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs");
+const STORE_DOMAIN = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreDomain.gs"
+);
+const STORE_ORDER_RESOLUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "StoreOrderResolution.gs"
+);
+const ORDER_ATTRIBUTION = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderAttribution.gs"
+);
 const ORDER_CONTRACT = path.join(ROOT, "docs", "ORDER_ENGINE_CONTRACT.md");
 
 let checks = 0;
@@ -60,7 +78,25 @@ function loadServerContext() {
   };
 
   vm.createContext(context);
+  [STORE_DOMAIN, STORE_ORDER_RESOLUTION, ORDER_ATTRIBUTION].forEach(
+    function (file) {
+      vm.runInContext(
+        fs.readFileSync(file, "utf8"),
+        context,
+        { filename: file }
+      );
+    }
+  );
+
   vm.runInContext(fs.readFileSync(CODE_GS, "utf8"), context, { filename: CODE_GS });
+
+  const originalNormalizePedido = context.normalizarPedido_;
+  context.normalizarPedido_ = function (payload) {
+    const order = originalNormalizePedido(payload);
+    order.attribution =
+      context.buildAuthoritativeOrderAttribution_(payload);
+    return order;
+  };
   context.sentEmails = sentEmails;
   return context;
 }
@@ -487,6 +523,15 @@ function testServerAndEmails(deliveryApi) {
   server.enviarConfirmacionCliente_("TK-WEB-DELIVERY-TEST", sharedOrder, photo);
   const customerText = server.sentEmails[0].body;
 
+  ok(internalText.includes("[ATRIBUCION]"), "Correo interno contiene ATRIBUCION");
+  ok(
+    internalText.includes("Versión atribución: TAKARA_STORE_ATTRIBUTION_V1"),
+    "Correo interno conserva contrato de atribución"
+  );
+  ok(
+    internalText.includes("Origen pedido: DIRECT"),
+    "Pedido de entrega legacy sigue siendo DIRECT"
+  );
   ok(internalText.includes("[ENTREGA]"), "Correo interno contiene ENTREGA");
   ok(internalText.includes("Ubicación código: leganes"), "Correo interno conserva código de ubicación");
   ok(internalText.includes("Ubicación nombre: Leganés"), "Correo interno conserva nombre de ubicación");
