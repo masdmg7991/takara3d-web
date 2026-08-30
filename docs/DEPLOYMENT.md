@@ -224,3 +224,15 @@ Forward preparation, not yet certified:
 - F5G Store-attributed order production E2E:
   verify StoreContext resolution, authoritative STORE attribution and DIRECT
   preservation on the deployed backend.
+
+## F5D verified remote Apps Script topology
+
+- Apps Script project scriptId: `1xIQrv30KKlx0ODyO9S3TUU0Zn_a4FNjmUTntchd18EsfcK63NMoQwPij`
+- Public deployment ID: `AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q`
+- Endpoint authority: `assets/js/takara-config.js`
+- Verification source: authenticated Google Apps Script editor -> `Deploy > Manage deployments`.
+- Human gate: exact deployment ID match between the Google editor and the public endpoint authority.
+- Public backend live: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`.
+- Candidate identity was additionally corroborated by local multi-artifact browser evidence before the human gate.
+- F5D is topology/identity verification only. No push and no deployment were performed by F5D.
+- ADMIN remains a separate deployment candidate under the same Apps Script project; this ticket does not create or publish it.
