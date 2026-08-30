@@ -249,3 +249,15 @@ Forward preparation, not yet certified:
 - The QA fixture remains `INACTIVE`; no DELETE was performed.
 - Apps Script version topology remained `29 -> 29` during the ACTIVE/INACTIVE fixture transition.
 - F5E certification itself performs no production data mutation, no source push, no deployment and no Git push; the prior R94H fixture mutation was explicitly authorized and is preserved as evidence.
+
+
+## F5F Store Admin production E2E
+
+- Owner access was verified on the dedicated ADMIN deployment using the configured Store Admin owner.
+- Non-owner access was denied and did not downgrade to Store Public.
+- The production Admin list/detail flow identified the existing controlled QA Store by immutable `store_id`.
+- CREATE evidence is preserved from R94H, which created the same QA Store through the canonical Admin authority.
+- The same Store was edited through `Guardar cambios`, activated through the authorized lifecycle operation, observed as `ACTIVE` through `TAKARA_STORE_CONTEXT_V1`, restored to its original display name and deactivated again.
+- The final production state is `INACTIVE` and the public resolver fails closed with `STORE_INACTIVE`.
+- No DELETE was performed and the immutable `store_id` / `store_public_code` identity was preserved.
+- Apps Script version topology remained `29 -> 29`; F5F performed no source push, no deployment and no Git push.
