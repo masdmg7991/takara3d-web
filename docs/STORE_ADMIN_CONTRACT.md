@@ -408,3 +408,28 @@ before F5 owns any remote deployment action.
 The historical F5A evidence remains the source of truth for the pre-integration
 router fingerprint. The F5A validator evolves only as a forward-compatible
 route-authority regression for later F5 gates.
+
+## F5C deployment identity boundary
+
+F4A remains the only Store Admin authorization authority in product code.
+
+Its identity source is `Session.getActiveUser()`. Therefore the Store Admin
+web-app deployment must execute as `USER_ACCESSING`; an Admin deployment
+running as the deploying user would not satisfy the identity boundary that F4A
+expects.
+
+The Admin entry point uses a separate deployment resource of the same Apps
+Script project. This is deployment-policy separation, not a duplicate backend,
+duplicate Store Service, duplicate Registry, duplicate Sheets repository or
+duplicate identity authority.
+
+Target Admin web-app policy:
+
+- `executeAs = USER_ACCESSING`
+- `access = MYSELF`
+- deployer identity equals `TAKARA_STORE_ADMIN_OWNER_EMAIL`
+- anonymous access is forbidden
+- authorization remains fail closed
+- denied Admin traffic never falls back to Store Public
+
+F5C performs no push and no deployment.

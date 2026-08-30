@@ -165,3 +165,62 @@ La ruta reutiliza el único `Code.gs::doGet` y delega en
 
 Este candidato todavía no está desplegado. La autoridad sobre la versión
 realmente publicada sigue siendo la respuesta GET del endpoint productivo.
+
+## F5C deployment candidate parity + deploy preflight
+
+F5C freezes the deployment topology before any remote mutation.
+
+The Store channel continues to use the same Apps Script project, the same code
+authority and the same Store Runtime / Registry / Sheets authorities. F5C does
+not create a second Apps Script project, backend or persistence authority.
+
+The project may expose separate deployment resources with different web-app
+execution/access policies:
+
+- PUBLIC deployment
+  - remains the current production authority until a later F5 gate performs and
+    verifies a real deployment;
+  - F5C does not mutate it;
+  - Store Public and order traffic remain bound to the existing production URL.
+
+- ADMIN deployment
+  - is a separate deployment resource of the same Apps Script project;
+  - target `executeAs` is `USER_ACCESSING`;
+  - target `access` is `MYSELF`;
+  - the deployer must equal the configured Store Admin owner;
+  - `USER_DEPLOYING is forbidden for Admin` because F4A authorizes through
+    `Session.getActiveUser()` and must evaluate the accessing identity;
+  - `ANYONE_ANONYMOUS is forbidden for Admin`;
+  - a failed Admin authorization must never downgrade to Store Public.
+
+The deployment actor must be reconciled against
+`TAKARA_STORE_ADMIN_OWNER_EMAIL` before creating or updating the ADMIN
+deployment.
+
+F5C certifies candidate parity only:
+
+- local `Code.gs` SHA is the certified F5B candidate;
+- local VERSION is
+  `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`;
+- single `doGet` and `doPost` authorities remain;
+- Admin route and Store Public fallback remain together;
+- F4A/F4B/F4C/F4D/F4E/F4F/F4G remain GREEN;
+- PUBLIC deployment remains untouched.
+
+F5C performs no push and no deployment.
+
+Forward preparation, not yet certified:
+
+- F5D remote deployment topology:
+  inspect the real Apps Script project/deployments, prove the PUBLIC deployment
+  remains authoritative, prove the ADMIN deployment uses the same script
+  project, and verify deployer/owner identity before mutation.
+- F5E Store Public production E2E:
+  verify health, Store QR, ACTIVE resolution, INACTIVE fail-closed and endpoint
+  continuity after deployment.
+- F5F Store Admin production E2E:
+  verify owner access, non-owner denial, list/create/edit/activate/deactivate
+  and no Admin-to-Public downgrade.
+- F5G Store-attributed order production E2E:
+  verify StoreContext resolution, authoritative STORE attribution and DIRECT
+  preservation on the deployed backend.

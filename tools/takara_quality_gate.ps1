@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreF5CDeploymentPreflightPath = Join-Path $Project "tools/takara_validar_store_f5c_deployment_preflight.py"
+
+if (Test-Path $StoreF5CDeploymentPreflightPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_f5c_deployment_preflight.py"
+    py tools/takara_validar_store_f5c_deployment_preflight.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F5C Store deployment candidate/preflight validado" } else { Err "Fallo takara_validar_store_f5c_deployment_preflight.py" }
+} else {
+    Err "No existe tools/takara_validar_store_f5c_deployment_preflight.py"
+}
+
 $StoreF5BAdminRouteValidatorPath = Join-Path $Project "tools/takara_validar_store_f5b_admin_route.py"
 
 if (Test-Path $StoreF5BAdminRouteValidatorPath) {
