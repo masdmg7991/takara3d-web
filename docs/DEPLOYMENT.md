@@ -236,3 +236,16 @@ Forward preparation, not yet certified:
 - Candidate identity was additionally corroborated by local multi-artifact browser evidence before the human gate.
 - F5D is topology/identity verification only. No push and no deployment were performed by F5D.
 - ADMIN remains a separate deployment candidate under the same Apps Script project; this ticket does not create or publish it.
+
+
+## F5E Store Public production E2E
+
+- Production public backend is `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
+- Endpoint authority remains `assets/js/takara-config.js` and `/tienda/` loads configuration before the Store Public client.
+- Canonical Store QR remains `https://takara3d.es/tienda/?s=<store_public_code>`.
+- The controlled QA witness resolved `TAKARA_STORE_CONTEXT_V1` as `ACTIVE` without exposing `store_id` before deactivation (evidence suffix `ee9ba27a40`, observed `2026-08-30T14:17:22.1761640Z`).
+- The same Store was then deactivated through the canonical Admin authority and fails closed in production with `STORE_INACTIVE`.
+- Malformed Store references fail closed with `STORE_PUBLIC_CODE_INVALID`; a well-formed unknown Store returns `STORE_NOT_FOUND` and is not treated as INACTIVE.
+- The QA fixture remains `INACTIVE`; no DELETE was performed.
+- Apps Script version topology remained `29 -> 29` during the ACTIVE/INACTIVE fixture transition.
+- F5E certification itself performs no production data mutation, no source push, no deployment and no Git push; the prior R94H fixture mutation was explicitly authorized and is preserved as evidence.
