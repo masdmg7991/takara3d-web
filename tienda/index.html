@@ -109,7 +109,7 @@
 
       <!-- TAKARA_STORE_ORDER_HANDOFF_V1:CTA -->
       <div class="store-order-handoff" data-store-order-handoff hidden>
-        <a class="store-order-handoff__link" data-store-order-link href="/pedido.html">
+        <a class="store-order-handoff__link" data-store-order-link href="/tienda/pedido.html">
           Personalizar y hacer pedido
         </a>
         <p class="store-order-handoff__note">
@@ -178,9 +178,20 @@
         return;
       }
 
-      const target = new URL("/pedido.html", window.location.origin);
+      const target = new URL("/tienda/pedido.html", window.location.origin);
       target.searchParams.set(targetKey, storeRef);
       link.href = target.pathname + target.search;
+
+      link.addEventListener("click", () => {
+        const nameNode = document.querySelector(
+          "[data-store-display-name], [data-store-name], h1"
+        );
+        const displayName = String(nameNode && nameNode.textContent || "").trim();
+        if (displayName && displayName.length <= 120) {
+          sessionStorage.setItem("TAKARA_STORE_DISPLAY_NAME_HINT_V1", displayName);
+        }
+      });
+
       handoff.hidden = false;
     })();
   </script>
