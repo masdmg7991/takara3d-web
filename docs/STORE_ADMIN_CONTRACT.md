@@ -373,3 +373,38 @@ F5A certification output includes:
 - explicit `admin_route_integrated=false`.
 
 F5B is the next gate and owns the actual Admin route integration candidate.
+
+## F5B integrate Admin into existing doGet authority
+
+F5B integrates the certified Store Admin HTML boundary into the existing GET
+route authority. It does not create another router.
+
+Canonical Admin route:
+
+`Apps Script web-app URL + ?route=store-admin`
+
+Routing rule inside the existing `Code.gs::doGet(e)`:
+
+1. if `e.parameter.route === "store-admin"`, return
+   `getStoreAdminUiDeploymentOutput_()`;
+2. otherwise preserve the existing `routeStorePublicGet_(e)` path.
+
+The Admin branch is evaluated before the Store Public fallback. If the F4A
+owner-only boundary rejects the request, F5B must fail closed and must not
+downgrade that request into Store Public.
+
+F5B changes only GET routing. The existing `Code.gs::doPost` body remains
+unchanged and continues owning order POST traffic.
+
+F5B versions `Code.gs` as
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
+
+F5B introduces no second `doGet`, no second `doPost`, no parallel Store
+persistence and no direct Spreadsheet authority.
+
+F5B performs no push and no deployment. Local/candidate tests certify routing
+before F5 owns any remote deployment action.
+
+The historical F5A evidence remains the source of truth for the pre-integration
+router fingerprint. The F5A validator evolves only as a forward-compatible
+route-authority regression for later F5 gates.

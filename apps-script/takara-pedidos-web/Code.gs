@@ -8,7 +8,7 @@ const CFG = Object.freeze({
   SNAPSHOT_VERSION: "TAKARA_ORDER_SNAPSHOT_V2",
   PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1",
   VERSION_PLANTILLA_V1_COMPAT: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -89,6 +89,9 @@ const PRODUCT_RULES_V2 = Object.freeze({
 
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.route === "store-admin") {
+    return getStoreAdminUiDeploymentOutput_();
+  }
   const storeResponse = routeStorePublicGet_(e);
   if (storeResponse !== null) {
     return storeResponse;

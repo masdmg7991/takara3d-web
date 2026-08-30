@@ -314,7 +314,7 @@ La frontera activa del candidato local es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`.
+- Apps Script: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
 precio o entrega debe rechazarse. No se degrada silenciosamente a V1. Los

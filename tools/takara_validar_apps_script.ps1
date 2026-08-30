@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "B6E1421D215A8894E5327591328276A3E474107AC23D3DB126787253BE3CC943"
+$ExpectedHash = "CD5F9A93C2FA118251ED2D60A4F903B230DD6304DA0DC8983D5D1288836F3655"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -34,7 +34,7 @@ if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {
 $V2BodyText = $Text.Substring($V2BodyStart, $V2BodyEnd - $V2BodyStart)
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_14_1 dual-stack"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2") },
+    @{ Name = "VERSION_SCRIPT V1_14_1 dual-stack"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1") },
     @{ Name = "Privacidad fail-closed"; Pass = (
         $Text -match 'function\s+normalizarPrivacidad_\s*\(' -and
         $Text -match 'text\s*===\s*"si"' -and

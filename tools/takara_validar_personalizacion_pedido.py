@@ -153,7 +153,7 @@ def validate_client() -> None:
 def validate_server_and_emails() -> None:
     source = read_utf8(CODE_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1",
         "TAKARA_PEDIDO_WEB_V2",
         "TAKARA_WEB_ORDER_PAYLOAD_V2",
         "TAKARA_ORDER_SNAPSHOT_V2",

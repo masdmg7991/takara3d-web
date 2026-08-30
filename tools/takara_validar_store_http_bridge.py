@@ -45,6 +45,14 @@ def main() -> int:
         "Code.gs delega Store GET al bridge",
     )
     require(
+        'e.parameter.route === "store-admin"' in code,
+        "F5B Admin route coexiste con Store Public",
+    )
+    require(
+        "getStoreAdminUiDeploymentOutput_()" in code,
+        "F5B Admin route delega en boundary certificado",
+    )
+    require(
         "if (storeResponse !== null)" in code
         and "return json_({" in code,
         "Code.gs conserva fallback health",
@@ -59,9 +67,9 @@ def main() -> int:
         require(marker in code, f"Health conserva {marker}")
 
     require(
-        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"'
+        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1"'
         in code,
-        "Order backend version remains frozen until release closure",
+        "Order backend local candidate version matches F5B",
     )
 
     for forbidden in (

@@ -716,6 +716,17 @@ if (Test-Path $OrderAttributionFlowValidatorPath) {
     Err "No existe tools/takara_validar_order_attribution_flow.py"
 }
 
+$StoreF5BAdminRouteValidatorPath = Join-Path $Project "tools/takara_validar_store_f5b_admin_route.py"
+
+if (Test-Path $StoreF5BAdminRouteValidatorPath) {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_store_f5b_admin_route.py"
+    py tools/takara_validar_store_f5b_admin_route.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F5B Store Admin GET route static validado" } else { Err "Fallo takara_validar_store_f5b_admin_route.py" }
+} else {
+    Err "No existe tools/takara_validar_store_f5b_admin_route.py"
+}
+
 $StoreF5ARouteAuthorityValidatorPath = Join-Path $Project "tools/takara_validar_store_f5a_route_authority.py"
 
 if (Test-Path $StoreF5ARouteAuthorityValidatorPath) {
@@ -880,6 +891,15 @@ if (Test-Path $OrderDownstreamHandoffValidatorPath) {
 }
 
 $NodeCommand = Get-Command node -ErrorAction SilentlyContinue
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_f5b_admin_route.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_f5b_admin_route.js"
+    node tools/takara_test_store_f5b_admin_route.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "F5B Store Admin GET route functional validado" } else { Err "Fallo takara_test_store_f5b_admin_route.js" }
+} else {
+    Err "No se pudo ejecutar F5B Store Admin GET route"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_admin_phase_f4.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_store_admin_phase_f4.js"

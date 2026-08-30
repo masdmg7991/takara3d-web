@@ -63,7 +63,7 @@ TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2
 Versión declarada por el `Code.gs` local en este baseline:
 
 ```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1
 ```
 
 La implementación V1.14.1 mantiene como contratos vigentes:
@@ -124,7 +124,7 @@ No hacer push hasta revisar en local y confirmar que el diff solo contiene docum
 
 ## Puente de despliegue V1/V2
 
-El candidato `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`
+El candidato `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`
 acepta de forma temporal dos contratos de pedido: el V2 es la ruta primaria y
 el V1 publicado se mantiene únicamente como compatibilidad de transición. Un
 payload que declare V2 pero esté incompleto se rechaza y nunca se degrada a V1.
@@ -146,3 +146,22 @@ Los clientes la resuelven mediante `TAKARA_GET_APPS_SCRIPT_ENDPOINT`.
 Esta regla supersede cualquier referencia anterior que tratase `pedido.html`
 como autoridad física del endpoint. El despliegue sigue conservando la misma URL
 Apps Script hasta una migración explícita y certificada.
+
+## F5B Store Admin route candidate
+
+El backend publicado sigue siendo
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`
+hasta que F5 ejecute y verifique un despliegue real.
+
+El candidato local certificado para routing Admin es
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
+
+Ruta candidata:
+
+`?route=store-admin`
+
+La ruta reutiliza el único `Code.gs::doGet` y delega en
+`getStoreAdminUiDeploymentOutput_()`. No hay un segundo router.
+
+Este candidato todavía no está desplegado. La autoridad sobre la versión
+realmente publicada sigue siendo la respuesta GET del endpoint productivo.

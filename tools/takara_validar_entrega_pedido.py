@@ -26,7 +26,8 @@ VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC"
 PAYLOAD_V2 = "TAKARA_WEB_ORDER_PAYLOAD_V2"
 SNAPSHOT_V2 = "TAKARA_ORDER_SNAPSHOT_V2"
 EMAIL_V2 = "TAKARA_PEDIDO_WEB_V2"
-BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"
+PUBLIC_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"
+BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1"
 POSTAL_VERSION = "TAKARA_POSTAL_NATIONAL_V1_2026_08_03"
 SNAPSHOT = "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03"
 EXPECTED_FREE = ["28911", "28912", "28913", "28915", "28916", "28918", "28919"]
@@ -277,7 +278,8 @@ def validate_docs() -> None:
         "servidor es la\nfuente de verdad", "dirección completa",
     ):
         require(marker in order_contract, f"Contrato de pedido documenta: {marker}")
-    require(BACKEND in deployment, "DEPLOYMENT documenta backend público V1.14.1")
+    require(PUBLIC_BACKEND in deployment, "DEPLOYMENT documenta backend público V1.14.1")
+    require(BACKEND in deployment, "DEPLOYMENT documenta candidato local V1.14.2")
     require("Versión publicada verificada mediante GET" in deployment, "DEPLOYMENT documenta verificación GET del backend publicado")
     require("endpoint productivo" in deployment and "no una etiqueta histórica" in deployment, "DEPLOYMENT fija autoridad de despliegue en endpoint productivo")
     require(PAYLOAD_V2 in deployment and SNAPSHOT_V2 in deployment and EMAIL_V2 in deployment, "DEPLOYMENT documenta payload, snapshot y correo V2")

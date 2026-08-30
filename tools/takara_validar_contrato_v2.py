@@ -17,7 +17,7 @@ EXPECTED = {
     "snapshot": "TAKARA_ORDER_SNAPSHOT_V2",
     "email": "TAKARA_PEDIDO_WEB_V2",
     "delivery": "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
-    "script": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2",
+    "script": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1",
 }
 
 class ContractError(RuntimeError):
@@ -118,7 +118,7 @@ def main() -> int:
         "Validador de personalización exige ausencia del alias antiguo",
     )
     require(
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1"
         in personalization_validator,
         "Validador de personalización exige Apps Script V1.14.1 dual-stack",
     )
