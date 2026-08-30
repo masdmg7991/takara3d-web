@@ -39,6 +39,7 @@ ok(/TAKARA_STORE_WHITE_LABEL_ORDER_V1/.test(storeOrder), "Store white-label mark
 ok(/<form\b/i.test(storeOrder), "Store page contains real order form");
 ok(/Enviar solicitud de pedido/i.test(storeOrder), "Store page contains submit");
 ok(!/Takara\s*3D|Takara3D/i.test(storeOrder), "Store page has no visible Takara brand text");
+ok(!/(?:assets\/brand\/|takara-logo)/i.test(storeOrder), "Store page has no Takara brand asset refs");
 ok(!/STO_[0-9]+/i.test(storeOrder), "Store page exposes no internal Store id");
 ok(/takara-store-order-entry\.js/.test(storeOrder), "Store entry bridge loaded");
 
