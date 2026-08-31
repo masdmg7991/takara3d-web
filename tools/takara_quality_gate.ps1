@@ -331,6 +331,66 @@ if (Test-Path $QrPath) {
         }
     }
 }
+# TAKARA_STORE_SINGLE_APP_ARCHITECTURE_GUARD_V1 START
+$StoreSingleAppIndexPath = Join-Path $Project "tienda/index.html"
+$DirectOrderEnginePath = Join-Path $Project "assets/js/takara-pedido-web.js"
+
+$StoreForbiddenPhysicalPaths = @(
+    "tienda/pedido.html",
+    "assets/js/takara-store-order-entry.js",
+    "tools/takara_test_store_order_handoff.js",
+    "tools/takara_test_store_white_label_order.js"
+)
+
+foreach ($RelativePath in $StoreForbiddenPhysicalPaths) {
+    if (Test-Path (Join-Path $Project $RelativePath)) {
+        Err ("Store single-app contiene artefacto transitorio prohibido: " + $RelativePath)
+    } else {
+        Ok ("Store single-app mantiene ausente: " + $RelativePath)
+    }
+}
+
+if (Test-Path $StoreSingleAppIndexPath) {
+    $StoreSingleAppIndexText = Read-Utf8 $StoreSingleAppIndexPath
+    $StoreSingleAppForbiddenMarkers = @(
+        "/tienda/pedido.html",
+        "../pedido.html",
+        'href="/pedido.html"',
+        "takara-store-order-entry.js",
+        "TAKARA_STORE_ORDER_HANDOFF_V1",
+        "TAKARA_STORE_WHITE_LABEL_ORDER_V1"
+    )
+
+    foreach ($Marker in $StoreSingleAppForbiddenMarkers) {
+        if ($StoreSingleAppIndexText.Contains($Marker)) {
+            Err ("Store single-app reintroduce handoff/copia prohibida: " + $Marker)
+        } else {
+            Ok ("Store single-app sin handoff/copia: " + $Marker)
+        }
+    }
+} else {
+    Err "Falta tienda/index.html para validar arquitectura Store single-app"
+}
+
+if (Test-Path $DirectOrderEnginePath) {
+    $DirectOrderEngineText = Read-Utf8 $DirectOrderEnginePath
+    $DirectOrderForbiddenStoreMarkers = @(
+        "setOrderStoreContextTransport",
+        "setTransport: setOrderStoreContextTransport",
+        "TAKARA_STORE_ORDER_ENTRY_V1"
+    )
+
+    foreach ($Marker in $DirectOrderForbiddenStoreMarkers) {
+        if ($DirectOrderEngineText.Contains($Marker)) {
+            Err ("Motor DIRECT reintroduce puente Store transitorio: " + $Marker)
+        } else {
+            Ok ("Motor DIRECT separado de puente Store transitorio: " + $Marker)
+        }
+    }
+} else {
+    Err "Falta assets/js/takara-pedido-web.js para validar separacion DIRECT/Store"
+}
+# TAKARA_STORE_SINGLE_APP_ARCHITECTURE_GUARD_V1 END
 $FrameTextPath = Join-Path $Project "assets/js/takara-frame-text.js"
 if (Test-Path $FrameTextPath) {
     $FrameText = Read-Utf8 $FrameTextPath
