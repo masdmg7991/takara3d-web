@@ -9,43 +9,6 @@
   <title>Tienda asociada | Takara 3D</title>
   <link rel="stylesheet" href="../assets/css/styles.css">
   <link rel="stylesheet" href="../assets/css/takara-store-public.css">
-
-  <!-- TAKARA_STORE_ORDER_HANDOFF_V1:STYLE -->
-  <style>
-    .store-order-handoff {
-      margin-top: 1rem;
-      display: grid;
-      gap: 0.45rem;
-    }
-
-    .store-order-handoff[hidden] {
-      display: none !important;
-    }
-
-    .store-order-handoff__link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 3rem;
-      padding: 0.8rem 1.15rem;
-      border-radius: 0.9rem;
-      background: #201914;
-      color: #fff;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    .store-order-handoff__link:focus-visible {
-      outline: 3px solid currentColor;
-      outline-offset: 3px;
-    }
-
-    .store-order-handoff__note {
-      margin: 0;
-      font-size: 0.92rem;
-      opacity: 0.78;
-    }
-  </style>
 </head>
 <body class="takara-store-channel">
   <main
@@ -106,16 +69,6 @@
           La configuración y el pedido se habilitarán únicamente conservando
           esta atribución de tienda.
         </span>
-
-      <!-- TAKARA_STORE_ORDER_HANDOFF_V1:CTA -->
-      <div class="store-order-handoff" data-store-order-handoff hidden>
-        <a class="store-order-handoff__link" data-store-order-link href="/tienda/pedido.html">
-          Personalizar y hacer pedido
-        </a>
-        <p class="store-order-handoff__note">
-          El pedido conservara la atribucion de esta tienda durante todo el proceso.
-        </p>
-      </div>
       </div>
     </section>
 
@@ -155,45 +108,5 @@
 
   <script src="../assets/js/takara-config.js"></script>
   <script src="../assets/js/takara-store-public.js"></script>
-
-  <!-- TAKARA_STORE_ORDER_HANDOFF_V1:SCRIPT -->
-  <script>
-    (() => {
-      "use strict";
-
-      const sourceKey = "s";
-      const targetKey = "s";
-      const params = new URLSearchParams(window.location.search);
-      const storeRef = (params.get(sourceKey) || "").trim();
-      const handoff = document.querySelector("[data-store-order-handoff]");
-      const link = document.querySelector("[data-store-order-link]");
-
-      if (!handoff || !link) return;
-
-      // Only the validated public Store reference crosses this boundary.
-      // Internal registry identifiers never cross into the public URL.
-      if (!/^st_[A-Za-z0-9_-]{24,64}$/.test(storeRef)) {
-        handoff.hidden = true;
-        link.removeAttribute("href");
-        return;
-      }
-
-      const target = new URL("/tienda/pedido.html", window.location.origin);
-      target.searchParams.set(targetKey, storeRef);
-      link.href = target.pathname + target.search;
-
-      link.addEventListener("click", () => {
-        const nameNode = document.querySelector(
-          "[data-store-display-name], [data-store-name], h1"
-        );
-        const displayName = String(nameNode && nameNode.textContent || "").trim();
-        if (displayName && displayName.length <= 120) {
-          sessionStorage.setItem("TAKARA_STORE_DISPLAY_NAME_HINT_V1", displayName);
-        }
-      });
-
-      handoff.hidden = false;
-    })();
-  </script>
 </body>
 </html>

@@ -410,33 +410,7 @@
     return orderStoreContextTransport;
   }
 
-  function setOrderStoreContextTransport(value) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
-  }
-
-  const keys = Object.keys(value).sort();
-  if (keys.join(",") !== "store_ref,version") {
-    throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
-  }
-
-  if (value.version !== STORE_CONTEXT_VERSION) {
-    throw orderStoreContextError("ORDER_STORE_CONTEXT_VERSION_INVALID");
-  }
-
-  const storeRef = String(value.store_ref || "").trim();
-  if (!STORE_REF_PATTERN.test(storeRef)) {
-    throw orderStoreContextError("ORDER_STORE_REF_INVALID");
-  }
-
-  orderStoreContextTransport = Object.freeze({
-    version: STORE_CONTEXT_VERSION,
-    store_ref: storeRef,
-  });
-  return orderStoreContextTransport;
-}
-
-function clearOrderStoreContext() {
+  function clearOrderStoreContext() {
     orderStoreContextTransport = null;
   }
 
@@ -457,7 +431,6 @@ function clearOrderStoreContext() {
   }
 
   window.TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1 = Object.freeze({
-    setTransport: setOrderStoreContextTransport,
     version: ORDER_STORE_CONTEXT_BRIDGE_VERSION,
     context_version: STORE_CONTEXT_VERSION,
     setVerifiedContext: setVerifiedOrderStoreContext,
