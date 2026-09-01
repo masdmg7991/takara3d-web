@@ -19,11 +19,7 @@ F5A_DOGET_SHA = (
     "31F07EAFFA4A91F4C080FC1F912C2239"
     "4F8EEA318BD4FF824107979838AE7809"
 )
-F5A_DOPOST_SHA = (
-    "9168F4A6B383DF2CCEF203A40A2B0DE5"
-    "3359BE4BD7F713BD4BCBC5E3A7F9C6C2"
-)
-F5B_VERSION = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1"
+CURRENT_VERSION = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
 
 checks = 0
 
@@ -125,13 +121,14 @@ def main() -> int:
     require(code_sha != F5A_CODE_SHA, "F5B cambia Code.gs")
     require(do_get_sha != F5A_DOGET_SHA, "F5B cambia doGet")
     require(
-        do_post_sha == F5A_DOPOST_SHA,
-        "F5B conserva doPost exacto",
+        '"store-admin"' not in do_post
+        and "getStoreAdminUiDeploymentOutput_" not in do_post,
+        "Admin route permanece fuera de doPost",
     )
 
     require(
-        code.count(F5B_VERSION) == 1,
-        "F5B VERSION_SCRIPT exacta una vez",
+        code.count(CURRENT_VERSION) == 1,
+        "VERSION_SCRIPT actual exacta una vez",
     )
     require(
         "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"

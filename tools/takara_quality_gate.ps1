@@ -92,6 +92,7 @@ $RequiredFiles = @(
     "assets/js/takara-pedido-preview.js",
     "assets/js/takara-frame-text.js",
     "apps-script/takara-pedidos-web/Code.gs",
+    "apps-script/takara-pedidos-web/OrderBrowserTransport.gs",
     "docs/ARCHITECTURE.md",
     "docs/DESIGN_SYSTEM.md",
     "docs/QUALITY_GATE.md",
@@ -110,6 +111,7 @@ $RequiredFiles = @(
     "tools/takara_test_personalizacion_pedido.js",
     "tools/takara_test_entrega_pedido.js",
     "tools/takara_test_order_contract_v2.js",
+    "tools/takara_test_order_browser_transport.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_test_seguridad_foto_pedido.js",
@@ -169,7 +171,7 @@ if (Test-Path $PedidoPath) {
     } else {
         Err "pedido.html no contiene el selector contractual de color de letras"
     }
-    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-entrega-v2-2")) {
+    if ($PedidoText.Contains("takara-pedido-web.js?v=pedido-entrega-v2-3")) {
         Ok "pedido.html carga el motor de pedido sin cache obsoleta"
     } else {
         Err "pedido.html no carga la version contractual del motor de pedido"
@@ -521,6 +523,15 @@ if ($ForbiddenFiles.Count -eq 0) {
 } else {
     foreach ($File in $ForbiddenFiles) { Err ("Archivo temporal/prohibido dentro del repo: " + $File.FullName) }
 }
+
+# COLLECT-ALL NATIVE VALIDATION
+# Windows PowerShell 5.1 promotes native stderr records to PowerShell errors.
+# With ErrorActionPreference=Stop that aborts the gate before LASTEXITCODE can
+# be recorded. From this point, native validators are independent diagnostic
+# checks: capture their output/exit code, accumulate Err entries and fail once
+# at the end. This does not make any validation failure non-blocking.
+$NativeErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 
 if (Test-Path "tools/validar_catalogo.py") {
     Log-Line ""
@@ -1159,6 +1170,20 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_order_resolu
     Err "No se pudo ejecutar F3B Store order resolution test"
 }
 
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_browser_transport.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_browser_transport.js"
+    node tools/takara_test_order_browser_transport.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "ACK navegador correlacionado y fail-closed validado"
+    } else {
+        Err "Fallo takara_test_order_browser_transport.js"
+    }
+} else {
+    Err "No se pudo ejecutar el test causal de ACK navegador"
+}
+
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_store_context.js")) {
     Log-Line ""
     Log-Line "[RUN] node tools/takara_test_order_store_context.js"
@@ -1414,6 +1439,50 @@ if ($Status.Count -eq 0) {
     if ($Mode -in @("precommit", "prepush")) { Warn "Hay cambios pendientes. Revisar diff y aniadir archivos concretos, nunca git add punto." } else { Warn "Working tree con cambios. Revisar antes de commit." }
 }
 
+# TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
+$TakaraPublicAudit = Join-Path $PSScriptRoot "takara_public_repo_audit.ps1"
+Log-Line ""
+if (Test-Path $TakaraPublicAudit) {
+    Log-Line "[RUN] powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/takara_public_repo_audit.ps1"
+    powershell.exe `
+        -NoProfile `
+        -ExecutionPolicy Bypass `
+        -File $TakaraPublicAudit `
+        -Project $Project 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Auditoria publica del repositorio validada"
+    } else {
+        Err "Fallo takara_public_repo_audit.ps1"
+    }
+} else {
+    Err "Falta tools/takara_public_repo_audit.ps1"
+}
+# /TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
+
+# TAKARA_APPS_SCRIPT_VALIDATION_INTEGRATION_V1
+Log-Line ""
+$TakaraToolsDir = Split-Path -Parent $PSCommandPath
+$TakaraAppsValidator = Join-Path $TakaraToolsDir "takara_validar_apps_script.ps1"
+if (Test-Path $TakaraAppsValidator) {
+    Log-Line "[RUN] powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/takara_validar_apps_script.ps1"
+    powershell.exe `
+        -NoProfile `
+        -ExecutionPolicy Bypass `
+        -File $TakaraAppsValidator `
+        -Project $Project 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Apps Script validation validada"
+    } else {
+        Err "Fallo takara_validar_apps_script.ps1"
+    }
+} else {
+    Err "Falta tools/takara_validar_apps_script.ps1"
+}
+# /TAKARA_APPS_SCRIPT_VALIDATION_INTEGRATION_V1
+
+# Restore strict runner behavior after all independent native diagnostics.
+$ErrorActionPreference = $NativeErrorActionPreference
+
 Log-Line ""
 Log-Line "============================================================"
 Log-Line " RESULTADO QUALITY GATE"
@@ -1424,38 +1493,16 @@ Log-Line ("ERROR: " + $Errors.Count)
 Log-Line ("TXT: " + $ReportTxt)
 
 if ($Errors.Count -gt 0) {
-    Log-Line "[TAKARA_QUALITY_GATE_FAIL]"
-    exit 1
-}
-
-
-# TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
-$TakaraPublicAudit = Join-Path $PSScriptRoot "takara_public_repo_audit.ps1"
-if (Test-Path $TakaraPublicAudit) {
-    Write-Host ""
-    Write-Host "[RUN] powershell -NoProfile -ExecutionPolicy Bypass -File tools/takara_public_repo_audit.ps1"
-    try {
-        & $TakaraPublicAudit -Project (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-    } catch {
-        Write-Host ("[ERROR] Auditoria publica fallo: " + $_.Exception.Message) -ForegroundColor Red
-        exit 1
+    Log-Line ""
+    Log-Line "============================================================"
+    Log-Line " ERRORES ACUMULADOS"
+    Log-Line "============================================================"
+    $ErrorIndex = 1
+    foreach ($ErrorText in $Errors) {
+        Log-Line (("{0}. {1}" -f $ErrorIndex, $ErrorText))
+        $ErrorIndex += 1
     }
-} else {
-    Write-Host "[ERROR] Falta tools/takara_public_repo_audit.ps1" -ForegroundColor Red
-    exit 1
-}
-# /TAKARA_PUBLIC_REPO_AUDIT_INTEGRATION_V1
-
-
-# TAKARA_APPS_SCRIPT_VALIDATION_INTEGRATION_V1
-Write-Host ""
-Write-Host "[RUN] powershell -NoProfile -ExecutionPolicy Bypass -File tools/takara_validar_apps_script.ps1"
-$TakaraToolsDir = Split-Path -Parent $PSCommandPath
-$TakaraRepoRoot = Resolve-Path (Join-Path $TakaraToolsDir "..")
-$TakaraAppsValidator = Join-Path $TakaraToolsDir "takara_validar_apps_script.ps1"
-powershell -NoProfile -ExecutionPolicy Bypass -File $TakaraAppsValidator -Project $TakaraRepoRoot
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERROR] Apps Script validation fallo." -ForegroundColor Red
+    Log-Line "[TAKARA_QUALITY_GATE_FAIL]"
     exit 1
 }
 

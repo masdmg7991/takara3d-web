@@ -17,7 +17,7 @@ EXPECTED = {
     "snapshot": "TAKARA_ORDER_SNAPSHOT_V2",
     "email": "TAKARA_PEDIDO_WEB_V2",
     "delivery": "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
-    "script": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1",
+    "script": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
 }
 
 class ContractError(RuntimeError):
@@ -47,7 +47,7 @@ def main() -> int:
     require(EXPECTED["payload"] in order, "Frontend emite payload V2")
     require(EXPECTED["snapshot"] in order, "Frontend emite snapshot V2")
     require(EXPECTED["email"] in code, "Apps Script emite correo V2")
-    require(EXPECTED["script"] in code, "Apps Script usa versión V1.14.1 dual-stack")
+    require(EXPECTED["script"] in code, "Apps Script usa versión V1.14.3 browser ACK")
 
     require("consiente_gestion_datos: true" in order, "Frontend usa consentimiento canónico de datos")
     require(
@@ -118,12 +118,12 @@ def main() -> int:
         "Validador de personalización exige ausencia del alias antiguo",
     )
     require(
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1"
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
         in personalization_validator,
-        "Validador de personalización exige Apps Script V1.14.1 dual-stack",
+        "Validador de personalización exige Apps Script V1.14.3 browser ACK",
     )
 
-    require("takara-pedido-web.js?v=pedido-entrega-v2-2" in page, "HTML usa cache key V2.2 exacta")
+    require("takara-pedido-web.js?v=pedido-entrega-v2-3" in page, "HTML usa cache key V2.3 exacta")
     require("takara_validar_contrato_v2.py" in gate, "Quality Gate ejecuta auditoría V2")
     require("takara_test_order_contract_v2.js" in gate, "Quality Gate ejecuta test V2")
 
@@ -138,15 +138,16 @@ def main() -> int:
     )
 
     for doc, name in ((readme, "README"), (deployment, "DEPLOYMENT"), (contract, "ORDER_ENGINE_CONTRACT")):
-        require(EXPECTED["script"] in doc, f"{name} documenta candidato V1.14.1 dual-stack")
+        require(EXPECTED["script"] in doc, f"{name} documenta candidato V1.14.3 browser ACK")
         require(EXPECTED["payload"] in doc, f"{name} documenta payload V2")
         require(EXPECTED["snapshot"] in doc, f"{name} documenta snapshot V2")
         require(EXPECTED["email"] in doc, f"{name} documenta correo V2")
 
     require(
-        "Versión publicada verificada mediante GET" in deployment
+        "verificarse mediante GET del endpoint canónico" in deployment
+        and "La autoridad sobre la versión realmente publicada es la respuesta GET del" in deployment
         and "endpoint productivo" in deployment,
-        "DEPLOYMENT documenta V1.14.1 publicada y autoridad GET",
+        "DEPLOYMENT documenta autoridad GET del backend publicado",
     )
     require(
         "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_12_3_OPTIONAL_SHOWCASE_CONSENT" not in deployment,

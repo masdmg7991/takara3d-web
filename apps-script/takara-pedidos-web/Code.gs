@@ -8,7 +8,7 @@ const CFG = Object.freeze({
   SNAPSHOT_VERSION: "TAKARA_ORDER_SNAPSHOT_V2",
   PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1",
   VERSION_PLANTILLA_V1_COMPAT: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -107,11 +107,20 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  let browserResponseRequest = null;
+
   try {
+    browserResponseRequest = parseOrderBrowserResponseRequest_(e);
+
     const payload = parsePayload_(e);
+    assertOrderBrowserPayloadMatches_(browserResponseRequest, payload);
+
     const tipoSolicitud = texto_(payload.tipo_solicitud).toUpperCase();
 
     if (tipoSolicitud === "CONTACTO_WEB") {
+      if (browserResponseRequest) {
+        throw new Error("El ACK de pedido no admite solicitudes de contacto.");
+      }
       return procesarContactoWeb_(payload);
     }
 
@@ -141,7 +150,7 @@ function doPost(e) {
         fotoPrueba,
         null
       );
-      return json_({
+      return orderBrowserResponseOrJson_(browserResponseRequest, {
         ok: true,
         dry_run: true,
         id_pedido_web: idPedidoWeb,
@@ -181,7 +190,7 @@ function doPost(e) {
     );
     enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual);
 
-    return json_({
+    return orderBrowserResponseOrJson_(browserResponseRequest, {
       ok: true,
       id_pedido_web: idPedidoWeb,
       estado: "recibido",
@@ -196,7 +205,7 @@ function doPost(e) {
       script: CFG.VERSION_SCRIPT
     });
   } catch (error) {
-    return json_({
+    return orderBrowserResponseOrJson_(browserResponseRequest, {
       ok: false,
       error: String(error && error.message ? error.message : error),
       version: CFG.VERSION_PLANTILLA,
@@ -208,6 +217,20 @@ function doPost(e) {
 function parsePayload_(e) {
   if (!e) {
     throw new Error("No se recibieron datos.");
+  }
+
+  if (e.parameter && e.parameter.takara_payload_json !== undefined) {
+    const embeddedPayload = String(e.parameter.takara_payload_json || "").trim();
+
+    if (!embeddedPayload) {
+      throw new Error("El formulario de pedido no contiene payload JSON.");
+    }
+
+    try {
+      return JSON.parse(embeddedPayload);
+    } catch (error) {
+      throw new Error("El formulario de pedido contiene un payload JSON no válido.");
+    }
   }
 
   if (e.postData && e.postData.contents) {

@@ -314,7 +314,8 @@ La frontera activa del candidato local es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
+- Apps Script candidato local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
+- Apps Script publicado hasta promoción explícita: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
 precio o entrega debe rechazarse. No se degrada silenciosamente a V1. Los
@@ -327,6 +328,44 @@ payload V2 ni del correo técnico.
 El transporte admite códigos de producto y variantes estables sin fijar la capa
 de recepción a una única familia. La aceptación para producción sigue
 requiriendo un mapeo explícito de catálogo/normalización.
+
+### 7.5 Confirmación real de recepción en navegador
+
+El candidato `V1_14_3` añade `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1` sin crear
+un segundo motor, endpoint ni registro de pedidos. El pedido continúa entrando
+por el mismo `Code.gs::doPost` y por las mismas autoridades de validación,
+Store attribution, Drive y correo.
+
+Contrato del transporte navegador:
+
+- el navegador envía el payload V2 íntegro dentro de `takara_payload_json`
+  mediante un formulario `POST` dirigido a un iframe oculto;
+- el sobre de transporte contiene `takara_response_mode=postmessage_v1`,
+  `takara_response_origin`, un nonce aleatorio y el `pedido_web_id` esperado;
+- `parsePayload_` desempaqueta primero `takara_payload_json`; si el sobre no
+  existe, conserva el parser JSON/formulario legado;
+- el servidor valida origen, formato del nonce, formato del ID y coincidencia
+  exacta entre `takara_order_id` y `payload.pedido_web_id`;
+- solo un pedido aceptado con `ok=true`, el mismo ID y `estado=recibido` puede
+  generar ACK positivo;
+- la respuesta por `postMessage` solo contiene versión, nonce, ID, estado,
+  `ok` y mensaje genérico. No expone email, Drive, contenido del pedido,
+  `store_id`, `store_name_snapshot` ni atribución;
+- `HtmlService.XFrameOptionsMode.ALLOWALL` se limita a la respuesta ACK y se
+  compensa con validación de origen, nonce, ID y correlación con el iframe;
+- el navegador acepta el mensaje únicamente desde el `contentWindow` del
+  iframe creado para ese envío y desde un origen HTTPS de Apps Script/Google
+  permitido;
+- el navegador muestra éxito únicamente si versión, nonce, `order_id`,
+  `id_pedido_web`, `ok=true` y `estado=recibido` coinciden;
+- a los 120 segundos sin ACK válido, el estado es incierto/error y nunca éxito;
+- el `POST` JSON existente y sus respuestas JSON permanecen compatibles para
+  consumidores que no soliciten `postmessage_v1`;
+- no se introduce polling, receipt DB, CacheService, proxy ni persistencia
+  paralela de confirmaciones.
+
+La versión `V1_14_2` continúa siendo la publicada hasta una promoción explícita.
+El mero commit del candidato `V1_14_3` no constituye despliegue.
 
 ---
 

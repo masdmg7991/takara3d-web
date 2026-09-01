@@ -50,7 +50,7 @@ Formato obligatorio:
 - WARN para avisos no bloqueantes.
 - ERROR para fallos bloqueantes.
 
-Un script no debe seguir como si todo estuviera bien despues de un ERROR real.
+Un ERROR real siempre bloquea el resultado final. El runner no aborta el diagnostico en el primer fallo de una comprobacion independiente: continua con el resto, acumula todos los ERROR, imprime el resumen completo y devuelve codigo de salida distinto de cero al final. Continuar diagnosticando nunca convierte un fallo en no bloqueante.
 
 ---
 

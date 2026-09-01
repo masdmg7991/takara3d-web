@@ -15,12 +15,12 @@ ADMIN_CONTRACT = ROOT / "docs" / "STORE_ADMIN_CONTRACT.md"
 QUALITY = ROOT / "tools" / "takara_quality_gate.ps1"
 
 EXPECTED_CODE_SHA = (
-    "CD5F9A93C2FA118251ED2D60A4F903B2"
-    "30DD6304DA0DC8983D5D1288836F3655"
+    "6FF429CA389F93CAEB7419081B1B60F1"
+    "2DE3E7EC8DE88DB43BD5D0EDC2D2762A"
 )
 EXPECTED_LOCAL_VERSION = (
     "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_"
-    "V1_14_2_STORE_ADMIN_ROUTE_V1"
+    "V1_14_3_ORDER_BROWSER_ACK_V1"
 )
 
 checks = 0
@@ -136,11 +136,11 @@ def main() -> int:
 
     require(
         code_sha == EXPECTED_CODE_SHA,
-        f"Code.gs F5B exact-byte candidate preservado; actual={code_sha}",
+        f"Code.gs deployment candidate exact-byte preservado; actual={code_sha}",
     )
     require(
         EXPECTED_LOCAL_VERSION in code,
-        "Code.gs conserva VERSION local V1.14.2",
+        "Code.gs conserva VERSION local candidata V1.14.3",
     )
     require(
         function_count(code, "doGet") == 1,

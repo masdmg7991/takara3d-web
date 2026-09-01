@@ -39,6 +39,9 @@
   const VISUAL_PROOF_MAX_BYTES = 900 * 1024;
   const VISUAL_PROOF_JPEG_QUALITY = 0.86;
   const VISUAL_PROOF_READY_TIMEOUT_MS = 2000;
+  const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
+  const ORDER_BROWSER_RESPONSE_MODE = "postmessage_v1";
+  const ORDER_BROWSER_ACK_TIMEOUT_MS = 120000;
 
   const COLOR_LABELS = {
     actual: "Madera clara",
@@ -140,18 +143,13 @@
 
       setStatus(statusNode, "Enviando solicitud...", "info");
 
-      await fetch(endpoint, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain;charset=utf-8"
-        },
-        body: JSON.stringify(payload)
-      });
+      const ack = await submitOrderWithBrowserAck(endpoint, payload);
 
       setStatus(
         statusNode,
-        "Solicitud transmitida. La recepción quedará confirmada cuando recibas el correo automático. Si no lo recibes, los datos siguen en pantalla para que puedas revisarlos o volver a intentarlo.",
+        "Solicitud recibida correctamente. Referencia: " +
+          ack.id_pedido_web +
+          ". Revisa tu correo para conservar la confirmación.",
         "success"
       );
     } catch (error) {
@@ -160,6 +158,168 @@
       setBusy(submitButton, false);
     }
   }
+
+  function isAllowedOrderBrowserAckOrigin(origin) {
+    try {
+      const parsed = new URL(String(origin || ""));
+      const host = parsed.hostname.toLowerCase();
+
+      if (parsed.protocol !== "https:") {
+        return false;
+      }
+
+      return (
+        host === "script.google.com" ||
+        host === "script.googleusercontent.com" ||
+        host.endsWith(".googleusercontent.com")
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function appendHiddenOrderField(form, name, fieldValue) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = String(fieldValue === undefined ? "" : fieldValue);
+    form.appendChild(input);
+  }
+
+  function submitOrderWithBrowserAck(endpoint, payload) {
+    return new Promise(function (resolve, reject) {
+      const orderId = String(payload && payload.pedido_web_id || "")
+        .trim()
+        .toUpperCase();
+      const nonce = randomCode(32);
+      const responseOrigin = String(
+        window.location && window.location.origin || ""
+      ).trim();
+
+      if (!/^TK-WEB-\d{8}-[A-HJ-NP-Z2-9]{6}$/.test(orderId)) {
+        reject(new Error("No se ha podido preparar una referencia segura para el pedido."));
+        return;
+      }
+
+      if (
+        responseOrigin !== "https://takara3d.es" &&
+        responseOrigin !== "https://www.takara3d.es"
+      ) {
+        reject(new Error("El origen actual no está autorizado para confirmar pedidos."));
+        return;
+      }
+
+      const frame = document.createElement("iframe");
+      const postForm = document.createElement("form");
+      const frameName = "takara_order_ack_" + nonce;
+      let completed = false;
+      let timer = null;
+
+      frame.name = frameName;
+      frame.setAttribute("aria-hidden", "true");
+      frame.tabIndex = -1;
+      frame.style.display = "none";
+
+      postForm.method = "POST";
+      postForm.action = endpoint;
+      postForm.target = frameName;
+      postForm.acceptCharset = "UTF-8";
+      postForm.style.display = "none";
+
+      appendHiddenOrderField(postForm, "takara_payload_json", JSON.stringify(payload));
+      appendHiddenOrderField(postForm, "takara_response_mode", ORDER_BROWSER_RESPONSE_MODE);
+      appendHiddenOrderField(postForm, "takara_response_origin", responseOrigin);
+      appendHiddenOrderField(postForm, "takara_response_nonce", nonce);
+      appendHiddenOrderField(postForm, "takara_order_id", orderId);
+
+      function cleanup() {
+        window.removeEventListener("message", onMessage);
+        if (timer !== null) {
+          window.clearTimeout(timer);
+        }
+        if (postForm.parentNode) {
+          postForm.parentNode.removeChild(postForm);
+        }
+        if (frame.parentNode) {
+          frame.parentNode.removeChild(frame);
+        }
+      }
+
+      function finishError(message) {
+        if (completed) return;
+        completed = true;
+        cleanup();
+        reject(new Error(message));
+      }
+
+      function onMessage(event) {
+        if (completed || event.source !== frame.contentWindow) {
+          return;
+        }
+
+        if (!isAllowedOrderBrowserAckOrigin(event.origin)) {
+          return;
+        }
+
+        const data = event.data;
+        if (!data || typeof data !== "object" || Array.isArray(data)) {
+          return;
+        }
+
+        if (
+          data.version !== ORDER_BROWSER_TRANSPORT_VERSION ||
+          data.nonce !== nonce ||
+          data.order_id !== orderId
+        ) {
+          return;
+        }
+
+        if (
+          data.ok === true &&
+          data.id_pedido_web === orderId &&
+          data.estado === "recibido"
+        ) {
+          completed = true;
+          cleanup();
+          resolve(Object.freeze({
+            version: ORDER_BROWSER_TRANSPORT_VERSION,
+            id_pedido_web: orderId,
+            estado: "recibido"
+          }));
+          return;
+        }
+
+        finishError(
+          typeof data.message === "string" && data.message
+            ? data.message
+            : "El servidor no ha confirmado la recepción del pedido."
+        );
+      }
+
+      window.addEventListener("message", onMessage);
+      timer = window.setTimeout(function () {
+        finishError(
+          "No se ha podido confirmar la recepción del pedido. No lo damos por recibido; revisa tu correo antes de volver a intentarlo."
+        );
+      }, ORDER_BROWSER_ACK_TIMEOUT_MS);
+
+      document.body.appendChild(frame);
+      document.body.appendChild(postForm);
+
+      try {
+        postForm.submit();
+      } catch (error) {
+        finishError("No se ha podido enviar el pedido al servidor.");
+      }
+    });
+  }
+
+  window.TAKARA_ORDER_BROWSER_TRANSPORT_V1 = Object.freeze({
+    version: ORDER_BROWSER_TRANSPORT_VERSION,
+    timeout_ms: ORDER_BROWSER_ACK_TIMEOUT_MS,
+    isAllowedResponseOrigin: isAllowedOrderBrowserAckOrigin,
+    submit: submitOrderWithBrowserAck
+  });
 
 
   /* TAKARA PEDIDO CONTACT CONTRACT V2 START */
@@ -1304,7 +1464,7 @@
       "opacity:.74"
     ].join(";");
 
-    title.textContent = safeState === "success" ? (message.indexOf("Modo prueba local:") === 0 ? "Prueba local completada" : "Solicitud transmitida") : "Falta completar algo";
+    title.textContent = safeState === "success" ? (message.indexOf("Modo prueba local:") === 0 ? "Prueba local completada" : "Solicitud recibida") : "Falta completar algo";
     title.style.cssText = [
       "display:block",
       "margin:0 0 10px",

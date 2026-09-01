@@ -186,6 +186,14 @@ function createHarness(payload) {
   };
 
   vm.createContext(context);
+  vm.runInContext(
+    fs.readFileSync(
+      path.join(root, "apps-script", "takara-pedidos-web", "OrderBrowserTransport.gs"),
+      "utf8"
+    ),
+    context,
+    { filename: "OrderBrowserTransport.gs" }
+  );
 
   const source = fs.readFileSync(codePath, "utf8");
   vm.runInContext(extractFunction(source, "doPost"), context);

@@ -241,6 +241,11 @@ function createOrderHarness(backend, payload) {
     enviarConfirmacionCliente_() { sideEffects += 1; throw new Error("unexpected side effect"); },
   };
   vm.createContext(context);
+  vm.runInContext(
+    fs.readFileSync(path.join(APP, "OrderBrowserTransport.gs"), "utf8"),
+    context,
+    { filename: "OrderBrowserTransport.gs" }
+  );
   vm.runInContext(doPostSource, context, { filename: "doPost.js" });
   return {
     result: context.doPost({}),

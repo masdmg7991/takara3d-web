@@ -53,17 +53,20 @@ assets/js/takara-pedido-preview.js
 
 El backend ligero de pedidos/contacto está publicado en Google Apps Script.
 
-Versión publicada verificada mediante GET del endpoint usado por `pedido.html`
-el 2026-08-29:
-
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2
-```
-
-Versión declarada por el `Code.gs` local en este baseline:
+Última versión productiva documentada por el E2E F5E del 2026-08-30:
 
 ```text
 TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1
+```
+
+Antes de cualquier nueva promoción, la autoridad sobre producción debe volver a
+verificarse mediante GET del endpoint canónico; esta documentación no sustituye
+esa comprobación live.
+
+Candidato local actual declarado por `Code.gs`:
+
+```text
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1
 ```
 
 La implementación V1.14.1 mantiene como contratos vigentes:

@@ -646,7 +646,7 @@ function testStaticContract() {
   ok(page.includes("takara-pedido-delivery.css?v=entrega-v2-2"), "CSS V2 versionado");
   ok(page.includes("takara-delivery.js?v=entrega-v2-2"), "Core V2 versionado");
   ok(page.includes("takara-pedido-delivery.js?v=entrega-v2-2"), "UI V2 versionada");
-  ok(page.includes("takara-pedido-web.js?v=pedido-entrega-v2-2"), "Motor de pedido V2 versionado");
+  ok(page.includes("takara-pedido-web.js?v=pedido-entrega-v2-3"), "Motor de pedido V2 versionado");
   ok(page.includes("takara-postal-national.js?v=postal-nacional-v1"), "Página carga core nacional pequeño");
   ok(page.includes("Municipios según CartoCiudad · IGN/CNIG"), "Página muestra atribución CartoCiudad");
   ok(orderSource.includes('TAKARA_DELIVERY_CORE_V2'), "Motor usa core postal V2");

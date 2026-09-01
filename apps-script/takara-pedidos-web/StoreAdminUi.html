@@ -220,6 +220,66 @@
       margin-top: 14px;
     }
 
+    .store-public-access {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 196px;
+      gap: 16px;
+      align-items: center;
+      margin: 16px 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fafaf7;
+      padding: 16px;
+    }
+
+    .store-public-access h3 {
+      margin: 0 0 7px;
+      font-size: 15px;
+    }
+
+    .store-public-url {
+      display: block;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .store-public-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .store-public-actions a {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .store-public-qr {
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+    }
+
+    .store-public-qr canvas {
+      width: 180px;
+      height: 180px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      image-rendering: pixelated;
+    }
+
+    .store-public-qr small {
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+    }
+
     .form {
       display: grid;
       gap: 14px;
@@ -412,6 +472,8 @@
       .detail { position: static; }
       .form-grid { grid-template-columns: 1fr; }
       .form-field-wide { grid-column: auto; }
+      .store-public-access { grid-template-columns: 1fr; }
+      .store-public-qr { justify-items: start; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -485,6 +547,12 @@
       "use strict";
 
       const UI_VERSION = "TAKARA_STORE_ADMIN_UI_V1";
+      const STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s=";
+      const STORE_PUBLIC_CODE_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
+      const STORE_QR_SIZE = 37;
+      const STORE_QR_DATA_CODEWORDS = 108;
+      const STORE_QR_EC_CODEWORDS = 26;
+      const STORE_QR_MASK = 0;
       const state = {
         stores: [],
         selectedId: "",
@@ -509,6 +577,287 @@
         return value === null || value === undefined || value === ""
           ? "—"
           : String(value);
+      }
+
+      function buildStorePublicUrl(storePublicCode) {
+        const code = String(storePublicCode || "").trim();
+        if (!STORE_PUBLIC_CODE_PATTERN.test(code)) {
+          throw new Error("STORE_PUBLIC_CODE_INVALID");
+        }
+        return STORE_PUBLIC_URL_PREFIX + encodeURIComponent(code);
+      }
+
+      function qrGfMultiply(left, right) {
+        let a = left;
+        let b = right;
+        let result = 0;
+
+        while (b > 0) {
+          if (b & 1) result ^= a;
+          b >>>= 1;
+          a <<= 1;
+          if (a & 0x100) a ^= 0x11d;
+        }
+
+        return result;
+      }
+
+      function qrGeneratorPolynomial(degree) {
+        let polynomial = [1];
+        let alpha = 1;
+
+        for (let i = 0; i < degree; i += 1) {
+          const next = new Array(polynomial.length + 1).fill(0);
+          polynomial.forEach(function (coefficient, index) {
+            next[index] ^= coefficient;
+            next[index + 1] ^= qrGfMultiply(coefficient, alpha);
+          });
+          polynomial = next;
+          alpha = qrGfMultiply(alpha, 2);
+        }
+
+        return polynomial;
+      }
+
+      function qrAppendBits(bits, value, length) {
+        for (let i = length - 1; i >= 0; i -= 1) {
+          bits.push((value >>> i) & 1);
+        }
+      }
+
+      function qrCreateCodewords(storePublicUrl) {
+        const bytes = Array.from(String(storePublicUrl), function (character) {
+          const value = character.charCodeAt(0);
+          if (value > 0x7f) throw new Error("STORE_QR_URL_NOT_ASCII");
+          return value;
+        });
+        const dataCapacityBits = STORE_QR_DATA_CODEWORDS * 8;
+        const bits = [];
+
+        if (bytes.length > 106) {
+          throw new Error("STORE_QR_URL_TOO_LONG");
+        }
+
+        qrAppendBits(bits, 0x4, 4);
+        qrAppendBits(bits, bytes.length, 8);
+        bytes.forEach(function (value) {
+          qrAppendBits(bits, value, 8);
+        });
+
+        for (
+          let i = 0;
+          i < Math.min(4, dataCapacityBits - bits.length);
+          i += 1
+        ) {
+          bits.push(0);
+        }
+        while (bits.length % 8 !== 0) bits.push(0);
+
+        const data = [];
+        for (let offset = 0; offset < bits.length; offset += 8) {
+          let value = 0;
+          for (let bit = 0; bit < 8; bit += 1) {
+            value = (value << 1) | bits[offset + bit];
+          }
+          data.push(value);
+        }
+
+        const pads = [0xec, 0x11];
+        let padIndex = 0;
+        while (data.length < STORE_QR_DATA_CODEWORDS) {
+          data.push(pads[padIndex % 2]);
+          padIndex += 1;
+        }
+
+        const generator = qrGeneratorPolynomial(STORE_QR_EC_CODEWORDS);
+        const remainder = new Array(STORE_QR_EC_CODEWORDS).fill(0);
+        data.forEach(function (value) {
+          const factor = value ^ remainder[0];
+          remainder.shift();
+          remainder.push(0);
+          for (let i = 0; i < STORE_QR_EC_CODEWORDS; i += 1) {
+            remainder[i] ^= qrGfMultiply(generator[i + 1], factor);
+          }
+        });
+
+        return data.concat(remainder);
+      }
+
+      function qrBitLength(value) {
+        let length = 0;
+        let current = value;
+        while (current !== 0) {
+          length += 1;
+          current >>>= 1;
+        }
+        return length;
+      }
+
+      function qrFormatBits(mask) {
+        const generator = 0x537;
+        const formatMask = 0x5412;
+        const data = (1 << 3) | mask;
+        let remainder = data << 10;
+
+        while (qrBitLength(remainder) - qrBitLength(generator) >= 0) {
+          remainder ^=
+            generator << (qrBitLength(remainder) - qrBitLength(generator));
+        }
+
+        return ((data << 10) | remainder) ^ formatMask;
+      }
+
+      function buildStoreQrMatrix(storePublicUrl) {
+        const size = STORE_QR_SIZE;
+        const matrix = Array.from({ length: size }, function () {
+          return new Array(size).fill(null);
+        });
+
+        function setFinder(row, column) {
+          for (let dr = -1; dr <= 7; dr += 1) {
+            const r = row + dr;
+            if (r < 0 || r >= size) continue;
+            for (let dc = -1; dc <= 7; dc += 1) {
+              const c = column + dc;
+              if (c < 0 || c >= size) continue;
+              matrix[r][c] =
+                (dr >= 0 && dr <= 6 && (dc === 0 || dc === 6)) ||
+                (dc >= 0 && dc <= 6 && (dr === 0 || dr === 6)) ||
+                (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4);
+            }
+          }
+        }
+
+        setFinder(0, 0);
+        setFinder(size - 7, 0);
+        setFinder(0, size - 7);
+
+        for (let row = 8; row < size - 8; row += 1) {
+          if (matrix[row][6] === null) matrix[row][6] = row % 2 === 0;
+        }
+        for (let column = 8; column < size - 8; column += 1) {
+          if (matrix[6][column] === null) {
+            matrix[6][column] = column % 2 === 0;
+          }
+        }
+
+        [6, 30].forEach(function (row) {
+          [6, 30].forEach(function (column) {
+            if (matrix[row][column] !== null) return;
+            for (let dr = -2; dr <= 2; dr += 1) {
+              for (let dc = -2; dc <= 2; dc += 1) {
+                matrix[row + dr][column + dc] =
+                  Math.abs(dr) === 2 ||
+                  Math.abs(dc) === 2 ||
+                  (dr === 0 && dc === 0);
+              }
+            }
+          });
+        });
+
+        const format = qrFormatBits(STORE_QR_MASK);
+        for (let i = 0; i < 15; i += 1) {
+          const dark = ((format >>> i) & 1) === 1;
+          if (i < 6) matrix[i][8] = dark;
+          else if (i < 8) matrix[i + 1][8] = dark;
+          else matrix[size - 15 + i][8] = dark;
+
+          if (i < 8) matrix[8][size - i - 1] = dark;
+          else if (i < 9) matrix[8][15 - i] = dark;
+          else matrix[8][15 - i - 1] = dark;
+        }
+        matrix[size - 8][8] = true;
+
+        const codewords = qrCreateCodewords(storePublicUrl);
+        let direction = -1;
+        let row = size - 1;
+        let bitIndex = 7;
+        let byteIndex = 0;
+
+        for (let baseColumn = size - 1; baseColumn > 0; baseColumn -= 2) {
+          const column = baseColumn <= 6 ? baseColumn - 1 : baseColumn;
+
+          while (true) {
+            [column, column - 1].forEach(function (currentColumn) {
+              if (matrix[row][currentColumn] !== null) return;
+
+              let dark = false;
+              if (byteIndex < codewords.length) {
+                dark = ((codewords[byteIndex] >>> bitIndex) & 1) === 1;
+              }
+              if ((row + currentColumn) % 2 === 0) dark = !dark;
+              matrix[row][currentColumn] = dark;
+
+              bitIndex -= 1;
+              if (bitIndex < 0) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            });
+
+            row += direction;
+            if (row < 0 || row >= size) {
+              row -= direction;
+              direction = -direction;
+              break;
+            }
+          }
+        }
+
+        return matrix;
+      }
+
+      function renderStoreQrCanvas(storePublicUrl, label) {
+        const matrix = buildStoreQrMatrix(storePublicUrl);
+        const quietZone = 4;
+        const scale = 4;
+        const canvas = document.createElement("canvas");
+        const pixels = (STORE_QR_SIZE + quietZone * 2) * scale;
+        const context = canvas.getContext("2d");
+
+        if (!context) throw new Error("STORE_QR_CANVAS_UNAVAILABLE");
+
+        canvas.width = pixels;
+        canvas.height = pixels;
+        canvas.setAttribute("role", "img");
+        canvas.setAttribute("aria-label", label);
+        context.imageSmoothingEnabled = false;
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, pixels, pixels);
+        context.fillStyle = "#000000";
+
+        matrix.forEach(function (row, rowIndex) {
+          row.forEach(function (dark, columnIndex) {
+            if (!dark) return;
+            context.fillRect(
+              (columnIndex + quietZone) * scale,
+              (rowIndex + quietZone) * scale,
+              scale,
+              scale
+            );
+          });
+        });
+
+        return canvas;
+      }
+
+      function copyStorePublicUrl(storePublicUrl) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(storePublicUrl);
+        }
+
+        const fallback = document.createElement("textarea");
+        fallback.value = storePublicUrl;
+        fallback.setAttribute("readonly", "readonly");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.appendChild(fallback);
+        fallback.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(fallback);
+        return copied
+          ? Promise.resolve()
+          : Promise.reject(new Error("COPY_UNAVAILABLE"));
       }
 
       function createNode(tag, className, value) {
@@ -868,6 +1217,59 @@
           fields.appendChild(field(entry[0], entry[1]));
         });
         els.detail.appendChild(fields);
+
+        const storeUrl = buildStorePublicUrl(store.store_public_code);
+        const publicAccess = createNode("section", "store-public-access");
+        const publicInfo = createNode("div");
+        publicInfo.appendChild(createNode("h3", "", "Acceso público de la tienda"));
+        publicInfo.appendChild(createNode("code", "store-public-url", storeUrl));
+
+        const publicActions = createNode("div", "store-public-actions");
+        const openStore = createNode("a", "secondary", "Abrir tienda");
+        openStore.href = storeUrl;
+        openStore.target = "_blank";
+        openStore.rel = "noopener noreferrer";
+        publicActions.appendChild(openStore);
+
+        const copyStore = createNode("button", "secondary", "Copiar enlace");
+        copyStore.type = "button";
+        copyStore.addEventListener("click", function () {
+          copyStore.disabled = true;
+          copyStorePublicUrl(storeUrl)
+            .then(function () {
+              copyStore.textContent = "Enlace copiado";
+            })
+            .catch(function () {
+              copyStore.textContent = "No se pudo copiar";
+            })
+            .finally(function () {
+              window.setTimeout(function () {
+                copyStore.textContent = "Copiar enlace";
+                copyStore.disabled = false;
+              }, 1500);
+            });
+        });
+        publicActions.appendChild(copyStore);
+        publicInfo.appendChild(publicActions);
+        publicAccess.appendChild(publicInfo);
+
+        const qrWrap = createNode("div", "store-public-qr");
+        const qrCanvas = renderStoreQrCanvas(
+          storeUrl,
+          "QR para abrir " + store.display_name
+        );
+        qrWrap.appendChild(qrCanvas);
+        qrWrap.appendChild(
+          createNode(
+            "small",
+            "",
+            store.status === "ACTIVE"
+              ? "Escanea para abrir el pedido de esta tienda."
+              : "QR conservado. La tienda está INACTIVE y debe fallar cerrado."
+          )
+        );
+        publicAccess.appendChild(qrWrap);
+        els.detail.appendChild(publicAccess);
 
         els.detail.appendChild(
           createNode(

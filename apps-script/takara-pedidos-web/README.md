@@ -67,7 +67,8 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1 (publicado)
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1 (última versión productiva documentada; verificar live por GET antes de promover)
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1 (candidato local actual)
 - TAKARA_WEB_ORDER_PAYLOAD_V2
 - TAKARA_ORDER_SNAPSHOT_V2
 - TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC

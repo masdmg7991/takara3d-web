@@ -96,6 +96,36 @@ def main() -> int:
         "innerHTML" not in ui,
         "UI no inyecta Store data con innerHTML",
     )
+    require(
+        'STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s="' in ui,
+        "Admin conserva URL pública Store canónica",
+    )
+    require(
+        "buildStorePublicUrl(store.store_public_code)" in ui,
+        "Admin deriva URL pública desde store_public_code",
+    )
+    require(
+        "buildStorePublicUrl(store.store_id)" not in ui,
+        "Admin nunca usa store_id como identidad pública",
+    )
+    require(
+        "renderStoreQrCanvas(" in ui
+        and "Abrir tienda" in ui
+        and "Copiar enlace" in ui,
+        "Admin expone QR local + abrir/copiar sobre la URL canónica",
+    )
+    require(
+        "STORE_QR_SIZE = 37" in ui
+        and "STORE_QR_EC_CODEWORDS = 26" in ui
+        and 'canvas.getContext("2d")' in ui,
+        "QR se genera localmente con matriz y paridad explícitas",
+    )
+    require(
+        "quickchart.io" not in ui
+        and "STORE_QR_IMAGE_PREFIX" not in ui
+        and "buildStoreQrImageUrl" not in ui,
+        "Admin no depende de proveedor QR remoto",
+    )
 
     for marker in (
         "127.0.0.1",

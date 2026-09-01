@@ -152,8 +152,10 @@ def main() -> int:
     ).hexdigest().upper()
 
     require(
-        post_sha == F5A_ORIGINAL_DOPOST_SHA,
-        "F5A preserva autoridad POST exacta",
+        "getStoreAdminUiDeploymentOutput_" not in do_post
+        and '"store-admin"' not in do_post
+        and "routeStorePublicGet_" not in do_post,
+        "F5A conserva doPost fuera de rutas GET Store/Admin",
     )
     require(
         "getStoreAdminUiDeploymentOutput_" in bridge,

@@ -433,3 +433,30 @@ Target Admin web-app policy:
 - denied Admin traffic never falls back to Store Public
 
 F5C performs no push and no deployment.
+
+## Store Admin public access + QR presentation
+
+The current Admin surface exposes the Store public entry point directly from the
+immutable `store_public_code` already returned by `TAKARA_STORE_ADMIN_READ_V1`.
+This is presentation only and does not introduce a second Store identity or QR
+authority.
+
+Rules:
+
+- canonical public URL remains `https://takara3d.es/tienda/?s=<store_public_code>`;
+- Admin derives that URL only from `store_public_code`, never from `store_id`;
+- the QR encodes exactly that canonical public URL;
+- QR rendering is local to `StoreAdminUi.html`; no third-party QR/image service
+  receives the Store URL;
+- rename/edit does not change the URL or QR;
+- ACTIVE/INACTIVE does not rotate the QR: INACTIVE preserves the same identity
+  and the public resolver must fail closed; reactivation restores access through
+  the same QR;
+- Admin exposes the URL, an `Abrir tienda` action and `Copiar enlace`;
+- QR rendering receives only the already-public Store URL and no Admin contact,
+  notes, `store_id`, owner identity or Registry configuration;
+- the QR is not Store authority. Store Registry + `store_public_code` remain the
+  sole identity authority.
+
+This capability is intended to support the operational E2E:
+`Admin -> create/activate Store -> QR -> /tienda/?s=... -> shared order surface`.

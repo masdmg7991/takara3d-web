@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const crypto = require("crypto");
 
 const ROOT = path.resolve(__dirname, "..");
 const APP = path.join(ROOT, "apps-script", "takara-pedidos-web");
@@ -155,6 +156,66 @@ ok(
   html.includes("getStoreAdminUiBootstrap") &&
     html.includes("getStoreAdminUiStore"),
   "F4C read foundation remains under F4D"
+);
+ok(
+  html.includes('STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s="'),
+  "Admin derives canonical Store public URL"
+);
+ok(
+  html.includes("buildStorePublicUrl(store.store_public_code)"),
+  "Admin public URL derives from store_public_code"
+);
+ok(
+  !html.includes("buildStorePublicUrl(store.store_id)"),
+  "Admin never builds public URL from store_id"
+);
+ok(html.includes("renderStoreQrCanvas("), "Admin renders local QR from canonical URL");
+ok(html.includes("Abrir tienda"), "Admin exposes open Store action");
+ok(html.includes("Copiar enlace"), "Admin exposes copy Store URL action");
+ok(!html.includes("quickchart.io"), "Admin QR has no QuickChart dependency");
+ok(!html.includes("STORE_QR_IMAGE_PREFIX"), "Admin QR has no remote image authority");
+ok(html.includes("STORE_QR_SIZE = 37"), "Admin QR uses fixed Version 5 matrix");
+ok(html.includes("STORE_QR_EC_CODEWORDS = 26"), "Admin QR carries local Reed-Solomon parity");
+
+const qrSourceStart = html.indexOf("function qrGfMultiply");
+const qrSourceEnd = html.indexOf("function copyStorePublicUrl");
+ok(qrSourceStart >= 0 && qrSourceEnd > qrSourceStart, "QR implementation is extractable for causal test");
+
+const qrContext = { Array, String, Math, Error };
+vm.createContext(qrContext);
+vm.runInContext(
+  [
+    "const STORE_QR_SIZE = 37;",
+    "const STORE_QR_DATA_CODEWORDS = 108;",
+    "const STORE_QR_EC_CODEWORDS = 26;",
+    "const STORE_QR_MASK = 0;",
+    html.slice(qrSourceStart, qrSourceEnd),
+    "this.buildStoreQrMatrix = buildStoreQrMatrix;",
+  ].join("\n"),
+  qrContext,
+  { filename: "StoreAdminUi.local-qr.js" }
+);
+
+const qrReferenceUrl =
+  "https://takara3d.es/tienda/?s=st_AAAAAAAAAAAAAAAAAAAAAAAA";
+const qrMatrix = qrContext.buildStoreQrMatrix(qrReferenceUrl);
+ok(qrMatrix.length === 37, "local QR matrix has Version 5 size");
+ok(
+  qrMatrix.every((row) =>
+    row.length === 37 && row.every((value) => typeof value === "boolean")
+  ),
+  "local QR matrix is complete and boolean"
+);
+const qrBits = qrMatrix
+  .map((row) => row.map((value) => value ? "1" : "0").join(""))
+  .join("");
+const qrFingerprint = crypto
+  .createHash("sha256")
+  .update(qrBits)
+  .digest("hex");
+ok(
+  qrFingerprint === "272547b03fbafcd2393bbc3486cf5f61a03d73e2899c0ed42f1578fdb0a5b7d9",
+  "local QR matches independent Version 5-L reference matrix"
 );
 
 console.log(

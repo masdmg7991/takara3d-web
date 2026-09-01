@@ -297,7 +297,7 @@ function testStaticClientContract() {
   });
 
   ok(
-    page.includes("takara-pedido-web.js?v=pedido-entrega-v2-2"),
+    page.includes("takara-pedido-web.js?v=pedido-entrega-v2-3"),
     "pedido.html invalida la caché del motor con ficha visual"
   );
   ok(
