@@ -231,6 +231,53 @@ function element() {
   };
 }
 
+function createOrderFrame() {
+  const form = { attrs: {}, setAttribute(name, value) { this.attrs[name] = value; } };
+  const surface = {
+    textContent: "",
+    querySelectorAll() { return []; },
+    querySelector(selector) {
+      return selector === "[data-takara-pedido-form]" ? form : null;
+    },
+  };
+  const frameDocument = {
+    body: { scrollHeight: 1200 },
+    documentElement: { scrollHeight: 1200 },
+    head: { appendChild() {} },
+    querySelector(selector) { return selector === "#pedido" ? surface : null; },
+    querySelectorAll() { return []; },
+    createElement() { return { setAttribute() {}, textContent: "" }; },
+  };
+  const frameWindow = {
+    storeContext: null,
+    TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1: {
+      setVerifiedContext(context) { frameWindow.storeContext = context; },
+      clear() { frameWindow.storeContext = null; },
+    },
+    addEventListener() {},
+    removeEventListener() {},
+  };
+  const frame = {
+    hidden: true,
+    style: { height: "0px" },
+    contentDocument: frameDocument,
+    contentWindow: frameWindow,
+    onload: null,
+    onerror: null,
+    _src: "about:blank",
+    set src(value) {
+      this._src = value;
+      if (value !== "about:blank") {
+        process.nextTick(() => {
+          if (typeof this.onload === "function") this.onload();
+        });
+      }
+    },
+    get src() { return this._src; },
+  };
+  return { frame, form, frameWindow };
+}
+
 function createBrowser(backend, search) {
   const listeners = {};
   const loading = element();
@@ -238,6 +285,7 @@ function createBrowser(backend, search) {
   const error = element();
   const name = element();
   const errorMessage = element();
+  const order = createOrderFrame();
 
   const rootNode = {
     attributes: {
@@ -245,6 +293,9 @@ function createBrowser(backend, search) {
     },
     setAttribute(name, value) {
       this.attributes[name] = value;
+    },
+    removeAttribute(name) {
+      delete this.attributes[name];
     },
     getAttribute(name) {
       return this.attributes[name] || "";
@@ -256,6 +307,7 @@ function createBrowser(backend, search) {
         "[data-store-error]": error,
         "[data-store-name]": name,
         "[data-store-error-message]": errorMessage,
+        "[data-store-order-frame]": order.frame,
       };
       return map[selector] || null;
     },
@@ -280,14 +332,15 @@ function createBrowser(backend, search) {
   MutationObserver.prototype.disconnect = function disconnect() {};
 
   const document = {
-    readyState: "complete",
+    readyState: "loading",
     body: {
       querySelectorAll() {
         return [];
       },
     },
     addEventListener(name, handler) {
-      listeners[name] = handler;
+      if (!listeners[name]) listeners[name] = [];
+      listeners[name].push(handler);
     },
     querySelector(selector) {
       if (selector === "[data-takara-store-app]") {
@@ -361,6 +414,10 @@ function createBrowser(backend, search) {
     },
     setTimeout,
     clearTimeout,
+    requestAnimationFrame(callback) {
+      callback();
+      return 1;
+    },
   };
 
   window.window = window;
@@ -409,11 +466,12 @@ function createBrowser(backend, search) {
   );
 
   async function boot() {
-    if (typeof listeners.DOMContentLoaded !== "function") {
+    const handlers = listeners.DOMContentLoaded || [];
+    if (handlers.length === 0) {
       throw new Error("Store client did not register DOMContentLoaded");
     }
 
-    listeners.DOMContentLoaded();
+    handlers.forEach((handler) => handler());
 
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
@@ -462,6 +520,7 @@ function ok(condition, message) {
   ok(store.store_public_code.startsWith("st_"), "Store has public code");
 
   const helperBrowser = createBrowser(backend, "");
+  await helperBrowser.boot();
   ok(
     helperBrowser.getObserverObserveCount() === 1,
     "central config registers one MutationObserver"

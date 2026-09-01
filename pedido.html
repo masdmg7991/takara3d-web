@@ -101,7 +101,19 @@
     }
   </script>
   <!-- TAKARA SEO JSON-LD END -->
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a33d526d98b94d2daf9152868f5fa030"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- TAKARA DIRECT ANALYTICS GUARD V1 START -->
+  <script>
+    (function () {
+      "use strict";
+      if (new URLSearchParams(window.location.search).get("channel") === "store") return;
+      var analytics = document.createElement("script");
+      analytics.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      analytics.async = true;
+      analytics.setAttribute("data-cf-beacon", '{"token": "a33d526d98b94d2daf9152868f5fa030"}');
+      document.head.appendChild(analytics);
+    }());
+  </script>
+  <!-- TAKARA DIRECT ANALYTICS GUARD V1 END -->
       <meta name="robots" content="index, follow">
       <meta property="og:site_name" content="Takara3D">
       <meta name="twitter:card" content="summary">
@@ -313,7 +325,7 @@
                   <input type="checkbox" name="acepta_contacto" value="si" required>
                   <span>
                     <strong>Datos de contacto.</strong>
-                    Acepto que Takara 3D utilice mis datos de contacto únicamente para gestionar esta solicitud y responderme.
+                    Acepto que mis datos de contacto se utilicen únicamente para gestionar esta solicitud y responderme.
                   </span>
                 </label>
               </div>
@@ -323,7 +335,7 @@
                   <input type="checkbox" name="acepta_revision" value="si" required>
                   <span>
                     <strong>Imagen enviada.</strong>
-                    Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo a Takara 3D a revisarla durante su preparación.
+                    Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo su revisión durante la preparación.
                   </span>
                 </label>
               </div>
@@ -633,12 +645,12 @@
             <div class="takara-submit-final__checks">
               <label class="takara-submit-final__check">
                 <input type="checkbox" data-takara-accept-proxy="acepta_revision">
-                <span>Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo a Takara 3D a revisarla durante su preparación.</span>
+                <span>Confirmo que puedo utilizar esta imagen para crear mi pedido y autorizo su revisión durante la preparación.</span>
               </label>
 
               <label class="takara-submit-final__check">
                 <input type="checkbox" data-takara-accept-proxy="acepta_contacto">
-                <span>Acepto que Takara 3D utilice mis datos de contacto únicamente para gestionar esta solicitud y responderme.</span>
+                <span>Acepto que mis datos de contacto se utilicen únicamente para gestionar esta solicitud y responderme.</span>
               </label>
               <label class="takara-submit-final__check">
                 <input type="checkbox" data-takara-accept-proxy="autoriza_publicacion_resultado">

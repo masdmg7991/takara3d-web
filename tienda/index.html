@@ -6,8 +6,10 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="googlebot" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <title>Tienda asociada | Takara 3D</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
+  <title>Tienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/takara-store-public.css">
 </head>
 <body class="takara-store-channel">
@@ -18,62 +20,40 @@
     data-state="loading"
     aria-busy="true"
   >
-    <header class="takara-store-brand" aria-label="Takara 3D">
-      <span class="takara-store-brand__mark" aria-hidden="true">T</span>
-      <span class="takara-store-brand__name">Takara 3D</span>
-    </header>
-
     <section
-      class="takara-store-panel takara-store-panel--loading"
+      class="takara-store-state takara-store-state--loading"
       data-store-loading
       role="status"
       aria-live="polite"
       aria-atomic="true"
     >
-      <p class="takara-store-kicker">Canal de establecimiento colaborador</p>
-      <h1>Abriendo esta tienda…</h1>
+      <p class="takara-store-kicker">Pedido de tienda</p>
+      <h1>Abriendo tienda…</h1>
       <p>Estamos verificando el establecimiento asociado a este enlace.</p>
     </section>
 
     <section
-      class="takara-store-panel takara-store-panel--active"
+      class="takara-store-order"
       data-store-active
       aria-labelledby="takara-store-active-title"
       hidden
     >
-      <p class="takara-store-kicker">Pedido a través de</p>
-      <h1 id="takara-store-active-title" data-store-name></h1>
-      <p class="takara-store-intro">
-        Este acceso pertenece a un establecimiento colaborador de Takara 3D.
-        El canal se mantiene vinculado a esta tienda durante la solicitud.
-      </p>
-
-      <article class="takara-store-product" aria-labelledby="store-product-title">
-        <div>
-          <p class="takara-store-product__eyebrow">Producto disponible</p>
-          <h2 id="store-product-title">Marco con litofanía personalizada</h2>
-          <p>
-            Una fotografía convertida en litofanía y montada en un marco
-            fabricado por Takara 3D.
-          </p>
-        </div>
-        <p class="takara-store-product__price">
-          <span>Desde</span>
-          <strong data-takara-price="marco">35 €</strong>
-        </p>
-      </article>
-
-      <div class="takara-store-next" aria-live="polite">
-        <strong>Canal Store verificado.</strong>
-        <span>
-          La configuración y el pedido se habilitarán únicamente conservando
-          esta atribución de tienda.
-        </span>
-      </div>
+      <header class="takara-store-identity">
+        <p>Pedido en</p>
+        <h1 id="takara-store-active-title" data-store-name></h1>
+      </header>
+      <iframe
+        class="takara-store-order-frame"
+        data-store-order-frame
+        title="Pedido"
+        referrerpolicy="no-referrer"
+        scrolling="no"
+        hidden
+      ></iframe>
     </section>
 
     <section
-      class="takara-store-panel takara-store-panel--error"
+      class="takara-store-state takara-store-state--error"
       data-store-error
       hidden
       role="alert"
@@ -87,7 +67,7 @@
     </section>
 
     <noscript>
-      <section class="takara-store-panel takara-store-panel--error" role="alert">
+      <section class="takara-store-state takara-store-state--error" role="alert">
         <p class="takara-store-kicker">JavaScript necesario</p>
         <h1>No podemos verificar esta tienda.</h1>
         <p>
@@ -96,17 +76,9 @@
         </p>
       </section>
     </noscript>
-
-    <footer class="takara-store-footer">
-      <p>
-        <strong>Operador del producto: Takara 3D.</strong>
-        El establecimiento colaborador identifica el canal comercial; la fabricación
-        y gestión técnica del producto corresponden a Takara 3D.
-      </p>
-    </footer>
   </main>
 
-  <script src="../assets/js/takara-config.js"></script>
+  <script src="../assets/js/takara-config.js?v=precio-central-v1"></script>
   <script src="../assets/js/takara-store-public.js"></script>
 </body>
 </html>

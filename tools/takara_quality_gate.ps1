@@ -333,6 +333,7 @@ if (Test-Path $QrPath) {
 }
 # TAKARA_STORE_SINGLE_APP_ARCHITECTURE_GUARD_V1 START
 $StoreSingleAppIndexPath = Join-Path $Project "tienda/index.html"
+$StoreSingleAppClientPath = Join-Path $Project "assets/js/takara-store-public.js"
 $DirectOrderEnginePath = Join-Path $Project "assets/js/takara-pedido-web.js"
 
 $StoreForbiddenPhysicalPaths = @(
@@ -370,6 +371,55 @@ if (Test-Path $StoreSingleAppIndexPath) {
     }
 } else {
     Err "Falta tienda/index.html para validar arquitectura Store single-app"
+}
+
+if (Test-Path $StoreSingleAppIndexPath) {
+    if (
+        $StoreSingleAppIndexText.Contains("data-store-order-frame") -and
+        -not $StoreSingleAppIndexText.Contains("data-takara-pedido-form") -and
+        -not $StoreSingleAppIndexText.Contains("Takara 3D")
+    ) {
+        Ok "Store single-app conserva shell white-label y no duplica el formulario"
+    } else {
+        Err "Store single-app no conserva shell white-label con frame canonico"
+    }
+}
+
+if (Test-Path $StoreSingleAppClientPath) {
+    $StoreSingleAppClientText = Read-Utf8 $StoreSingleAppClientPath
+    $StoreSingleAppRequiredClientMarkers = @(
+        'const ORDER_FRAME_URL = "/pedido.html?channel=store";',
+        "TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1",
+        'form.setAttribute("data-takara-order-channel", "STORE")',
+        "STORE_WHITE_LABEL_TEXT_LEAK",
+        "autoriza_publicacion_resultado",
+        "data-takara-wa-link"
+    )
+
+    foreach ($Marker in $StoreSingleAppRequiredClientMarkers) {
+        if ($StoreSingleAppClientText.Contains($Marker)) {
+            Ok ("Store single-app conserva contrato compartido: " + $Marker)
+        } else {
+            Err ("Store single-app pierde contrato compartido: " + $Marker)
+        }
+    }
+
+    $StoreSingleAppForbiddenClientMarkers = @(
+        "data-store-order-mount",
+        "TAKARA_STORE_ORDER_HANDOFF_V1",
+        "TAKARA_STORE_WHITE_LABEL_ORDER_V1",
+        "takara-store-order-entry.js"
+    )
+
+    foreach ($Marker in $StoreSingleAppForbiddenClientMarkers) {
+        if ($StoreSingleAppClientText.Contains($Marker)) {
+            Err ("Store single-app reintroduce arquitectura transitoria: " + $Marker)
+        } else {
+            Ok ("Store single-app sin arquitectura transitoria: " + $Marker)
+        }
+    }
+} else {
+    Err "Falta assets/js/takara-store-public.js para validar arquitectura Store single-app"
 }
 
 if (Test-Path $DirectOrderEnginePath) {

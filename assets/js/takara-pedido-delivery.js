@@ -411,7 +411,7 @@
       optional: false,
       placeholder: "Buscando municipio…"
     });
-    setLocationNote(nodes, "Consultando el mapa postal local de Takara 3D…");
+    setLocationNote(nodes, "Consultando la información postal local…");
 
     if (!state.postalMapPromise) {
       state.postalMapPromise = postalApi.loadMap().then(function (map) {

@@ -38,12 +38,16 @@ def main() -> int:
     require('data-store-active' in html, "Existe estado ACTIVE")
     require('data-store-error' in html, "Existe estado fail-closed")
     require(
-        "../assets/js/takara-store-public.js" in html,
+        "assets/js/takara-store-public.js" in html,
         "Store Public carga cliente dedicado",
     )
     require(
-        "../assets/js/takara-config.js" in html,
+        "assets/js/takara-config.js" in html,
         "Store Public reutiliza config comercial existente",
+    )
+    require(
+        "data-store-order-frame" in html,
+        "Store Public monta la superficie canónica de pedido sin duplicarla",
     )
 
     for forbidden in (
@@ -83,8 +87,8 @@ def main() -> int:
     require("JSONP callback removed" in test, "Test cubre cleanup JSONP")
     require("inactive context" in test, "Test cubre INACTIVE")
 
-    require(".takara-store-panel" in css, "CSS define panel Store")
-    require(".takara-store-product" in css, "CSS define producto Store")
+    require(".takara-store-state" in css, "CSS define estados Store")
+    require(".takara-store-order-frame" in css, "CSS define frame de pedido compartido")
     require("@media (max-width: 640px)" in css, "CSS responsive")
 
     print("[TAKARA_STORE_PUBLIC_F2A_STATIC_OK] 39 comprobaciones")

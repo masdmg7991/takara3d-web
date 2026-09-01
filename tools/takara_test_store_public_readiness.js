@@ -20,6 +20,72 @@ function node() {
   };
 }
 
+function createOrderFrame() {
+  const form = {
+    attrs: {},
+    setAttribute(name, value) {
+      this.attrs[name] = value;
+    },
+  };
+  const surface = {
+    textContent: "",
+    querySelectorAll() {
+      return [];
+    },
+    querySelector(selector) {
+      return selector === "[data-takara-pedido-form]" ? form : null;
+    },
+  };
+  const frameDocument = {
+    body: { scrollHeight: 1200 },
+    documentElement: { scrollHeight: 1200 },
+    head: { appendChild() {} },
+    querySelector(selector) {
+      return selector === "#pedido" ? surface : null;
+    },
+    querySelectorAll() {
+      return [];
+    },
+    createElement() {
+      return { setAttribute() {}, textContent: "" };
+    },
+  };
+  const frameWindow = {
+    storeContext: null,
+    TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1: {
+      setVerifiedContext(context) {
+        frameWindow.storeContext = context;
+      },
+      clear() {
+        frameWindow.storeContext = null;
+      },
+    },
+    addEventListener() {},
+    removeEventListener() {},
+  };
+  const frame = {
+    hidden: true,
+    style: { height: "0px" },
+    contentDocument: frameDocument,
+    contentWindow: frameWindow,
+    onload: null,
+    onerror: null,
+    _src: "about:blank",
+    set src(value) {
+      this._src = value;
+      if (value !== "about:blank") {
+        process.nextTick(() => {
+          if (typeof this.onload === "function") this.onload();
+        });
+      }
+    },
+    get src() {
+      return this._src;
+    },
+  };
+  return { frame, form, frameWindow };
+}
+
 function createBrowser(search, responsePayload) {
   const listeners = {};
   const loading = node();
@@ -27,11 +93,15 @@ function createBrowser(search, responsePayload) {
   const error = node();
   const name = node();
   const errorMessage = node();
+  const order = createOrderFrame();
 
   const rootNode = {
     attrs: { "data-state": "loading", "aria-busy": "true" },
     setAttribute(name, value) {
       this.attrs[name] = value;
+    },
+    removeAttribute(name) {
+      delete this.attrs[name];
     },
     getAttribute(name) {
       if (name === "data-store-endpoint") return "";
@@ -44,6 +114,7 @@ function createBrowser(search, responsePayload) {
         "[data-store-error]": error,
         "[data-store-name]": name,
         "[data-store-error-message]": errorMessage,
+        "[data-store-order-frame]": order.frame,
       }[selector] || null;
     },
   };
@@ -52,11 +123,12 @@ function createBrowser(search, responsePayload) {
   let removeCount = 0;
 
   const document = {
-    title: "Tienda asociada | Takara 3D",
-    readyState: "complete",
+    title: "Tienda",
+    readyState: "loading",
     body: { querySelectorAll() { return []; } },
     addEventListener(name, handler) {
-      listeners[name] = handler;
+      if (!listeners[name]) listeners[name] = [];
+      listeners[name].push(handler);
     },
     querySelector(selector) {
       if (selector === "[data-takara-store-app]") {
@@ -99,6 +171,10 @@ function createBrowser(search, responsePayload) {
     crypto: webcrypto,
     setTimeout,
     clearTimeout,
+    requestAnimationFrame(callback) {
+      callback();
+      return 1;
+    },
   };
 
   window.window = window;
@@ -139,13 +215,18 @@ function createBrowser(search, responsePayload) {
   );
 
   async function boot() {
-    listeners.DOMContentLoaded();
+    const handlers = listeners.DOMContentLoaded || [];
+    if (handlers.length === 0) {
+      throw new Error("Store client did not register DOMContentLoaded");
+    }
+    handlers.forEach((handler) => handler());
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
 
   return {
     document,
     rootNode,
+    order,
     loading,
     active,
     error,
@@ -181,8 +262,17 @@ function createBrowser(search, responsePayload) {
   ok(active.error.hidden === true, "error hidden");
   ok(active.name.textContent === "Foto García", "authoritative name rendered");
   ok(
-    active.document.title === "Foto García | Takara 3D",
-    "document title uses authoritative Store name"
+    active.document.title === "Foto García",
+    "document title uses only authoritative Store name"
+  );
+  ok(active.order.frame.hidden === false, "canonical order frame shown after verification");
+  ok(
+    active.order.frameWindow.storeContext.store_ref === ref,
+    "verified StoreContext injected into shared order engine"
+  );
+  ok(
+    active.order.form.attrs["data-takara-order-channel"] === "STORE",
+    "shared order form is explicitly STORE channel"
   );
   ok(active.getAppendCount() === 1, "active makes one JSONP request");
   ok(active.getRemoveCount() === 1, "active cleans JSONP script");
@@ -205,7 +295,7 @@ function createBrowser(search, responsePayload) {
   ok(backendError.error.hidden === false, "backend error shown");
   ok(backendError.active.hidden === true, "backend active hidden");
   ok(
-    backendError.document.title === "Tienda no disponible | Takara 3D",
+    backendError.document.title === "Tienda no disponible",
     "error title"
   );
   ok(
@@ -229,7 +319,7 @@ function createBrowser(search, responsePayload) {
   ok(missing.rootNode.attrs["data-state"] === "error", "missing ref rejected");
   ok(missing.getAppendCount() === 0, "missing ref no network");
   ok(
-    missing.document.title === "Tienda no disponible | Takara 3D",
+    missing.document.title === "Tienda no disponible",
     "missing ref error title"
   );
 
@@ -243,10 +333,8 @@ function createBrowser(search, responsePayload) {
     html.includes("No continuaremos sin una atribución Store válida."),
     "noscript fail-closed copy"
   );
-  ok(
-    html.includes("Operador del producto: Takara 3D."),
-    "operator disclosure"
-  );
+  ok(html.includes("data-store-order-frame"), "canonical order frame placeholder");
+  ok(!html.includes("Takara 3D"), "outer Store shell has no visible Takara branding");
   ok(!html.includes("data-cf-beacon"), "no commercial Cloudflare analytics");
   ok(!html.includes("googletagmanager"), "no Google tag manager");
   ok(!html.includes("gtag("), "no gtag");

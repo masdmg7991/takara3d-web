@@ -112,6 +112,15 @@
       setBusy(submitButton, true);
       setStatus(statusNode, "Preparando solicitud...", "info");
 
+      if (
+        form.getAttribute("data-takara-order-channel") === "STORE" &&
+        !getOrderStoreContextTransport()
+      ) {
+        throw new Error(
+          "No se ha podido verificar la tienda. Recarga el enlace del establecimiento."
+        );
+      }
+
       if (!endpoint || endpoint.indexOf("https://script.google.com/macros/s/") !== 0) {
         throw new Error("No está configurado el endpoint de pedidos.");
       }
@@ -129,7 +138,7 @@
         return;
       }
 
-      setStatus(statusNode, "Enviando solicitud a Takara 3D...", "info");
+      setStatus(statusNode, "Enviando solicitud...", "info");
 
       await fetch(endpoint, {
         method: "POST",
@@ -142,7 +151,7 @@
 
       setStatus(
         statusNode,
-        "Solicitud transmitida. La recepción quedará confirmada cuando recibas el correo automático de Takara 3D. Si no lo recibes, los datos siguen en pantalla para que puedas revisarlos o volver a intentarlo.",
+        "Solicitud transmitida. La recepción quedará confirmada cuando recibas el correo automático. Si no lo recibes, los datos siguen en pantalla para que puedas revisarlos o volver a intentarlo.",
         "success"
       );
     } catch (error) {
@@ -1285,7 +1294,7 @@
       "animation:takaraPedidoModalIn .16s ease-out both"
     ].join(";");
 
-    eyebrow.textContent = safeState === "success" ? "TAKARA 3D" : "REVISA EL FORMULARIO";
+    eyebrow.textContent = safeState === "success" ? "SOLICITUD" : "REVISA EL FORMULARIO";
     eyebrow.style.cssText = [
       "margin:0 0 8px",
       "font-size:12px",

@@ -34,7 +34,7 @@ def main() -> int:
         'aria-labelledby="takara-store-active-title"',
         'aria-labelledby="takara-store-error-title"',
         "<noscript>",
-        "Operador del producto: Takara 3D.",
+        "data-store-order-frame",
     ):
         require(marker in html, f"Store Public readiness conserva {marker}")
 
@@ -55,16 +55,24 @@ def main() -> int:
         require(forbidden not in html, f"Store Public cerrado no contiene {forbidden}")
 
     require(
-        'root.setAttribute(\n      "aria-busy",' in js,
+        'root.setAttribute("aria-busy",' in js,
         "JS sincroniza aria-busy con estado",
     )
     require(
-        'document.title = context.display_name + " | Takara 3D";' in js,
-        "Título ACTIVE usa nombre autoritativo",
+        "document.title = context.display_name;" in js,
+        "Título ACTIVE usa solo el nombre autoritativo de la tienda",
     )
     require(
-        'document.title = "Tienda no disponible | Takara 3D";' in js,
-        "Título error es seguro",
+        'document.title = "Tienda no disponible";' in js,
+        "Título error es neutro",
+    )
+    require(
+        'ORDER_FRAME_URL = "/pedido.html?channel=store"' in js,
+        "Store reutiliza el documento canónico de pedido",
+    )
+    require(
+        'form.setAttribute("data-takara-order-channel", "STORE")' in js,
+        "Store marca explícitamente el canal antes de habilitar el pedido",
     )
     require("innerHTML" not in js, "No render inseguro innerHTML")
     require("localStorage" not in js, "F2 no persiste atribución")

@@ -263,3 +263,21 @@ Si Apps Script/Spreadsheet deja de ser suficiente, se cambia el adapter fisico s
 - `TAKARA_STORE_ATTRIBUTION_V1`;
 - semantica `ACTIVE/INACTIVE`;
 - separacion `PRODUCT_QR != STORE_QR`.
+
+## 16. Addendum Store Web V2 — superficie unica de pedido
+
+Este addendum no reescribe el freeze historico STORE-F0 ni cambia las identidades o autoridades V1.
+
+Invariante de presentacion:
+
+`DIRECT_ORDER_SURFACE == STORE_ORDER_SURFACE`
+
+Reglas:
+- `/pedido.html` es la unica superficie fisica y autoridad del formulario de pedido;
+- Store reutiliza ese mismo documento en `/tienda/?s=<store_public_code>` y no mantiene una copia del formulario;
+- preview, catalogo/pricing, personalizacion, entrega, validacion y submit permanecen compartidos;
+- Store solo aporta resolucion fail-closed, `display_name`, presentacion white-label y `TAKARA_STORE_CONTEXT_V1` verificado;
+- un formulario ejecutado como canal `STORE` no puede degradar silenciosamente a `DIRECT` si falta Store Context valido;
+- no se permiten paginas, motores, pricing, preview, delivery ni submit alternativos por Store;
+- la UI publica Store no muestra branding Takara ni navegacion DIRECT;
+- el hash protegido del preview sigue siendo una invariante de gate.

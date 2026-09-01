@@ -103,7 +103,7 @@ def main() -> int:
         'aria-busy="true"',
         'role="status"',
         "<noscript>",
-        "Operador del producto: Takara 3D.",
+        "data-store-order-frame",
     ):
         require(marker in html, f"F2E readiness conserva {marker}")
 
