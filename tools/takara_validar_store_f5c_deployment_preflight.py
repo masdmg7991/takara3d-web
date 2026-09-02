@@ -8,6 +8,9 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 
 CODE = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_BROWSER_TRANSPORT = (
+    ROOT / "apps-script" / "takara-pedidos-web" / "OrderBrowserTransport.gs"
+)
 ADMIN_ACCESS = ROOT / "apps-script" / "takara-pedidos-web" / "StoreAdminAccess.gs"
 ADMIN_BRIDGE = ROOT / "apps-script" / "takara-pedidos-web" / "StoreAdminUiBridge.gs"
 DEPLOYMENT = ROOT / "docs" / "DEPLOYMENT.md"
@@ -18,6 +21,11 @@ EXPECTED_CODE_SHA = (
     "6FF429CA389F93CAEB7419081B1B60F1"
     "2DE3E7EC8DE88DB43BD5D0EDC2D2762A"
 )
+EXPECTED_ORDER_BROWSER_SHA = (
+    "E536D71011F086E71ACC510BF7637790"
+    "717DDCE40FAD85C13A4C41655DC7B48C"
+)
+EXPECTED_ORDER_BROWSER_PROTOCOL = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1"
 EXPECTED_LOCAL_VERSION = (
     "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_"
     "V1_14_3_ORDER_BROWSER_ACK_V1"
@@ -123,6 +131,7 @@ def extract_function(source: str, name: str) -> str:
 
 def main() -> int:
     code = read(CODE)
+    order_browser_transport = read(ORDER_BROWSER_TRANSPORT)
     admin_access = read(ADMIN_ACCESS)
     admin_bridge = read(ADMIN_BRIDGE)
     deployment = read(DEPLOYMENT)
@@ -133,10 +142,22 @@ def main() -> int:
     admin_contract_sem = semantic_text(admin_contract)
 
     code_sha = hashlib.sha256(CODE.read_bytes()).hexdigest().upper()
+    order_browser_sha = hashlib.sha256(
+        ORDER_BROWSER_TRANSPORT.read_bytes()
+    ).hexdigest().upper()
 
     require(
         code_sha == EXPECTED_CODE_SHA,
         f"Code.gs deployment candidate exact-byte preservado; actual={code_sha}",
+    )
+    require(
+        order_browser_sha == EXPECTED_ORDER_BROWSER_SHA,
+        "OrderBrowserTransport.gs deployment candidate exact-byte preservado; "
+        f"actual={order_browser_sha}",
+    )
+    require(
+        EXPECTED_ORDER_BROWSER_PROTOCOL in order_browser_transport,
+        "OrderBrowserTransport conserva protocolo ACK navegador V1",
     )
     require(
         EXPECTED_LOCAL_VERSION in code,

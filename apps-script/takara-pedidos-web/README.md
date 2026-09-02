@@ -2,9 +2,10 @@
 
 Este directorio versiona el Apps Script real que atiende los formularios publicos de Takara 3D.
 
-Archivo principal:
+Archivos de entrada/transporte:
 
-- Code.gs
+- `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
+- `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 
@@ -21,9 +22,10 @@ Cierre backend Store F1:
 - el cierre exige conservación de Product QR, pedido existente y fail-closed Store.
 
 Estos módulos no crean un segundo backend. Forman parte del mismo proyecto Apps
-Script y deben desplegarse junto a `Code.gs` cuando Store llegue a fase de
-integración. `Code.gs` conserva por ahora el pedido/contacto existente sin
-dependencia Store.
+Script y deben desplegarse junto a `Code.gs`. Desde la integración Store,
+`Code.gs` orquesta el pedido/contacto existente y consume las autoridades
+Store/Order del mismo proyecto únicamente cuando corresponde; no existe backend
+ni persistencia paralela.
 
 Responsabilidad:
 
@@ -63,7 +65,7 @@ Responsabilidad:
 - Mantener la dirección completa fuera de la solicitud inicial y dejar el
   precio pendiente para destinos especiales o pedidos de varias unidades.
 - No guardar una copia adicional de la ficha visual en Drive.
-- Responder siempre en JSON.
+- Responder en JSON a los consumidores normales y, únicamente cuando el navegador solicita `postmessage_v1`, devolver el HTML mínimo de ACK que ejecuta `postMessage` hacia el origen validado.
 
 Contrato validado:
 
