@@ -263,7 +263,9 @@
       "html,body{margin:0!important;padding:0!important;background:#f7f3ee!important;}",
       "body{min-height:0!important;}",
       "main{padding:0!important;}",
-      "#pedido{padding-top:.5rem!important;}"
+      "#pedido{min-height:0!important;padding-top:.5rem!important;}",
+      "body.pedido-premium main .pedido-stl-preview{min-height:0!important;}",
+      "body.pedido-premium .pedido-stl-canvas{min-height:0!important;}"
     ].join("");
     frameDocument.head.appendChild(style);
   }

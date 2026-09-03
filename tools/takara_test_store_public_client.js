@@ -107,6 +107,18 @@ function throwsCode(fn, code, message) {
     !storeClientSource.includes("observer.observe(frameDocument.documentElement);"),
     "iframe autosize does not observe viewport documentElement"
   );
+  ok(
+    storeClientSource.includes('"#pedido{min-height:0!important;padding-top:.5rem!important;}"'),
+    "embedded Store neutralizes order surface viewport min-height"
+  );
+  ok(
+    storeClientSource.includes('"body.pedido-premium main .pedido-stl-preview{min-height:0!important;}"'),
+    "embedded Store neutralizes preview viewport min-height"
+  );
+  ok(
+    storeClientSource.includes('"body.pedido-premium .pedido-stl-canvas{min-height:0!important;}"'),
+    "embedded Store neutralizes canvas viewport min-height"
+  );
 
   ok(api.version === "TAKARA_STORE_PUBLIC_CLIENT_V1", "client version");
   ok(api.isValidStoreRef(validRef), "valid Store ref");
