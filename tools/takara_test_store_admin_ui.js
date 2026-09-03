@@ -172,6 +172,21 @@ ok(
 ok(html.includes("renderStoreQrCanvas("), "Admin renders local QR from canonical URL");
 ok(html.includes("Abrir tienda"), "Admin exposes open Store action");
 ok(html.includes("Copiar enlace"), "Admin exposes copy Store URL action");
+for (const marker of [
+  "Descargar PNG",
+  "Descargar SVG",
+  "Copiar QR",
+  "Imprimir",
+]) {
+  ok(html.includes(marker), "Admin exposes reusable QR action " + marker);
+}
+ok(
+  html.includes("STORE_QR_EXPORT_SCALE = 20"),
+  "Admin exports QR PNG at 900x900 from Version 5 matrix plus quiet zone"
+);
+ok(html.includes("buildStoreQrSvg("), "Admin can export vector QR from local matrix");
+ok(html.includes("copyStoreQrImage("), "Admin can copy QR image locally");
+ok(html.includes("printStoreQr("), "Admin can print reusable Store QR sheet");
 ok(!html.includes("quickchart.io"), "Admin QR has no QuickChart dependency");
 ok(!html.includes("STORE_QR_IMAGE_PREFIX"), "Admin QR has no remote image authority");
 ok(html.includes("STORE_QR_SIZE = 37"), "Admin QR uses fixed Version 5 matrix");

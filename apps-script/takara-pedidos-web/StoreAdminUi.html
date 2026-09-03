@@ -553,6 +553,9 @@
       const STORE_QR_DATA_CODEWORDS = 108;
       const STORE_QR_EC_CODEWORDS = 26;
       const STORE_QR_MASK = 0;
+      const STORE_QR_EXPORT_SCALE = 20;
+      const STORE_QR_MIME_PNG = "image/png";
+      const STORE_QR_MIME_SVG = "image/svg+xml;charset=utf-8";
       const state = {
         stores: [],
         selectedId: "",
@@ -807,14 +810,17 @@
         return matrix;
       }
 
-      function renderStoreQrCanvas(storePublicUrl, label) {
+      function renderStoreQrCanvas(storePublicUrl, label, scaleValue) {
         const matrix = buildStoreQrMatrix(storePublicUrl);
         const quietZone = 4;
-        const scale = 4;
+        const scale = Number(scaleValue || 4);
         const canvas = document.createElement("canvas");
         const pixels = (STORE_QR_SIZE + quietZone * 2) * scale;
         const context = canvas.getContext("2d");
 
+        if (!Number.isInteger(scale) || scale < 1 || scale > 40) {
+          throw new Error("STORE_QR_SCALE_INVALID");
+        }
         if (!context) throw new Error("STORE_QR_CANVAS_UNAVAILABLE");
 
         canvas.width = pixels;
@@ -839,6 +845,215 @@
         });
 
         return canvas;
+      }
+
+      function storeQrFileBase(store) {
+        return "takara-store-" +
+          String(store && store.store_id || "store")
+            .replace(/[^A-Za-z0-9_-]+/g, "-");
+      }
+
+      function qrEscapeXml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&apos;");
+      }
+
+      function buildStoreQrSvg(storePublicUrl, label) {
+        const matrix = buildStoreQrMatrix(storePublicUrl);
+        const quietZone = 4;
+        const size = STORE_QR_SIZE + quietZone * 2;
+        const modules = [];
+
+        matrix.forEach(function (row, rowIndex) {
+          row.forEach(function (dark, columnIndex) {
+            if (!dark) return;
+            modules.push(
+              '<rect x="' + (columnIndex + quietZone) +
+              '" y="' + (rowIndex + quietZone) +
+              '" width="1" height="1"/>'
+            );
+          });
+        });
+
+        return '<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' +
+          qrEscapeXml(label) + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+          '<rect width="100%" height="100%" fill="#fff"/>' +
+          '<g fill="#000">' + modules.join("") + '</g></svg>';
+      }
+
+      function downloadStoreQrBlob(blob, fileName) {
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = fileName;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.setTimeout(function () {
+          URL.revokeObjectURL(href);
+        }, 1000);
+      }
+
+      function downloadStoreQrPng(storePublicUrl, store) {
+        const canvas = renderStoreQrCanvas(
+          storePublicUrl,
+          "QR para abrir " + store.display_name,
+          STORE_QR_EXPORT_SCALE
+        );
+
+        return new Promise(function (resolve, reject) {
+          canvas.toBlob(function (blob) {
+            if (!blob) {
+              reject(new Error("STORE_QR_PNG_UNAVAILABLE"));
+              return;
+            }
+            downloadStoreQrBlob(blob, storeQrFileBase(store) + ".png");
+            resolve();
+          }, STORE_QR_MIME_PNG);
+        });
+      }
+
+      function downloadStoreQrSvg(storePublicUrl, store) {
+        const svg = buildStoreQrSvg(
+          storePublicUrl,
+          "QR para abrir " + store.display_name
+        );
+        downloadStoreQrBlob(
+          new Blob([svg], { type: STORE_QR_MIME_SVG }),
+          storeQrFileBase(store) + ".svg"
+        );
+      }
+
+      function copyStoreQrImage(storePublicUrl, store) {
+        if (
+          !navigator.clipboard ||
+          !navigator.clipboard.write ||
+          typeof ClipboardItem === "undefined"
+        ) {
+          return Promise.reject(new Error("STORE_QR_CLIPBOARD_UNAVAILABLE"));
+        }
+
+        const canvas = renderStoreQrCanvas(
+          storePublicUrl,
+          "QR para abrir " + store.display_name,
+          STORE_QR_EXPORT_SCALE
+        );
+
+        return new Promise(function (resolve, reject) {
+          canvas.toBlob(function (blob) {
+            if (!blob) {
+              reject(new Error("STORE_QR_PNG_UNAVAILABLE"));
+              return;
+            }
+            navigator.clipboard.write([
+              new ClipboardItem({ "image/png": blob }),
+            ]).then(resolve, reject);
+          }, STORE_QR_MIME_PNG);
+        });
+      }
+
+      function printStoreQr(storePublicUrl, store) {
+        const popup = window.open(
+          "",
+          "takara_store_qr_print",
+          "width=840,height=920"
+        );
+        if (!popup) throw new Error("STORE_QR_PRINT_POPUP_BLOCKED");
+        popup.opener = null;
+
+        const printDocument = popup.document;
+        printDocument.open();
+        printDocument.close();
+        printDocument.documentElement.lang = "es";
+
+        const title = printDocument.createElement("title");
+        title.textContent = "QR · " + store.display_name;
+        printDocument.head.appendChild(title);
+
+        const style = printDocument.createElement("style");
+        style.textContent =
+          "body{margin:0;font-family:Arial,sans-serif;color:#171714}" +
+          "main{min-height:100vh;display:grid;place-items:center;padding:32px}" +
+          "section{text-align:center;max-width:720px}" +
+          "h1{margin:0 0 10px;font-size:34px}" +
+          "p{margin:0 0 22px;font-size:20px}" +
+          "img{width:min(72vw,520px);height:auto;image-rendering:pixelated}" +
+          "code{display:block;margin-top:18px;font-size:12px;overflow-wrap:anywhere}" +
+          "@media print{main{padding:12mm}}";
+        printDocument.head.appendChild(style);
+
+        const main = printDocument.createElement("main");
+        const section = printDocument.createElement("section");
+        const heading = printDocument.createElement("h1");
+        heading.textContent = store.display_name;
+        const instruction = printDocument.createElement("p");
+        instruction.textContent = "Escanea para hacer tu pedido";
+        const image = printDocument.createElement("img");
+        image.alt = "QR para abrir " + store.display_name;
+        image.src = renderStoreQrCanvas(
+          storePublicUrl,
+          image.alt,
+          STORE_QR_EXPORT_SCALE
+        ).toDataURL(STORE_QR_MIME_PNG);
+        const url = printDocument.createElement("code");
+        url.textContent = storePublicUrl;
+
+        section.appendChild(heading);
+        section.appendChild(instruction);
+        section.appendChild(image);
+        section.appendChild(url);
+        main.appendChild(section);
+        printDocument.body.appendChild(main);
+
+        window.setTimeout(function () {
+          popup.focus();
+          popup.print();
+        }, 120);
+      }
+
+      function bindStorePublicAction(
+        button,
+        idleLabel,
+        pendingLabel,
+        successLabel,
+        action
+      ) {
+        button.addEventListener("click", function () {
+          if (button.disabled) return;
+          button.disabled = true;
+          button.textContent = pendingLabel;
+
+          let result;
+          try {
+            result = action();
+          } catch (error) {
+            button.textContent = "No disponible";
+            window.setTimeout(function () {
+              button.textContent = idleLabel;
+              button.disabled = false;
+            }, 1600);
+            return;
+          }
+
+          Promise.resolve(result)
+            .then(function () {
+              button.textContent = successLabel;
+            })
+            .catch(function () {
+              button.textContent = "No disponible";
+            })
+            .finally(function () {
+              window.setTimeout(function () {
+                button.textContent = idleLabel;
+                button.disabled = false;
+              }, 1600);
+            });
+        });
       }
 
       function copyStorePublicUrl(storePublicUrl) {
@@ -1250,6 +1465,59 @@
             });
         });
         publicActions.appendChild(copyStore);
+
+        const downloadPng = createNode("button", "secondary", "Descargar PNG");
+        downloadPng.type = "button";
+        bindStorePublicAction(
+          downloadPng,
+          "Descargar PNG",
+          "Preparando PNG…",
+          "PNG descargado",
+          function () {
+            return downloadStoreQrPng(storeUrl, store);
+          }
+        );
+        publicActions.appendChild(downloadPng);
+
+        const downloadSvg = createNode("button", "secondary", "Descargar SVG");
+        downloadSvg.type = "button";
+        bindStorePublicAction(
+          downloadSvg,
+          "Descargar SVG",
+          "Preparando SVG…",
+          "SVG descargado",
+          function () {
+            return downloadStoreQrSvg(storeUrl, store);
+          }
+        );
+        publicActions.appendChild(downloadSvg);
+
+        const copyQr = createNode("button", "secondary", "Copiar QR");
+        copyQr.type = "button";
+        bindStorePublicAction(
+          copyQr,
+          "Copiar QR",
+          "Copiando QR…",
+          "QR copiado",
+          function () {
+            return copyStoreQrImage(storeUrl, store);
+          }
+        );
+        publicActions.appendChild(copyQr);
+
+        const printQr = createNode("button", "secondary", "Imprimir");
+        printQr.type = "button";
+        bindStorePublicAction(
+          printQr,
+          "Imprimir",
+          "Preparando…",
+          "Impresión abierta",
+          function () {
+            return printStoreQr(storeUrl, store);
+          }
+        );
+        publicActions.appendChild(printQr);
+
         publicInfo.appendChild(publicActions);
         publicAccess.appendChild(publicInfo);
 
