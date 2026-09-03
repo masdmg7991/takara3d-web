@@ -82,6 +82,31 @@ function throwsCode(fn, code, message) {
   const { context } = createBaseContext();
   const api = context.window.TAKARA_STORE_PUBLIC_CLIENT_V1;
   const validRef = "st_123456789012345678901234";
+  const storeClientSource = fs.readFileSync(
+    path.join(root, "assets", "js", "takara-store-public.js"),
+    "utf8"
+  );
+
+  ok(
+    storeClientSource.includes('const surface = frameDocument.querySelector("#pedido");'),
+    "iframe autosize measures intrinsic order surface"
+  );
+  ok(
+    storeClientSource.includes("observer.observe(surface);"),
+    "iframe autosize observes intrinsic order surface"
+  );
+  ok(
+    !storeClientSource.includes('frame.style.height = String(height + 2) + "px";'),
+    "iframe autosize has no cumulative height padding"
+  );
+  ok(
+    !storeClientSource.includes('frameWindow.addEventListener("resize"'),
+    "iframe autosize does not subscribe to self-induced frame resize"
+  );
+  ok(
+    !storeClientSource.includes("observer.observe(frameDocument.documentElement);"),
+    "iframe autosize does not observe viewport documentElement"
+  );
 
   ok(api.version === "TAKARA_STORE_PUBLIC_CLIENT_V1", "client version");
   ok(api.isValidStoreRef(validRef), "valid Store ref");

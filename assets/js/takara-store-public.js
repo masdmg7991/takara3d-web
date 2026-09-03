@@ -270,13 +270,20 @@
 
   function resizeOrderFrame(frame) {
     const frameDocument = getFrameDocument(frame);
-    if (!frameDocument || !frameDocument.documentElement || !frameDocument.body) return;
+    if (!frameDocument || !frameDocument.body) return;
+    const surface = frameDocument.querySelector("#pedido");
+    if (!surface) return;
+    const rect = surface.getBoundingClientRect();
     const height = Math.max(
-      frameDocument.documentElement.scrollHeight || 0,
-      frameDocument.body.scrollHeight || 0,
+      Math.ceil(rect.height || 0),
+      surface.scrollHeight || 0,
       1
     );
-    frame.style.height = String(height + 2) + "px";
+    const nextHeight = Math.ceil(height);
+    const currentHeight = Number.parseInt(frame.style.height || "0", 10) || 0;
+    if (Math.abs(currentHeight - nextHeight) > 1) {
+      frame.style.height = String(nextHeight) + "px";
+    }
   }
 
   function disconnectOrderFrameObserver(frame) {
@@ -284,34 +291,34 @@
       frame._takaraStoreResizeObserver.disconnect();
       frame._takaraStoreResizeObserver = null;
     }
-    if (frame._takaraStoreResizeHandler && frame.contentWindow) {
-      frame.contentWindow.removeEventListener("resize", frame._takaraStoreResizeHandler);
-      frame._takaraStoreResizeHandler = null;
-    }
   }
 
   function observeOrderFrame(frame) {
     const frameDocument = getFrameDocument(frame);
     const frameWindow = frame.contentWindow;
-    if (!frameDocument || !frameDocument.body || !frameWindow) return;
+    if (!frameDocument || !frameWindow) return;
+    const surface = frameDocument.querySelector("#pedido");
+    if (!surface) return;
 
     disconnectOrderFrameObserver(frame);
 
+    let scheduled = false;
     const update = function () {
-      resizeOrderFrame(frame);
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(function () {
+        scheduled = false;
+        resizeOrderFrame(frame);
+      });
     };
-
-    frame._takaraStoreResizeHandler = update;
-    frameWindow.addEventListener("resize", update, { passive: true });
 
     if (typeof frameWindow.ResizeObserver === "function") {
       const observer = new frameWindow.ResizeObserver(update);
-      observer.observe(frameDocument.body);
-      observer.observe(frameDocument.documentElement);
+      observer.observe(surface);
       frame._takaraStoreResizeObserver = observer;
     }
 
-    window.requestAnimationFrame(update);
+    update();
     window.setTimeout(update, 80);
   }
 
