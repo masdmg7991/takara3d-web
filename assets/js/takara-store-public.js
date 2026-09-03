@@ -273,9 +273,11 @@
     if (!frameDocument || !frameDocument.body) return;
     const surface = frameDocument.querySelector("#pedido");
     if (!surface) return;
-    const rect = surface.getBoundingClientRect();
+    const rectHeight = typeof surface.getBoundingClientRect === "function"
+      ? surface.getBoundingClientRect().height
+      : 0;
     const height = Math.max(
-      Math.ceil(rect.height || 0),
+      Math.ceil(rectHeight || 0),
       surface.scrollHeight || 0,
       1
     );
