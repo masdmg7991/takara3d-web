@@ -298,6 +298,7 @@ if (Test-Path $StoreContractPath) {
         "TAKARA_STORE_REGISTRY_V1",
         "TAKARA_STORE_CONTEXT_V1",
         "TAKARA_STORE_ATTRIBUTION_V1",
+        "autoriza_publicacion_resultado",
         "/tienda/?s=<store_public_code>",
         "source_type = STORE",
         "source_type = DIRECT",
@@ -394,7 +395,6 @@ if (Test-Path $StoreSingleAppClientPath) {
         "TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1",
         'form.setAttribute("data-takara-order-channel", "STORE")',
         "STORE_WHITE_LABEL_TEXT_LEAK",
-        "autoriza_publicacion_resultado",
         "data-takara-wa-link"
     )
 
@@ -403,6 +403,19 @@ if (Test-Path $StoreSingleAppClientPath) {
             Ok ("Store single-app conserva contrato compartido: " + $Marker)
         } else {
             Err ("Store single-app pierde contrato compartido: " + $Marker)
+        }
+    }
+
+    $StoreSocialConsentRemovalMarkers = @(
+        'input[name="autoriza_publicacion_resultado"]',
+        'data-takara-accept-proxy="autoriza_publicacion_resultado"'
+    )
+
+    foreach ($Marker in $StoreSocialConsentRemovalMarkers) {
+        if ($StoreSingleAppClientText.Contains($Marker)) {
+            Err ("Store single-app elimina consentimiento opcional compartido: " + $Marker)
+        } else {
+            Ok ("Store single-app conserva consentimiento opcional compartido: " + $Marker)
         }
     }
 

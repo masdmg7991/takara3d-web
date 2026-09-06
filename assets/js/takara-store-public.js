@@ -213,14 +213,6 @@
     surface.querySelectorAll('[data-takara-wa-link], a[href^="https://wa.me/"]').forEach(function (node) {
       node.remove();
     });
-    surface.querySelectorAll('input[name="autoriza_publicacion_resultado"]').forEach(function (node) {
-      const item = node.closest(".pedido-stl-legal-item");
-      if (item) item.remove(); else node.remove();
-    });
-    surface.querySelectorAll('[data-takara-accept-proxy="autoriza_publicacion_resultado"]').forEach(function (node) {
-      const item = node.closest(".takara-submit-final__check");
-      if (item) item.remove(); else node.remove();
-    });
     const form = surface.querySelector("[data-takara-pedido-form]");
     if (!form) {
       throw fail("STORE_ORDER_FORM_MISSING", "La superficie compartida de pedido no contiene su formulario.");

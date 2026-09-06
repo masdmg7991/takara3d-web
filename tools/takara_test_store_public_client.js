@@ -119,6 +119,14 @@ function throwsCode(fn, code, message) {
     storeClientSource.includes('"body.pedido-premium .pedido-stl-canvas{min-height:0!important;}"'),
     "embedded Store neutralizes canvas viewport min-height"
   );
+  ok(
+    !storeClientSource.includes('input[name="autoriza_publicacion_resultado"]'),
+    "Store preserves optional social publication consent field"
+  );
+  ok(
+    !storeClientSource.includes('data-takara-accept-proxy="autoriza_publicacion_resultado"'),
+    "Store preserves optional social publication consent proxy"
+  );
 
   ok(api.version === "TAKARA_STORE_PUBLIC_CLIENT_V1", "client version");
   ok(api.isValidStoreRef(validRef), "valid Store ref");

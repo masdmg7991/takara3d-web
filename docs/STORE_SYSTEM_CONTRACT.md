@@ -277,6 +277,8 @@ Reglas:
 - Store reutiliza ese mismo documento en `/tienda/?s=<store_public_code>` y no mantiene una copia del formulario;
 - preview, catalogo/pricing, personalizacion, entrega, validacion y submit permanecen compartidos;
 - Store solo aporta resolucion fail-closed, `display_name`, presentacion white-label y `TAKARA_STORE_CONTEXT_V1` verificado;
+- el consentimiento opcional `autoriza_publicacion_resultado` pertenece a la superficie compartida y debe permanecer disponible tanto en DIRECT como en STORE;
+- la capa white-label Store puede retirar branding, navegacion o acciones exclusivas DIRECT, pero nunca eliminar ni preseleccionar ese consentimiento;
 - un formulario ejecutado como canal `STORE` no puede degradar silenciosamente a `DIRECT` si falta Store Context valido;
 - no se permiten paginas, motores, pricing, preview, delivery ni submit alternativos por Store;
 - la UI publica Store no muestra branding Takara ni navegacion DIRECT;

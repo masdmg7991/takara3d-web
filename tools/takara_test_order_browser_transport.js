@@ -184,9 +184,22 @@ function backend() {
   ok(web.includes("data.nonce !== nonce"), "ACK nonce checked");
   ok(web.includes("data.order_id !== orderId"), "ACK order id checked");
   ok(web.includes("ORDER_BROWSER_ACK_TIMEOUT_MS = 120000"), "ACK timeout explicit");
+  ok(web.includes("function isStoreEmbeddedStatus(node)"), "Store feedback channel detection present");
   ok(
-    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3"),
-    "ACK cache key active"
+    web.includes('form.getAttribute("data-takara-order-channel") === "STORE"'),
+    "Store feedback detects embedded order channel"
+  );
+  ok(
+    web.includes("const storeEmbedded = isStoreEmbeddedStatus(node);"),
+    "terminal feedback resolves Store embedding"
+  );
+  ok(
+    web.includes("if (terminalState && !storeEmbedded)"),
+    "fixed modal is direct-only for terminal feedback"
+  );
+  ok(
+    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1"),
+    "Store feedback cache build active"
   );
   ok(
     code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"),

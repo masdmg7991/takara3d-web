@@ -1385,11 +1385,22 @@
 
 
 
+  function isStoreEmbeddedStatus(node) {
+    if (!node || typeof node.closest !== "function") return false;
+    const form = node.closest("[data-takara-pedido-form]");
+    return !!(
+      form &&
+      form.getAttribute("data-takara-order-channel") === "STORE"
+    );
+  }
+
   function setStatus(node, message, state) {
     const safeState = state || "info";
+    const terminalState = safeState === "error" || safeState === "success";
+    const storeEmbedded = isStoreEmbeddedStatus(node);
 
     if (node) {
-      if (safeState === "error" || safeState === "success") {
+      if (terminalState && !storeEmbedded) {
         node.hidden = true;
         node.textContent = "";
         node.removeAttribute("data-state");
@@ -1400,7 +1411,7 @@
       }
     }
 
-    if (safeState === "error" || safeState === "success") {
+    if (terminalState && !storeEmbedded) {
       showPedidoToast(message, safeState);
     }
   }
