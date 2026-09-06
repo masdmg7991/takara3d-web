@@ -1400,15 +1400,9 @@
     const storeEmbedded = isStoreEmbeddedStatus(node);
 
     if (node) {
-      if (terminalState && !storeEmbedded) {
-        node.hidden = true;
-        node.textContent = "";
-        node.removeAttribute("data-state");
-      } else {
-        node.hidden = false;
-        node.textContent = message;
-        node.setAttribute("data-state", safeState);
-      }
+      node.hidden = false;
+      node.textContent = message;
+      node.setAttribute("data-state", safeState);
     }
 
     if (terminalState && !storeEmbedded) {

@@ -194,6 +194,10 @@ function backend() {
     "terminal feedback resolves Store embedding"
   );
   ok(
+    web.includes("node.hidden = false;") && !web.includes("node.hidden = true;"),
+    "terminal feedback remains inline visible"
+  );
+  ok(
     web.includes("if (terminalState && !storeEmbedded)"),
     "fixed modal is direct-only for terminal feedback"
   );
