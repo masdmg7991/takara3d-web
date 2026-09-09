@@ -216,8 +216,55 @@
 
     .detail-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-top: 14px;
+    }
+
+    .detail-section {
+      border-top: 1px solid var(--line);
+      padding: 18px 20px 4px;
+    }
+
+    .detail-section-head {
+      margin-bottom: 10px;
+    }
+
+    .detail-section-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -.01em;
+    }
+
+    .detail-section-copy {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .detail-section .fields {
+      margin: 0 -20px;
+    }
+
+    .technical-details {
+      border-top: 1px solid var(--line);
+      background: #fafaf7;
+    }
+
+    .technical-details summary {
+      cursor: pointer;
+      padding: 15px 20px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      list-style-position: inside;
+    }
+
+    .technical-details[open] summary {
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
     }
 
     .store-public-access {
@@ -1413,26 +1460,6 @@
         head.appendChild(actions);
         els.detail.appendChild(head);
 
-        const fields = createNode("dl", "fields");
-        [
-          ["Código público", store.store_public_code],
-          ["Contacto", store.contact_name],
-          ["Email", store.email],
-          ["Teléfono", store.phone],
-          ["Dirección", store.address_line],
-          ["CP", store.postal_code],
-          ["Ciudad", store.city],
-          ["Provincia", store.province],
-          ["Creada", store.created_at],
-          ["Actualizada", store.updated_at],
-          ["Desactivada", store.deactivated_at],
-          ["Versión", store.version],
-          ["Notas", store.notes],
-        ].forEach(function (entry) {
-          fields.appendChild(field(entry[0], entry[1]));
-        });
-        els.detail.appendChild(fields);
-
         const storeUrl = buildStorePublicUrl(store.store_public_code);
         const publicAccess = createNode("section", "store-public-access");
         const publicInfo = createNode("div");
@@ -1539,13 +1566,59 @@
         publicAccess.appendChild(qrWrap);
         els.detail.appendChild(publicAccess);
 
+        const businessSection = createNode("section", "detail-section");
+        const businessHead = createNode("div", "detail-section-head");
+        businessHead.appendChild(
+          createNode("h3", "detail-section-title", "Datos de la tienda")
+        );
+        businessHead.appendChild(
+          createNode(
+            "p",
+            "detail-section-copy",
+            "Contacto y ubicación. Lo operativo queda separado de la información técnica."
+          )
+        );
+        businessSection.appendChild(businessHead);
+
+        const businessFields = createNode("dl", "fields");
+        [
+          ["Contacto", store.contact_name],
+          ["Email", store.email],
+          ["Teléfono", store.phone],
+          ["Dirección", store.address_line],
+          ["CP", store.postal_code],
+          ["Ciudad", store.city],
+          ["Provincia", store.province],
+          ["Notas", store.notes],
+        ].forEach(function (entry) {
+          businessFields.appendChild(field(entry[0], entry[1]));
+        });
+        businessSection.appendChild(businessFields);
+        els.detail.appendChild(businessSection);
+
+        const technical = createNode("details", "technical-details");
+        technical.appendChild(
+          createNode("summary", "", "Información técnica")
+        );
+        const technicalFields = createNode("dl", "fields");
+        [
+          ["Código público", store.store_public_code],
+          ["Creada", store.created_at],
+          ["Actualizada", store.updated_at],
+          ["Desactivada", store.deactivated_at],
+          ["Versión", store.version],
+        ].forEach(function (entry) {
+          technicalFields.appendChild(field(entry[0], entry[1]));
+        });
+        technical.appendChild(technicalFields);
+        els.detail.appendChild(technical);
+
         els.detail.appendChild(
           createNode(
             "div",
             "footnote",
-            "F4E · ACTIVE/INACTIVE se gestiona mediante una operación " +
-              "dedicada. Identidad, código público, timestamps y versión " +
-              "siguen siendo de solo lectura."
+            "ACTIVE/INACTIVE se gestiona mediante una operación dedicada. " +
+              "La identidad pública y el historial técnico permanecen protegidos."
           )
         );
       }

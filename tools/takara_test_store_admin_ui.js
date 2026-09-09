@@ -135,6 +135,23 @@ for (const marker of [
   ok(html.includes(marker), "UI contains " + marker);
 }
 
+for (const marker of [
+  "Datos de la tienda",
+  "Contacto y ubicación",
+  "Información técnica",
+  "technical-details",
+]) {
+  ok(html.includes(marker), "Admin ordered detail contains " + marker);
+}
+ok(
+  html.indexOf("Acceso público de la tienda") < html.indexOf("Datos de la tienda"),
+  "Admin places public Store access before business data"
+);
+ok(
+  html.indexOf("Datos de la tienda") < html.indexOf("Información técnica"),
+  "Admin keeps technical metadata after business data"
+);
+
 for (const forbidden of [
   "Eliminar tienda",
   "Desactivar tienda",
