@@ -129,7 +129,8 @@ $RequiredFiles = @(
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_test_seguridad_foto_pedido.js",
-    "tools/takara_validar_datos_estructurados.py"
+    "tools/takara_validar_datos_estructurados.py",
+    "tools/takara_validar_web_hygiene.py"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -588,6 +589,19 @@ if (Test-Path "tools/takara_validar_datos_estructurados.py") {
     }
 } else {
     Err "No existe tools/takara_validar_datos_estructurados.py"
+}
+
+if (Test-Path "tools/takara_validar_web_hygiene.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_web_hygiene.py"
+    py tools/takara_validar_web_hygiene.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Higiene web, 404 y sitemap validos"
+    } else {
+        Err "Fallo takara_validar_web_hygiene.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_web_hygiene.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
