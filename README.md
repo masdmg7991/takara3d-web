@@ -87,6 +87,7 @@ Un cambio no se considera terminado si el Quality Gate tiene errores.
 7. Publicar sólo después de la revisión correspondiente.
 
 Las reglas detalladas están en `CONTRIBUTING.md` y `docs/CLEANUP_POLICY.md`.
+El mapa de tests, validadores e informes vive en `tools/README.md`.
 
 ## Seguridad y repositorio público
 

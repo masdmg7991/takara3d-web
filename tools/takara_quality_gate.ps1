@@ -85,6 +85,10 @@ Log-Line ""
 if (!(Test-Path ".git")) { Err "No parece un repo Git." } else { Ok "Repo Git detectado" }
 
 $RequiredFiles = @(
+    ".editorconfig",
+    "CONTRIBUTING.md",
+    ".github/workflows/quality-gate.yml",
+    "tools/README.md",
     "pedido.html",
     "qr/index.html",
     "assets/css/styles.css",
