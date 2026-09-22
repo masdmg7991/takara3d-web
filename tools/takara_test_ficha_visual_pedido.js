@@ -135,24 +135,6 @@ function makeVisualFiles(overrides) {
   }, overrides || {});
 }
 
-function makeFolder() {
-  const created = [];
-  return {
-    created: created,
-    createFile: function (blob) {
-      created.push(blob);
-      return {
-        getUrl: function () {
-          return "https://drive.example/visual-proof";
-        },
-        getId: function () {
-          return "visual-proof-id";
-        }
-      };
-    }
-  };
-}
-
 function makeOrder() {
   const payload = {
     payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V2",

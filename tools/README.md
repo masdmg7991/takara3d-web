@@ -45,6 +45,10 @@ Antes de publicar:
 4. Un fallback deliberado debe comprobarse como derivado de su autoridad.
 5. Las pruebas no deben escribir sobre producción ni depender de datos reales.
 
+6. Una constante de version puede ser un marcador contractual aunque no se lea
+   en runtime. Antes de eliminarla hay que revisar validadores estaticos y
+   contratos que puedan comprobar su valor literal.
+
 ## Informes
 
 Los informes del Quality Gate se escriben fuera del repositorio. En CI se usa
