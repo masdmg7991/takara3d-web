@@ -45,7 +45,8 @@ Write-Host "[RUN] Takara public repo audit"
 $ForbiddenTracked = @(
     "docs/takara-continuidad-arquitectura-",
     "docs/private/",
-    "private-docs/"
+    "private-docs/",
+    "docs/TECHRUN_"
 )
 
 foreach ($Forbidden in $ForbiddenTracked) {
@@ -82,7 +83,7 @@ $DocPaths = @("docs/*.md", "docs/**/*.md", "apps-script/**/*.md")
 
 $EndpointDocHits = @(GitGrep "https://script\.google\.com/macros/s/[A-Za-z0-9_\-]+/exec" $DocPaths)
 $LocalPathHits = @(GitGrep "C:\\Users\\[A-Za-z0-9_.\-]+" $DocPaths)
-$PrivateDocHits = @(GitGrep "\b(PROMPT_PROXIMA_CONVERSACION|CONTINUIDAD_ARQUITECTURA|takara-continuidad-arquitectura)\b" $DocPaths)
+$PrivateDocHits = @(GitGrep "\b(PROMPT_PROXIMA_CONVERSACION|CONTINUIDAD_ARQUITECTURA|takara-continuidad-arquitectura|TECHRUN_GOVERNANCE|TECHRUN_MULTI_PROJECT_EVIDENCE)\b" $DocPaths)
 
 if ($EndpointDocHits.Count -gt 0) {
     Write-Host "Endpoints reales en documentacion:" -ForegroundColor Red

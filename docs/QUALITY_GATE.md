@@ -1,67 +1,86 @@
-# TAKARA QUALITY GATE
+# Takara Quality Gate
 
-Estado: CORE V1-R0C
-Proyecto: Takara3D Web
-Objetivo: que el repo revise al repo en cada iteracion.
+El Quality Gate es la frontera automática de calidad del repositorio.
 
----
+Su objetivo no es sustituir la revisión humana, sino impedir que un cambio
+rompa contratos conocidos, reintroduzca deuda ya cerrada o publique basura técnica.
 
-## 1. Principio maestro
+## Modos
 
-Cada fase debe terminar con una validacion automatica clara.
+- `bootstrap`: validación durante la creación de cimientos.
+- `dev`: iteración normal.
+- `precommit`: certificación antes de crear un commit.
+- `prepush`: certificación antes de publicar cambios.
 
-El Quality Gate no sustituye la revision humana, pero reduce errores repetidos y evita subir basura tecnica.
+Ejemplo:
 
----
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\takara_quality_gate.ps1 -Mode prepush
+```
 
-## 2. Modos
+## Qué valida
 
-- bootstrap: usado mientras se crean los cimientos del repo.
-- dev: usado durante iteraciones normales.
-- precommit: usado antes de preparar un commit.
-- prepush: usado antes de publicar cambios.
+El gate acumula comprobaciones de varias capas:
 
----
-
-## 3. Comprobaciones iniciales
-
-El gate inicial comprueba:
-
-- repo Git valido;
-- documentos de arquitectura;
-- preview V16B-1 protegido;
-- Encendida y Apagada en preview;
-- pedido.html carga el preview correcto;
-- pedido.html no carga configurador experimental;
-- mojibake;
-- archivos temporales prohibidos;
-- marcadores experimentales conocidos;
-- catalogo;
-- git diff --check;
+- estructura mínima del repositorio;
+- encoding y ausencia de mojibake;
+- archivos temporales o prohibidos;
+- contratos del catálogo y datos estructurados;
+- entrega, precio y pedido;
+- seguridad de fotografía y ficha visual;
+- preview protegido;
+- Store Registry, Runtime, API pública y QR;
+- Store Admin y branding;
+- atribución DIRECT/STORE;
+- transporte y ACK del pedido;
+- auditoría del repositorio público;
+- `git diff --check`;
 - estado Git final.
 
----
+Los tests y validadores individuales viven en `tools/` y el runner único es
+`tools/takara_quality_gate.ps1`.
 
-## 4. Logs
+## Resultado
 
-Formato obligatorio:
+- `OK`: comprobación correcta.
+- `WARN`: aviso no bloqueante.
+- `ERROR`: fallo bloqueante.
 
-- OK para comprobaciones correctas.
-- WARN para avisos no bloqueantes.
-- ERROR para fallos bloqueantes.
+El gate continúa tras fallos independientes para producir un diagnóstico completo,
+pero devuelve un código de salida distinto de cero si existe cualquier `ERROR`.
 
-Un ERROR real siempre bloquea el resultado final. El runner no aborta el diagnostico en el primer fallo de una comprobacion independiente: continua con el resto, acumula todos los ERROR, imprime el resumen completo y devuelve codigo de salida distinto de cero al final. Continuar diagnosticando nunca convierte un fallo en no bloqueante.
+## Informes
 
----
+Los informes siempre se escriben fuera del repositorio.
 
-## 5. Informes
+Por defecto:
 
-Los informes se guardan fuera del repo para no ensuciar Git.
+`Desktop/takara3d-backups/quality_reports`
 
-Ruta prevista: Desktop/takara3d-backups/quality_reports.
+En CI puede definirse `TAKARA_QUALITY_REPORT_ROOT` para elegir otra ubicación.
 
----
+## Integración continua
 
-## 6. Evolucion futura
+`.github/workflows/quality-gate.yml` ejecuta el modo `prepush` en:
 
-Cuando exista stack moderno, el gate incorporara lint, test, build, Playwright y Lighthouse.
+- `push` a `main`;
+- `pull_request`;
+- ejecución manual (`workflow_dispatch`).
+
+El workflow usa un runner Windows, prepara Python y Node, ejecuta el mismo gate
+que se utiliza localmente y conserva el informe como artefacto.
+
+Esto evita mantener una segunda definición de calidad exclusiva para CI.
+
+## Regla de evolución
+
+Una comprobación nueva debe añadirse cuando protege un contrato estable o previene
+la repetición de un fallo real. El gate no debe crecer con checks decorativos o
+dependientes de detalles irrelevantes de implementación.
+
+Cuando una autoridad cambia deliberadamente, deben actualizarse conjuntamente:
+
+1. el contrato correspondiente;
+2. la implementación;
+3. las pruebas/validadores;
+4. el Quality Gate si aplica.

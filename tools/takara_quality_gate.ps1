@@ -1,13 +1,20 @@
 param(
     [ValidateSet("bootstrap", "dev", "precommit", "prepush")]
-    [string]$Mode = "dev"
+    [string]$Mode = "dev",
+    [string]$ReportRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
 
 $Project = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$ReportRoot = Join-Path $env:USERPROFILE "Desktop\takara3d-backups\quality_reports"
+if (!$ReportRoot) {
+    if ($env:TAKARA_QUALITY_REPORT_ROOT) {
+        $ReportRoot = $env:TAKARA_QUALITY_REPORT_ROOT
+    } else {
+        $ReportRoot = Join-Path $env:USERPROFILE "Desktop\takara3d-backups\quality_reports"
+    }
+}
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $ReportDir = Join-Path $ReportRoot ("takara_quality_gate_" + $Mode + "_" + $Stamp)
 $ReportTxt = Join-Path $ReportDir "quality_gate_report.txt"
