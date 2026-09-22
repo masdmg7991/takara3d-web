@@ -119,6 +119,7 @@ $RequiredFiles = @(
     "tools/takara_test_entrega_pedido.js",
     "tools/takara_test_order_contract_v2.js",
     "tools/takara_test_order_browser_transport.js",
+    "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_test_seguridad_foto_pedido.js",
@@ -1280,6 +1281,20 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_shared_endpoint.js
     }
 } else {
     Err "No se pudo ejecutar shared endpoint test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_endpoint.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_endpoint.js"
+    node tools/takara_test_contact_endpoint.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Contacto consume la autoridad canonica del endpoint Apps Script"
+    } else {
+        Err "Fallo takara_test_contact_endpoint.js"
+    }
+} else {
+    Err "No se pudo ejecutar contact endpoint authority test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_client.js")) {

@@ -9,6 +9,12 @@
     form.addEventListener("submit", handleSubmit, true);
   }
 
+  function resolveEndpoint(form) {
+    const getEndpoint = window.TAKARA_GET_APPS_SCRIPT_ENDPOINT;
+    const configured = typeof getEndpoint === "function" ? getEndpoint() : "";
+    return configured || form.getAttribute("action") || "";
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -16,7 +22,7 @@
     const form = event.currentTarget;
     const submitButton = form.querySelector("[data-takara-contact-submit]");
     const statusNode = form.querySelector("[data-takara-contact-status]");
-    const endpoint = form.getAttribute("data-takara-endpoint") || form.getAttribute("action") || "";
+    const endpoint = resolveEndpoint(form);
 
     try {
       setBusy(submitButton, true);
