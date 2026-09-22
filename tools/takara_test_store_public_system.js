@@ -225,10 +225,27 @@ function createBackend() {
 }
 
 function element() {
-  return {
+  const classes = new Set();
+  const result = {
     hidden: false,
     textContent: "",
+    src: "",
+    removeAttribute(name) {
+      if (name === "src") this.src = "";
+    },
   };
+  result.classList = {
+    toggle(name, force) {
+      if (force === true) classes.add(name);
+      else if (force === false) classes.delete(name);
+      else if (classes.has(name)) classes.delete(name);
+      else classes.add(name);
+    },
+    contains(name) {
+      return classes.has(name);
+    },
+  };
+  return result;
 }
 
 function createOrderFrame() {
@@ -284,6 +301,8 @@ function createBrowser(backend, search) {
   const active = element();
   const error = element();
   const name = element();
+  const logo = element();
+  logo.hidden = true;
   const errorMessage = element();
   const order = createOrderFrame();
 
@@ -306,6 +325,7 @@ function createBrowser(backend, search) {
         "[data-store-active]": active,
         "[data-store-error]": error,
         "[data-store-name]": name,
+        "[data-store-logo]": logo,
         "[data-store-error-message]": errorMessage,
         "[data-store-order-frame]": order.frame,
       };
@@ -484,6 +504,8 @@ function createBrowser(backend, search) {
     active,
     error,
     name,
+    logo,
+    order,
     errorMessage,
     boot,
     getAppendCount: () => appendCount,
@@ -552,6 +574,18 @@ function ok(condition, message) {
   ok(
     activeBrowser.name.textContent === "Foto García",
     "ACTIVE Store renders authoritative name"
+  );
+  ok(activeBrowser.logo.hidden === true, "default NAME branding keeps logo hidden");
+  ok(
+    !activeBrowser.name.classList.contains("takara-store-name--visually-hidden"),
+    "default NAME branding keeps name visible"
+  );
+  ok(
+    !Object.prototype.hasOwnProperty.call(
+      activeBrowser.order.frameWindow.storeContext,
+      "branding"
+    ),
+    "presentation branding is excluded from order StoreContext"
   );
   ok(activeBrowser.active.hidden === false, "active panel visible");
   ok(activeBrowser.error.hidden === true, "error panel hidden");
@@ -672,6 +706,10 @@ function ok(condition, message) {
   ok(
     storeHtml.indexOf("data-store-name") >= 0,
     "Store page has authoritative name target"
+  );
+  ok(
+    storeHtml.indexOf("data-store-logo") >= 0,
+    "Store page has optional branding logo target"
   );
   ok(
     storeHtml.indexOf("data-takara-pedido-form") === -1,

@@ -165,6 +165,10 @@ def main() -> int:
             f"AdminRead no posee {forbidden}",
         )
 
+    lookup_port = extract_function(
+        registry,
+        "assertStoreLookupRepositoryPort_",
+    )
     read_port = extract_function(
         registry,
         "assertStoreReadRepositoryPort_",
@@ -173,12 +177,29 @@ def main() -> int:
     list_service = extract_function(registry, "listStoresService_")
 
     require(
-        '"findById", "listAll"' in read_port,
-        "Read port estrecho exige findById + listAll",
+        'typeof repository.findById !== "function"' in lookup_port,
+        "Lookup port exige findById",
     )
     require(
-        "assertStoreRepositoryPort_" not in read_port,
-        "Read port no ensancha contrato histórico",
+        "assertStoreLookupRepositoryPort_(repository)" in read_port,
+        "Read port reutiliza lookup port",
+    )
+    require(
+        'typeof repo.listAll !== "function"' in read_port,
+        "Read port anade listAll solo para listados",
+    )
+    require(
+        "assertStoreRepositoryPort_" not in lookup_port
+        and "assertStoreRepositoryPort_" not in read_port,
+        "Puertos de lectura no ensanchan contrato historico",
+    )
+    require(
+        "assertStoreLookupRepositoryPort_(repository)" in get_service,
+        "get service usa contrato minimo de lookup",
+    )
+    require(
+        "assertStoreReadRepositoryPort_(repository)" in list_service,
+        "list service usa contrato de lectura con listAll",
     )
     require(
         "repo.findById(normalizedStoreId)" in get_service,

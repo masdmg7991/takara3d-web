@@ -248,6 +248,79 @@
       margin: 0 -20px;
     }
 
+    .branding-card {
+      display: grid;
+      gap: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafaf7;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .branding-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 92px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .branding-preview img {
+      display: block;
+      max-width: 220px;
+      max-height: 90px;
+      object-fit: contain;
+    }
+
+    .branding-preview img[hidden] { display: none; }
+
+    .branding-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .branding-control {
+      display: grid;
+      gap: 6px;
+    }
+
+    .branding-control label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .branding-control select,
+    .branding-control input[type="file"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 9px 10px;
+      color: var(--ink);
+    }
+
+    .branding-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .branding-status {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .technical-details {
       border-top: 1px solid var(--line);
       background: #fafaf7;
@@ -526,6 +599,19 @@
     @media (prefers-reduced-motion: reduce) {
       * { scroll-behavior: auto !important; }
     }
+    @media (max-width: 640px) {
+      .branding-controls {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .branding-actions {
+        justify-content: stretch;
+      }
+
+      .branding-actions button {
+        flex: 1 1 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -572,6 +658,7 @@
             placeholder="Buscar por tienda, Store ID, ciudad…"
             aria-label="Buscar tiendas">
           <button id="new-store" class="primary" type="button">Nueva tienda</button>
+          <button id="backup" class="secondary" type="button">Copia de seguridad</button>
           <button id="refresh" class="refresh" type="button">Actualizar</button>
         </div>
         <div id="store-list" class="store-list" aria-live="polite">
@@ -603,6 +690,13 @@
       const STORE_QR_EXPORT_SCALE = 20;
       const STORE_QR_MIME_PNG = "image/png";
       const STORE_QR_MIME_SVG = "image/svg+xml;charset=utf-8";
+      const STORE_BRANDING_ADMIN_VERSION = "TAKARA_STORE_BRANDING_ADMIN_V1";
+      const STORE_LOGO_MAX_BYTES = 512 * 1024;
+      const STORE_LOGO_ALLOWED_MIME = Object.freeze([
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+      ]);
       const state = {
         stores: [],
         selectedId: "",
@@ -616,6 +710,7 @@
         detail: document.getElementById("detail"),
         search: document.getElementById("search"),
         refresh: document.getElementById("refresh"),
+        backup: document.getElementById("backup"),
         newStore: document.getElementById("new-store"),
         total: document.getElementById("stat-total"),
         active: document.getElementById("stat-active"),
@@ -1140,9 +1235,24 @@
         if (isPreviewMode()) {
           const preview = window.TAKARA_STORE_ADMIN_PREVIEW_DATA;
           let previewSequence = preview.stores.length + 1;
+          const previewBranding = {};
 
           function cloneStore(store) {
             return Object.assign({}, store);
+          }
+
+          function defaultPreviewBranding() {
+            return {
+              version: STORE_BRANDING_ADMIN_VERSION,
+              mode: "NAME",
+              has_logo: false,
+              updated_at: "",
+              record_version: 0,
+            };
+          }
+
+          function clonePreviewBranding(value) {
+            return Object.assign({}, value || defaultPreviewBranding());
           }
 
           return {
@@ -1152,6 +1262,51 @@
                 mode: "MANAGE",
                 stores: preview.stores.map(cloneStore),
               });
+            },
+            createSnapshot: function () {
+              return Promise.resolve({
+                version: "TAKARA_STORE_REGISTRY_PROTECTION_V1",
+                created: true,
+                created_at: new Date().toISOString(),
+                row_count: preview.stores.length,
+              });
+            },
+            getBranding: function (storeId) {
+              return Promise.resolve(
+                clonePreviewBranding(previewBranding[storeId])
+              );
+            },
+            updateBranding: function (storeId, input) {
+              const storeExists = preview.stores.some(function (item) {
+                return item.store_id === storeId;
+              });
+              if (!storeExists) {
+                return Promise.reject(new Error("STORE_NOT_FOUND"));
+              }
+
+              const current = clonePreviewBranding(previewBranding[storeId]);
+              const mode = String(input && input.mode || "NAME");
+              let logoDataUrl = current.logo_data_url || "";
+              if (input && input.remove_logo === true) logoDataUrl = "";
+              if (input && input.logo) {
+                logoDataUrl = "data:" + input.logo.mime_type +
+                  ";base64," + input.logo.base64;
+              }
+              const hasLogo = Boolean(logoDataUrl);
+              if ((mode === "LOGO" || mode === "NAME_AND_LOGO") && !hasLogo) {
+                return Promise.reject(new Error("STORE_BRANDING_LOGO_REQUIRED"));
+              }
+
+              const next = {
+                version: STORE_BRANDING_ADMIN_VERSION,
+                mode: mode,
+                has_logo: hasLogo,
+                updated_at: new Date().toISOString(),
+                record_version: Number(current.record_version || 0) + 1,
+              };
+              if (hasLogo) next.logo_data_url = logoDataUrl;
+              previewBranding[storeId] = next;
+              return Promise.resolve(clonePreviewBranding(next));
             },
             getStore: function (storeId) {
               const store = preview.stores.find(function (item) {
@@ -1265,6 +1420,30 @@
                   .getStoreAdminUiBootstrap();
               });
             },
+            createSnapshot: function () {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .createStoreAdminUiRegistrySnapshot();
+              });
+            },
+            getBranding: function (storeId) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .getStoreAdminUiBranding(storeId);
+              });
+            },
+            updateBranding: function (storeId, input) {
+              return new Promise(function (resolve, reject) {
+                google.script.run
+                  .withSuccessHandler(resolve)
+                  .withFailureHandler(reject)
+                  .updateStoreAdminUiBranding(storeId, input);
+              });
+            },
             getStore: function (storeId) {
               return new Promise(function (resolve, reject) {
                 google.script.run
@@ -1316,6 +1495,9 @@
 
         return {
           bootstrap: unavailable,
+          createSnapshot: unavailable,
+          getBranding: unavailable,
+          updateBranding: unavailable,
           getStore: unavailable,
           createStore: unavailable,
           updateStore: unavailable,
@@ -1421,6 +1603,262 @@
         row.appendChild(dt);
         row.appendChild(dd);
         return row;
+      }
+
+      function normalizeAdminBranding(value) {
+        if (
+          !value ||
+          value.version !== STORE_BRANDING_ADMIN_VERSION ||
+          ["NAME", "LOGO", "NAME_AND_LOGO"].indexOf(value.mode) < 0
+        ) {
+          throw new Error("STORE_BRANDING_ADMIN_RESULT_INVALID");
+        }
+        const result = {
+          version: STORE_BRANDING_ADMIN_VERSION,
+          mode: value.mode,
+          has_logo: value.has_logo === true,
+          updated_at: String(value.updated_at || ""),
+          record_version: Number(value.record_version || 0),
+        };
+        if (result.has_logo) {
+          const dataUrl = String(value.logo_data_url || "");
+          if (!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(dataUrl)) {
+            throw new Error("STORE_BRANDING_ADMIN_LOGO_INVALID");
+          }
+          result.logo_data_url = dataUrl;
+        }
+        return result;
+      }
+
+      function readStoreLogoFile(file) {
+        return new Promise(function (resolve, reject) {
+          if (!file || STORE_LOGO_ALLOWED_MIME.indexOf(file.type) < 0) {
+            reject(new Error("STORE_BRANDING_LOGO_MIME_INVALID"));
+            return;
+          }
+          if (!Number(file.size) || file.size > STORE_LOGO_MAX_BYTES) {
+            reject(new Error("STORE_BRANDING_LOGO_TOO_LARGE"));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onerror = function () {
+            reject(new Error("STORE_BRANDING_LOGO_READ_FAILED"));
+          };
+          reader.onload = function () {
+            const dataUrl = String(reader.result || "");
+            const comma = dataUrl.indexOf(",");
+            const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : "";
+            if (!base64) {
+              reject(new Error("STORE_BRANDING_LOGO_DATA_INVALID"));
+              return;
+            }
+            resolve({
+              mime_type: file.type,
+              file_name: String(file.name || "store-logo"),
+              base64: base64,
+              data_url: dataUrl,
+            });
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function renderStoreBrandingSection(store) {
+        const section = createNode("section", "detail-section");
+        const head = createNode("div", "detail-section-head");
+        head.appendChild(createNode("h3", "detail-section-title", "Identidad visual"));
+        head.appendChild(createNode(
+          "p",
+          "detail-section-copy",
+          "Elige si la página muestra el nombre de la tienda, su logo o ambos."
+        ));
+        section.appendChild(head);
+
+        const card = createNode("div", "branding-card");
+        const preview = createNode("div", "branding-preview");
+        const previewName = createNode("strong", "branding-preview-name", store.display_name);
+        const previewLogo = document.createElement("img");
+        previewLogo.alt = "Vista previa del logo de " + store.display_name;
+        previewLogo.hidden = true;
+        preview.appendChild(previewLogo);
+        preview.appendChild(previewName);
+        card.appendChild(preview);
+
+        const controls = createNode("div", "branding-controls");
+        const modeWrap = createNode("div", "branding-control");
+        const modeLabel = createNode("label", "", "Mostrar en la página");
+        const modeSelect = document.createElement("select");
+        modeLabel.htmlFor = "store-branding-mode-" + store.store_id;
+        modeSelect.id = modeLabel.htmlFor;
+        [
+          ["NAME", "Solo nombre"],
+          ["LOGO", "Solo logo"],
+          ["NAME_AND_LOGO", "Nombre + logo"],
+        ].forEach(function (entry) {
+          const option = document.createElement("option");
+          option.value = entry[0];
+          option.textContent = entry[1];
+          modeSelect.appendChild(option);
+        });
+        modeWrap.appendChild(modeLabel);
+        modeWrap.appendChild(modeSelect);
+
+        const fileWrap = createNode("div", "branding-control");
+        const fileLabel = createNode("label", "", "Logo opcional · máx. 512 KiB");
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/png,image/jpeg,image/webp";
+        fileLabel.htmlFor = "store-branding-file-" + store.store_id;
+        fileInput.id = fileLabel.htmlFor;
+        fileWrap.appendChild(fileLabel);
+        fileWrap.appendChild(fileInput);
+        controls.appendChild(modeWrap);
+        controls.appendChild(fileWrap);
+        card.appendChild(controls);
+
+        const status = createNode("div", "branding-status", "Cargando identidad visual…");
+        status.setAttribute("role", "status");
+        card.appendChild(status);
+
+        const actions = createNode("div", "branding-actions");
+        const remove = createNode("button", "secondary", "Quitar logo");
+        remove.type = "button";
+        remove.hidden = true;
+        const save = createNode("button", "primary", "Guardar identidad");
+        save.type = "button";
+        save.disabled = true;
+        actions.appendChild(remove);
+        actions.appendChild(save);
+        card.appendChild(actions);
+        section.appendChild(card);
+
+        let branding = null;
+        let pendingLogo = null;
+
+        function paint() {
+          const mode = branding ? branding.mode : "NAME";
+          const dataUrl = pendingLogo
+            ? pendingLogo.data_url
+            : (branding && branding.logo_data_url || "");
+          const showLogo = mode === "LOGO" || mode === "NAME_AND_LOGO";
+          previewName.hidden = mode === "LOGO";
+          if (showLogo && dataUrl) {
+            previewLogo.src = dataUrl;
+            previewLogo.hidden = false;
+          } else {
+            previewLogo.removeAttribute("src");
+            previewLogo.hidden = true;
+          }
+          remove.hidden = !(branding && branding.has_logo) && !pendingLogo;
+        }
+
+        modeSelect.addEventListener("change", function () {
+          if (branding) branding.mode = modeSelect.value;
+          paint();
+        });
+
+        fileInput.addEventListener("change", async function () {
+          status.textContent = "";
+          const file = fileInput.files && fileInput.files[0];
+          if (!file) {
+            pendingLogo = null;
+            paint();
+            return;
+          }
+          try {
+            pendingLogo = await readStoreLogoFile(file);
+            if (modeSelect.value === "NAME") {
+              modeSelect.value = "NAME_AND_LOGO";
+              if (branding) branding.mode = modeSelect.value;
+            }
+            status.textContent = "Logo preparado. Guarda para aplicarlo.";
+            paint();
+          } catch (error) {
+            pendingLogo = null;
+            fileInput.value = "";
+            status.textContent = "Logo no válido. Usa PNG, JPEG o WEBP de hasta 512 KiB.";
+            paint();
+          }
+        });
+
+        save.addEventListener("click", async function () {
+          if (!branding || save.disabled) return;
+          const mode = modeSelect.value;
+          const hasLogo = Boolean((branding && branding.has_logo) || pendingLogo);
+          if ((mode === "LOGO" || mode === "NAME_AND_LOGO") && !hasLogo) {
+            status.textContent = "Ese modo necesita un logo.";
+            return;
+          }
+          save.disabled = true;
+          remove.disabled = true;
+          status.textContent = "Guardando identidad visual…";
+          const payload = { mode: mode, remove_logo: false };
+          if (pendingLogo) {
+            payload.logo = {
+              mime_type: pendingLogo.mime_type,
+              file_name: pendingLogo.file_name,
+              base64: pendingLogo.base64,
+            };
+          }
+          try {
+            branding = normalizeAdminBranding(
+              await client.updateBranding(store.store_id, payload)
+            );
+            pendingLogo = null;
+            fileInput.value = "";
+            modeSelect.value = branding.mode;
+            status.textContent = "Identidad visual guardada.";
+            paint();
+          } catch (error) {
+            status.textContent = "No se pudo guardar la identidad visual.";
+          } finally {
+            save.disabled = false;
+            remove.disabled = false;
+          }
+        });
+
+        remove.addEventListener("click", async function () {
+          if (remove.disabled) return;
+          remove.disabled = true;
+          save.disabled = true;
+          status.textContent = "Quitando logo…";
+          try {
+            branding = normalizeAdminBranding(
+              await client.updateBranding(store.store_id, {
+                mode: "NAME",
+                remove_logo: true,
+              })
+            );
+            pendingLogo = null;
+            fileInput.value = "";
+            modeSelect.value = "NAME";
+            status.textContent = "Logo retirado. Se mostrará el nombre.";
+            paint();
+          } catch (error) {
+            status.textContent = "No se pudo quitar el logo.";
+          } finally {
+            remove.disabled = false;
+            save.disabled = false;
+          }
+        });
+
+        client.getBranding(store.store_id)
+          .then(function (value) {
+            branding = normalizeAdminBranding(value);
+            modeSelect.value = branding.mode;
+            status.textContent = branding.has_logo
+              ? "Logo guardado. Puedes cambiar el modo o sustituirlo."
+              : "Sin logo. La tienda muestra su nombre.";
+            save.disabled = false;
+            paint();
+          })
+          .catch(function () {
+            status.textContent = "No se pudo cargar la identidad visual.";
+            modeSelect.disabled = true;
+            fileInput.disabled = true;
+          });
+
+        return section;
       }
 
       function renderDetail(store) {
@@ -1565,6 +2003,7 @@
         );
         publicAccess.appendChild(qrWrap);
         els.detail.appendChild(publicAccess);
+        els.detail.appendChild(renderStoreBrandingSection(store));
 
         const businessSection = createNode("section", "detail-section");
         const businessHead = createNode("div", "detail-section-head");
@@ -1919,6 +2358,35 @@
         renderList();
       });
       els.refresh.addEventListener("click", load);
+      els.backup.addEventListener("click", async function () {
+        const idleLabel = "Copia de seguridad";
+        const confirmed = window.confirm(
+          "¿Crear una copia de seguridad del Registry Store actual?"
+        );
+        if (!confirmed || els.backup.disabled) return;
+
+        els.backup.disabled = true;
+        els.backup.textContent = "Creando copia…";
+        try {
+          const result = await client.createSnapshot();
+          if (
+            !result ||
+            result.version !== "TAKARA_STORE_REGISTRY_PROTECTION_V1" ||
+            result.created !== true
+          ) {
+            throw new Error("STORE_REGISTRY_SNAPSHOT_RESULT_INVALID");
+          }
+          els.backup.textContent =
+            "Copia creada · " + String(Number(result.row_count || 0)) + " tiendas";
+        } catch (error) {
+          els.backup.textContent = "No se pudo crear";
+        } finally {
+          window.setTimeout(function () {
+            els.backup.textContent = idleLabel;
+            els.backup.disabled = false;
+          }, 2200);
+        }
+      });
       els.newStore.addEventListener("click", function () {
         state.selectedId = "";
         renderList();

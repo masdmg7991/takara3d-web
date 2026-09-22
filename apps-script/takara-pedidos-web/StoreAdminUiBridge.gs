@@ -22,12 +22,24 @@ function updateStoreAdminUiStore(storeId, patch) {
   return updateStoreAdmin_(storeId, patch);
 }
 
+function getStoreAdminUiBranding(storeId) {
+  return getStoreBrandingAdmin_(storeId);
+}
+
+function updateStoreAdminUiBranding(storeId, input) {
+  return updateStoreBrandingAdmin_(storeId, input);
+}
+
 function activateStoreAdminUiStore(storeId) {
   return activateStoreAdmin_(storeId);
 }
 
 function deactivateStoreAdminUiStore(storeId) {
   return deactivateStoreAdmin_(storeId);
+}
+
+function createStoreAdminUiRegistrySnapshot() {
+  return createStoreRegistrySnapshot_();
 }
 
 const TAKARA_STORE_ADMIN_DEPLOYMENT_BOUNDARY_VERSION =

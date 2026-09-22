@@ -130,13 +130,21 @@ $StoreContractPath = Join-Path $Project "docs/STORE_SYSTEM_CONTRACT.md"
 
 if (Test-Path $PreviewPath) {
     $PreviewText = Read-Utf8 $PreviewPath
-    $PreviewHash = (Get-FileHash $PreviewPath -Algorithm SHA256).Hash
+    $PreviewCanonicalText = $PreviewText.Replace("`r`n", "`n").Replace("`r", "`n")
+    $PreviewUtf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    $PreviewSha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $PreviewHashBytes = $PreviewSha256.ComputeHash($PreviewUtf8NoBom.GetBytes($PreviewCanonicalText))
+        $PreviewHash = (($PreviewHashBytes | ForEach-Object { $_.ToString("x2") }) -join "").ToUpperInvariant()
+    } finally {
+        $PreviewSha256.Dispose()
+    }
     $ModeOn = "data-takara-litho-mode=" + [char]34 + "on" + [char]34
     $ModeOff = "data-takara-litho-mode=" + [char]34 + "off" + [char]34
     if ($PreviewText.Contains("TAKARA PEDIDO PREVIEW LITHO REAL V16B-2")) { Ok "Preview V16B-2 detectado" } else { Err "Preview V16B-2 no detectado" }
     if ($PreviewText.Contains($ModeOn) -and $PreviewText.Contains($ModeOff)) { Ok "Preview contiene Encendida/Apagada" } else { Err "Preview no contiene Encendida/Apagada" }
     Ok ("Hash preview: " + $PreviewHash)
-    if ($PreviewHash -eq "1117979A334AA90C305C360F6DB0262D7645CF56676818F20D92E5E341919E23") {
+    if ($PreviewHash -eq "622E3C370E96FF8814F5A4FD68F91E4544319ED7FD93EBABA3DD1CAC362880D1") {
         Ok "Preview V16B-2 conserva el hash protegido"
     } else {
         Err ("Preview V16B-2 ha cambiado: " + $PreviewHash)
@@ -1322,6 +1330,32 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry_set
     }
 } else {
     Err "No se pudo ejecutar Store Registry setup test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_registry_protection.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_registry_protection.js"
+    node tools/takara_test_store_registry_protection.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store Registry snapshot de recuperacion validado"
+    } else {
+        Err "Fallo takara_test_store_registry_protection.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store Registry protection test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_branding.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_store_branding.js"
+    node tools/takara_test_store_branding.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Store branding nombre/logo/ambos validado"
+    } else {
+        Err "Fallo takara_test_store_branding.js"
+    }
+} else {
+    Err "No se pudo ejecutar Store branding test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_runtime_integration.js")) {

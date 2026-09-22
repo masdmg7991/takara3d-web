@@ -250,6 +250,26 @@ ok(
   "local QR matches independent Version 5-L reference matrix"
 );
 
+ok(html.includes('id="backup"'), "Admin exposes explicit Registry backup action");
+ok(
+  html.includes("createStoreAdminUiRegistrySnapshot"),
+  "Admin backup action delegates through UI bridge"
+);
+ok(
+  html.includes("TAKARA_STORE_REGISTRY_PROTECTION_V1"),
+  "Admin validates Registry protection result contract"
+);
+ok(
+  bridge.includes("createStoreAdminUiRegistrySnapshot") &&
+    bridge.includes("createStoreRegistrySnapshot_()"),
+  "UI bridge delegates snapshot to canonical protection module"
+);
+ok(
+  !html.includes("restoreStoreRegistrySnapshot_") &&
+    !bridge.includes("restoreStoreRegistrySnapshot_"),
+  "Admin exposes no implicit restore path"
+);
+
 console.log(
   "[TAKARA_STORE_ADMIN_UI_F4C_OK] " +
     JSON.stringify({ checks, listCalls, getCalls })

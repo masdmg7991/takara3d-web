@@ -4,6 +4,13 @@
   const CLIENT_VERSION = "TAKARA_STORE_PUBLIC_CLIENT_V1";
   const API_VERSION = "TAKARA_STORE_PUBLIC_API_V1";
   const CONTEXT_VERSION = "TAKARA_STORE_CONTEXT_V1";
+  const BRANDING_VERSION = "TAKARA_STORE_BRANDING_PUBLIC_V1";
+  const BRANDING_NAME = "NAME";
+  const BRANDING_LOGO = "LOGO";
+  const BRANDING_NAME_AND_LOGO = "NAME_AND_LOGO";
+  const STORE_LOGO_DATA_URL_PATTERN =
+    /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+  const STORE_LOGO_DATA_URL_MAX_LENGTH = 699092;
   const STORE_REF_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
   const CALLBACK_PATTERN = /^takaraStoreCb_[A-Za-z0-9_]{8,64}$/;
   const DEFAULT_TIMEOUT_MS = 8000;
@@ -128,6 +135,38 @@
     return base + "?action=store.resolve&store_ref=" + encodeURIComponent(ref) + "&prefix=" + encodeURIComponent(callbackName);
   }
 
+  function normalizeStoreBrandingContext(value) {
+    if (value === null || value === undefined) {
+      return Object.freeze({ version: BRANDING_VERSION, mode: BRANDING_NAME });
+    }
+    if (!value || typeof value !== "object" || value.version !== BRANDING_VERSION) {
+      throw fail("STORE_BRANDING_CONTEXT_INVALID", "Store branding context is invalid.");
+    }
+    const mode = String(value.mode || "").trim();
+    if (
+      mode !== BRANDING_NAME &&
+      mode !== BRANDING_LOGO &&
+      mode !== BRANDING_NAME_AND_LOGO
+    ) {
+      throw fail("STORE_BRANDING_CONTEXT_INVALID", "Store branding mode is invalid.");
+    }
+    if (mode === BRANDING_NAME) {
+      return Object.freeze({ version: BRANDING_VERSION, mode: BRANDING_NAME });
+    }
+    const logoDataUrl = String(value.logo_data_url || "");
+    if (
+      !STORE_LOGO_DATA_URL_PATTERN.test(logoDataUrl) ||
+      logoDataUrl.length > STORE_LOGO_DATA_URL_MAX_LENGTH
+    ) {
+      throw fail("STORE_BRANDING_CONTEXT_INVALID", "Store logo data is invalid.");
+    }
+    return Object.freeze({
+      version: BRANDING_VERSION,
+      mode: mode,
+      logo_data_url: logoDataUrl,
+    });
+  }
+
   function validateStoreContextResponse(payload, expectedRef) {
     if (!payload || payload.ok !== true) {
       const responseCode = payload && payload.error && typeof payload.error.code === "string"
@@ -151,7 +190,14 @@
     if (!displayName || displayName.length > 120) {
       throw fail("STORE_CONTEXT_INVALID", "Store display name is invalid.");
     }
-    return Object.freeze({version: CONTEXT_VERSION, store_ref: expectedRef, display_name: displayName, status: "ACTIVE"});
+    const branding = normalizeStoreBrandingContext(context.branding);
+    return Object.freeze({
+      version: CONTEXT_VERSION,
+      store_ref: expectedRef,
+      display_name: displayName,
+      status: "ACTIVE",
+      branding: branding,
+    });
   }
 
   function resolveStoreContextJsonp(options) {
@@ -369,7 +415,12 @@
       throw fail("STORE_ORDER_CONTEXT_BRIDGE_MISSING", "El motor compartido no dispone del bridge Store.");
     }
 
-    bridge.setVerifiedContext(context);
+    bridge.setVerifiedContext({
+      version: context.version,
+      store_ref: context.store_ref,
+      display_name: context.display_name,
+      status: context.status,
+    });
     frame.hidden = false;
     observeOrderFrame(frame);
   }
@@ -386,7 +437,31 @@
 
   async function renderStore(root, context) {
     const name = root.querySelector("[data-store-name]");
-    if (name) name.textContent = context.display_name;
+    const logo = root.querySelector("[data-store-logo]");
+    const branding = context.branding ||
+      Object.freeze({ version: BRANDING_VERSION, mode: BRANDING_NAME });
+    const showLogo =
+      branding.mode === BRANDING_LOGO ||
+      branding.mode === BRANDING_NAME_AND_LOGO;
+    const hideNameVisually = branding.mode === BRANDING_LOGO;
+
+    if (name) {
+      name.textContent = context.display_name;
+      name.classList.toggle(
+        "takara-store-name--visually-hidden",
+        hideNameVisually
+      );
+    }
+    if (logo) {
+      if (showLogo && branding.logo_data_url) {
+        logo.src = branding.logo_data_url;
+        logo.hidden = false;
+      } else {
+        logo.removeAttribute("src");
+        logo.hidden = true;
+      }
+    }
+
     document.title = context.display_name;
     await mountSharedOrder(root, context);
     setPanelState(root, "active");

@@ -98,3 +98,8 @@ function deactivateStoreAdmin_(storeId) {
     deactivateStoreRuntime_(normalizedStoreId)
   );
 }
+
+function updateStoreBrandingAdmin_(storeId, input) {
+  requireStoreAdminAccess_();
+  return updateStoreBrandingAdminRuntime_(assertStoreId_(storeId), input);
+}

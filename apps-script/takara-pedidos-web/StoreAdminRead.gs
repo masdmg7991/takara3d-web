@@ -42,3 +42,8 @@ function listStoresAdmin_() {
 
   return Object.freeze(stores);
 }
+
+function getStoreBrandingAdmin_(storeId) {
+  requireStoreAdminAccess_();
+  return getStoreBrandingAdminRuntime_(assertStoreId_(storeId));
+}

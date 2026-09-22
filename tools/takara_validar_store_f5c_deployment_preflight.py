@@ -41,6 +41,11 @@ def require(condition: bool, message: str) -> None:
     checks += 1
 
 
+def canonical_text_sha256(path: Path) -> str:
+    raw = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(raw).hexdigest().upper()
+
+
 def read(path: Path) -> str:
     require(path.is_file(), f"Existe {path.relative_to(ROOT)}")
     return path.read_text(encoding="utf-8-sig")
@@ -141,10 +146,8 @@ def main() -> int:
     deployment_sem = semantic_text(deployment)
     admin_contract_sem = semantic_text(admin_contract)
 
-    code_sha = hashlib.sha256(CODE.read_bytes()).hexdigest().upper()
-    order_browser_sha = hashlib.sha256(
-        ORDER_BROWSER_TRANSPORT.read_bytes()
-    ).hexdigest().upper()
+    code_sha = canonical_text_sha256(CODE)
+    order_browser_sha = canonical_text_sha256(ORDER_BROWSER_TRANSPORT)
 
     require(
         code_sha == EXPECTED_CODE_SHA,

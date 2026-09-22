@@ -270,6 +270,215 @@ function createStorePublicCode_() {
   return assertStorePublicCode_("st_" + token);
 }
 
+const TAKARA_STORE_BRANDING_SHEET_NAME = "store_branding";
+const TAKARA_STORE_BRANDING_FOLDER_NAME = "Store Logos";
+const TAKARA_STORE_BRANDING_HEADERS = Object.freeze([
+  "store_public_code",
+  "mode",
+  "logo_file_id",
+  "logo_mime_type",
+  "logo_file_name",
+  "updated_at",
+  "version",
+]);
+
+function assertStoreBrandingSchema_(sheet) {
+  if (sheet.getLastColumn() !== TAKARA_STORE_BRANDING_HEADERS.length) {
+    throw storeDomainError_(
+      "STORE_BRANDING_SCHEMA_INVALID",
+      "Store branding column count is invalid."
+    );
+  }
+  const headers = sheet
+    .getRange(1, 1, 1, TAKARA_STORE_BRANDING_HEADERS.length)
+    .getValues()[0]
+    .map(function (value) { return String(value || "").trim(); });
+  TAKARA_STORE_BRANDING_HEADERS.forEach(function (expected, index) {
+    if (headers[index] !== expected) {
+      throw storeDomainError_(
+        "STORE_BRANDING_SCHEMA_INVALID",
+        "Store branding header mismatch at column " + (index + 1) + "."
+      );
+    }
+  });
+}
+
+function getStoreBrandingSheet_(createIfMissing) {
+  const spreadsheet = SpreadsheetApp.openById(getStoreRegistrySpreadsheetId_());
+  let sheet = spreadsheet.getSheetByName(TAKARA_STORE_BRANDING_SHEET_NAME);
+  if (!sheet && !createIfMissing) return null;
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(TAKARA_STORE_BRANDING_SHEET_NAME);
+    sheet
+      .getRange(1, 1, 1, TAKARA_STORE_BRANDING_HEADERS.length)
+      .setValues([TAKARA_STORE_BRANDING_HEADERS.slice()]);
+    sheet.setFrozenRows(1);
+  }
+  assertStoreBrandingSchema_(sheet);
+  return sheet;
+}
+
+function storeBrandingRowToRecord_(row) {
+  const record = {};
+  TAKARA_STORE_BRANDING_HEADERS.forEach(function (header, index) {
+    record[header] = row[index];
+  });
+  record.version = Number(record.version || 0);
+  return record;
+}
+
+function storeBrandingRecordToRow_(record) {
+  return TAKARA_STORE_BRANDING_HEADERS.map(function (header) {
+    return Object.prototype.hasOwnProperty.call(record, header)
+      ? record[header]
+      : "";
+  });
+}
+
+function findStoreBrandingRow_(sheet, storePublicCode) {
+  if (!sheet) return null;
+  const publicCode = assertStorePublicCode_(storePublicCode);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const values = sheet
+    .getRange(2, 1, lastRow - 1, TAKARA_STORE_BRANDING_HEADERS.length)
+    .getValues();
+  for (let index = 0; index < values.length; index += 1) {
+    if (String(values[index][0]) === publicCode) {
+      return {
+        rowNumber: index + 2,
+        record: storeBrandingRowToRecord_(values[index]),
+      };
+    }
+  }
+  return null;
+}
+
+function getOrCreateStoreBrandingFolder_() {
+  const root = getOrCreateRootFolder_();
+  const folders = root.getFoldersByName(TAKARA_STORE_BRANDING_FOLDER_NAME);
+  if (folders.hasNext()) return folders.next();
+  return root.createFolder(TAKARA_STORE_BRANDING_FOLDER_NAME);
+}
+
+function createStoreBrandingRepository_() {
+  return {
+    withWriteLock: function (work) {
+      return withStoreRegistrySetupLock_(work);
+    },
+
+    findByPublicCode: function (storePublicCode) {
+      const sheet = getStoreBrandingSheet_(false);
+      const found = findStoreBrandingRow_(sheet, storePublicCode);
+      return found ? found.record : null;
+    },
+
+    upsert: function (record) {
+      const normalized = normalizeStoreBrandingRecord_(
+        record,
+        record.store_public_code
+      );
+      const sheet = getStoreBrandingSheet_(true);
+      const existing = findStoreBrandingRow_(
+        sheet,
+        normalized.store_public_code
+      );
+      const row = storeBrandingRecordToRow_(normalized);
+      if (existing) {
+        sheet
+          .getRange(
+            existing.rowNumber,
+            1,
+            1,
+            TAKARA_STORE_BRANDING_HEADERS.length
+          )
+          .setValues([row]);
+      } else {
+        sheet.appendRow(row);
+      }
+    },
+
+    storeLogo: function (storePublicCode, upload) {
+      const publicCode = assertStorePublicCode_(storePublicCode);
+      const normalizedUpload = normalizeStoreLogoUpload_(upload);
+      if (!normalizedUpload) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_INPUT_INVALID",
+          "Store logo upload is required."
+        );
+      }
+      let bytes;
+      try {
+        bytes = Utilities.base64Decode(normalizedUpload.base64);
+      } catch (error) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_DATA_INVALID",
+          "Store logo base64 could not be decoded."
+        );
+      }
+      if (!bytes || bytes.length < 1 || bytes.length > TAKARA_STORE_LOGO_MAX_BYTES) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_TOO_LARGE",
+          "Store logo exceeds maximum size."
+        );
+      }
+      assertStoreLogoBytes_(bytes, normalizedUpload.mime_type);
+      const safeName = normalizedUpload.file_name.replace(/[^A-Za-z0-9._-]+/g, "-");
+      const fileName =
+        "store-logo-" + publicCode + "-" + new Date().getTime() + "-" + safeName;
+      const blob = Utilities.newBlob(bytes, normalizedUpload.mime_type, fileName);
+      const file = getOrCreateStoreBrandingFolder_().createFile(blob);
+      const fileId = String(file.getId() || "").trim();
+      if (!fileId) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_STORE_FAILED",
+          "Stored Store logo has no file id."
+        );
+      }
+      return Object.freeze({
+        file_id: fileId,
+        mime_type: normalizedUpload.mime_type,
+        file_name: safeName,
+      });
+    },
+
+    readLogoDataUrl: function (record) {
+      const normalized = normalizeStoreBrandingRecord_(
+        record,
+        record.store_public_code
+      );
+      if (!normalized.logo_file_id) return "";
+      const file = DriveApp.getFileById(normalized.logo_file_id);
+      const blob = file.getBlob();
+      const mimeType = String(blob.getContentType() || "").toLowerCase();
+      if (
+        mimeType !== normalized.logo_mime_type ||
+        TAKARA_STORE_LOGO_ALLOWED_MIME_TYPES.indexOf(mimeType) < 0
+      ) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_MIME_INVALID",
+          "Stored Store logo MIME type does not match."
+        );
+      }
+      const bytes = blob.getBytes();
+      if (!bytes || bytes.length < 1 || bytes.length > TAKARA_STORE_LOGO_MAX_BYTES) {
+        throw storeDomainError_(
+          "STORE_BRANDING_LOGO_TOO_LARGE",
+          "Stored Store logo exceeds maximum size."
+        );
+      }
+      assertStoreLogoBytes_(bytes, mimeType);
+      return "data:" + mimeType + ";base64," + Utilities.base64Encode(bytes);
+    },
+
+    trashLogo: function (fileId) {
+      const normalized = normalizeStoreOptionalText_(fileId, 256);
+      if (!normalized) return;
+      DriveApp.getFileById(normalized).setTrashed(true);
+    },
+  };
+}
+
 function createStoreRuntimeDependencies_() {
   return {
     nowIso: function () {

@@ -277,6 +277,15 @@ function handoff(body, pedido) {
   return sent[0];
 }
 
+function projectPublicContextForOrder(context) {
+  return {
+    version: context.version,
+    store_ref: context.store_ref,
+    display_name: context.display_name,
+    status: context.status,
+  };
+}
+
 const repo = createRepository();
 const backend = createBackend(repo);
 const bridge = createBrowser();
@@ -285,7 +294,8 @@ const bridge = createBrowser();
 const initialContext = clone(backend.resolveStoreContextRuntime_(STORE_REF));
 ok(initialContext.store_ref === STORE_REF, "STORE public context keeps public ref");
 ok(initialContext.display_name === "Foto García", "STORE public context has authoritative name");
-const initialTransport = bridge.setVerifiedContext(initialContext);
+ok(Boolean(initialContext.branding), "STORE public context may carry presentation branding");
+const initialTransport = bridge.setVerifiedContext(projectPublicContextForOrder(initialContext));
 ok(Object.keys(initialTransport).sort().join(",") === "store_ref,version", "F3A transports only public ref and version");
 const storePayload = { meta: clone(bridge.getMeta()) };
 const storeOrder = createOrderHarness(backend, storePayload);
@@ -342,7 +352,7 @@ ok(renamed.store_public_code === STORE_REF, "rename preserves public Store ref")
 ok(renamed.store_id === "STO_000001", "rename preserves internal Store id");
 const renamedContext = clone(backend.resolveStoreContextRuntime_(STORE_REF));
 ok(renamedContext.display_name === "Foto García Centro", "renamed public context exposes latest name");
-const renamedTransport = bridge.setVerifiedContext(renamedContext);
+const renamedTransport = bridge.setVerifiedContext(projectPublicContextForOrder(renamedContext));
 ok(renamedTransport.store_ref === initialTransport.store_ref, "rename keeps same F3A transport ref");
 const renamedOrder = createOrderHarness(backend, { meta: clone(bridge.getMeta()) });
 ok(renamedOrder.result.ok === true, "renamed STORE new order succeeds");

@@ -91,6 +91,32 @@
   letter-spacing: -0.035em;
 }
 
+.takara-store-logo {
+  display: block;
+  width: auto;
+  max-width: min(72vw, 260px);
+  height: auto;
+  max-height: 120px;
+  margin: 0.35rem auto 0.8rem;
+  object-fit: contain;
+}
+
+.takara-store-logo[hidden] {
+  display: none;
+}
+
+.takara-store-name--visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .takara-store-order-frame {
   display: block;
   width: 100%;
@@ -118,6 +144,11 @@
   .takara-store-identity {
     width: min(100% - 1.25rem, 1180px);
     padding-top: 1rem;
+  }
+
+  .takara-store-logo {
+    max-width: min(78vw, 220px);
+    max-height: 100px;
   }
 }
 

@@ -23,10 +23,22 @@ function createStoreRuntime_(input) {
 }
 
 function resolveStoreContextRuntime_(storePublicCode) {
-  return resolveStoreContextService_(
+  const context = resolveStoreContextService_(
     getStoreRuntimeRepository_(),
     storePublicCode
   );
+  let branding = buildDefaultStoreBrandingPublic_();
+  try {
+    branding = resolveStoreBrandingPublicService_(
+      createStoreBrandingRepository_(),
+      context.store_ref
+    );
+  } catch (error) {
+    branding = buildDefaultStoreBrandingPublic_();
+  }
+  return Object.freeze(Object.assign({}, context, {
+    branding: branding,
+  }));
 }
 
 function resolveStoreOrderIdentityRuntime_(storePublicCode) {
@@ -72,6 +84,24 @@ function deactivateStoreRuntime_(storeId) {
     getStoreRuntimeRepository_(),
     storeId,
     TAKARA_STORE_STATUS.INACTIVE,
+    getStoreRuntimeDependencies_()
+  );
+}
+
+function getStoreBrandingAdminRuntime_(storeId) {
+  return getStoreBrandingService_(
+    getStoreRuntimeRepository_(),
+    createStoreBrandingRepository_(),
+    storeId
+  );
+}
+
+function updateStoreBrandingAdminRuntime_(storeId, input) {
+  return updateStoreBrandingService_(
+    getStoreRuntimeRepository_(),
+    createStoreBrandingRepository_(),
+    storeId,
+    input,
     getStoreRuntimeDependencies_()
   );
 }

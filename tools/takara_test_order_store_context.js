@@ -217,6 +217,22 @@ expectCode(
     api.setVerifiedContext({
       version: "TAKARA_STORE_CONTEXT_V1",
       store_ref: ref,
+      display_name: "Foto García",
+      status: "ACTIVE",
+      branding: {
+        version: "TAKARA_STORE_BRANDING_PUBLIC_V1",
+        mode: "NAME",
+      },
+    }),
+  "ORDER_STORE_CONTEXT_INVALID",
+  "branding presentation context injection"
+);
+
+expectCode(
+  () =>
+    api.setVerifiedContext({
+      version: "TAKARA_STORE_CONTEXT_V1",
+      store_ref: ref,
       display_name: "",
       status: "ACTIVE",
     }),

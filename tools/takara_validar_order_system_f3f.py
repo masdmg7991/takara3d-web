@@ -166,6 +166,16 @@ def main() -> int:
         require(marker in contract, f"Contrato F3F conserva {marker}")
 
     normalized_test = " ".join(test.split())
+    projection = extract_function(test, "projectPublicContextForOrder")
+    for marker in (
+        "version: context.version",
+        "store_ref: context.store_ref",
+        "display_name: context.display_name",
+        "status: context.status",
+    ):
+        require(marker in projection, f"F3F projection conserva {marker}")
+    require("branding" not in projection, "F3F projection excluye branding de presentacion")
+
     require(
         'const document = { addEventListener(type, handler, options)' in normalized_test,
         "F3F harness aporta primitive document.addEventListener",
@@ -184,7 +194,7 @@ def main() -> int:
     )
     for marker in (
         'const initialContext = clone(backend.resolveStoreContextRuntime_(STORE_REF));',
-        'bridge.setVerifiedContext(initialContext)',
+        'bridge.setVerifiedContext(projectPublicContextForOrder(initialContext))',
         'createOrderHarness(backend, storePayload)',
         'handoff(storeOrder.result.technical_email_body, initialPedido)',
         'const directStoreLookups = repo.metrics.findByPublicCode - directBefore;',

@@ -14,10 +14,27 @@ function ok(condition, message) {
 }
 
 function node() {
-  return {
+  const classes = new Set();
+  const result = {
     hidden: false,
     textContent: "",
+    src: "",
+    removeAttribute(name) {
+      if (name === "src") this.src = "";
+    },
   };
+  result.classList = {
+    toggle(name, force) {
+      if (force === true) classes.add(name);
+      else if (force === false) classes.delete(name);
+      else if (classes.has(name)) classes.delete(name);
+      else classes.add(name);
+    },
+    contains(name) {
+      return classes.has(name);
+    },
+  };
+  return result;
 }
 
 function createOrderFrame() {
@@ -92,6 +109,8 @@ function createBrowser(search, responsePayload) {
   const active = node();
   const error = node();
   const name = node();
+  const logo = node();
+  logo.hidden = true;
   const errorMessage = node();
   const order = createOrderFrame();
 
@@ -113,6 +132,7 @@ function createBrowser(search, responsePayload) {
         "[data-store-active]": active,
         "[data-store-error]": error,
         "[data-store-name]": name,
+        "[data-store-logo]": logo,
         "[data-store-error-message]": errorMessage,
         "[data-store-order-frame]": order.frame,
       }[selector] || null;
@@ -231,6 +251,7 @@ function createBrowser(search, responsePayload) {
     active,
     error,
     name,
+    logo,
     errorMessage,
     boot,
     getAppendCount: () => appendCount,
@@ -260,7 +281,12 @@ function createBrowser(search, responsePayload) {
   ok(active.loading.hidden === true, "loading hidden");
   ok(active.active.hidden === false, "active shown");
   ok(active.error.hidden === true, "error hidden");
-  ok(active.name.textContent === "Foto García", "authoritative name rendered");
+  ok(active.name.textContent === good.store_context.display_name, "authoritative name rendered");
+  ok(active.logo.hidden === true, "NAME mode keeps logo hidden");
+  ok(
+    !active.name.classList.contains("takara-store-name--visually-hidden"),
+    "NAME mode keeps Store name visually visible"
+  );
   ok(
     active.document.title === "Foto García",
     "document title uses only authoritative Store name"
@@ -277,6 +303,72 @@ function createBrowser(search, responsePayload) {
   ok(active.getAppendCount() === 1, "active makes one JSONP request");
   ok(active.getRemoveCount() === 1, "active cleans JSONP script");
 
+  const logoDataUrl = "data:image/png;base64,iVBORw0KGgo=";
+  const logoMode = createBrowser("?s=" + ref, {
+    ok: true,
+    api_version: "TAKARA_STORE_PUBLIC_API_V1",
+    store_context: Object.assign({}, good.store_context, {
+      branding: {
+        version: "TAKARA_STORE_BRANDING_PUBLIC_V1",
+        mode: "LOGO",
+        logo_data_url: logoDataUrl,
+      },
+    }),
+  });
+  await logoMode.boot();
+  ok(logoMode.rootNode.attrs["data-state"] === "active", "LOGO mode active");
+  ok(logoMode.logo.hidden === false, "LOGO mode shows logo");
+  ok(logoMode.logo.src === logoDataUrl, "LOGO mode renders authoritative logo");
+  ok(
+    logoMode.name.classList.contains("takara-store-name--visually-hidden"),
+    "LOGO mode keeps Store name accessible but visually hidden"
+  );
+  ok(
+    !Object.prototype.hasOwnProperty.call(
+      logoMode.order.frameWindow.storeContext,
+      "branding"
+    ),
+    "branding never enters canonical order StoreContext"
+  );
+
+  const bothMode = createBrowser("?s=" + ref, {
+    ok: true,
+    api_version: "TAKARA_STORE_PUBLIC_API_V1",
+    store_context: Object.assign({}, good.store_context, {
+      branding: {
+        version: "TAKARA_STORE_BRANDING_PUBLIC_V1",
+        mode: "NAME_AND_LOGO",
+        logo_data_url: logoDataUrl,
+      },
+    }),
+  });
+  await bothMode.boot();
+  ok(bothMode.logo.hidden === false, "NAME_AND_LOGO shows logo");
+  ok(
+    !bothMode.name.classList.contains("takara-store-name--visually-hidden"),
+    "NAME_AND_LOGO keeps Store name visible"
+  );
+
+  const invalidBranding = createBrowser("?s=" + ref, {
+    ok: true,
+    api_version: "TAKARA_STORE_PUBLIC_API_V1",
+    store_context: Object.assign({}, good.store_context, {
+      branding: {
+        version: "TAKARA_STORE_BRANDING_PUBLIC_V1",
+        mode: "LOGO",
+        logo_data_url: "data:image/svg+xml;base64,PHN2Zz4=",
+      },
+    }),
+  });
+  await invalidBranding.boot();
+  ok(
+    invalidBranding.rootNode.attrs["data-state"] === "error",
+    "invalid branding fails closed"
+  );
+  ok(
+    invalidBranding.order.frame.hidden === true,
+    "invalid branding never opens order"
+  );
   const backendError = createBrowser("?s=" + ref, {
     ok: false,
     api_version: "TAKARA_STORE_PUBLIC_API_V1",
@@ -334,6 +426,7 @@ function createBrowser(search, responsePayload) {
     "noscript fail-closed copy"
   );
   ok(html.includes("data-store-order-frame"), "canonical order frame placeholder");
+  ok(html.includes("data-store-logo"), "Store shell has branding logo target");
   ok(!html.includes("Takara 3D"), "outer Store shell has no visible Takara branding");
   ok(!html.includes("data-cf-beacon"), "no commercial Cloudflare analytics");
   ok(!html.includes("googletagmanager"), "no Google tag manager");

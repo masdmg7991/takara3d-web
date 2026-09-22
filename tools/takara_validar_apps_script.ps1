@@ -21,7 +21,15 @@ Write-Host "[RUN] Takara Apps Script validation"
 if (!(Test-Path $CodePath)) { Fail "No existe $CodeRel" }
 
 $Text = Get-Content $CodePath -Raw -Encoding UTF8
-$Hash = (Get-FileHash -Algorithm SHA256 -Path $CodePath).Hash
+$CanonicalText = $Text.Replace("`r`n", "`n").Replace("`r", "`n")
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$Sha256 = [System.Security.Cryptography.SHA256]::Create()
+try {
+    $HashBytes = $Sha256.ComputeHash($Utf8NoBom.GetBytes($CanonicalText))
+    $Hash = (($HashBytes | ForEach-Object { $_.ToString("x2") }) -join "").ToUpperInvariant()
+} finally {
+    $Sha256.Dispose()
+}
 
 if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
