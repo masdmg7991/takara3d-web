@@ -1,7 +1,9 @@
 from pathlib import Path
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
 ENDPOINT = "https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec"
+STATE = ROOT / "config" / "deployment-state.json"
 
 PRODUCTION = [
     ROOT / "assets" / "js" / "takara-config.js",
@@ -30,6 +32,7 @@ def main() -> int:
     pedido = texts[ROOT / "pedido.html"]
     tienda = texts[ROOT / "tienda" / "index.html"]
     deployment = read(ROOT / "docs" / "DEPLOYMENT.md")
+    state = json.loads(read(STATE))
 
     occurrences = sum(text.count(ENDPOINT) for text in texts.values())
     require(occurrences == 1, "Una única URL Apps Script literal en producción")
@@ -64,19 +67,27 @@ def main() -> int:
     )
 
     require(
-        "## Autoridad compartida del endpoint Apps Script" in deployment,
-        "Deployment documenta autoridad compartida",
+        "## Autoridad de estado" in deployment,
+        "Deployment documenta autoridad de estado",
     )
     require(
-        "`assets/js/takara-config.js`" in deployment,
-        "Deployment identifica archivo autoridad",
+        "config/deployment-state.json" in deployment,
+        "Deployment identifica estado mecanico",
     )
     require(
-        "supersede cualquier referencia anterior" in deployment,
-        "Deployment invalida autoridad histórica de pedido.html",
+        "assets/js/takara-config.js" in deployment,
+        "Deployment identifica archivo autoridad del endpoint",
+    )
+    require(
+        state.get("endpoint_authority") == "assets/js/takara-config.js",
+        "Estado mecanico confirma autoridad del endpoint",
+    )
+    require(
+        "La historia de promociones anteriores vive en Git" in deployment,
+        "Deployment separa historia de autoridad actual",
     )
 
-    print("[TAKARA_SHARED_APPS_SCRIPT_ENDPOINT_STATIC_OK] 35 comprobaciones")
+    print("[TAKARA_SHARED_APPS_SCRIPT_ENDPOINT_STATIC_OK] 37 comprobaciones")
     return 0
 
 

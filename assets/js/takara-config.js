@@ -1,6 +1,8 @@
-// TAKARA 3D · CONFIGURACION CENTRAL V1
-// Fuente unica para catalogo, precios visibles y precios tecnicos.
-// Para cambiar un precio base: tocar solo este archivo.
+// TAKARA 3D - CONFIGURACION RUNTIME V1
+// Autoridad del endpoint publico y proyeccion runtime del catalogo.
+// Catalogo/precios canonicos: assets/data/catalogo.json.
+// Los valores de producto de este archivo son derivados y el Quality Gate exige
+// que permanezcan sincronizados; no son una segunda fuente de verdad.
 
 (function () {
   "use strict";

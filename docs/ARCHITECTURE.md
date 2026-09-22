@@ -387,3 +387,25 @@ parámetro `s`, ausencia de hash y ausencia de parámetros auxiliares.
 El `store_public_code` es opaco, público, inmutable y no secuencial.
 Store Registry sigue siendo la autoridad de `store_id`, estado y nombre.
 Resolver esa referencia no convierte al navegador en autoridad de identidad.
+
+
+## Autoridades y proyecciones derivadas
+
+Una responsabilidad debe tener una autoridad canonica identificable. Cuando el
+runtime necesite repetir una parte de esa informacion por rendimiento,
+compatibilidad o fallback, esa copia se considera una proyeccion derivada, no
+una segunda fuente de verdad.
+
+Reglas actuales:
+
+- catalogo y precios: assets/data/catalogo.json;
+- endpoint publico Apps Script: assets/js/takara-config.js;
+- estado de despliegue del repo: config/deployment-state.json;
+- takara-config.js puede proyectar datos de producto para lectura sincrona,
+  pero tools/validar_catalogo.py debe demostrar que coinciden con el catalogo;
+- contacto.html conserva action como fallback sin JavaScript, pero
+  tools/takara_test_contact_endpoint.js obliga a que coincida con el endpoint
+  canonico.
+
+Una proyeccion derivada que no pueda verificarse mecanicamente se considera
+deuda tecnica.
