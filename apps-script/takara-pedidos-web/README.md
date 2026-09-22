@@ -69,8 +69,9 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1 (última versión productiva documentada; verificar live por GET antes de promover)
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1 (candidato local actual)
+- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1 (versión productiva verificada por GET y versión local actual)
+- Estado mecánico actual: `../../config/deployment-state.json`
+- La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2
 - TAKARA_ORDER_SNAPSHOT_V2
 - TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC

@@ -49,7 +49,8 @@ takara3d-web/
 | Store Admin | `docs/STORE_ADMIN_CONTRACT.md` |
 | Preview | `docs/PREVIEW_ENGINE_CONTRACT.md` |
 | Diseño visual | `docs/DESIGN_SYSTEM.md` |
-| Despliegue | `docs/DEPLOYMENT.md` |
+| Estado de deployment | `config/deployment-state.json` |
+| Procedimiento de despliegue | `docs/DEPLOYMENT.md` |
 | Política del repo público | `docs/PUBLIC_REPO_POLICY.md` |
 | Quality Gate | `tools/takara_quality_gate.ps1` + `docs/QUALITY_GATE.md` |
 

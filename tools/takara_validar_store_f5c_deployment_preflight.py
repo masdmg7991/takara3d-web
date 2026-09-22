@@ -246,9 +246,8 @@ def main() -> int:
     )
 
     dep_markers = (
-        "## F5C deployment candidate parity + deploy preflight",
-        "same Apps Script project",
-        "separate deployment resources",
+        "config/deployment-state.json",
+        "mismo proyecto Apps Script",
         "PUBLIC deployment",
         "ADMIN deployment",
         "USER_ACCESSING",
@@ -256,11 +255,8 @@ def main() -> int:
         "USER_DEPLOYING is forbidden for Admin",
         "ANYONE_ANONYMOUS is forbidden for Admin",
         "deployer must equal the configured Store Admin owner",
-        "F5C performs no push and no deployment",
-        "F5D remote deployment topology",
-        "F5E Store Public production E2E",
-        "F5F Store Admin production E2E",
-        "F5G Store-attributed order production E2E",
+        "Repositorio y despliegue son operaciones independientes",
+        "no constituyen un despliegue del backend",
     )
     for marker in dep_markers:
         require(marker in deployment_sem, f"DEPLOYMENT contiene semánticamente {marker}")
@@ -351,7 +347,7 @@ def main() -> int:
                 "mutation_in_f5c": False,
             },
             "ADMIN": {
-                "status": "candidate-only",
+                "status": "restricted-deployment-resource",
                 "executeAs": "USER_ACCESSING",
                 "access": "MYSELF",
                 "requires_deployer_equals_owner": True,
@@ -360,7 +356,7 @@ def main() -> int:
         "doc_validation": "semantic-whitespace-markdown-normalized",
         "push": False,
         "deploy": False,
-        "forward_prepared": ["F5D", "F5E", "F5F", "F5G"],
+        "forward_prepared": [],
     }
 
     print(

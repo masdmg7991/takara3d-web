@@ -111,6 +111,8 @@ $RequiredFiles = @(
     "docs/PREVIEW_ENGINE_CONTRACT.md",
     "docs/QR_PAGE_CONTRACT.md",
     "docs/STORE_SYSTEM_CONTRACT.md",
+    "config/deployment-state.json",
+    "tools/takara_validar_deployment_state.py",
     "tools/takara_validar_personalizacion_pedido.py",
     "tools/takara_validar_entrega_pedido.py",
     "tools/takara_validar_contrato_v2.py",
@@ -608,6 +610,19 @@ if (Test-Path "tools/takara_validar_contrato_v2.py") {
     }
 } else {
     Err "No existe tools/takara_validar_contrato_v2.py"
+}
+
+if (Test-Path "tools/takara_validar_deployment_state.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_deployment_state.py"
+    py tools/takara_validar_deployment_state.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Estado mecanico de deployment validado"
+    } else {
+        Err "Fallo takara_validar_deployment_state.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_deployment_state.py"
 }
 
 if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {

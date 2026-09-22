@@ -138,15 +138,16 @@ def main() -> int:
     )
 
     for doc, name in ((readme, "README"), (deployment, "DEPLOYMENT"), (contract, "ORDER_ENGINE_CONTRACT")):
-        require(EXPECTED["script"] in doc, f"{name} documenta candidato V1.14.3 browser ACK")
+        require(EXPECTED["script"] in doc, f"{name} documenta Apps Script V1.14.3 browser ACK")
         require(EXPECTED["payload"] in doc, f"{name} documenta payload V2")
         require(EXPECTED["snapshot"] in doc, f"{name} documenta snapshot V2")
         require(EXPECTED["email"] in doc, f"{name} documenta correo V2")
 
     require(
-        "verificarse mediante GET del endpoint canónico" in deployment
-        and "La autoridad sobre la versión realmente publicada es la respuesta GET del" in deployment
-        and "endpoint productivo" in deployment,
+        "respuesta GET del" in deployment
+        and "endpoint productivo" in deployment
+        and "verificarse mediante GET" in deployment
+        and "endpoint canónico" in deployment,
         "DEPLOYMENT documenta autoridad GET del backend publicado",
     )
     require(
