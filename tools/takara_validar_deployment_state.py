@@ -16,8 +16,10 @@ ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
-SCRIPT_VERSION = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
+LOCAL_STATUS = "candidate_not_deployed"
 
 checks = 0
 
@@ -35,8 +37,7 @@ def read(path: Path) -> str:
 
 
 def main() -> int:
-    state_text = read(STATE)
-    state = json.loads(state_text)
+    state = json.loads(read(STATE))
     code = read(CODE)
     config = read(CONFIG)
     deployment = read(DEPLOYMENT)
@@ -44,40 +45,97 @@ def main() -> int:
     order_contract = read(ORDER_CONTRACT)
 
     require(state.get("schema_version") == SCHEMA, "Schema de deployment exacto")
-    require(state.get("endpoint_authority") == ENDPOINT_AUTHORITY, "Autoridad de endpoint exacta")
+    require(
+        state.get("endpoint_authority") == ENDPOINT_AUTHORITY,
+        "Autoridad de endpoint exacta",
+    )
 
     verification = state.get("live_verification") or {}
     method = str(verification.get("method") or "")
     verified_on = str(verification.get("verified_on") or "")
-    require("GET" in method and "script" in method, "Verificacion LIVE exige GET y campo script")
-    require(re.fullmatch(r"\d{4}-\d{2}-\d{2}", verified_on) is not None, "Fecha LIVE estructurada")
+    require(
+        "GET" in method and "script" in method,
+        "Verificacion LIVE exige GET y campo script",
+    )
+    require(
+        re.fullmatch(r"\d{4}-\d{2}-\d{2}", verified_on) is not None,
+        "Fecha LIVE estructurada",
+    )
 
     production = state.get("production") or {}
     local = state.get("local") or {}
+
     require(production.get("service") == SERVICE, "Servicio productivo exacto")
-    require(production.get("service_version") == SERVICE_VERSION, "Version de servicio productiva exacta")
-    require(production.get("script_version") == SCRIPT_VERSION, "Version script productiva exacta")
+    require(
+        production.get("service_version") == SERVICE_VERSION,
+        "Version de servicio productiva exacta",
+    )
+    require(
+        production.get("script_version") == PRODUCTION_SCRIPT,
+        "Version script LIVE permanece V1.14.3",
+    )
     require(production.get("status") == "online", "Estado productivo online")
-    require(local.get("script_version") == SCRIPT_VERSION, "Version local coincide con autoridad productiva")
 
-    require(code.count(SCRIPT_VERSION) == 1, "Code.gs declara una unica VERSION_SCRIPT actual")
-    require("TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config, "Config expone API canonica de endpoint")
+    require(
+        local.get("script_version") == LOCAL_SCRIPT,
+        "Version local candidata es V1.15.0 idempotente",
+    )
+    require(
+        local.get("status") == LOCAL_STATUS,
+        "Estado local declara candidato no desplegado",
+    )
+    require(
+        local.get("script_version") != production.get("script_version"),
+        "Estado mecanico distingue local de LIVE",
+    )
 
-    require("config/deployment-state.json" in deployment, "DEPLOYMENT referencia estado mecanico")
-    require(SCRIPT_VERSION in deployment, "DEPLOYMENT documenta version productiva actual")
-    require(ENDPOINT_AUTHORITY in deployment, "DEPLOYMENT documenta autoridad de endpoint")
-    require("respuesta GET del" in deployment and "endpoint productivo" in deployment, "DEPLOYMENT documenta autoridad LIVE por GET")
+    require(
+        code.count(LOCAL_SCRIPT) == 1,
+        "Code.gs declara una unica VERSION_SCRIPT candidata",
+    )
+    require(
+        PRODUCTION_SCRIPT not in code,
+        "Code.gs no finge ejecutar la version LIVE anterior",
+    )
+    require(
+        "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config,
+        "Config expone API canonica de endpoint",
+    )
 
-    for text, name in ((app_readme, "Apps Script README"), (order_contract, "ORDER_ENGINE_CONTRACT")):
-        require(SCRIPT_VERSION in text, f"{name} documenta V1.14.3")
-        require("V1_14_2_STORE_ADMIN_ROUTE_V1" not in text, f"{name} no presenta V1.14.2 como estado actual")
+    for marker in (
+        "config/deployment-state.json",
+        PRODUCTION_SCRIPT,
+        LOCAL_SCRIPT,
+        "Script LIVE",
+        "Script local candidato",
+        "candidato no desplegado",
+    ):
+        require(marker in deployment, f"DEPLOYMENT documenta {marker}")
+
+    for text, name in (
+        (app_readme, "Apps Script README"),
+        (order_contract, "ORDER_ENGINE_CONTRACT"),
+    ):
+        require(PRODUCTION_SCRIPT in text, f"{name} conserva version LIVE")
+        require(LOCAL_SCRIPT in text, f"{name} documenta candidato local")
+
+    require(
+        "OrderIdempotency.gs" in app_readme,
+        "Apps Script README documenta modulo idempotente",
+    )
+    require(
+        "ORDER_IDEMPOTENCY_CONTRACT.md" in order_contract,
+        "ORDER_ENGINE_CONTRACT enlaza contrato de idempotencia",
+    )
 
     print(
         "[TAKARA_DEPLOYMENT_STATE_OK] "
         + json.dumps(
             {
                 "checks": checks,
-                "production": SCRIPT_VERSION,
+                "production": PRODUCTION_SCRIPT,
+                "local": LOCAL_SCRIPT,
+                "local_status": LOCAL_STATUS,
                 "verified_on": verified_on,
             },
             ensure_ascii=False,

@@ -6,6 +6,7 @@ Archivos de entrada/transporte:
 
 - `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
 - `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
+- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; candidato V1.15.0.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 
@@ -69,7 +70,8 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1 (versión productiva verificada por GET y versión local actual)
+- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1
+- candidato local no desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1
 - Estado mecánico actual: `../../config/deployment-state.json`
 - La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2

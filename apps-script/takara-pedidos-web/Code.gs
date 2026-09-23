@@ -8,7 +8,7 @@ const CFG = Object.freeze({
   SNAPSHOT_VERSION: "TAKARA_ORDER_SNAPSHOT_V2",
   PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1",
   VERSION_PLANTILLA_V1_COMPAT: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -108,6 +108,8 @@ function doGet(e) {
 
 function doPost(e) {
   let browserResponseRequest = null;
+  let idPedidoWeb = "";
+  let idempotencyExecution = null;
 
   try {
     browserResponseRequest = parseOrderBrowserResponseRequest_(e);
@@ -125,7 +127,7 @@ function doPost(e) {
     }
 
     const now = new Date();
-    const idPedidoWeb = resolverIdPedidoWeb_(payload, now);
+    idPedidoWeb = resolverIdPedidoWeb_(payload, now);
     const pedido = normalizarPedido_(payload);
     pedido.attribution = buildAuthoritativeOrderAttribution_(payload);
     pedido.recibido_apps_script_iso = now.toISOString();
@@ -160,37 +162,158 @@ function doPost(e) {
       });
     }
 
-    const fotoPreparada = prepararFotoOriginal_(
+    assertOrderIdempotencyOrderId_(payload, idPedidoWeb);
+    const fingerprint = buildOrderIdempotencyFingerprint_(pedido);
+    idempotencyExecution = beginOrderIdempotency_(
       idPedidoWeb,
-      pedido.archivos
-    );
-    const fichaVisual = prepararFichaVisualSegura_(
-      idPedidoWeb,
-      pedido.archivos
-    );
-    const folder = asegurarCarpetaPedido_(idPedidoWeb, now);
-    const foto = guardarFoto_(fotoPreparada, folder);
-
-    const subject = construirAsunto_(idPedidoWeb, pedido);
-    const body = construirCuerpoInterno_(
-      idPedidoWeb,
-      now,
-      pedido,
-      foto,
-      fichaVisual
+      fingerprint,
+      now
     );
 
-    enviarEmailInterno_(
-      subject,
-      body,
-      idPedidoWeb,
-      pedido,
-      foto,
-      fichaVisual
-    );
-    enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual);
+    if (idempotencyExecution.mode === "COMPLETED") {
+      if (!idempotencyExecution.ack) {
+        throw orderIdempotencyError_(
+          "ORDER_IDEMPOTENCY_ACK_MISSING",
+          "El pedido consta como completado pero no conserva su ACK."
+        );
+      }
+      return orderBrowserResponseOrJson_(
+        browserResponseRequest,
+        idempotencyExecution.ack
+      );
+    }
 
-    return orderBrowserResponseOrJson_(browserResponseRequest, {
+    const token = idempotencyExecution.token;
+    let record = idempotencyExecution.record;
+    let foto = record.photo || null;
+    let fichaVisual = null;
+
+    if (record.phase === TAKARA_ORDER_IDEMPOTENCY_PHASE.RESERVED) {
+      const fotoPreparada = prepararFotoOriginal_(
+        idPedidoWeb,
+        pedido.archivos
+      );
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.RESERVED,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_IN_FLIGHT,
+        {},
+        new Date()
+      );
+
+      const folder = asegurarCarpetaPedido_(idPedidoWeb, now);
+      foto = guardarFoto_(fotoPreparada, folder);
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_IN_FLIGHT,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_SAVED,
+        { photo: foto },
+        new Date()
+      );
+    }
+
+    if (!foto || !foto.foto_recibida) {
+      throw orderIdempotencyError_(
+        "ORDER_IDEMPOTENCY_PHOTO_MISSING",
+        "El ledger del pedido no conserva una fotografia valida."
+      );
+    }
+
+    if (
+      record.phase === TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_SAVED ||
+      record.phase === TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_SENT
+    ) {
+      fichaVisual = prepararFichaVisualSegura_(
+        idPedidoWeb,
+        pedido.archivos
+      );
+    }
+
+    if (record.phase === TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_SAVED) {
+      const subject = construirAsunto_(idPedidoWeb, pedido);
+      const body = construirCuerpoInterno_(
+        idPedidoWeb,
+        now,
+        pedido,
+        foto,
+        fichaVisual
+      );
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.PHOTO_SAVED,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_IN_FLIGHT,
+        { visual_proof: summarizeOrderVisualProof_(fichaVisual) },
+        new Date()
+      );
+
+      enviarEmailInterno_(
+        subject,
+        body,
+        idPedidoWeb,
+        pedido,
+        foto,
+        fichaVisual
+      );
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_IN_FLIGHT,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_SENT,
+        {},
+        new Date()
+      );
+    }
+
+    if (record.phase === TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_SENT) {
+      if (!fichaVisual) {
+        fichaVisual = prepararFichaVisualSegura_(
+          idPedidoWeb,
+          pedido.archivos
+        );
+      }
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.INTERNAL_EMAIL_SENT,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.CLIENT_EMAIL_IN_FLIGHT,
+        {},
+        new Date()
+      );
+
+      enviarConfirmacionCliente_(
+        idPedidoWeb,
+        pedido,
+        foto,
+        fichaVisual
+      );
+
+      record = transitionOrderIdempotency_(
+        idPedidoWeb,
+        token,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.CLIENT_EMAIL_IN_FLIGHT,
+        TAKARA_ORDER_IDEMPOTENCY_PHASE.CLIENT_EMAIL_SENT,
+        {},
+        new Date()
+      );
+    }
+
+    if (record.phase !== TAKARA_ORDER_IDEMPOTENCY_PHASE.CLIENT_EMAIL_SENT) {
+      throw orderIdempotencyError_(
+        "ORDER_IDEMPOTENCY_UNEXPECTED_PHASE",
+        "El pedido termino en una fase idempotente inesperada."
+      );
+    }
+
+    const visualProof = record.visual_proof || {};
+    const ack = {
       ok: true,
       id_pedido_web: idPedidoWeb,
       estado: "recibido",
@@ -198,19 +321,54 @@ function doPost(e) {
       enlace_drive: foto.enlace_drive || "",
       id_archivo_drive: foto.id_archivo_drive || "",
       nombre_archivo_foto: foto.nombre_archivo_foto || "",
-      ficha_visual_recibida: !!fichaVisual.ficha_visual_recibida,
-      estado_ficha_visual: fichaVisual.estado || "",
-      nombre_archivo_ficha_visual: fichaVisual.nombre_archivo || "",
+      ficha_visual_recibida: !!visualProof.ficha_visual_recibida,
+      estado_ficha_visual: visualProof.estado || "",
+      nombre_archivo_ficha_visual: visualProof.nombre_archivo || "",
       version: versionPlantillaPedido_(pedido),
       script: CFG.VERSION_SCRIPT
-    });
+    };
+
+    transitionOrderIdempotency_(
+      idPedidoWeb,
+      token,
+      TAKARA_ORDER_IDEMPOTENCY_PHASE.CLIENT_EMAIL_SENT,
+      TAKARA_ORDER_IDEMPOTENCY_PHASE.COMPLETED,
+      { ack: ack },
+      new Date()
+    );
+
+    return orderBrowserResponseOrJson_(browserResponseRequest, ack);
   } catch (error) {
     return orderBrowserResponseOrJson_(browserResponseRequest, {
       ok: false,
       error: String(error && error.message ? error.message : error),
+      error_code: String(error && error.code ? error.code : ""),
       version: CFG.VERSION_PLANTILLA,
       script: CFG.VERSION_SCRIPT
     });
+  } finally {
+    if (
+      idempotencyExecution &&
+      idempotencyExecution.token &&
+      idPedidoWeb
+    ) {
+      try {
+        releaseOrderIdempotencyLease_(
+          idPedidoWeb,
+          idempotencyExecution.token,
+          new Date()
+        );
+      } catch (releaseError) {
+        console.error(
+          "[TAKARA_ORDER_IDEMPOTENCY_RELEASE_ERROR]",
+          String(
+            releaseError && releaseError.message
+              ? releaseError.message
+              : releaseError
+          )
+        );
+      }
+    }
   }
 }
 

@@ -125,6 +125,11 @@ $RequiredFiles = @(
     "tools/takara_test_entrega_pedido.js",
     "tools/takara_test_order_contract_v2.js",
     "tools/takara_test_order_browser_transport.js",
+    "apps-script/takara-pedidos-web/OrderIdempotency.gs",
+    "docs/ORDER_IDEMPOTENCY_CONTRACT.md",
+    "tools/takara_test_order_idempotency.js",
+    "tools/takara_test_order_idempotency_flow.js",
+    "tools/takara_validar_order_idempotency.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -617,6 +622,19 @@ if (Test-Path "tools/takara_validar_assets.py") {
     }
 } else {
     Err "No existe tools/takara_validar_assets.py"
+}
+
+if (Test-Path "tools/takara_validar_order_idempotency.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_idempotency.py"
+    py tools/takara_validar_order_idempotency.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Idempotencia de pedidos static validada"
+    } else {
+        Err "Fallo takara_validar_order_idempotency.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_idempotency.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
@@ -1329,6 +1347,26 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_shared_endpoint.js
     }
 } else {
     Err "No se pudo ejecutar shared endpoint test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_idempotency.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_idempotency.js"
+    node tools/takara_test_order_idempotency.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia de pedidos unit validada" }
+    else { Err "Fallo takara_test_order_idempotency.js" }
+} else {
+    Err "No se pudo ejecutar order idempotency unit test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_idempotency_flow.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_idempotency_flow.js"
+    node tools/takara_test_order_idempotency_flow.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia horizontal de pedidos validada" }
+    else { Err "Fallo takara_test_order_idempotency_flow.js" }
+} else {
+    Err "No se pudo ejecutar order idempotency flow test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_endpoint.js")) {

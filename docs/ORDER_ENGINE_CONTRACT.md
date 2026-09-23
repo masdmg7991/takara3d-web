@@ -314,7 +314,7 @@ La frontera activa del pedido es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
+- Apps Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`;
 - Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 
@@ -677,3 +677,25 @@ Garantías de cierre:
 - declarar `F3 7/7` exige F3A-F3F GREEN, Quality Gate completo GREEN y
   certificación independiente GREEN.
 - F4 Store Admin comienza únicamente después de este cierre certificado.
+
+
+## Idempotencia de efectos externos
+
+El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`
+incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada continúa
+siendo `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1` hasta una
+promoción explícita.
+
+Para pedidos reales, `pedido_web_id` debe ser estable. El backend calcula un
+fingerprint SHA-256 del pedido normalizado, incluida la atribución autoritativa
+y hashes de foto y ficha visual. El mismo ID con contenido distinto falla
+cerrado.
+
+Drive y cada correo entran en una fase `*_IN_FLIGHT` antes del efecto externo.
+Si una ejecución muere en una fase ambigua, el retry exige revisión manual y no
+repite automáticamente el efecto. `COMPLETED` conserva el ACK para responder a
+un retry por ACK perdido sin repetir Drive ni Mail.
+
+Dry-run y `CONTACTO_WEB` conservan sus rutas actuales y no crean este ledger.
+
+El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
