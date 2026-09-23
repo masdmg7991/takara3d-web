@@ -84,6 +84,11 @@ function createHarness(payload) {
       trace.push("parse");
       return payload;
     },
+    parseOrderBrowserResponseRequest_() { return null; },
+    parseContactBrowserResponseRequest_() { return null; },
+    assertOrderBrowserPayloadMatches_() {},
+    orderBrowserResponseOrJson_(request, value) { return value; },
+    contactBrowserResponseOrJson_(request, value) { return value; },
     texto_(value) {
       return String(value || "").trim();
     },

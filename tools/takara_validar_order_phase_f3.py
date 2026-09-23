@@ -97,6 +97,7 @@ def main() -> int:
         "apps-script/takara-pedidos-web/OrderAttribution.gs"
     )
     code = read("apps-script/takara-pedidos-web/Code.gs")
+    email = read("apps-script/takara-pedidos-web/OrderEmail.gs")
     product_qr = read("qr/index.html")
     contract = read("docs/ORDER_ENGINE_CONTRACT.md")
     quality_gate = read("tools/takara_quality_gate.ps1")
@@ -251,7 +252,7 @@ def main() -> int:
         "CONTACTO sale antes de atribución de pedido",
     )
     require(
-        code.count("[ATRIBUCION]") == 2,
+        email.count("[ATRIBUCION]") == 2,
         "F3D conserva bloques V1/V2 de atribución",
     )
     for marker in (
@@ -261,13 +262,13 @@ def main() -> int:
         "pedido.attribution.store_name_snapshot",
     ):
         require(
-            code.count(marker) == 2,
+            email.count(marker) == 2,
             f"F3D persiste V1/V2 {marker}",
         )
 
     # F3E - downstream handoff, no re-resolution.
-    internal = extract_function(code, "enviarEmailInterno_")
-    client = extract_function(code, "enviarConfirmacionCliente_")
+    internal = extract_function(email, "enviarEmailInterno_")
+    client = extract_function(email, "enviarConfirmacionCliente_")
 
     require(
         "body: body" in internal,

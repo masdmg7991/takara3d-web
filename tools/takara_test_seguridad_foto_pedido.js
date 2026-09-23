@@ -11,6 +11,36 @@ const CODE_GS = path.join(
   "takara-pedidos-web",
   "Code.gs"
 );
+const RUNTIME_HELPERS_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "RuntimeHelpers.gs"
+);
+const ORDER_NORMALIZATION_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderNormalization.gs"
+);
+const ORDER_VALIDATION_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderValidation.gs"
+);
+const ORDER_DELIVERY_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderDelivery.gs"
+);
+const ORDER_MEDIA_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderMedia.gs"
+);
 let checks = 0;
 
 function ok(condition, message) {
@@ -66,6 +96,21 @@ function loadServerContext() {
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(CODE_GS, "utf8"), context, {
     filename: CODE_GS
+  });
+  vm.runInContext(fs.readFileSync(RUNTIME_HELPERS_GS, "utf8"), context, {
+    filename: RUNTIME_HELPERS_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_NORMALIZATION_GS, "utf8"), context, {
+    filename: ORDER_NORMALIZATION_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_VALIDATION_GS, "utf8"), context, {
+    filename: ORDER_VALIDATION_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_DELIVERY_GS, "utf8"), context, {
+    filename: ORDER_DELIVERY_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_MEDIA_GS, "utf8"), context, {
+    filename: ORDER_MEDIA_GS
   });
   return context;
 }

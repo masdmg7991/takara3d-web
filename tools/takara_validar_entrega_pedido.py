@@ -18,16 +18,21 @@ DELIVERY_CSS = ROOT / "assets" / "css" / "takara-pedido-delivery.css"
 ORDER_JS = ROOT / "assets" / "js" / "takara-pedido-web.js"
 ORDER_HTML = ROOT / "pedido.html"
 CODE_GS = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_NORMALIZATION_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderNormalization.gs"
+ORDER_VALIDATION_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderValidation.gs"
+ORDER_DELIVERY_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderDelivery.gs"
+ORDER_EMAIL_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 DEPLOYMENT = ROOT / "docs" / "DEPLOYMENT.md"
+DEPLOYMENT_STATE = ROOT / "config" / "deployment-state.json"
 SEO_CONTRACT = ROOT / "docs" / "SEO_STRUCTURED_DATA_CONTRACT.md"
 
 VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC"
 PAYLOAD_V2 = "TAKARA_WEB_ORDER_PAYLOAD_V2"
 SNAPSHOT_V2 = "TAKARA_ORDER_SNAPSHOT_V2"
 EMAIL_V2 = "TAKARA_PEDIDO_WEB_V2"
-PUBLIC_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2"
-BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
+LIVE_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 POSTAL_VERSION = "TAKARA_POSTAL_NATIONAL_V1_2026_08_03"
 SNAPSHOT = "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03"
 EXPECTED_FREE = ["28911", "28912", "28913", "28915", "28916", "28918", "28919"]
@@ -53,7 +58,7 @@ def read_utf8(path: Path) -> str:
     data = path.read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
         data = data[3:]
-    return data.decode("utf-8")
+    return data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
 
 
 def require(condition: bool, message: str) -> None:
@@ -67,7 +72,7 @@ def require(condition: bool, message: str) -> None:
 def validate_files() -> None:
     for path in (
         CATALOG, DELIVERY_CORE, POSTAL_CORE, POSTAL_MAP, DELIVERY_UI, DELIVERY_CSS,
-        ORDER_JS, ORDER_HTML, CODE_GS, ORDER_CONTRACT, DEPLOYMENT, SEO_CONTRACT,
+        ORDER_JS, ORDER_HTML, CODE_GS, ORDER_NORMALIZATION_GS, ORDER_VALIDATION_GS, ORDER_DELIVERY_GS, ORDER_EMAIL_GS, ORDER_CONTRACT, DEPLOYMENT, DEPLOYMENT_STATE, SEO_CONTRACT,
     ):
         require(path.is_file(), f"Existe {path.relative_to(ROOT)}")
 
@@ -242,7 +247,7 @@ def validate_frontend() -> None:
 
 
 def validate_server() -> None:
-    source = read_utf8(CODE_GS)
+    source = read_utf8(CODE_GS) + "\n" + read_utf8(ORDER_NORMALIZATION_GS) + "\n" + read_utf8(ORDER_VALIDATION_GS) + "\n" + read_utf8(ORDER_DELIVERY_GS) + "\n" + read_utf8(ORDER_EMAIL_GS)
     for marker in (
         BACKEND, VERSION, PAYLOAD_V2, SNAPSHOT_V2, EMAIL_V2, "DELIVERY_AUTOMATIC_FREE_POSTAL_CODES",
         "DELIVERY_AUTOMATIC_NEARBY_BY_AREA", "DELIVERY_AMBIGUOUS_POSTAL_OPTIONS",
@@ -278,14 +283,29 @@ def validate_docs() -> None:
         "servidor es la\nfuente de verdad", "dirección completa",
     ):
         require(marker in order_contract, f"Contrato de pedido documenta: {marker}")
-    require(PUBLIC_BACKEND in deployment, "DEPLOYMENT documenta backend público V1.14.1")
-    require(BACKEND in deployment, "DEPLOYMENT documenta candidato local V1.14.3")
+    deployment_state = json.loads(read_utf8(DEPLOYMENT_STATE))
     require(
-        "verificarse mediante GET del endpoint canónico" in deployment
-        and "La autoridad sobre la versión realmente publicada es la respuesta GET del" in deployment,
+        deployment_state.get("production", {}).get("script_version") == LIVE_BACKEND,
+        "Estado mecanico confirma backend LIVE V1.18.0",
+    )
+    require(
+        deployment_state.get("local", {}).get("script_version") == BACKEND,
+        "Estado mecanico fija local V1.18.0",
+    )
+    require(
+        deployment_state.get("endpoint_authority") == "assets/js/takara-config.js",
+        "Estado mecanico fija autoridad canonica del endpoint",
+    )
+    require(LIVE_BACKEND in deployment, "DEPLOYMENT documenta backend LIVE V1.18.0")
+    require(BACKEND in deployment, "DEPLOYMENT documenta local V1.18.0")
+    require(
+        "respuesta GET del" in deployment
+        and "endpoint productivo" in deployment
+        and "verificarse mediante GET" in deployment
+        and "endpoint canónico" in deployment,
         "DEPLOYMENT documenta autoridad GET del backend publicado",
     )
-    require("endpoint productivo" in deployment and "no una etiqueta histórica" in deployment, "DEPLOYMENT fija autoridad de despliegue en endpoint productivo")
+    require("config/deployment-state.json" in deployment, "DEPLOYMENT usa estado mecanico estructurado")
     require(PAYLOAD_V2 in deployment and SNAPSHOT_V2 in deployment and EMAIL_V2 in deployment, "DEPLOYMENT documenta payload, snapshot y correo V2")
     require(VERSION in seo and "todavía no autoriza a publicar `shippingDetails`" in seo, "Contrato SEO mantiene shippingDetails pendiente")
     require("hasMerchantReturnPolicy" in seo, "Contrato SEO mantiene pendiente política de devoluciones")

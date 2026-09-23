@@ -11,6 +11,9 @@ ORDER_JS = ROOT / "assets" / "js" / "takara-pedido-web.js"
 ORDER_HTML = ROOT / "pedido.html"
 CATALOG_JSON = ROOT / "assets" / "data" / "catalogo.json"
 CODE_GS = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_NORMALIZATION_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderNormalization.gs"
+ORDER_VALIDATION_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderValidation.gs"
+ORDER_EMAIL_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 FRAME_CONTRACT = ROOT / "docs" / "FRAME_TEXT_CONTRACT.md"
 ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 
@@ -151,9 +154,9 @@ def validate_client() -> None:
 
 
 def validate_server_and_emails() -> None:
-    source = read_utf8(CODE_GS)
+    source = read_utf8(CODE_GS) + "\n" + read_utf8(ORDER_NORMALIZATION_GS) + "\n" + read_utf8(ORDER_VALIDATION_GS) + "\n" + read_utf8(ORDER_EMAIL_GS)
     markers = [
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
         "TAKARA_PEDIDO_WEB_V2",
         "TAKARA_WEB_ORDER_PAYLOAD_V2",
         "TAKARA_ORDER_SNAPSHOT_V2",

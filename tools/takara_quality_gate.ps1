@@ -1,13 +1,20 @@
 param(
     [ValidateSet("bootstrap", "dev", "precommit", "prepush")]
-    [string]$Mode = "dev"
+    [string]$Mode = "dev",
+    [string]$ReportRoot = ""
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
 
 $Project = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$ReportRoot = Join-Path $env:USERPROFILE "Desktop\takara3d-backups\quality_reports"
+if (!$ReportRoot) {
+    if ($env:TAKARA_QUALITY_REPORT_ROOT) {
+        $ReportRoot = $env:TAKARA_QUALITY_REPORT_ROOT
+    } else {
+        $ReportRoot = Join-Path $env:USERPROFILE "Desktop\takara3d-backups\quality_reports"
+    }
+}
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $ReportDir = Join-Path $ReportRoot ("takara_quality_gate_" + $Mode + "_" + $Stamp)
 $ReportTxt = Join-Path $ReportDir "quality_gate_report.txt"
@@ -78,6 +85,10 @@ Log-Line ""
 if (!(Test-Path ".git")) { Err "No parece un repo Git." } else { Ok "Repo Git detectado" }
 
 $RequiredFiles = @(
+    ".editorconfig",
+    "CONTRIBUTING.md",
+    ".github/workflows/quality-gate.yml",
+    "tools/README.md",
     "pedido.html",
     "qr/index.html",
     "assets/css/styles.css",
@@ -104,6 +115,8 @@ $RequiredFiles = @(
     "docs/PREVIEW_ENGINE_CONTRACT.md",
     "docs/QR_PAGE_CONTRACT.md",
     "docs/STORE_SYSTEM_CONTRACT.md",
+    "config/deployment-state.json",
+    "tools/takara_validar_deployment_state.py",
     "tools/takara_validar_personalizacion_pedido.py",
     "tools/takara_validar_entrega_pedido.py",
     "tools/takara_validar_contrato_v2.py",
@@ -112,10 +125,55 @@ $RequiredFiles = @(
     "tools/takara_test_entrega_pedido.js",
     "tools/takara_test_order_contract_v2.js",
     "tools/takara_test_order_browser_transport.js",
+    "apps-script/takara-pedidos-web/OrderIdempotency.gs",
+    "docs/ORDER_IDEMPOTENCY_CONTRACT.md",
+    "tools/takara_test_order_idempotency.js",
+    "tools/takara_test_order_idempotency_flow.js",
+    "tools/takara_validar_order_idempotency.py",
+    "apps-script/takara-pedidos-web/PublicAbuseProtection.gs",
+    "docs/PUBLIC_ABUSE_PROTECTION_CONTRACT.md",
+    "tools/takara_test_public_abuse_protection.js",
+    "tools/takara_test_public_abuse_flow.js",
+    "tools/takara_validar_public_abuse_protection.py",
+    "apps-script/takara-pedidos-web/ContactBrowserTransport.gs",
+    "apps-script/takara-pedidos-web/ContactIdempotency.gs",
+    "docs/CONTACT_BROWSER_ACK_CONTRACT.md",
+    "tools/takara_test_contact_browser_transport.js",
+    "tools/takara_test_contact_idempotency.js",
+    "tools/takara_validar_contact_browser_ack.py",
+    "apps-script/takara-pedidos-web/DataRetention.gs",
+    "docs/DATA_RETENTION_POLICY.md",
+    "tools/takara_test_data_retention.js",
+    "tools/takara_validar_data_retention.py",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/CODEOWNERS",
+    "docs/GITHUB_GOVERNANCE.md",
+    "config/repository-governance.json",
+    "tools/takara_validar_github_governance.py",
+    "apps-script/takara-pedidos-web/ContactService.gs",
+    "tools/takara_validar_contact_service_module.py",
+    "apps-script/takara-pedidos-web/OrderMedia.gs",
+    "apps-script/takara-pedidos-web/DriveStorage.gs",
+    "tools/takara_validar_order_media_module.py",
+    "apps-script/takara-pedidos-web/OrderEmail.gs",
+    "tools/takara_validar_order_email_module.py",
+    "apps-script/takara-pedidos-web/OrderDelivery.gs",
+    "tools/takara_validar_order_delivery_module.py",
+    "apps-script/takara-pedidos-web/OrderNormalization.gs",
+    "tools/takara_validar_order_normalization_module.py",
+    "apps-script/takara-pedidos-web/OrderValidation.gs",
+    "tools/takara_validar_order_validation_module.py",
+    "apps-script/takara-pedidos-web/RuntimeHelpers.gs",
+    "tools/takara_validar_runtime_helpers_module.py",
+    "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
     "tools/takara_test_seguridad_foto_pedido.js",
-    "tools/takara_validar_datos_estructurados.py"
+    "tools/takara_validar_datos_estructurados.py",
+    "tools/takara_validar_web_hygiene.py",
+    "tools/takara_validar_assets.py",
+    "docs/ASSET_POLICY.md",
+    "tools/takara_validar_documentation_map.py"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -576,6 +634,181 @@ if (Test-Path "tools/takara_validar_datos_estructurados.py") {
     Err "No existe tools/takara_validar_datos_estructurados.py"
 }
 
+if (Test-Path "tools/takara_validar_web_hygiene.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_web_hygiene.py"
+    py tools/takara_validar_web_hygiene.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Higiene web, 404 y sitemap validos"
+    } else {
+        Err "Fallo takara_validar_web_hygiene.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_web_hygiene.py"
+}
+
+if (Test-Path "tools/takara_validar_documentation_map.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_documentation_map.py"
+    py tools/takara_validar_documentation_map.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Mapa de autoridad documental validado" }
+    else { Err "Fallo takara_validar_documentation_map.py" }
+} else {
+    Err "No existe tools/takara_validar_documentation_map.py"
+}
+
+if (Test-Path "tools/takara_validar_assets.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_assets.py"
+    py tools/takara_validar_assets.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Assets publicos sin peso muerto grande"
+    } else {
+        Err "Fallo takara_validar_assets.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_assets.py"
+}
+
+if (Test-Path "tools/takara_validar_order_idempotency.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_idempotency.py"
+    py tools/takara_validar_order_idempotency.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Idempotencia de pedidos static validada"
+    } else {
+        Err "Fallo takara_validar_order_idempotency.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_order_idempotency.py"
+}
+
+if (Test-Path "tools/takara_validar_public_abuse_protection.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_public_abuse_protection.py"
+    py tools/takara_validar_public_abuse_protection.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Proteccion anti-abuso publica static validada"
+    } else {
+        Err "Fallo takara_validar_public_abuse_protection.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_public_abuse_protection.py"
+}
+
+if (Test-Path "tools/takara_validar_contact_browser_ack.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_contact_browser_ack.py"
+    py tools/takara_validar_contact_browser_ack.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "ACK causal e idempotencia de contacto validados"
+    } else {
+        Err "Fallo takara_validar_contact_browser_ack.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_contact_browser_ack.py"
+}
+
+if (Test-Path "tools/takara_validar_data_retention.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_data_retention.py"
+    py tools/takara_validar_data_retention.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Politica de retencion de datos validada" }
+    else { Err "Fallo takara_validar_data_retention.py" }
+} else {
+    Err "No existe tools/takara_validar_data_retention.py"
+}
+
+if (Test-Path "tools/takara_validar_github_governance.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_github_governance.py"
+    py tools/takara_validar_github_governance.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Gobierno GitHub local validado" }
+    else { Err "Fallo takara_validar_github_governance.py" }
+} else {
+    Err "No existe tools/takara_validar_github_governance.py"
+}
+
+if (Test-Path "tools/takara_validar_contact_service_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_contact_service_module.py"
+    py tools/takara_validar_contact_service_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo ContactService validado" }
+    else { Err "Fallo takara_validar_contact_service_module.py" }
+} else {
+    Err "No existe tools/takara_validar_contact_service_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_media_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_media_module.py"
+    py tools/takara_validar_order_media_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulos OrderMedia/DriveStorage validados" }
+    else { Err "Fallo takara_validar_order_media_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_media_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_email_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_email_module.py"
+    py tools/takara_validar_order_email_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderEmail validado" }
+    else { Err "Fallo takara_validar_order_email_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_email_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_delivery_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_delivery_module.py"
+    py tools/takara_validar_order_delivery_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderDelivery validado" }
+    else { Err "Fallo takara_validar_order_delivery_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_delivery_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_normalization_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_normalization_module.py"
+    py tools/takara_validar_order_normalization_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderNormalization validado" }
+    else { Err "Fallo takara_validar_order_normalization_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_normalization_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_validation_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_validation_module.py"
+    py tools/takara_validar_order_validation_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderValidation validado" }
+    else { Err "Fallo takara_validar_order_validation_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_validation_module.py"
+}
+
+if (Test-Path "tools/takara_validar_code_composition_root.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_code_composition_root.py"
+    py tools/takara_validar_code_composition_root.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Composition root Code.gs validado" }
+    else { Err "Fallo takara_validar_code_composition_root.py" }
+} else {
+    Err "No existe tools/takara_validar_code_composition_root.py"
+}
+
+if (Test-Path "tools/takara_validar_runtime_helpers_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_runtime_helpers_module.py"
+    py tools/takara_validar_runtime_helpers_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo RuntimeHelpers validado" }
+    else { Err "Fallo takara_validar_runtime_helpers_module.py" }
+} else {
+    Err "No existe tools/takara_validar_runtime_helpers_module.py"
+}
+
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
     Log-Line ""
     Log-Line "[RUN] py tools/takara_validar_entrega_pedido.py"
@@ -600,6 +833,19 @@ if (Test-Path "tools/takara_validar_contrato_v2.py") {
     }
 } else {
     Err "No existe tools/takara_validar_contrato_v2.py"
+}
+
+if (Test-Path "tools/takara_validar_deployment_state.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_deployment_state.py"
+    py tools/takara_validar_deployment_state.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Estado mecanico de deployment validado"
+    } else {
+        Err "Fallo takara_validar_deployment_state.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_deployment_state.py"
 }
 
 if (Test-Path "tools/takara_validar_personalizacion_pedido.py") {
@@ -1273,6 +1519,90 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_shared_endpoint.js
     }
 } else {
     Err "No se pudo ejecutar shared endpoint test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_idempotency.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_idempotency.js"
+    node tools/takara_test_order_idempotency.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia de pedidos unit validada" }
+    else { Err "Fallo takara_test_order_idempotency.js" }
+} else {
+    Err "No se pudo ejecutar order idempotency unit test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_order_idempotency_flow.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_order_idempotency_flow.js"
+    node tools/takara_test_order_idempotency_flow.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia horizontal de pedidos validada" }
+    else { Err "Fallo takara_test_order_idempotency_flow.js" }
+} else {
+    Err "No se pudo ejecutar order idempotency flow test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_public_abuse_protection.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_public_abuse_protection.js"
+    node tools/takara_test_public_abuse_protection.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Proteccion anti-abuso publica unit validada" }
+    else { Err "Fallo takara_test_public_abuse_protection.js" }
+} else {
+    Err "No se pudo ejecutar public abuse protection unit test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_public_abuse_flow.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_public_abuse_flow.js"
+    node tools/takara_test_public_abuse_flow.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Proteccion anti-abuso publica horizontal validada" }
+    else { Err "Fallo takara_test_public_abuse_flow.js" }
+} else {
+    Err "No se pudo ejecutar public abuse flow test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_browser_transport.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_browser_transport.js"
+    node tools/takara_test_contact_browser_transport.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Transporte causal de contacto validado" }
+    else { Err "Fallo takara_test_contact_browser_transport.js" }
+} else {
+    Err "No se pudo ejecutar contact browser transport test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_idempotency.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_idempotency.js"
+    node tools/takara_test_contact_idempotency.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia de contacto validada" }
+    else { Err "Fallo takara_test_contact_idempotency.js" }
+} else {
+    Err "No se pudo ejecutar contact idempotency test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_data_retention.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_data_retention.js"
+    node tools/takara_test_data_retention.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Retencion de datos funcional validada" }
+    else { Err "Fallo takara_test_data_retention.js" }
+} else {
+    Err "No se pudo ejecutar data retention test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_endpoint.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_endpoint.js"
+    node tools/takara_test_contact_endpoint.js 2>&1 | ForEach-Object { Log-Line $_ }
+
+    if ($LASTEXITCODE -eq 0) {
+        Ok "Contacto consume la autoridad canonica del endpoint Apps Script"
+    } else {
+        Err "Fallo takara_test_contact_endpoint.js"
+    }
+} else {
+    Err "No se pudo ejecutar contact endpoint authority test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_store_public_client.js")) {

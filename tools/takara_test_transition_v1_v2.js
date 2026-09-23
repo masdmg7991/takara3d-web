@@ -50,6 +50,7 @@ function loadServer() {
     STORE_ORDER_RESOLUTION,
     ORDER_ATTRIBUTION,
     path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderBrowserTransport.gs"),
+    path.join(ROOT, "apps-script", "takara-pedidos-web", "ContactBrowserTransport.gs"),
   ].forEach(
     function (file) {
       vm.runInContext(
@@ -61,7 +62,17 @@ function loadServer() {
   );
 
   vm.runInContext(source, context, { filename: CODE });
-  return { context, source };
+  const runtimePath = path.join(ROOT, "apps-script", "takara-pedidos-web", "RuntimeHelpers.gs");
+  vm.runInContext(fs.readFileSync(runtimePath, "utf8"), context, { filename: runtimePath });
+  const normalizationPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderNormalization.gs");
+  vm.runInContext(fs.readFileSync(normalizationPath, "utf8"), context, { filename: normalizationPath });
+  const validationPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderValidation.gs");
+  vm.runInContext(fs.readFileSync(validationPath, "utf8"), context, { filename: validationPath });
+  const deliveryPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderDelivery.gs");
+  vm.runInContext(fs.readFileSync(deliveryPath, "utf8"), context, { filename: deliveryPath });
+  const emailPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
+  vm.runInContext(fs.readFileSync(emailPath, "utf8"), context, { filename: emailPath });
+  return { context, source: source + "\n" + fs.readFileSync(runtimePath, "utf8") + "\n" + fs.readFileSync(normalizationPath, "utf8") + "\n" + fs.readFileSync(validationPath, "utf8") + "\n" + fs.readFileSync(deliveryPath, "utf8") + "\n" + fs.readFileSync(emailPath, "utf8") };
 }
 
 function personalizacion2() {
@@ -236,7 +247,7 @@ function expectFailure(fn, pattern, label) {
 function main() {
   const { context, source } = loadServer();
 
-  ok(source.includes('TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1'), "Versión dual-stack presente");
+  ok(source.includes('TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1'), "Versión dual-stack presente");
   ok(source.includes('PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1"'), "V1 compat explícito");
 
   const v1Source = v1Payload();
@@ -301,7 +312,7 @@ function main() {
   ok(dryRun.dry_run === true, "doPost V2 confirma modo dry-run sin efectos");
   ok(dryRun.version === "TAKARA_PEDIDO_WEB_V2", "doPost V2 devuelve plantilla V2");
   ok(
-    dryRun.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
+    dryRun.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
     "doPost V2 devuelve versión dual-stack"
   );
   const bodyV2 = String(dryRun.technical_email_body || "");

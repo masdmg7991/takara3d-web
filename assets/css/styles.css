@@ -50,7 +50,12 @@ body.menu-open {
   overflow: hidden;
 }
 
-img,
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 svg {
   max-width: 100%;
   display: block;
@@ -3251,6 +3256,18 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
 .contacto-final-form {
   display: grid;
   gap: .95rem !important;
+}
+
+.contacto-final-form__trap {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 .contacto-final-form__row {

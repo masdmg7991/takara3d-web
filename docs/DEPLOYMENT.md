@@ -1,266 +1,119 @@
-# Despliegue Takara3D Web
+# Despliegue Takara 3D Web
+
+Este documento define el **estado y el procedimiento de despliegue vigentes**.
+La historia de promociones anteriores vive en Git y no actúa como autoridad actual.
+
+## Autoridad de estado
+
+La autoridad mecánica del repositorio es `config/deployment-state.json`.
+
+La autoridad sobre la versión realmente publicada es la respuesta GET del
+endpoint productivo. Antes de cualquier promoción debe verificarse mediante GET
+del endpoint canónico y comprobar específicamente el campo JSON `script`.
+
+La documentación describe el estado; nunca sustituye esa comprobación live.
 
 ## Estado actual
 
-La web actual funciona como sitio estático publicado mediante GitHub Pages.
+- Web pública: GitHub Pages.
+- Dominio público: `https://takara3d.es/`.
+- Endpoint authority: `assets/js/takara-config.js`.
+- Servicio backend: `Takara Pedidos Web`.
+- Servicio: `TAKARA_PEDIDO_WEB_V2`.
+- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+- Estado observado por GET: `online`.
+- Última verificación live registrada: `2026-09-23`.
 
-Repositorio local:
+Producción PUBLIC está en V1.18.0. El código local V1.18.0 coincide con el backend PUBLIC desplegado; un commit o push no cambia esa autoridad LIVE.
 
-```text
-<REPO_LOCAL>
-```
+## Contratos activos
 
-Repositorio remoto:
+- `TAKARA_WEB_ORDER_PAYLOAD_V2`
+- `TAKARA_ORDER_SNAPSHOT_V2`
+- `TAKARA_PEDIDO_WEB_V2`
+- `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`
+- `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`
+- `TAKARA_ORDER_IDEMPOTENCY_V1` (desplegado en PUBLIC)
+- `TAKARA_PUBLIC_ABUSE_GUARD_V1` (desplegado en PUBLIC)
+- `TAKARA_STORE_CONTEXT_V1`
 
-```text
-https://github.com/masdmg7991/takara3d-web.git
-```
+El backend mantiene la compatibilidad V1 deliberada que todavía tenga consumidor
+conocido, pero V2 es la ruta primaria. Un payload que declara V2 y es inválido
+falla cerrado; nunca degrada silenciosamente a V1.
 
-Web pública:
+## Topología Apps Script
 
-```text
-https://takara3d.es/
-```
+Store, pedido y contacto reutilizan el mismo proyecto Apps Script y las mismas
+autoridades de dominio. No existe un segundo backend, Registry ni repositorio
+Sheets paralelo.
 
-## Regla de despliegue
+Puede haber recursos de despliegue distintos dentro del mismo proyecto:
 
-No se hace push sin validación previa y aprobación explícita.
+- **PUBLIC deployment**: atiende pedido, contacto y Store Public.
+- **ADMIN deployment**: expone Store Admin con política de acceso restringida.
 
-Antes de publicar:
+Para Admin:
 
-- Revisar `git status --short`.
-- Revisar `git diff --check`.
-- Ejecutar quality gate si procede.
-- Revisar diff de archivos concretos.
-- No usar `git add .`.
-- No subir temporales, backups, `.bak`, `.old` ni scripts experimentales.
+- `executeAs` debe ser `USER_ACCESSING`;
+- `access` debe ser `MYSELF`;
+- `USER_DEPLOYING` is forbidden for Admin;
+- `ANYONE_ANONYMOUS` is forbidden for Admin;
+- the deployer must equal the configured Store Admin owner;
+- una denegación Admin nunca puede degradar a Store Public.
 
-## Archivos productivos protegidos
+## Store
 
-No modificar en fases documentales:
+El QR canónico de Store es:
 
-```text
-index.html
-productos.html
-pedido.html
-contacto.html
-assets/css/styles.css
-assets/js/takara-pedido-web.js
-assets/js/takara-pedido-preview.js
-```
+`https://takara3d.es/tienda/?s=<store_public_code>`
 
-## Apps Script
+Store Public usa el endpoint definido por `assets/js/takara-config.js` y resuelve
+la identidad mediante el Registry autoritativo. `store_id` no forma parte del QR.
 
-El backend ligero de pedidos/contacto está publicado en Google Apps Script.
+## Regla de promoción
 
-Última versión productiva documentada por el E2E F5E del 2026-08-30:
+Repositorio y despliegue son operaciones independientes.
 
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1
-```
+Antes de un push:
 
-Antes de cualquier nueva promoción, la autoridad sobre producción debe volver a
-verificarse mediante GET del endpoint canónico; esta documentación no sustituye
-esa comprobación live.
+1. `git status --short`.
+2. `git diff --check`.
+3. Quality Gate `prepush` sin errores.
+4. revisión del diff exacto.
+5. aprobación explícita de la operación de push.
 
-Candidato local actual declarado por `Code.gs`:
+Antes de un despliegue Apps Script:
 
-```text
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1
-```
+1. certificar el candidato local;
+2. verificar por GET la versión LIVE actual;
+3. comprobar que el actor y la política del deployment son los esperados;
+4. desplegar sólo con autorización explícita;
+5. repetir GET y E2E después de la promoción.
 
-La implementación V1.14.1 mantiene como contratos vigentes:
+Un commit o un push **no constituyen un despliegue del backend**.
 
-```text
-TAKARA_WEB_ORDER_PAYLOAD_V2
-TAKARA_ORDER_SNAPSHOT_V2
-TAKARA_PEDIDO_WEB_V2
-TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC
-```
+## Verificación posterior
 
-El backend activo conserva compatibilidad V1/V2 durante la transición. El V2 es
-la ruta primaria y un payload que declare V2 pero esté incompleto se rechaza:
-nunca degrada silenciosamente a V1.
+Tras una promoción deben comprobarse como mínimo:
 
-La autoridad sobre la versión realmente publicada es la respuesta GET del
-endpoint productivo, no una etiqueta histórica conservada en documentación.
-La comprobación GET debe validar el campo JSON `script` y no comparar la respuesta completa como texto plano.
+- GET de salud y `script` publicado;
+- ACK navegador de pedido;
+- Store Public ACTIVE/INACTIVE fail-closed;
+- autorización Store Admin;
+- atribución autoritativa DIRECT/STORE;
+- ausencia de cambio inesperado del endpoint público.
 
-## Store Channel V1
+## Informes y evidencia
 
-STORE-F0 congela la siguiente topologia:
+Los informes del Quality Gate se guardan fuera del repositorio.
 
-```text
-Store Public:
-https://takara3d.es/tienda/?s=<store_public_code>
+Las evidencias históricas de fases F5 anteriores se conservan en el historial Git.
+No deben copiarse al documento de estado actual si contradicen una promoción
+posterior.
 
-Frontend:
-GitHub Pages existente
+## Regla de seguridad
 
-Backend:
-Google Apps Script existente
-
-Store Registry:
-Google Spreadsheet dedicado
-
-Admin:
-Google Apps Script Web App con acceso restringido
-```
-
-No se migra DNS para Store V1.
-
-No se introduce Cloudflare Worker, D1 ni servidor propio.
-
-El detalle contractual vive en `docs/STORE_SYSTEM_CONTRACT.md`.
-
-El Store QR y el Product QR (`/qr`) son flujos independientes.
-## Commit y push
-
-Commit recomendado para documentación:
-
-```text
-Documentar continuidad y despliegue Takara Web
-```
-
-No hacer push hasta revisar en local y confirmar que el diff solo contiene documentación.
-
-
-## Puente de despliegue V1/V2
-
-El candidato `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`
-acepta de forma temporal dos contratos de pedido: el V2 es la ruta primaria y
-el V1 publicado se mantiene únicamente como compatibilidad de transición. Un
-payload que declare V2 pero esté incompleto se rechaza y nunca se degrada a V1.
-
-Esto permite el orden de despliegue seguro: primero actualizar la implementación
-Apps Script activa conservando la misma URL; validar GET y un POST V2 en
-`modo_prueba` sin Drive ni correo; después publicar la web V2. Durante esa ventana
-el formulario público V1 continúa operativo. Tras confirmar la web V2 y la
-ingesta real de MicroFactory, la compatibilidad V1 podrá retirarse en una fase
-posterior explícita.
-## Autoridad compartida del endpoint Apps Script
-
-Desde `STORE-F2B`, la única autoridad web para la URL publicada del Apps Script es
-`assets/js/takara-config.js`, contrato `TAKARA_APPS_SCRIPT_ENDPOINT_V1`.
-
-`pedido.html` y `tienda/index.html` no conservan copias literales de esa URL.
-Los clientes la resuelven mediante `TAKARA_GET_APPS_SCRIPT_ENDPOINT`.
-
-Esta regla supersede cualquier referencia anterior que tratase `pedido.html`
-como autoridad física del endpoint. El despliegue sigue conservando la misma URL
-Apps Script hasta una migración explícita y certificada.
-
-## F5B Store Admin route candidate
-
-El backend publicado sigue siendo
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`
-hasta que F5 ejecute y verifique un despliegue real.
-
-El candidato local certificado para routing Admin es
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
-
-Ruta candidata:
-
-`?route=store-admin`
-
-La ruta reutiliza el único `Code.gs::doGet` y delega en
-`getStoreAdminUiDeploymentOutput_()`. No hay un segundo router.
-
-Este candidato todavía no está desplegado. La autoridad sobre la versión
-realmente publicada sigue siendo la respuesta GET del endpoint productivo.
-
-## F5C deployment candidate parity + deploy preflight
-
-F5C freezes the deployment topology before any remote mutation.
-
-The Store channel continues to use the same Apps Script project, the same code
-authority and the same Store Runtime / Registry / Sheets authorities. F5C does
-not create a second Apps Script project, backend or persistence authority.
-
-The project may expose separate deployment resources with different web-app
-execution/access policies:
-
-- PUBLIC deployment
-  - remains the current production authority until a later F5 gate performs and
-    verifies a real deployment;
-  - F5C does not mutate it;
-  - Store Public and order traffic remain bound to the existing production URL.
-
-- ADMIN deployment
-  - is a separate deployment resource of the same Apps Script project;
-  - target `executeAs` is `USER_ACCESSING`;
-  - target `access` is `MYSELF`;
-  - the deployer must equal the configured Store Admin owner;
-  - `USER_DEPLOYING is forbidden for Admin` because F4A authorizes through
-    `Session.getActiveUser()` and must evaluate the accessing identity;
-  - `ANYONE_ANONYMOUS is forbidden for Admin`;
-  - a failed Admin authorization must never downgrade to Store Public.
-
-The deployment actor must be reconciled against
-`TAKARA_STORE_ADMIN_OWNER_EMAIL` before creating or updating the ADMIN
-deployment.
-
-F5C certifies candidate parity only:
-
-- local `Code.gs` SHA is the certified F5B candidate;
-- local VERSION is
-  `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`;
-- single `doGet` and `doPost` authorities remain;
-- Admin route and Store Public fallback remain together;
-- F4A/F4B/F4C/F4D/F4E/F4F/F4G remain GREEN;
-- PUBLIC deployment remains untouched.
-
-F5C performs no push and no deployment.
-
-Forward preparation, not yet certified:
-
-- F5D remote deployment topology:
-  inspect the real Apps Script project/deployments, prove the PUBLIC deployment
-  remains authoritative, prove the ADMIN deployment uses the same script
-  project, and verify deployer/owner identity before mutation.
-- F5E Store Public production E2E:
-  verify health, Store QR, ACTIVE resolution, INACTIVE fail-closed and endpoint
-  continuity after deployment.
-- F5F Store Admin production E2E:
-  verify owner access, non-owner denial, list/create/edit/activate/deactivate
-  and no Admin-to-Public downgrade.
-- F5G Store-attributed order production E2E:
-  verify StoreContext resolution, authoritative STORE attribution and DIRECT
-  preservation on the deployed backend.
-
-## F5D verified remote Apps Script topology
-
-- Apps Script project scriptId: `1xIQrv30KKlx0ODyO9S3TUU0Zn_a4FNjmUTntchd18EsfcK63NMoQwPij`
-- Public deployment ID: `AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q`
-- Endpoint authority: `assets/js/takara-config.js`
-- Verification source: authenticated Google Apps Script editor -> `Deploy > Manage deployments`.
-- Human gate: exact deployment ID match between the Google editor and the public endpoint authority.
-- Public backend live: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_1_DUAL_STACK_V1_V2`.
-- Candidate identity was additionally corroborated by local multi-artifact browser evidence before the human gate.
-- F5D is topology/identity verification only. No push and no deployment were performed by F5D.
-- ADMIN remains a separate deployment candidate under the same Apps Script project; this ticket does not create or publish it.
-
-
-## F5E Store Public production E2E
-
-- Production public backend is `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
-- Endpoint authority remains `assets/js/takara-config.js` and `/tienda/` loads configuration before the Store Public client.
-- Canonical Store QR remains `https://takara3d.es/tienda/?s=<store_public_code>`.
-- The controlled QA witness resolved `TAKARA_STORE_CONTEXT_V1` as `ACTIVE` without exposing `store_id` before deactivation (evidence suffix `ee9ba27a40`, observed `2026-08-30T14:17:22.1761640Z`).
-- The same Store was then deactivated through the canonical Admin authority and fails closed in production with `STORE_INACTIVE`.
-- Malformed Store references fail closed with `STORE_PUBLIC_CODE_INVALID`; a well-formed unknown Store returns `STORE_NOT_FOUND` and is not treated as INACTIVE.
-- The QA fixture remains `INACTIVE`; no DELETE was performed.
-- Apps Script version topology remained `29 -> 29` during the ACTIVE/INACTIVE fixture transition.
-- F5E certification itself performs no production data mutation, no source push, no deployment and no Git push; the prior R94H fixture mutation was explicitly authorized and is preserved as evidence.
-
-
-## F5F Store Admin production E2E
-
-- Owner access was verified on the dedicated ADMIN deployment using the configured Store Admin owner.
-- Non-owner access was denied and did not downgrade to Store Public.
-- The production Admin list/detail flow identified the existing controlled QA Store by immutable `store_id`.
-- CREATE evidence is preserved from R94H, which created the same QA Store through the canonical Admin authority.
-- The same Store was edited through `Guardar cambios`, activated through the authorized lifecycle operation, observed as `ACTIVE` through `TAKARA_STORE_CONTEXT_V1`, restored to its original display name and deactivated again.
-- The final production state is `INACTIVE` and the public resolver fails closed with `STORE_INACTIVE`.
-- No DELETE was performed and the immutable `store_id` / `store_public_code` identity was preserved.
-- Apps Script version topology remained `29 -> 29`; F5F performed no source push, no deployment and no Git push.
+El repositorio público no almacena credenciales, tokens, datos de clientes ni
+identificadores operativos privados que no sean necesarios para ejecutar la web.
+Las políticas detalladas viven en `docs/PUBLIC_REPO_POLICY.md`.

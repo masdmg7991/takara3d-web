@@ -67,9 +67,9 @@ def main() -> int:
         require(marker in code, f"Health conserva {marker}")
 
     require(
-        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"'
+        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"'
         in code,
-        "Order backend local candidate version matches V1.14.3 browser ACK",
+        "Order backend local candidate version matches V1.18.0 public abuse guard",
     )
 
     for forbidden in (

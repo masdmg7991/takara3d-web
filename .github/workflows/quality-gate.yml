@@ -1,0 +1,53 @@
+name: Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run Takara Quality Gate
+        shell: powershell
+        env:
+          TAKARA_QUALITY_REPORT_ROOT: ${{ runner.temp }}\takara-quality-reports
+        run: .\tools\takara_quality_gate.ps1 -Mode prepush
+
+      - name: Upload Quality Gate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: takara-quality-gate-report
+          path: ${{ runner.temp }}\takara-quality-reports
+          if-no-files-found: warn
+          retention-days: 14

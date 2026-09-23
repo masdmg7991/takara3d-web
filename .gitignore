@@ -1,6 +1,29 @@
-
-# Takara3D - documentacion privada/local, no publicar
+# Documentación privada/local
 docs/takara-continuidad-arquitectura-*/
 docs/private/
 private-docs/
 *.local.md
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Dependencias, build y cobertura
+node_modules/
+dist/
+coverage/
+.cache/
+.tmp/
+__pycache__/
+*.py[cod]
+
+# Informes y logs locales
+quality_reports/
+*.log
+
+# Editores y sistema operativo
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

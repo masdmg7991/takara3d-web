@@ -176,7 +176,8 @@ function createBrowser() {
   return window.TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1;
 }
 
-const codeSource = fs.readFileSync(CODE, "utf8");
+const codeSource = fs.readFileSync(CODE, "utf8") + "\n" +
+  fs.readFileSync(path.join(APP, "OrderEmail.gs"), "utf8");
 const doPostSource = extractFunction(codeSource, "doPost");
 const handoffSource = extractFunction(codeSource, "enviarEmailInterno_");
 
@@ -198,6 +199,11 @@ function createOrderHarness(backend, payload) {
       DESTINO_PEDIDOS: "3d.takara@example.test",
     },
     parsePayload_() { trace.push("parse"); return payload; },
+    parseOrderBrowserResponseRequest_() { return null; },
+    parseContactBrowserResponseRequest_() { return null; },
+    assertOrderBrowserPayloadMatches_() {},
+    orderBrowserResponseOrJson_(request, value) { return value; },
+    contactBrowserResponseOrJson_(request, value) { return value; },
     texto_(value) { return String(value || "").trim(); },
     procesarContactoWeb_() { trace.push("contact"); return { contact: true }; },
     resolverIdPedidoWeb_() { trace.push("id"); return "TK-WEB-F3F"; },

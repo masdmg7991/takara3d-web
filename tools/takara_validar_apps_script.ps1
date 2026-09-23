@@ -11,7 +11,21 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "6FF429CA389F93CAEB7419081B1B60F12DE3E7EC8DE88DB43BD5D0EDC2D2762A"
+$MediaRel = "apps-script/takara-pedidos-web/OrderMedia.gs"
+$MediaPath = Join-Path $Project $MediaRel
+$DriveRel = "apps-script/takara-pedidos-web/DriveStorage.gs"
+$DrivePath = Join-Path $Project $DriveRel
+$RuntimeRel = "apps-script/takara-pedidos-web/RuntimeHelpers.gs"
+$RuntimePath = Join-Path $Project $RuntimeRel
+$NormalizationRel = "apps-script/takara-pedidos-web/OrderNormalization.gs"
+$NormalizationPath = Join-Path $Project $NormalizationRel
+$ValidationRel = "apps-script/takara-pedidos-web/OrderValidation.gs"
+$ValidationPath = Join-Path $Project $ValidationRel
+$DeliveryRel = "apps-script/takara-pedidos-web/OrderDelivery.gs"
+$DeliveryPath = Join-Path $Project $DeliveryRel
+$EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
+$EmailPath = Join-Path $Project $EmailRel
+$ExpectedHash = "20EE3B378DCED07E2BE235ABEB7A51596A1E5BE23D59960A5606D0526F84B6F9"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -19,8 +33,22 @@ Write-Host ""
 Write-Host "[RUN] Takara Apps Script validation"
 
 if (!(Test-Path $CodePath)) { Fail "No existe $CodeRel" }
+if (!(Test-Path $MediaPath)) { Fail "No existe $MediaRel" }
+if (!(Test-Path $DrivePath)) { Fail "No existe $DriveRel" }
+if (!(Test-Path $RuntimePath)) { Fail "No existe $RuntimeRel" }
+if (!(Test-Path $NormalizationPath)) { Fail "No existe $NormalizationRel" }
+if (!(Test-Path $ValidationPath)) { Fail "No existe $ValidationRel" }
+if (!(Test-Path $DeliveryPath)) { Fail "No existe $DeliveryRel" }
+if (!(Test-Path $EmailPath)) { Fail "No existe $EmailRel" }
 
 $Text = Get-Content $CodePath -Raw -Encoding UTF8
+$MediaText = Get-Content $MediaPath -Raw -Encoding UTF8
+$DriveText = Get-Content $DrivePath -Raw -Encoding UTF8
+$RuntimeText = Get-Content $RuntimePath -Raw -Encoding UTF8
+$NormalizationText = Get-Content $NormalizationPath -Raw -Encoding UTF8
+$ValidationText = Get-Content $ValidationPath -Raw -Encoding UTF8
+$DeliveryText = Get-Content $DeliveryPath -Raw -Encoding UTF8
+$EmailText = Get-Content $EmailPath -Raw -Encoding UTF8
 $CanonicalText = $Text.Replace("`r`n", "`n").Replace("`r", "`n")
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $Sha256 = [System.Security.Cryptography.SHA256]::Create()
@@ -34,6 +62,7 @@ try {
 if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
+$Text = $Text + "`n" + $RuntimeText + "`n" + $NormalizationText + "`n" + $ValidationText + "`n" + $DeliveryText + "`n" + $EmailText
 $V2BodyStart = $Text.IndexOf("function construirCuerpoInternoV2_")
 $V2BodyEnd = $Text.IndexOf("/* TAKARA EMAIL PEDIDO PREMIUM V1 START */", $V2BodyStart)
 if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {
@@ -42,7 +71,7 @@ if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {
 $V2BodyText = $Text.Substring($V2BodyStart, $V2BodyEnd - $V2BodyStart)
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_14_3 ACK navegador"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1") },
+    @{ Name = "VERSION_SCRIPT V1_18_0 retencion de datos"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1") },
     @{ Name = "Privacidad fail-closed"; Pass = (
         $Text -match 'function\s+normalizarPrivacidad_\s*\(' -and
         $Text -match 'text\s*===\s*"si"' -and
@@ -146,7 +175,7 @@ $Checks = @(
     @{ Name = "doPost"; Pass = ($Text -match "function\s+doPost\s*\(") },
     @{ Name = "CONTACTO_WEB"; Pass = ($Text -match "CONTACTO_WEB") },
     @{ Name = "MailApp.sendEmail"; Pass = ($Text -match "MailApp\.sendEmail") },
-    @{ Name = "DriveApp"; Pass = ($Text -match "DriveApp") },
+    @{ Name = "DriveApp"; Pass = ($DriveText -match "DriveApp") },
     @{ Name = "MAX_FOTO_BYTES 20MB"; Pass = ($Text -match "20\s*\*\s*1024\s*\*\s*1024") },
     @{ Name = "Precio 35.00"; Pass = ($Text -match "35\.00") },
     @{ Name = "JSON response"; Pass = ($Text -match "ContentService") },
@@ -159,10 +188,10 @@ $Checks = @(
         $Text -notmatch "payload\.modo_prueba\s*!==\s*true"
     ) },
     @{ Name = "Foto validada por firma y tamano real"; Pass = (
-        $Text -match "function\s+prepararFotoOriginal_\s*\(" -and
-        $Text -match "function\s+detectarContentTypeImagen_\s*\(" -and
+        $MediaText -match "function\s+prepararFotoOriginal_\s*\(" -and
+        $MediaText -match "function\s+detectarContentTypeImagen_\s*\(" -and
         $Text -match "MAX_FOTO_BASE64_CHARS" -and
-        $Text -match "archivos\.size_bytes\s*!==\s*bytes\.length"
+        $MediaText -match "archivos\.size_bytes\s*!==\s*bytes\.length"
     ) },
     @{ Name = "Foto validada antes de crear carpeta Drive"; Pass = (
         $Text.IndexOf("const fotoPreparada = prepararFotoOriginal_(") -ge 0 -and
@@ -185,19 +214,19 @@ $Checks = @(
         $Text -match "MAX_VISUAL_PROOF_BASE64_CHARS"
     ) },
     @{ Name = "Ficha visual validada por firma JPEG completa"; Pass = (
-        $Text -match "function\s+esJpegCompletoPorFirma_\s*\(" -and
-        $Text -match 'detectarContentTypeImagen_\(bytes\)\s*!==\s*"image/jpeg"' -and
-        $Text -match "bytes\.length\s*-\s*2" -and
-        $Text -match "La ficha visual no tiene una firma JPEG"
+        $MediaText -match "function\s+esJpegCompletoPorFirma_\s*\(" -and
+        $MediaText -match 'detectarContentTypeImagen_\(bytes\)\s*!==\s*"image/jpeg"' -and
+        $MediaText -match "bytes\.length\s*-\s*2" -and
+        $MediaText -match "La ficha visual no tiene una firma JPEG"
     ) },
     @{ Name = "Ficha visual preparada sin copia en Drive"; Pass = (
-        $Text -match "function\s+prepararFichaVisual_\s*\(" -and
-        ([regex]::Matches($Text, "folder\.createFile\(")).Count -eq 1 -and
-        $Text -notmatch "function\s+guardarFichaVisual_\s*\("
+        $MediaText -match "function\s+prepararFichaVisual_\s*\(" -and
+        ([regex]::Matches($MediaText, "folder\.createFile\(")).Count -eq 1 -and
+        $MediaText -notmatch "function\s+guardarFichaVisual_\s*\("
     ) },
     @{ Name = "Ficha visual no bloquea pedido"; Pass = (
-        $Text -match "function\s+prepararFichaVisualSegura_\s*\(" -and
-        $Text -match 'estado:\s*"descartada"'
+        $MediaText -match "function\s+prepararFichaVisualSegura_\s*\(" -and
+        $MediaText -match 'estado:\s*"descartada"'
     ) },
     @{ Name = "Ficha visual incluida en ambos correos"; Pass = (
         ([regex]::Matches($Text, "options\.inlineImages")).Count -eq 2 -and

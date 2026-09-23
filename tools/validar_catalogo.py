@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import re
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = ROOT / "assets" / "data" / "catalogo.json"
+CONFIG_PATH = ROOT / "assets" / "js" / "takara-config.js"
 LEGACY_CATALOG_PATH = ROOT / "data" / "productos.json"
 
 EXPECTED_FRAME_COLORS = [
@@ -133,6 +135,45 @@ def validate_catalog(catalog: dict) -> None:
             money(extra.get("precio_extra_eur", 0))
 
 
+
+def validate_runtime_projection(catalog: dict) -> None:
+    config_text = CONFIG_PATH.read_text(encoding="utf-8-sig")
+    products = catalog.get("productos") or []
+    product = next(
+        (item for item in products if item.get("codigo") == "MARCO_LITOFANIA_144X108"),
+        None,
+    )
+    require(product is not None, "Producto canonico disponible para proyeccion runtime")
+
+    expected_price = money(product.get("precio_base_eur"))
+    expected_visible = str(product.get("precio_visible") or "")
+    expected_currency = str(product.get("moneda") or catalog.get("moneda") or "EUR")
+
+    price_match = re.search(r'precio_unitario_eur:\s*([0-9]+(?:\.[0-9]+)?)', config_text)
+    price_text_match = re.search(r'precio_unitario_eur_texto:\s*"([^"]+)"', config_text)
+    visible_match = re.search(r'precio_visible:\s*"([^"]+)"', config_text)
+    currency_match = re.search(r'moneda:\s*"([^"]+)"', config_text)
+
+    require(price_match is not None, "Config runtime proyecta precio numerico")
+    require(price_text_match is not None, "Config runtime proyecta precio textual")
+    require(visible_match is not None, "Config runtime proyecta precio visible")
+    require(currency_match is not None, "Config runtime proyecta moneda")
+
+    require(money(price_match.group(1)) == expected_price, "Config runtime coincide con precio canonico")
+    require(money(price_text_match.group(1)) == expected_price, "Config runtime textual coincide con catalogo")
+    require(visible_match.group(1) == expected_visible, "Config runtime visible coincide con catalogo")
+    require(currency_match.group(1) == expected_currency, "Config runtime moneda coincide con catalogo")
+
+    require(
+        "Catalogo/precios canonicos: assets/data/catalogo.json." in config_text,
+        "Config declara catalogo.json como autoridad canonica",
+    )
+    require(
+        "no son una segunda fuente de verdad" in config_text,
+        "Config declara su papel de proyeccion derivada",
+    )
+
+
 def main() -> int:
     require(
         not LEGACY_CATALOG_PATH.exists(),
@@ -140,6 +181,7 @@ def main() -> int:
     )
 
     catalog = json.loads(CATALOG_PATH.read_text(encoding="utf-8-sig"))
+    validate_runtime_projection(catalog)
     validate_catalog(catalog)
 
     text = CATALOG_PATH.read_text(encoding="utf-8-sig")

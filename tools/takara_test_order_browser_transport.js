@@ -55,7 +55,7 @@ function backend() {
   };
 
   vm.createContext(context);
-  for (const file of ["OrderBrowserTransport.gs", "Code.gs"]) {
+  for (const file of ["OrderBrowserTransport.gs", "Code.gs", "RuntimeHelpers.gs"]) {
     vm.runInContext(
       fs.readFileSync(
         path.join(root, "apps-script", "takara-pedidos-web", file),
@@ -206,7 +206,7 @@ function backend() {
     "Store feedback cache build active"
   );
   ok(
-    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"),
+    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"),
     "backend ACK candidate version"
   );
   ok(code.includes("parseOrderBrowserResponseRequest_(e)"), "doPost reads ACK envelope");

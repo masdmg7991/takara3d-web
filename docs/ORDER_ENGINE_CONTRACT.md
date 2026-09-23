@@ -308,14 +308,15 @@ cuando pueda calcularse.
 
 ### 7.4 Contrato de transporte V2
 
-La frontera activa del candidato local es:
+La frontera activa del pedido es:
 
 - payload: `TAKARA_WEB_ORDER_PAYLOAD_V2`;
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script candidato local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
-- Apps Script publicado hasta promoción explícita: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1`.
+- Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
+- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
+- estado mecánico de deployment: `config/deployment-state.json`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
 precio o entrega debe rechazarse. No se degrada silenciosamente a V1. Los
@@ -331,7 +332,7 @@ requiriendo un mapeo explícito de catálogo/normalización.
 
 ### 7.5 Confirmación real de recepción en navegador
 
-El candidato `V1_14_3` añade `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1` sin crear
+La versión `V1_14_3` introdujo `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1` sin crear
 un segundo motor, endpoint ni registro de pedidos. El pedido continúa entrando
 por el mismo `Code.gs::doPost` y por las mismas autoridades de validación,
 Store attribution, Drive y correo.
@@ -364,8 +365,8 @@ Contrato del transporte navegador:
 - no se introduce polling, receipt DB, CacheService, proxy ni persistencia
   paralela de confirmaciones.
 
-La versión `V1_14_2` continúa siendo la publicada hasta una promoción explícita.
-El mero commit del candidato `V1_14_3` no constituye despliegue.
+La versión publicada verificada actualmente es `V1_18_0`.
+Para versiones futuras, un commit o un push no constituyen despliegue: la promoción debe verificarse mediante GET del endpoint canónico y actualizar `config/deployment-state.json`.
 
 ---
 
@@ -676,3 +677,40 @@ Garantías de cierre:
 - declarar `F3 7/7` exige F3A-F3F GREEN, Quality Gate completo GREEN y
   certificación independiente GREEN.
 - F4 Store Admin comienza únicamente después de este cierre certificado.
+
+
+## Idempotencia de efectos externos
+
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada
+es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1` tras la
+promoción explícita.
+
+Para pedidos reales, `pedido_web_id` debe ser estable. El backend calcula un
+fingerprint SHA-256 del pedido normalizado, incluida la atribución autoritativa
+y hashes de foto y ficha visual. El mismo ID con contenido distinto falla
+cerrado.
+
+Drive y cada correo entran en una fase `*_IN_FLIGHT` antes del efecto externo.
+Si una ejecución muere en una fase ambigua, el retry exige revisión manual y no
+repite automáticamente el efecto. `COMPLETED` conserva el ACK para responder a
+un retry por ACK perdido sin repetir Drive ni Mail.
+
+Dry-run y `CONTACTO_WEB` conservan sus rutas actuales y no crean este ledger.
+
+El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
+
+
+## Protección anti-abuso de efectos públicos
+
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+añade `TAKARA_PUBLIC_ABUSE_GUARD_V1` delante de los efectos externos públicos.
+
+- pedido real: W8 se ejecuta después de W7 y antes de Drive/Mail;
+- retry W7 `COMPLETED`: devuelve el ACK persistido sin consumir W8;
+- contacto: valida honeypot, tamaños y origen antes de reservar cuota;
+- el presupuesto usa cuota real de MailApp, reserva operativa, límite global y
+  límites por actor hasheado;
+- el estado no persiste email, IP, mensaje ni foto.
+
+El contrato detallado vive en `docs/PUBLIC_ABUSE_PROTECTION_CONTRACT.md`.

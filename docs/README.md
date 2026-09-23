@@ -1,64 +1,79 @@
-# Documentación Takara3D Web
+# Documentación Takara 3D Web
 
-Este directorio contiene documentación estable del proyecto web Takara3D.
+Este directorio contiene la documentación técnica estable del proyecto.
 
-La documentación debe funcionar como contrato técnico del proyecto, no como volcado de conversación ni como notas temporales.
+La documentación debe servir como **contrato y mapa de autoridad**, no como
+volcado de conversaciones, estado temporal ni archivo de rescate.
 
 ## Mapa de autoridad documental
 
-| Área | Documento que manda | Uso |
+| Área | Documento autoritativo | Responsabilidad |
 |---|---|---|
-| Arquitectura global | ARCHITECTURE.md | Define capas, evolución técnica, stack objetivo y límites de arquitectura. |
-| Sistema visual | DESIGN_SYSTEM.md | Define criterios de interfaz, tokens, componentes y reglas visuales. |
-| Pedido web | ORDER_ENGINE_CONTRACT.md | Fuente de verdad del flujo de pedido, datos, validaciones, correo y límites. |
-| Preview litofanía | PREVIEW_ENGINE_CONTRACT.md | Fuente de verdad del motor de preview actual y futuro. |
-| Limpieza del repo | CLEANUP_POLICY.md | Define qué se limpia, qué no se sube y cómo se cierran fases. |
-| Quality gate | QUALITY_GATE.md | Define comprobaciones automáticas, modos, logs e informes. |
-| Errores aprendidos | ERROR_REGISTRY.md | Registro de fallos reales y reglas para no repetirlos. |
-| Decisiones técnicas | DECISIONES_TECNICAS.md | Registro breve de decisiones de proyecto que siguen vigentes. |
-| Despliegue | DEPLOYMENT.md | Define publicación, validación, Git y push controlado. |
-| Apps Script | ../apps-script/takara-pedidos-web/README.md | Contrato del backend ligero de pedidos/contacto. |
+| Arquitectura global | `ARCHITECTURE.md` | Capas, límites y evolución técnica |
+| Sistema visual | `DESIGN_SYSTEM.md` | Tokens, componentes y reglas visuales |
+| Pedido web | `ORDER_ENGINE_CONTRACT.md` | Payload, validación, precio, entrega y correo |
+| Idempotencia de pedido | `ORDER_IDEMPOTENCY_CONTRACT.md` | Ledger, fases, concurrencia, retry y recuperación manual |
+| Personalización de marco | `FRAME_TEXT_CONTRACT.md` | Geometría, lados, color, precio y contrato del texto del marco |
+| Protección anti-abuso | `PUBLIC_ABUSE_PROTECTION_CONTRACT.md` | Cuota, rate limits, honeypot y protección de efectos públicos |
+| ACK de contacto | `CONTACT_BROWSER_ACK_CONTRACT.md` | Confirmación causal, request_id e idempotencia de contacto |
+| Preview | `PREVIEW_ENGINE_CONTRACT.md` | Motor y contrato del preview |
+| Store | `STORE_SYSTEM_CONTRACT.md` | Registry, QR, contexto y atribución |
+| Store Admin | `STORE_ADMIN_CONTRACT.md` | Acceso, lectura, escritura y lifecycle |
+| QR de producto | `QR_PAGE_CONTRACT.md` | Contrato de la página QR de producto |
+| SEO estructurado | `SEO_STRUCTURED_DATA_CONTRACT.md` | Datos estructurados publicados |
+| Despliegue | `DEPLOYMENT.md` | Estado, publicación y verificación |
+| Retención de datos | `DATA_RETENTION_POLICY.md` | Ciclo de vida, snapshots y límites de borrado |
+| Quality Gate | `QUALITY_GATE.md` | Qué valida y qué bloquea |
+| Limpieza | `CLEANUP_POLICY.md` | Higiene y cierre de fases |
+| Assets públicos | `ASSET_POLICY.md` | Consumidores web, peso, dimensiones y conservación de originales |
+| Repo público | `PUBLIC_REPO_POLICY.md` | Qué puede y qué no puede publicarse |
+| Gobierno GitHub | `GITHUB_GOVERNANCE.md` | PR, CI y protección objetivo de `main` |
+| Decisiones vigentes | `DECISIONES_TECNICAS.md` | Decisiones aún aplicables |
+| Errores aprendidos | `ERROR_REGISTRY.md` | Fallos reales y prevención |
+| Backend Apps Script | `../apps-script/takara-pedidos-web/README.md` | Contrato del backend |
+
+## Evidencia, no autoridad
+
+Los siguientes documentos conservan evidencia de cierres o escenarios y **no
+sustituyen** a los contratos anteriores:
+
+- `STORE_PUBLIC_F2_CLOSURE.md`
+- `STORE_PUBLIC_READINESS.md`
+- `STORE_PUBLIC_SYSTEM_SCENARIO.md`
+
+Ante una discrepancia, manda el contrato autoritativo de la tabla anterior.
 
 ## Reglas de prioridad
 
-Cuando dos documentos hablen del mismo tema, se aplica esta prioridad:
+1. El contrato específico de un dominio manda sobre `ARCHITECTURE.md`.
+2. `DEPLOYMENT.md` manda sobre notas históricas de publicación.
+3. `DESIGN_SYSTEM.md` manda sobre decisiones visuales dispersas.
+4. `CLEANUP_POLICY.md` y `QUALITY_GATE.md` mandan sobre higiene y cierre.
+5. `PUBLIC_REPO_POLICY.md` manda sobre qué material puede vivir en GitHub.
+6. `ERROR_REGISTRY.md` conserva memoria de fallos, pero no define arquitectura.
 
-1. Para pedido: ORDER_ENGINE_CONTRACT.md manda sobre ARCHITECTURE.md.
-2. Para preview: PREVIEW_ENGINE_CONTRACT.md manda sobre ARCHITECTURE.md.
-3. Para diseño visual: DESIGN_SYSTEM.md manda sobre textos dispersos en otros documentos.
-4. Para publicación: DEPLOYMENT.md manda sobre notas antiguas.
-5. Para limpieza y commits: CLEANUP_POLICY.md y QUALITY_GATE.md mandan sobre instrucciones sueltas.
-6. Para fallos conocidos: ERROR_REGISTRY.md manda como memoria de errores reales.
+## Regla de documentación
 
-## Backend ligero
+Un documento nuevo debe cumplir al menos una de estas funciones:
 
-La documentación del Google Apps Script de pedidos/contacto vive en:
+- definir una autoridad estable;
+- explicar una interfaz o contrato;
+- registrar una decisión todavía vigente;
+- conservar evidencia necesaria para una certificación reproducible.
 
-- ../apps-script/takara-pedidos-web/README.md
-
-El archivo Code.gs no debe reconstruirse desde memoria. Debe copiarse literalmente desde el proyecto real publicado.
+Si no cumple ninguna, no pertenece a `docs/`.
 
 ## Regla de trabajo
 
-Antes de modificar web productiva:
+Antes de modificar una parte productiva:
 
 - preflight de Git;
-- backup si hay riesgo;
 - cambios acotados;
-- validación local;
-- diff revisado;
-- commit de archivos concretos;
-- push solo con aprobación explícita.
+- pruebas específicas;
+- Quality Gate;
+- revisión del diff;
+- commit coherente;
+- publicación controlada.
 
-## Qué no va aquí
-
-- prompts para próxima conversación;
-- notas temporales;
-- estado puntual que caduca rápido;
-- volcados completos de sesión;
-- archivos de rescate generados por ChatGPT;
-- documentación duplicada o contradictoria.
-
-## Documentos retirados
-
-TAKARA_ARQUITECTURA_PEDIDOS.md fue retirado porque solapaba arquitectura general y contrato de pedido. La autoridad actual queda repartida entre ARCHITECTURE.md y ORDER_ENGINE_CONTRACT.md.
+No deben entrar aquí prompts, continuidad privada, backups, rutas locales,
+volcados de sesión ni documentación duplicada.

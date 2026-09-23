@@ -4,8 +4,21 @@ Este directorio versiona el Apps Script real que atiende los formularios publico
 
 Archivos de entrada/transporte:
 
-- `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
+- `Code.gs`: **composition root HTTP**; conserva configuración runtime, `doGet` / `doPost`, parseo de entrada y resolución del ID de pedido, y delega dominio/efectos en módulos dedicados.
 - `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
+- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; introducido en V1.15.0 y conservado.
+- `PublicAbuseProtection.gs`: presupuesto de cuota, ráfaga global y rate-limit por actor para efectos públicos; introducido en V1.16.0 y conservado.
+- `ContactBrowserTransport.gs`: ACK causal de contacto por iframe/postMessage con origin, nonce y request_id.
+- `ContactIdempotency.gs`: ledger fail-closed para retries y correos ambiguos de contacto; introducido en V1.17.0 y conservado.
+- `ContactService.gs`: normalización, validación, correos y procesamiento de contacto; extraído de `Code.gs` sin cambiar contratos HTTP.
+- `DataRetention.gs`: política conservadora de retención; snapshots gestionados y datos de cliente en modo report-only.
+- `OrderMedia.gs`: validación binaria, foto original, ficha visual y carpeta de cada pedido; extraído de `Code.gs` sin cambiar el flujo.
+- `DriveStorage.gs`: helpers compartidos de la raíz `Takara3D` y subcarpetas para pedido, Store y retención.
+- `OrderEmail.gs`: asuntos, cuerpos texto/HTML, render premium y envío de correos de pedido; extraído de `Code.gs` sin cambiar contenido ni destinatarios.
+- `OrderDelivery.gs`: clasificación postal, cotización, normalización y validación de entrega; extraído de `Code.gs` sin cambiar tarifas ni reglas.
+- `OrderNormalization.gs`: detección de contrato, normalización V1/V2 y snapshots seguros del pedido.
+- `OrderValidation.gs`: validación V1/V2, catálogo, ficha visual y personalización del pedido.
+- `RuntimeHelpers.gs`: helpers puros compartidos de normalización escalar, formato, privacidad, HTML y JSON.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 
@@ -69,13 +82,17 @@ Responsabilidad:
 
 Contrato validado:
 
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_2_STORE_ADMIN_ROUTE_V1 (última versión productiva documentada; verificar live por GET antes de promover)
-- TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1 (candidato local actual)
+- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1
+- código local desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1
+- Estado mecánico actual: `../../config/deployment-state.json`
+- La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2
 - TAKARA_ORDER_SNAPSHOT_V2
 - TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC
 - TAKARA_PEDIDO_WEB_V2
 - TAKARA_ORDER_VISUAL_PROOF_V1
+- TAKARA_ORDER_IDEMPOTENCY_V1
+- TAKARA_PUBLIC_ABUSE_GUARD_V1
 - doGet()
 - doPost(e)
 - CONTACTO_WEB

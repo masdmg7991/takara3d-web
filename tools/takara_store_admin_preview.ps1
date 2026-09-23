@@ -1,13 +1,17 @@
 #requires -Version 5.1
 [CmdletBinding()]
 param(
-  [string]$Repo = "C:\Users\Miky\Desktop\takara3d-web",
+  [string]$Repo = "",
   [int]$Port = 8765,
   [switch]$ValidateOnly
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($Repo)) {
+  $Repo = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+}
 
 $UiPath = Join-Path $Repo "apps-script\takara-pedidos-web\StoreAdminUi.html"
 

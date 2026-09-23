@@ -18,8 +18,8 @@ ADMIN_CONTRACT = ROOT / "docs" / "STORE_ADMIN_CONTRACT.md"
 QUALITY = ROOT / "tools" / "takara_quality_gate.ps1"
 
 EXPECTED_CODE_SHA = (
-    "6FF429CA389F93CAEB7419081B1B60F1"
-    "2DE3E7EC8DE88DB43BD5D0EDC2D2762A"
+    "20EE3B378DCED07E2BE235ABEB7A5159"
+    "6A1E5BE23D59960A5606D0526F84B6F9"
 )
 EXPECTED_ORDER_BROWSER_SHA = (
     "E536D71011F086E71ACC510BF7637790"
@@ -28,7 +28,7 @@ EXPECTED_ORDER_BROWSER_SHA = (
 EXPECTED_ORDER_BROWSER_PROTOCOL = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1"
 EXPECTED_LOCAL_VERSION = (
     "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_"
-    "V1_14_3_ORDER_BROWSER_ACK_V1"
+    "V1_18_0_DATA_RETENTION_V1"
 )
 
 checks = 0
@@ -164,7 +164,7 @@ def main() -> int:
     )
     require(
         EXPECTED_LOCAL_VERSION in code,
-        "Code.gs conserva VERSION local candidata V1.14.3",
+        "Code.gs conserva VERSION local candidata V1.18.0",
     )
     require(
         function_count(code, "doGet") == 1,
@@ -246,9 +246,8 @@ def main() -> int:
     )
 
     dep_markers = (
-        "## F5C deployment candidate parity + deploy preflight",
-        "same Apps Script project",
-        "separate deployment resources",
+        "config/deployment-state.json",
+        "mismo proyecto Apps Script",
         "PUBLIC deployment",
         "ADMIN deployment",
         "USER_ACCESSING",
@@ -256,11 +255,8 @@ def main() -> int:
         "USER_DEPLOYING is forbidden for Admin",
         "ANYONE_ANONYMOUS is forbidden for Admin",
         "deployer must equal the configured Store Admin owner",
-        "F5C performs no push and no deployment",
-        "F5D remote deployment topology",
-        "F5E Store Public production E2E",
-        "F5F Store Admin production E2E",
-        "F5G Store-attributed order production E2E",
+        "Repositorio y despliegue son operaciones independientes",
+        "no constituyen un despliegue del backend",
     )
     for marker in dep_markers:
         require(marker in deployment_sem, f"DEPLOYMENT contiene semánticamente {marker}")
@@ -351,7 +347,7 @@ def main() -> int:
                 "mutation_in_f5c": False,
             },
             "ADMIN": {
-                "status": "candidate-only",
+                "status": "restricted-deployment-resource",
                 "executeAs": "USER_ACCESSING",
                 "access": "MYSELF",
                 "requires_deployer_equals_owner": True,
@@ -360,7 +356,7 @@ def main() -> int:
         "doc_validation": "semantic-whitespace-markdown-normalized",
         "push": False,
         "deploy": False,
-        "forward_prepared": ["F5D", "F5E", "F5F", "F5G"],
+        "forward_prepared": [],
     }
 
     print(

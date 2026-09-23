@@ -201,7 +201,8 @@ function runHandoff(source, body, attribution) {
   };
 }
 
-const source = fs.readFileSync(CODE, "utf8");
+const source = fs.readFileSync(CODE, "utf8") + "\n" +
+  fs.readFileSync(path.join(path.dirname(CODE), "OrderEmail.gs"), "utf8");
 
 const storeAttribution = Object.freeze({
   version: "TAKARA_STORE_ATTRIBUTION_V1",
