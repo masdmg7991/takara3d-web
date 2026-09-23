@@ -91,7 +91,7 @@ function createHarness(initialPayload) {
     console, Object, Array, String, Number, Boolean, Date, Error, JSON, Math, RegExp,
     CFG: {
       VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V2",
-      VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1",
+      VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
       ESTADO_ARCHIVO_INICIAL: "pendiente_descarga",
       DESTINO_PEDIDOS: "3d.takara@example.test"
     },
@@ -196,7 +196,7 @@ const success = createHarness(makePayload("TK-WEB-20260923-ABC234"));
 const first = success.call();
 ok(first.ok === true, "first real order succeeds");
 ok(first.estado === "recibido", "first order returns received ACK");
-ok(first.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1", "ACK identifies local idempotent candidate");
+ok(first.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1", "ACK identifies local idempotent candidate");
 sameEffects(success.runtime.effects, { abuse: 1, folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "first execution effect count");
 
 const duplicate = success.call();

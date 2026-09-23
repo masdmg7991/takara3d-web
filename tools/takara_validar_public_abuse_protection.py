@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 checks = 0
 
 
@@ -100,7 +100,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs declara candidato W8 V1.17.0",
+        "Code.gs declara candidato W8 V1.18.0",
     )
 
     for marker in (
@@ -198,7 +198,7 @@ def main() -> int:
     )
     require(
         state.get("local", {}).get("script_version") == LOCAL,
-        "Deployment state declara local W8 V1.17.0",
+        "Deployment state declara local W8 V1.18.0",
     )
     require(
         state.get("local", {}).get("status") == "candidate_not_deployed",

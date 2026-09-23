@@ -19,6 +19,7 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | QR de producto | `QR_PAGE_CONTRACT.md` | Contrato de la página QR de producto |
 | SEO estructurado | `SEO_STRUCTURED_DATA_CONTRACT.md` | Datos estructurados publicados |
 | Despliegue | `DEPLOYMENT.md` | Estado, publicación y verificación |
+| Retención de datos | `DATA_RETENTION_POLICY.md` | Ciclo de vida, snapshots y límites de borrado |
 | Quality Gate | `QUALITY_GATE.md` | Qué valida y qué bloquea |
 | Limpieza | `CLEANUP_POLICY.md` | Higiene y cierre de fases |
 | Repo público | `PUBLIC_REPO_POLICY.md` | Qué puede y qué no puede publicarse |

@@ -25,7 +25,7 @@ La versión LIVE continúa siendo:
 
 El candidato local W8 es:
 
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
 Un commit o push no cambia la versión LIVE.
 

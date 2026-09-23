@@ -106,3 +106,6 @@ El candidato local W9 es
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
 
 Un commit o push no modifica la autoridad LIVE ni autoriza despliegue.
+
+El candidato local actual W10 conserva W9 en
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.

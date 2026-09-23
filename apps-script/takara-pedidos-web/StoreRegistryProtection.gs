@@ -105,6 +105,8 @@ function createStoreRegistrySnapshot_() {
       );
     }
 
+    moveStoreRegistrySnapshotToRetentionFolder_(snapshotId);
+
     const properties = PropertiesService.getScriptProperties();
     properties.setProperty(
       TAKARA_STORE_REGISTRY_LATEST_SNAPSHOT_ID_PROPERTY,

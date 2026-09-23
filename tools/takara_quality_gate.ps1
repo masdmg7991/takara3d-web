@@ -141,6 +141,10 @@ $RequiredFiles = @(
     "tools/takara_test_contact_browser_transport.js",
     "tools/takara_test_contact_idempotency.js",
     "tools/takara_validar_contact_browser_ack.py",
+    "apps-script/takara-pedidos-web/DataRetention.gs",
+    "docs/DATA_RETENTION_POLICY.md",
+    "tools/takara_test_data_retention.js",
+    "tools/takara_validar_data_retention.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -672,6 +676,16 @@ if (Test-Path "tools/takara_validar_contact_browser_ack.py") {
     }
 } else {
     Err "No existe tools/takara_validar_contact_browser_ack.py"
+}
+
+if (Test-Path "tools/takara_validar_data_retention.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_data_retention.py"
+    py tools/takara_validar_data_retention.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Politica de retencion de datos validada" }
+    else { Err "Fallo takara_validar_data_retention.py" }
+} else {
+    Err "No existe tools/takara_validar_data_retention.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
@@ -1444,6 +1458,16 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_idempotenc
     else { Err "Fallo takara_test_contact_idempotency.js" }
 } else {
     Err "No se pudo ejecutar contact idempotency test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_data_retention.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_data_retention.js"
+    node tools/takara_test_data_retention.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Retencion de datos funcional validada" }
+    else { Err "Fallo takara_test_data_retention.js" }
+} else {
+    Err "No se pudo ejecutar data retention test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_endpoint.js")) {

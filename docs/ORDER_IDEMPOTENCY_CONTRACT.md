@@ -86,7 +86,7 @@ W7 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`.
 
 El candidato local actual es el superset W8
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
 Este contrato no convierte un commit ni un push en autorización de despliegue.
 La autoridad LIVE sólo cambia tras promoción explícita y verificación GET.

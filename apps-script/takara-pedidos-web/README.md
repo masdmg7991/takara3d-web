@@ -6,10 +6,11 @@ Archivos de entrada/transporte:
 
 - `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
 - `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
-- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; introducido en V1.15.0 y conservado en V1.17.0.
+- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; introducido en V1.15.0 y conservado.
 - `PublicAbuseProtection.gs`: presupuesto de cuota, ráfaga global y rate-limit por actor para efectos públicos; introducido en V1.16.0 y conservado.
 - `ContactBrowserTransport.gs`: ACK causal de contacto por iframe/postMessage con origin, nonce y request_id.
-- `ContactIdempotency.gs`: ledger fail-closed para retries y correos ambiguos de contacto; candidato V1.17.0.
+- `ContactIdempotency.gs`: ledger fail-closed para retries y correos ambiguos de contacto; introducido en V1.17.0 y conservado.
+- `DataRetention.gs`: política conservadora de retención; snapshots gestionados y datos de cliente en modo report-only.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 
@@ -74,7 +75,7 @@ Responsabilidad:
 Contrato validado:
 
 - LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1
-- candidato local no desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1
+- candidato local no desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1
 - Estado mecánico actual: `../../config/deployment-state.json`
 - La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2

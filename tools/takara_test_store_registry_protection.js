@@ -101,6 +101,7 @@ const source = new FakeSpreadsheet(
 let snapshot = null;
 const properties = { TAKARA_STORE_REGISTRY_SPREADSHEET_ID: "source-id" };
 let accessCalls = 0;
+let movedSnapshotId = "";
 let checks = 0;
 
 function ok(value, message) {
@@ -111,6 +112,10 @@ function ok(value, message) {
 const context = {
   console, Object, String, Number, Error, Date,
   requireStoreAdminAccess_() { accessCalls += 1; },
+  moveStoreRegistrySnapshotToRetentionFolder_(snapshotId) {
+    movedSnapshotId = String(snapshotId || "");
+    return { managed: true, file_id: movedSnapshotId };
+  },
   SpreadsheetApp: {
     openById(id) {
       if (id !== "source-id") throw new Error("BAD_SOURCE_ID");
@@ -173,6 +178,7 @@ ok(
 );
 ok(result.sheet_count === 2, "snapshot reports both canonical sheets");
 ok(Boolean(snapshot), "snapshot spreadsheet created");
+ok(movedSnapshotId === "snapshot-id", "snapshot moved into managed retention folder");
 
 const copiedStores = snapshot.getSheetByName("stores");
 ok(Boolean(copiedStores), "snapshot contains stores");
