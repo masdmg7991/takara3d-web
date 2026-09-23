@@ -101,6 +101,24 @@ if ($LocalPathHits.Count -gt 0) {
 
 Ok "Sin rutas locales personales en documentacion"
 
+$PersonalPathPatterns = @(
+    "C:\\Users\\[A-Za-z0-9_.\-]+\\",
+    "/Users/[A-Za-z0-9_.\-]+/",
+    "/home/[A-Za-z0-9_.\-]+/"
+)
+$PersonalPathHits = @()
+foreach ($Pattern in $PersonalPathPatterns) {
+    $PersonalPathHits += @(GitGrep $Pattern @("."))
+}
+
+if ($PersonalPathHits.Count -gt 0) {
+    Write-Host "Rutas locales personales en archivos trackeados:" -ForegroundColor Red
+    $PersonalPathHits | Select-Object -Unique | ForEach-Object { Write-Host $_ -ForegroundColor Red }
+    FailAudit "Quedan rutas locales personales en el arbol publico."
+}
+
+Ok "Sin rutas locales personales en archivos trackeados"
+
 if ($PrivateDocHits.Count -gt 0) {
     Write-Host "Referencias directas a continuidad privada:" -ForegroundColor Red
     $PrivateDocHits | ForEach-Object { Write-Host $_ -ForegroundColor Red }
