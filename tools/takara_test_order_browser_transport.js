@@ -203,7 +203,7 @@ function backend() {
     "fixed modal is direct-only for terminal feedback"
   );
   ok(
-    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1"),
+    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-sandbox-v1"),
     "Store feedback cache build active"
   );
   ok(
