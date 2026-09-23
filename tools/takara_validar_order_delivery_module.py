@@ -43,7 +43,10 @@ def read(relative: str) -> str:
 
 def main() -> int:
     code = read('apps-script/takara-pedidos-web/Code.gs')
+    normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
     delivery = read('apps-script/takara-pedidos-web/OrderDelivery.gs')
+    normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
+    validation = read('apps-script/takara-pedidos-web/OrderValidation.gs')
     email = read('apps-script/takara-pedidos-web/OrderEmail.gs')
     readme = read('apps-script/takara-pedidos-web/README.md')
     gate = read('tools/takara_quality_gate.ps1')
@@ -59,8 +62,8 @@ def main() -> int:
         marker = f'function {name}('
         require(code.count(marker) == 1, f'{name} permanece en núcleo compartido')
         require(delivery.count(marker) == 0, f'{name} no se acopla a delivery')
-    require('normalizarEntregaPedido_(' in code, 'normalización de pedido delega entrega')
-    require('validarEntregaPedido_(' in code, 'validación de pedido delega entrega')
+    require('normalizarEntregaPedido_(' in normalization, 'normalización de pedido delega entrega')
+    require('validarEntregaPedido_(' in validation, 'validación de pedido delega entrega')
     require('textoPrecioEntrega_(' in email, 'OrderEmail consume autoridad delivery')
     code_lines=len(code.splitlines()); delivery_lines=len(delivery.splitlines())
     require(code_lines < 1450, 'Code.gs baja de 1450 líneas')

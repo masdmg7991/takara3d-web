@@ -15,11 +15,15 @@ $MediaRel = "apps-script/takara-pedidos-web/OrderMedia.gs"
 $MediaPath = Join-Path $Project $MediaRel
 $DriveRel = "apps-script/takara-pedidos-web/DriveStorage.gs"
 $DrivePath = Join-Path $Project $DriveRel
+$NormalizationRel = "apps-script/takara-pedidos-web/OrderNormalization.gs"
+$NormalizationPath = Join-Path $Project $NormalizationRel
+$ValidationRel = "apps-script/takara-pedidos-web/OrderValidation.gs"
+$ValidationPath = Join-Path $Project $ValidationRel
 $DeliveryRel = "apps-script/takara-pedidos-web/OrderDelivery.gs"
 $DeliveryPath = Join-Path $Project $DeliveryRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
-$ExpectedHash = "9DF35D27217967BB46DC62D16A413CB860E41D4C35B6BBCC21CA3E073000E030"
+$ExpectedHash = "C54C5E3AF084EA89B7A479010023B96DCFE33F916A8CC3BBB14D1A4A90A9D7C2"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -29,12 +33,16 @@ Write-Host "[RUN] Takara Apps Script validation"
 if (!(Test-Path $CodePath)) { Fail "No existe $CodeRel" }
 if (!(Test-Path $MediaPath)) { Fail "No existe $MediaRel" }
 if (!(Test-Path $DrivePath)) { Fail "No existe $DriveRel" }
+if (!(Test-Path $NormalizationPath)) { Fail "No existe $NormalizationRel" }
+if (!(Test-Path $ValidationPath)) { Fail "No existe $ValidationRel" }
 if (!(Test-Path $DeliveryPath)) { Fail "No existe $DeliveryRel" }
 if (!(Test-Path $EmailPath)) { Fail "No existe $EmailRel" }
 
 $Text = Get-Content $CodePath -Raw -Encoding UTF8
 $MediaText = Get-Content $MediaPath -Raw -Encoding UTF8
 $DriveText = Get-Content $DrivePath -Raw -Encoding UTF8
+$NormalizationText = Get-Content $NormalizationPath -Raw -Encoding UTF8
+$ValidationText = Get-Content $ValidationPath -Raw -Encoding UTF8
 $DeliveryText = Get-Content $DeliveryPath -Raw -Encoding UTF8
 $EmailText = Get-Content $EmailPath -Raw -Encoding UTF8
 $CanonicalText = $Text.Replace("`r`n", "`n").Replace("`r", "`n")
@@ -50,7 +58,7 @@ try {
 if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
-$Text = $Text + "`n" + $DeliveryText + "`n" + $EmailText
+$Text = $Text + "`n" + $NormalizationText + "`n" + $ValidationText + "`n" + $DeliveryText + "`n" + $EmailText
 $V2BodyStart = $Text.IndexOf("function construirCuerpoInternoV2_")
 $V2BodyEnd = $Text.IndexOf("/* TAKARA EMAIL PEDIDO PREMIUM V1 START */", $V2BodyStart)
 if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {

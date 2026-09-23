@@ -62,11 +62,15 @@ function loadServer() {
   );
 
   vm.runInContext(source, context, { filename: CODE });
+  const normalizationPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderNormalization.gs");
+  vm.runInContext(fs.readFileSync(normalizationPath, "utf8"), context, { filename: normalizationPath });
+  const validationPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderValidation.gs");
+  vm.runInContext(fs.readFileSync(validationPath, "utf8"), context, { filename: validationPath });
   const deliveryPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderDelivery.gs");
   vm.runInContext(fs.readFileSync(deliveryPath, "utf8"), context, { filename: deliveryPath });
   const emailPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
   vm.runInContext(fs.readFileSync(emailPath, "utf8"), context, { filename: emailPath });
-  return { context, source: source + "\n" + fs.readFileSync(deliveryPath, "utf8") + "\n" + fs.readFileSync(emailPath, "utf8") };
+  return { context, source: source + "\n" + fs.readFileSync(normalizationPath, "utf8") + "\n" + fs.readFileSync(validationPath, "utf8") + "\n" + fs.readFileSync(deliveryPath, "utf8") + "\n" + fs.readFileSync(emailPath, "utf8") };
 }
 
 function personalizacion2() {

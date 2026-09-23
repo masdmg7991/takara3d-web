@@ -159,6 +159,14 @@ $RequiredFiles = @(
     "tools/takara_validar_order_email_module.py",
     "apps-script/takara-pedidos-web/OrderDelivery.gs",
     "tools/takara_validar_order_delivery_module.py",
+    "apps-script/takara-pedidos-web/OrderNormalization.gs",
+    "tools/takara_validar_order_normalization_module.py",
+    "apps-script/takara-pedidos-web/OrderValidation.gs",
+    "tools/takara_validar_order_validation_module.py",
+    "apps-script/takara-pedidos-web/OrderNormalization.gs",
+    "apps-script/takara-pedidos-web/OrderValidation.gs",
+    "tools/takara_validar_order_normalization_module.py",
+    "tools/takara_validar_order_validation_module.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -750,6 +758,46 @@ if (Test-Path "tools/takara_validar_order_delivery_module.py") {
     else { Err "Fallo takara_validar_order_delivery_module.py" }
 } else {
     Err "No existe tools/takara_validar_order_delivery_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_normalization_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_normalization_module.py"
+    py tools/takara_validar_order_normalization_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderNormalization validado" }
+    else { Err "Fallo takara_validar_order_normalization_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_normalization_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_validation_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_validation_module.py"
+    py tools/takara_validar_order_validation_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderValidation validado" }
+    else { Err "Fallo takara_validar_order_validation_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_validation_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_normalization_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_normalization_module.py"
+    py tools/takara_validar_order_normalization_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderNormalization validado" }
+    else { Err "Fallo takara_validar_order_normalization_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_normalization_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_validation_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_validation_module.py"
+    py tools/takara_validar_order_validation_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo OrderValidation validado" }
+    else { Err "Fallo takara_validar_order_validation_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_validation_module.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {

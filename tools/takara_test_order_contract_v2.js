@@ -15,6 +15,10 @@ function assert(condition, message) {
 
 function loadAppsScript(codePath) {
   const source = fs.readFileSync(codePath, "utf8");
+  const normalizationPath = path.join(path.dirname(codePath), "OrderNormalization.gs");
+  const normalizationSource = fs.readFileSync(normalizationPath, "utf8");
+  const validationPath = path.join(path.dirname(codePath), "OrderValidation.gs");
+  const validationSource = fs.readFileSync(validationPath, "utf8");
   const deliveryPath = path.join(path.dirname(codePath), "OrderDelivery.gs");
   const deliverySource = fs.readFileSync(deliveryPath, "utf8");
   const emailPath = path.join(path.dirname(codePath), "OrderEmail.gs");
@@ -50,6 +54,8 @@ function loadAppsScript(codePath) {
   };
   vm.createContext(context);
   vm.runInContext(source, context);
+  vm.runInContext(normalizationSource, context, { filename: normalizationPath });
+  vm.runInContext(validationSource, context, { filename: validationPath });
   vm.runInContext(deliverySource, context, { filename: deliveryPath });
   vm.runInContext(emailSource, context, { filename: emailPath });
   return context;
