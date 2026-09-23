@@ -62,7 +62,9 @@ function loadServer() {
   );
 
   vm.runInContext(source, context, { filename: CODE });
-  return { context, source };
+  const emailPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
+  vm.runInContext(fs.readFileSync(emailPath, "utf8"), context, { filename: emailPath });
+  return { context, source: source + "\n" + fs.readFileSync(emailPath, "utf8") };
 }
 
 function personalizacion2() {

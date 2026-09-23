@@ -14,6 +14,7 @@ Archivos de entrada/transporte:
 - `DataRetention.gs`: política conservadora de retención; snapshots gestionados y datos de cliente en modo report-only.
 - `OrderMedia.gs`: validación binaria, foto original, ficha visual y carpeta de cada pedido; extraído de `Code.gs` sin cambiar el flujo.
 - `DriveStorage.gs`: helpers compartidos de la raíz `Takara3D` y subcarpetas para pedido, Store y retención.
+- `OrderEmail.gs`: asuntos, cuerpos texto/HTML, render premium y envío de correos de pedido; extraído de `Code.gs` sin cambiar contenido ni destinatarios.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 

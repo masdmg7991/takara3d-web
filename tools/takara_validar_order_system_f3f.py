@@ -10,6 +10,7 @@ FILES = {
     "resolution": APP / "StoreOrderResolution.gs",
     "attribution": APP / "OrderAttribution.gs",
     "code": APP / "Code.gs",
+    "email": APP / "OrderEmail.gs",
     "contract": ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md",
     "test": ROOT / "tools" / "takara_test_order_system_f3f.js",
 }
@@ -95,6 +96,7 @@ def main() -> int:
     resolution = read("resolution")
     attribution = read("attribution")
     code = read("code")
+    email = read("email")
     contract = read("contract")
     test = read("test")
 
@@ -142,9 +144,9 @@ def main() -> int:
     do_post = extract_function(code, "doPost")
     require("pedido.attribution = buildAuthoritativeOrderAttribution_(payload);" in do_post, "F3D cablea atribución real")
     require(do_post.index("buildAuthoritativeOrderAttribution_(payload)") < do_post.index("validarPedido_(pedido)"), "F3D atribuye antes de validar")
-    require(code.count("[ATRIBUCION]") == 2, "V1/V2 conservan dos bloques ATRIBUCION")
+    require(email.count("[ATRIBUCION]") == 2, "V1/V2 conservan dos bloques ATRIBUCION")
 
-    internal = extract_function(code, "enviarEmailInterno_")
+    internal = extract_function(email, "enviarEmailInterno_")
     require("body: body" in internal, "F3E entrega body técnico sin reconstruir")
     require("MailApp.sendEmail(options)" in internal, "F3E usa MailApp handoff")
     require("buildAuthoritativeOrderAttribution_" not in internal, "F3E no recalcula atribución")

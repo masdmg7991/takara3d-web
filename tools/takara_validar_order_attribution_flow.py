@@ -2,6 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CODE = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_EMAIL = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 TEST = ROOT / "tools" / "takara_test_order_attribution_flow.js"
 
@@ -56,6 +57,7 @@ def extract_function(source: str, name: str) -> str:
 
 def main() -> int:
     code = read(CODE)
+    email = read(ORDER_EMAIL)
     test = read(TEST)
     contract = read(CONTRACT) if CONTRACT.is_file() else ""
 
@@ -110,7 +112,7 @@ def main() -> int:
         "construirCuerpoInternoV1Compat_",
         "construirCuerpoInternoV2_",
     ):
-        block = extract_function(code, function_name)
+        block = extract_function(email, function_name)
 
         for marker in (
             '"[ATRIBUCION]"',

@@ -2,6 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CODE = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_EMAIL = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 ATTRIBUTION = (
     ROOT
     / "apps-script"
@@ -94,14 +95,15 @@ def extract_function(source: str, name: str) -> str:
 
 def main() -> int:
     code = read(CODE)
+    email = read(ORDER_EMAIL)
     attribution = read(ATTRIBUTION)
     contract = read(CONTRACT)
     test = read(TEST)
 
-    internal = extract_function(code, "enviarEmailInterno_")
-    client = extract_function(code, "enviarConfirmacionCliente_")
+    internal = extract_function(email, "enviarEmailInterno_")
+    client = extract_function(email, "enviarConfirmacionCliente_")
     client_html = extract_function(
-        code,
+        email,
         "construirHtmlConfirmacionPedidoCliente_",
     )
     do_post = extract_function(code, "doPost")
@@ -120,7 +122,7 @@ def main() -> int:
     )
 
     require(
-        code.count("[ATRIBUCION]") == 2,
+        email.count("[ATRIBUCION]") == 2,
         "V1/V2 conservan exactamente dos bloques ATRIBUCION",
     )
     for marker in (
@@ -130,7 +132,7 @@ def main() -> int:
         "pedido.attribution.store_name_snapshot",
     ):
         require(
-            code.count(marker) == 2,
+            email.count(marker) == 2,
             f"V1/V2 conservan {marker}",
         )
 

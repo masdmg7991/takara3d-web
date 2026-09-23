@@ -176,7 +176,8 @@ function createBrowser() {
   return window.TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1;
 }
 
-const codeSource = fs.readFileSync(CODE, "utf8");
+const codeSource = fs.readFileSync(CODE, "utf8") + "\n" +
+  fs.readFileSync(path.join(APP, "OrderEmail.gs"), "utf8");
 const doPostSource = extractFunction(codeSource, "doPost");
 const handoffSource = extractFunction(codeSource, "enviarEmailInterno_");
 

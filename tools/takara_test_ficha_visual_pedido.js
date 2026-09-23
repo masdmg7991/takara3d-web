@@ -19,6 +19,12 @@ const ORDER_MEDIA_GS = path.join(
   "takara-pedidos-web",
   "OrderMedia.gs"
 );
+const ORDER_EMAIL_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderEmail.gs"
+);
 
 let checks = 0;
 
@@ -124,6 +130,9 @@ function loadServerContext() {
   });
   vm.runInContext(fs.readFileSync(ORDER_MEDIA_GS, "utf8"), context, {
     filename: ORDER_MEDIA_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_EMAIL_GS, "utf8"), context, {
+    filename: ORDER_EMAIL_GS
   });
   context.sentEmails = sentEmails;
   context.createdBlobs = createdBlobs;

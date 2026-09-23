@@ -14,6 +14,7 @@ const ORDER_HTML = path.join(ROOT, "pedido.html");
 const DELIVERY_CSS = path.join(ROOT, "assets", "css", "takara-pedido-delivery.css");
 const CATALOG_JSON = path.join(ROOT, "assets", "data", "catalogo.json");
 const CODE_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs");
+const ORDER_EMAIL_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
 const STORE_DOMAIN = path.join(
   ROOT,
   "apps-script",
@@ -89,6 +90,7 @@ function loadServerContext() {
   );
 
   vm.runInContext(fs.readFileSync(CODE_GS, "utf8"), context, { filename: CODE_GS });
+  vm.runInContext(fs.readFileSync(ORDER_EMAIL_GS, "utf8"), context, { filename: ORDER_EMAIL_GS });
 
   const originalNormalizePedido = context.normalizarPedido_;
   context.normalizarPedido_ = function (payload) {
