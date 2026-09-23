@@ -53,11 +53,15 @@ pero devuelve un código de salida distinto de cero si existe cualquier `ERROR`.
 
 Los informes siempre se escriben fuera del repositorio.
 
-Por defecto:
+Por defecto, el runner escribe en un directorio hermano del repositorio:
 
-`Desktop/takara3d-backups/quality_reports`
+../takara3d-backups/quality_reports
 
-En CI puede definirse `TAKARA_QUALITY_REPORT_ROOT` para elegir otra ubicación.
+Con la estructura recomendada Takara/takara3d-web, los informes quedan en
+Takara/takara3d-backups/quality_reports.
+
+TAKARA_QUALITY_REPORT_ROOT permite elegir otra ubicación. CI usa esa variable para
+escribir en el almacenamiento temporal del runner.
 
 ## Integración continua
 

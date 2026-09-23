@@ -51,6 +51,6 @@ Antes de publicar:
 
 ## Informes
 
-Los informes del Quality Gate se escriben fuera del repositorio. En CI se usa
-`TAKARA_QUALITY_REPORT_ROOT`; localmente se conserva el directorio de backups
-externo configurado por el runner.
+Los informes del Quality Gate se escriben fuera del repositorio. Por defecto el runner
+usa ../takara3d-backups/quality_reports, de modo que repo y evidencia quedan como
+carpetas hermanas. En CI se usa TAKARA_QUALITY_REPORT_ROOT.

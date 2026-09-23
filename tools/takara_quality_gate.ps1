@@ -12,7 +12,7 @@ if (!$ReportRoot) {
     if ($env:TAKARA_QUALITY_REPORT_ROOT) {
         $ReportRoot = $env:TAKARA_QUALITY_REPORT_ROOT
     } else {
-        $ReportRoot = Join-Path $env:USERPROFILE "Desktop\takara3d-backups\quality_reports"
+        $ReportRoot = Join-Path (Split-Path $Project -Parent) "takara3d-backups\quality_reports"
     }
 }
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"

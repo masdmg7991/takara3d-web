@@ -1,411 +1,281 @@
-# TAKARA WEB ARCHITECTURE
+# Arquitectura de Takara 3D Web
 
-Estado: CORE V1-R0A
-Proyecto: Takara3D Web
-Objetivo: construir una web premium, rapida, robusta, mantenible y escalable, sin parches acumulados.
+**Estado:** arquitectura ejecutada y vigente
+**Modelo:** frontend static-first + backend modular en Google Apps Script
 
----
+Este documento describe **el sistema que existe hoy**. Los contratos de dominio de
+docs/ tienen prioridad cuando una regla pertenece a una capacidad concreta.
 
-## 1. Principio maestro
+## 1. Objetivo
 
-Takara3D no debe ser una web hecha a base de apanios.
+Takara 3D Web mantiene una superficie pública rápida sin trasladar al navegador
+responsabilidades que requieren autoridad, persistencia o efectos externos.
 
-Cada cambio debe cumplir:
+Propiedades buscadas:
 
-1. Mejorar o mantener la limpieza del repo.
-2. Tener alcance claro.
-3. Tener backup previo.
-4. Tener validacion automatica.
-5. Tener diff revisable.
-6. No dejar basura tecnica.
-7. No romper componentes protegidos.
-8. No hacer commit sin aprobacion.
-9. No hacer push automatico.
-10. No usar git add punto.
+1. bajo coste de runtime en cliente;
+2. una autoridad identificable por responsabilidad;
+3. efectos idempotentes y trazables;
+4. límites claros entre UI, dominio, transporte y persistencia;
+5. cambios verificables mediante contratos y Quality Gate.
 
----
+## 2. Topología
 
-## 2. Arquitectura objetivo
+~~~mermaid
+flowchart TB
+    subgraph Browser[Navegador]
+      Pages[HTML / CSS]
+      Core[Dominio JS]
+      Order[Pedido / personalización / preview]
+      Store[Store público]
+    end
 
-La arquitectura objetivo sera:
+    subgraph Backend[Google Apps Script]
+      Entry[Code.gs / entrada]
+      Validation[Validación + normalización]
+      Idem[Idempotencia + anti-abuso]
+      StoreApi[Store API / Admin]
+      Effects[Entrega / correo / media]
+    end
 
-- Astro para paginas estaticas, SEO, rendimiento y layouts.
-- Vue 3 para islas interactivas concretas.
-- TypeScript para contratos, dominio y logica critica.
-- Vite como ecosistema de build moderno.
-- Design System con tokens globales.
-- CSS propio por capas, sin parches acumulados.
-- Motor de pedido aislado.
-- Motor de preview protegido.
-- Quality Gate por iteracion.
-- Tests automaticos.
-- Deploy controlado.
+    Sheets[(Google Sheets)]
+    Drive[(Google Drive)]
+    Mail[MailApp]
 
-La filosofia sera static-first con islands architecture.
+    Pages --> Core
+    Core --> Order
+    Pages --> Store
+    Order --> Entry
+    Store --> Entry
+    Entry --> Validation
+    Validation --> Idem
+    Entry --> StoreApi
+    Idem --> Effects
+    StoreApi --> Sheets
+    Effects --> Drive
+    Effects --> Mail
+~~~
 
-Esto significa:
+GitHub Pages publica el frontend. Apps Script es un servicio separado: publicar código
+en GitHub no promociona automáticamente el backend.
 
-- HTML estatico para contenido comercial, SEO y velocidad.
-- JavaScript solo donde aporte valor real.
-- Vue 3 solo en componentes interactivos.
-- TypeScript para contratos y logica critica.
-- CSS global gobernado por tokens.
-- Nada de SPA completa innecesaria.
+## 3. Capas
 
----
+### 3.1 Superficie pública
 
-## 3. Por que no una SPA completa
+index.html, productos.html, pedido.html, contacto.html, qr/ y tienda/ son entradas
+estáticas e indexables.
 
-Takara3D es una web comercial con partes interactivas.
+Responsabilidades:
 
-No necesita que Home, Productos, Contacto y contenido legal dependan de JavaScript para verse.
+- contenido y navegación;
+- composición visual;
+- accesibilidad y SEO;
+- carga de módulos JavaScript.
 
-Una SPA completa podria introducir:
+No deben convertirse en una segunda autoridad de reglas de negocio.
 
-- mas JavaScript inicial;
-- peor carga percibida;
-- mas complejidad;
-- mas puntos de fallo;
-- peor mantenimiento para contenido estatico.
+### 3.2 Dominio frontend
 
-La solucion correcta es contenido estatico rapido mas islas interactivas donde haga falta.
+assets/js/core/ contiene lógica reutilizable separada de la UI:
 
----
+- takara-catalogo.js — catálogo;
+- takara-pricing.js — precio;
+- takara-delivery.js — entrega;
+- takara-postal-national.js — reglas postales;
+- takara-order-snapshot.js — snapshot estable del pedido.
 
-## 4. Stack tecnico objetivo
+El navegador puede proyectar información para UX, pero el backend valida o recalcula
+aquello que no debe confiar al cliente.
 
-### Astro
+### 3.3 Pedido, personalización y preview
 
-Responsable de paginas estaticas, layouts, SEO, rendimiento e integracion de islas interactivas.
+Los módulos takara-pedido-*, takara-frame-text.js y takara-pedido-preview.js separan:
 
-### Vue 3
+- captura de datos;
+- personalización;
+- resumen y entrega;
+- transporte al backend;
+- representación visual.
 
-Responsable del configurador de pedido, estado reactivo, resumen de precio, validaciones y conexion con preview mediante bridge.
+El preview es un componente protegido: sus cambios requieren validaciones específicas y
+no se mezclan incidentalmente con Store, transporte o backend.
 
-Vue no debe controlar toda la web.
+### 3.4 Store
 
-### TypeScript
+Store es independiente del QR de producto:
 
-Responsable de contratos de datos, tipos de pedido, precios, validaciones, payloads y adaptadores futuros.
+**PRODUCT_QR != STORE_QR**
 
-### Vite
+assets/js/takara-store-public.js resuelve la experiencia desde
+/tienda/?s=<store_public_code>.
 
-Responsable de desarrollo moderno, build rapido, bundling optimizado e integracion con Vue y Astro.
+Invariantes:
 
-### CSS propio con Design Tokens
+- store_id es interno;
+- store_public_code es público, opaco e inmutable;
+- una referencia inválida o inactiva falla cerrada;
+- el navegador no decide la identidad Store;
+- la atribución permanece explícita hasta backend.
 
-Responsable de identidad visual, cambios globales, consistencia, componentes reutilizables y evitar tocar pagina por pagina.
+## Store QR URL Contract V1
 
----
+**PRODUCT_QR != STORE_QR**
 
-## 5. Regla de evolucion
+El QR físico de Store usa exclusivamente:
 
-No se migrara toda la web de golpe.
-
-Orden recomendado:
-
-1. Documentacion y Quality Gate.
-2. Design System.
-3. Base Astro, Vue 3 y TypeScript aislada.
-4. Pedido V2.
-5. Motor preview V2 comparado con Preview V16B-1.
-6. Productos.
-7. Contacto.
-8. Home solo si hace falta.
-9. Deploy controlado.
-
----
-
-## 6. Capas del sistema
-
-La web se organiza por capas. Cada capa tiene una responsabilidad clara.
-
-### 6.1 Capa de contenido
-
-Contiene Home, Productos, Pedido, Contacto, QR, FAQ, textos legales y contenido comercial.
-Debe ser rapida, indexable y estable.
-
-### 6.2 Capa de layout
-
-Contiene BaseLayout, MarketingLayout, OrderLayout, cabecera, footer, contenedores y secciones.
-Ninguna pagina debe reinventar el layout base.
-
-### 6.3 Capa de componentes UI
-
-Contiene Button, Card, Field, SelectCard, Notice, SectionHeader, TrustBadge, PriceTag y MediaFrame.
-Los componentes deben depender de tokens, no de valores hardcodeados.
-
-### 6.4 Capa de dominio
-
-Contiene productos, formatos, colores, precios, descuentos, cantidades, validaciones, consentimiento y payload de pedido.
-La UI no calcula precios a mano. La UI consulta al dominio.
-
-### 6.5 Capa de pedido
-
-Contiene estado del pedido, configuracion, datos de contacto, legal, resumen, envio y adaptadores.
-El formulario no debe saber si el destino futuro sera Gmail, backend de produccion futuro, base de datos o tienda.
-
-### 6.6 Capa de preview
-
-El preview debe estar aislado.
-La UI no debe conocer detalles internos del canvas.
-La comunicacion debe hacerse mediante Order App -> Preview Bridge -> Preview Engine.
-
-### 6.7 Capa de calidad
-
-Cada iteracion debe ejecutar validaciones automaticas: contratos inamovibles, mojibake, temporales, marcadores experimentales, diff, catalogo, tests, build y estado Git.
-
-### 6.8 Capa de servicio QR
-
-La ruta `/qr` es la guía incluida físicamente en el producto.
-
-Su prioridad es uso, limpieza, cuidados, seguridad y soporte. La recurrencia
-comercial aparece únicamente al final y reconoce a la tienda colaboradora como
-una vía válida para solicitar otra pieza.
-
-Los QR exclusivos de tienda, su atribución y sus páginas cerradas de pedido son
-un flujo independiente. No deben resolverse enviando al cliente al catálogo
-general ni inventando identificadores en la página `/qr`.
-### 6.9 Capa Store
-
-El canal de establecimientos colaboradores se gobierna por
-`docs/STORE_SYSTEM_CONTRACT.md`.
-
-Store y Product QR son capacidades diferentes:
-
-`PRODUCT_QR != STORE_QR`
-
-Store V1 conserva una sola autoridad logica (`TAKARA_STORE_REGISTRY_V1`), usa
-`store_id` interno inmutable y `store_public_code` publico inmutable, y resuelve
-la experiencia publica desde `/tienda/?s=<store_public_code>`.
-
-El frontend publico permanece static-first en GitHub Pages. El adapter backend
-V1 reutiliza Google Apps Script y la persistencia Store V1 usa un Google
-Spreadsheet dedicado. El Admin Store es privado y no carga Analytics comercial.
-
-Pedido puede consumir una atribucion Store validada, pero Store no se mezcla con
-Product QR ni con el motor protegido de preview. Una referencia Store invalida o
-inactiva falla cerrada y nunca degrada silenciosamente a pedido directo.
-
----
-
-## 7. Estructura objetivo futura
-
-Estructura prevista del repo moderno:
-
-- public/assets/brand
-- public/assets/img
-- public/assets/data
-- src/pages
-- src/layouts
-- src/components/global
-- src/components/ui
-- src/components/marketing
-- src/components/order
-- src/order-app/components
-- src/order-app/composables
-- src/order-app/domain
-- src/order-app/engine
-- src/order-app/adapters
-- src/styles
-- src/content
-- tests/unit
-- tests/e2e
-- scripts/audit
-- scripts/validate
-- scripts/cleanup
-- scripts/migrate
-- docs
-
-La estructura moderna se introducira por fases y no debe romper la web estatica actual hasta que el build este validado.
-
----
-
-## 8. Design System obligatorio
-
-La web debe poder cambiar de estilo global sin entrar pagina por pagina.
-
-El disenio se controla mediante:
-
-- design tokens;
-- componentes UI;
-- layouts comunes.
-
-Las paginas solo componen estructura y contenido.
-
-Deben poder cambiarse globalmente desde tokens o componentes:
-
-- color principal;
-- fondo;
-- radio de tarjetas;
-- sombras;
-- ancho maximo;
-- espaciado vertical;
-- densidad visual;
-- estilo premium;
-- botones;
-- formularios.
-
-Regla: si una decision visual puede afectar a mas de una pagina, no pertenece a una pagina; pertenece al Design System.
-
----
-
-## 9. Contrato del preview
-
-El motor actual protegido es assets/js/takara-pedido-preview.js.
-Debe contener el marcador TAKARA PEDIDO PREVIEW LITHO REAL V16B-2.
+https://takara3d.es/tienda/?s=<store_public_code>
 
 Reglas:
 
-1. No se toca sin fase especifica.
-2. No se sustituye sin benchmark visual.
-3. No se mezcla con UI.
-4. No se edita a ciegas.
-5. Debe conservar Encendida y Apagada.
-6. Cualquier motor nuevo debe superar al actual antes de reemplazarlo.
-7. El hash del archivo debe revisarse en fases criticas.
+- HTTPS obligatorio;
+- host canónico takara3d.es;
+- ruta /tienda/;
+- un único parámetro s;
+- sin hash ni parámetros auxiliares;
+- `store_id` nunca forma parte del Store QR;
+- store_public_code es opaco, público, inmutable y no secuencial;
+- `/qr` pertenece al Product QR y no es una ruta válida del Store QR;
+- Store Registry sigue siendo la autoridad de identidad y estado.
 
----
+Resolver un código Store no convierte al navegador en autoridad de identidad.
+### 3.5 Backend Apps Script
 
-## 10. Motor de preview futuro
+apps-script/takara-pedidos-web/ está dividido por responsabilidad. Code.gs compone y
+delega.
 
-Objetivo del futuro motor:
+| Responsabilidad | Módulos principales |
+|---|---|
+| Validación y normalización | OrderValidation.gs, OrderNormalization.gs |
+| Idempotencia | OrderIdempotency.gs, ContactIdempotency.gs |
+| Transporte navegador | OrderBrowserTransport.gs, ContactBrowserTransport.gs |
+| Entrega y correo | OrderDelivery.gs, OrderEmail.gs |
+| Media y Drive | OrderMedia.gs, DriveStorage.gs |
+| Atribución | OrderAttribution.gs, StoreOrderResolution.gs |
+| Protección pública | PublicAbuseProtection.gs |
+| Store dominio/runtime | StoreDomain.gs, StoreRuntime.gs |
+| Store Registry | StoreRegistry.gs, StoreSheetsRepository.gs |
+| Store público | StorePublicApi.gs, StoreHttpBridge.gs |
+| Store Admin | StoreAdminAccess.gs, StoreAdminRead.gs, StoreAdminWrite.gs |
+| Retención | DataRetention.gs |
 
-- mas rapido;
-- mas suave;
-- mas fiable;
-- no bloqueante;
-- determinista;
-- testeable;
-- con fallback.
+La modularidad evita convertir Code.gs en un monolito y permite validar contratos por
+responsabilidad.
 
-Arquitectura futura:
+### 3.6 Persistencia y efectos
 
-OrderApp.vue -> usePreviewBridge.ts -> preview-engine.ts -> image-pipeline.ts -> frame-materials.ts -> lighting-model.ts -> canvas renderer.
+El backend encapsula los efectos externos:
 
-Primero se usara TypeScript, Canvas optimizado, ImageBitmap si aporta, requestAnimationFrame, Web Worker si aporta y OffscreenCanvas solo con fallback.
+- **Sheets:** Registry y persistencia Store;
+- **Drive:** media asociada al pedido;
+- **MailApp:** correo de pedido y contacto.
 
-WebAssembly solo se considerara si una medicion real demuestra que hace falta.
+Una respuesta positiva debe guardar relación causal con los efectos exigidos por su
+contrato. Los reintentos usan idempotencia para evitar duplicados.
 
----
+### 3.7 Assurance
 
-## 11. Quality Gate
+tools/ es la capa de verificación del repositorio:
 
-El repo debe revisar al repo.
+- pruebas funcionales takara_test_*.js;
+- validadores contractuales takara_validar_*.py;
+- validadores PowerShell;
+- auditoría de repositorio público;
+- runner único takara_quality_gate.ps1.
 
-Cada fase debe poder ejecutar un gate automatico que compruebe:
+.github/workflows/quality-gate.yml ejecuta el mismo gate en CI. No existe una segunda
+definición de calidad exclusiva de GitHub.
 
-- estructura;
-- encoding;
-- mojibake;
-- preview protegido;
-- scripts experimentales;
-- archivos temporales;
-- marcadores de parches;
-- git diff --check;
-- catalogo;
-- tests;
-- build;
-- estado Git.
+## 4. Autoridades
 
-Los logs deben ser claros: OK, WARN y ERROR.
-No se permite que un script muestre OK despues de un error real sin detenerse.
+| Responsabilidad | Autoridad |
+|---|---|
+| Catálogo y precios publicados | assets/data/catalogo.json |
+| Endpoint consumido por la web | assets/js/takara-config.js |
+| Pedido | docs/ORDER_ENGINE_CONTRACT.md |
+| Idempotencia | docs/ORDER_IDEMPOTENCY_CONTRACT.md |
+| Store | docs/STORE_SYSTEM_CONTRACT.md |
+| Store Admin | docs/STORE_ADMIN_CONTRACT.md |
+| Preview | docs/PREVIEW_ENGINE_CONTRACT.md |
+| Deployment conocido | config/deployment-state.json |
+| Retención | docs/DATA_RETENTION_POLICY.md |
 
----
+Una copia necesaria por compatibilidad o rendimiento es una **proyección derivada**, no
+una segunda fuente de verdad. Si no puede verificarse mecánicamente, se considera deuda.
 
-## 12. Politica de limpieza
+## 5. Flujos principales
 
-Una fase no termina cuando visualmente parece bien.
+### Pedido
 
-Una fase termina cuando:
+1. El navegador captura UX básica.
+2. El dominio frontend construye un snapshot estable.
+3. El backend normaliza y valida.
+4. Resuelve contexto Store si existe.
+5. Aplica protección pública e idempotencia.
+6. Ejecuta los efectos requeridos.
+7. Devuelve ACK causal.
+8. Un retry conserva el resultado lógico sin duplicar efectos.
 
-1. El cambio esta validado.
-2. El diff es entendible.
-3. No hay temporales.
-4. No hay codigo muerto.
-5. No hay parches acumulados.
-6. No hay archivos basura.
-7. El repo queda controlado.
-8. Se decide si iterar, consolidar o commit.
+### Contacto
 
-Prohibido en commit:
+1. El cliente genera request_id.
+2. Apps Script valida y aplica anti-abuso.
+3. La idempotencia protege el efecto de correo.
+4. El transporte devuelve ACK correlacionado.
 
-- _takara_*.ps1;
-- archivos tmp, bak, old o patch;
-- CSS temporal de fase;
-- JS experimental no usado;
-- console.log de pruebas;
-- codigo muerto;
-- backups dentro del repo;
-- dist local;
-- node_modules.
+### Store
 
----
+1. El QR aporta store_public_code.
+2. Backend lo resuelve contra Registry.
+3. Estado e identidad proceden de la autoridad Store.
+4. Sólo un Store válido y activo alimenta contexto y branding.
+5. El pedido conserva atribución explícita hasta backend.
 
-## 13. Regla de commits
+## 6. Invariantes de seguridad y robustez
 
-No se mezclan cambios incompatibles.
+- El frontend no es autoridad de precios ni identidad.
+- No se almacenan secretos ni datos privados en Git.
+- Los endpoints públicos tienen protección anti-abuso.
+- Los efectos repetibles usan idempotencia.
+- Store inválido no degrada silenciosamente a otra identidad.
+- Publicación GitHub y deploy Apps Script son operaciones distintas.
+- Backups e informes viven fuera del repositorio.
+- Un ERROR del Quality Gate bloquea el cierre.
 
-Commits recomendados:
+## 7. Static-first deliberado
 
-- docs: arquitectura web core v1;
-- tools: quality gate inicial;
-- style: design system tokens base;
-- build: scaffold astro vue typescript;
-- pedido: estructura order v2;
-- preview: contrato y bridge inicial.
+La web comercial necesita velocidad, SEO y baja complejidad de ejecución más que una SPA
+generalista. Por eso mantiene HTML estático y JavaScript donde aporta comportamiento real.
 
-No se permite git add punto.
-Cada commit debe aniadir archivos concretos.
+Adoptar un framework futuro sólo estaría justificado por una necesidad demostrable y
+después de conservar contratos, rendimiento, accesibilidad, cobertura, URLs y separación
+de autoridades.
 
----
+La arquitectura no depende de una migración futura para ser coherente hoy.
 
-## 14. Resultado esperado
+## 8. Evolución
 
-La web debe sentirse premium, calida, artesanal pero tecnologica, rapida, limpia, confiable, clara, facil de comprar y preparada para crecer.
+Un cambio arquitectónico debe responder:
 
-El codigo debe sentirse modular, predecible, documentado, testeable, sin duplicidades, sin parches, con contratos, con limpieza y con rollback.
+1. qué responsabilidad cambia;
+2. cuál es la nueva autoridad;
+3. qué contrato se modifica;
+4. qué pruebas demuestran compatibilidad;
+5. qué riesgo se elimina o qué capacidad se gana;
+6. cómo se revierte si la aceptación falla.
 
----
+No se aceptan capas, adapters, dependencias o compatibilidades sin consumidor conocido.
 
-## 15. Criterio de exito
+## 9. Criterio de cierre
 
-Esta arquitectura sera correcta si dentro de meses podemos aniadir nuevos productos, formatos, colores, precios por cantidad, cupones, resenias, usuarios, panel interno, backend de produccion futuro y motor preview mejorado sin rehacer la web ni romper lo que funciona.
-## Store QR URL Contract V1
+Una modificación está terminada cuando:
 
-`PRODUCT_QR != STORE_QR`.
+- el comportamiento contractual está preservado;
+- las pruebas específicas pasan;
+- el Quality Gate completo termina en verde;
+- el diff es revisable;
+- no quedan temporales ni deuda accidental;
+- Git queda controlado.
 
-El Store QR físico usa exclusivamente `TAKARA_STORE_QR_URL_V1`:
-
-`https://takara3d.es/tienda/?s=<store_public_code>`
-
-La URL canónica exige HTTPS, host `takara3d.es`, ruta `/tienda/`, un único
-parámetro `s`, ausencia de hash y ausencia de parámetros auxiliares.
-
-`store_id` nunca forma parte del Store QR. `/qr` pertenece al Product QR y no es una ruta válida del Store QR.
-
-El `store_public_code` es opaco, público, inmutable y no secuencial.
-Store Registry sigue siendo la autoridad de `store_id`, estado y nombre.
-Resolver esa referencia no convierte al navegador en autoridad de identidad.
-
-
-## Autoridades y proyecciones derivadas
-
-Una responsabilidad debe tener una autoridad canonica identificable. Cuando el
-runtime necesite repetir una parte de esa informacion por rendimiento,
-compatibilidad o fallback, esa copia se considera una proyeccion derivada, no
-una segunda fuente de verdad.
-
-Reglas actuales:
-
-- catalogo y precios: assets/data/catalogo.json;
-- endpoint publico Apps Script: assets/js/takara-config.js;
-- estado de despliegue del repo: config/deployment-state.json;
-- takara-config.js puede proyectar datos de producto para lectura sincrona,
-  pero tools/validar_catalogo.py debe demostrar que coinciden con el catalogo;
-- contacto.html conserva action como fallback sin JavaScript, pero
-  tools/takara_test_contact_endpoint.js obliga a que coincida con el endpoint
-  canonico.
-
-Una proyeccion derivada que no pueda verificarse mecanicamente se considera
-deuda tecnica.
+Así el sistema puede mantenerse y auditarse sin depender de conocimiento que sólo exista
+en una conversación o en una máquina concreta.

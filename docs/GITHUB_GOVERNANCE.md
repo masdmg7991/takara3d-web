@@ -1,6 +1,6 @@
 # Gobierno de GitHub
 
-Estado: preparado localmente; activación remota pendiente de autorización de publicación.
+Estado: preparado localmente; CI operativo; política de protección de main definida y activación remota independiente.
 
 ## Objetivo
 

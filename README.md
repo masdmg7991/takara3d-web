@@ -1,108 +1,161 @@
 # Takara 3D Web
 
-Sitio web público de **Takara 3D**, servido desde GitHub Pages y conectado a un
-backend ligero en Google Apps Script para pedidos, contacto y el sistema Store.
+Web de producción de **Takara 3D** para catálogo, pedido personalizado, contacto y
+canal Store mediante QR. El frontend se sirve como sitio estático desde GitHub Pages
+y delega los efectos autoritativos en un backend modular de Google Apps Script.
 
-El repositorio se mantiene con una regla simple: **cada cambio debe conservar el
-comportamiento contractual y terminar con el Quality Gate en verde**.
+La idea central es simple: **static-first en el navegador, autoridad en el backend y
+contratos verificables entre ambos**.
 
-## Arquitectura actual
+## Vista rápida
 
-- **Frontend público:** HTML, CSS y JavaScript sin framework obligatorio.
-- **Datos públicos:** catálogo y mapa postal versionados bajo `assets/data/`.
-- **Pedido:** motor de navegador + contratos de precio, entrega, preview y transporte.
-- **Store:** QR público, identidad, Store Admin, branding, Registry y atribución.
-- **Backend ligero:** Google Apps Script bajo `apps-script/takara-pedidos-web/`.
-- **Calidad:** validadores, pruebas funcionales y un Quality Gate único en `tools/`.
+~~~mermaid
+flowchart LR
+    U[Cliente / navegador]
+    P[GitHub Pages<br/>HTML + CSS + JS]
+    A[Google Apps Script<br/>API pública + Admin]
+    S[(Store Registry / Sheets)]
+    D[(Drive)]
+    M[MailApp]
+    U --> P
+    P -->|pedido, contacto, Store| A
+    A --> S
+    A --> D
+    A --> M
+~~~
+
+- **Frontend:** HTML, CSS y JavaScript modular, sin framework obligatorio.
+- **Dominio frontend:** catálogo, precio, entrega, snapshot y preview desacoplados.
+- **Backend:** Apps Script dividido por responsabilidades; Code.gs no concentra el dominio.
+- **Store:** QR público, identidad opaca, Registry, Admin y atribución de pedidos.
+- **Calidad:** un único Quality Gate local/CI protege contratos, seguridad e higiene.
+- **Publicación y deploy:** GitHub y Apps Script son operaciones independientes.
+
+La ausencia de un framework de runtime es deliberada: reduce dependencias, JavaScript
+inicial y superficie de fallo sin renunciar a modularidad, contratos ni pruebas.
+
+## Arquitectura
+
+El repositorio separa siete responsabilidades:
+
+1. **Superficie pública** — páginas estáticas, SEO y navegación.
+2. **Dominio frontend** — catálogo, pricing, entrega y snapshots en assets/js/core/.
+3. **Pedido y preview** — orquestación, personalización y render protegido.
+4. **Store** — resolución pública, branding, QR, contexto y atribución.
+5. **Backend Apps Script** — validación, normalización, idempotencia y efectos.
+6. **Persistencia y efectos** — Sheets, Drive y correo detrás de módulos explícitos.
+7. **Assurance** — tests, validadores, auditoría pública y Quality Gate.
+
+La descripción completa de capas, flujos e invariantes está en
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Principios de ingeniería
+
+- **Una autoridad por responsabilidad.**
+- **El navegador no es autoridad** de precio, identidad Store ni datos recalculables.
+- **Idempotencia antes de repetir efectos.**
+- **Fail-closed** en identidad, permisos y contratos críticos.
+- **Contratos verificables** mediante tests o validadores cuando el dominio lo permite.
+- **Backups, secretos y datos privados fuera de Git.**
+- **Deploy separado de publicación.**
 
 ## Estructura
 
-```text
+~~~text
 takara3d-web/
 ├── index.html
 ├── productos.html
 ├── pedido.html
 ├── contacto.html
-├── 404.html
-├── qr/                         # Guía QR de producto
-├── tienda/                     # Entrada pública Store
+├── qr/
+├── tienda/
 ├── assets/
-│   ├── css/                    # Estilos públicos
-│   ├── data/                   # Catálogo y datos públicos versionados
-│   ├── img/                    # Imágenes públicas
-│   └── js/                     # Motores frontend y configuración
+│   ├── brand/
+│   ├── css/
+│   ├── data/
+│   ├── img/
+│   └── js/
+│       ├── core/
+│       └── ...
 ├── apps-script/
-│   └── takara-pedidos-web/     # Backend Apps Script modular
-├── docs/                       # Contratos y documentación técnica estable
-├── tools/                      # Quality Gate, validadores y tests
-└── .github/workflows/          # Integración continua
-```
+│   └── takara-pedidos-web/
+├── config/
+├── docs/
+├── tools/
+└── .github/workflows/
+~~~
 
 ## Fuentes de verdad
 
 | Área | Autoridad |
 |---|---|
-| Catálogo público | `assets/data/catalogo.json` |
-| Endpoint público Apps Script | `assets/js/takara-config.js` |
-| Pedido | `docs/ORDER_ENGINE_CONTRACT.md` |
-| Store | `docs/STORE_SYSTEM_CONTRACT.md` |
-| Store Admin | `docs/STORE_ADMIN_CONTRACT.md` |
-| Preview | `docs/PREVIEW_ENGINE_CONTRACT.md` |
-| Diseño visual | `docs/DESIGN_SYSTEM.md` |
-| Estado de deployment | `config/deployment-state.json` |
-| Procedimiento de despliegue | `docs/DEPLOYMENT.md` |
-| Política del repo público | `docs/PUBLIC_REPO_POLICY.md` |
-| Quality Gate | `tools/takara_quality_gate.ps1` + `docs/QUALITY_GATE.md` |
+| Catálogo público | assets/data/catalogo.json |
+| Endpoint público | assets/js/takara-config.js |
+| Pedido | docs/ORDER_ENGINE_CONTRACT.md |
+| Idempotencia | docs/ORDER_IDEMPOTENCY_CONTRACT.md |
+| Store | docs/STORE_SYSTEM_CONTRACT.md |
+| Store Admin | docs/STORE_ADMIN_CONTRACT.md |
+| Preview | docs/PREVIEW_ENGINE_CONTRACT.md |
+| Diseño visual | docs/DESIGN_SYSTEM.md |
+| Deployment | config/deployment-state.json + docs/DEPLOYMENT.md |
+| Política pública | docs/PUBLIC_REPO_POLICY.md |
+| Quality Gate | tools/takara_quality_gate.ps1 + docs/QUALITY_GATE.md |
 
-El backend **no confía en precios, atribución Store ni datos derivados enviados
-por el navegador** cuando puede recalcularlos o resolverlos de forma autoritativa.
+docs/README.md contiene el mapa documental completo y las reglas de prioridad.
 
-## Calidad
+## Calidad verificable
 
-La validación completa se ejecuta con:
+Antes de commit:
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\takara_quality_gate.ps1 -Mode precommit
-```
+~~~powershell
+.\tools\takara_quality_gate.ps1 -Mode precommit
+~~~
 
 Antes de publicar:
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\takara_quality_gate.ps1 -Mode prepush
-```
+~~~powershell
+.\tools\takara_quality_gate.ps1 -Mode prepush
+~~~
 
-El mismo Quality Gate se ejecuta automáticamente en GitHub Actions para `push`,
-`pull_request` y ejecución manual.
+El mismo gate se ejecuta en GitHub Actions. Comprueba, entre otras capas, estructura,
+encoding, catálogo, pedido, entrega, preview, seguridad de fotografías, Store,
+idempotencia, protección anti-abuso, ACK de navegador, documentación, repositorio
+público, git diff --check y estado final de Git.
 
-Un cambio no se considera terminado si el Quality Gate tiene errores.
+Los informes se escriben **fuera del repositorio**.
 
-## Flujo de trabajo
+## Ejecución local
 
-1. Partir de un árbol Git limpio.
-2. Hacer un cambio acotado y entendible.
-3. Ejecutar las pruebas específicas de la zona modificada.
-4. Ejecutar el Quality Gate completo.
-5. Revisar `git diff --check` y el diff final.
-6. Crear un commit con una responsabilidad clara.
-7. Publicar sólo después de la revisión correspondiente.
+La superficie pública no requiere build:
 
-Las reglas detalladas están en `CONTRIBUTING.md` y `docs/CLEANUP_POLICY.md`.
-El mapa de tests, validadores e informes vive en `tools/README.md`.
+~~~powershell
+py -m http.server 8765
+~~~
 
-## Seguridad y repositorio público
+Después puede abrirse http://127.0.0.1:8765/.
 
-Este repositorio puede ser público. No deben almacenarse aquí:
+Para el Quality Gate completo se utilizan PowerShell, Python y Node, igual que en CI.
+
+## Seguridad y privacidad
+
+El repositorio está diseñado para poder ser público. No deben almacenarse aquí:
 
 - secretos, tokens o credenciales;
 - datos reales de clientes;
 - fotografías o adjuntos privados;
 - backups locales;
+- volcados de producción;
 - documentación operativa privada;
-- rutas personales o artefactos temporales.
+- artefactos temporales.
 
-La comprobación mecánica vive en `tools/takara_public_repo_audit.ps1`.
+tools/takara_public_repo_audit.ps1 valida mecánicamente esta política.
 
-## Documentación
+## Contribución y gobierno
 
-`docs/README.md` define el mapa de autoridad documental y distingue entre
-contratos vigentes y evidencia histórica.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — reglas de cambio, validación y commits.
+- [docs/GITHUB_GOVERNANCE.md](docs/GITHUB_GOVERNANCE.md) — CI y política de main.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — publicación y promoción de Apps Script.
+- [tools/README.md](tools/README.md) — mapa de tests y validadores.
+
+Un cambio no se considera terminado porque “funcione en pantalla”: debe conservar sus
+contratos, dejar evidencia reproducible y terminar con el Quality Gate en verde.
