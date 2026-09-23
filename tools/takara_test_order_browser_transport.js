@@ -55,7 +55,7 @@ function backend() {
   };
 
   vm.createContext(context);
-  for (const file of ["OrderBrowserTransport.gs", "Code.gs"]) {
+  for (const file of ["OrderBrowserTransport.gs", "Code.gs", "RuntimeHelpers.gs"]) {
     vm.runInContext(
       fs.readFileSync(
         path.join(root, "apps-script", "takara-pedidos-web", file),

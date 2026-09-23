@@ -31,6 +31,7 @@ def read(relative: str) -> str:
 
 def main() -> int:
     code = read('apps-script/takara-pedidos-web/Code.gs')
+    runtime = read('apps-script/takara-pedidos-web/RuntimeHelpers.gs')
     norm = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
     validation = read('apps-script/takara-pedidos-web/OrderValidation.gs')
     delivery = read('apps-script/takara-pedidos-web/OrderDelivery.gs')
@@ -63,7 +64,7 @@ def main() -> int:
     require('normalizarEntregaPedido_(' in norm, 'Normalización delega entrega')
     require('normalizarImporteEstricto_(' in norm, 'Normalización usa helper numérico compartido')
     require('normalizarImporteEstricto_(' in delivery, 'Delivery usa el mismo helper numérico compartido')
-    require(code.count('function normalizarImporteEstricto_(') == 1, 'Helper numérico conserva autoridad única en core')
+    require(runtime.count('function normalizarImporteEstricto_(') == 1 and code.count('function normalizarImporteEstricto_(') == 0, 'Helper numérico conserva autoridad única en RuntimeHelpers')
 
     code_lines = len(code.splitlines())
     norm_lines = len(norm.splitlines())

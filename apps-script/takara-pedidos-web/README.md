@@ -4,7 +4,7 @@ Este directorio versiona el Apps Script real que atiende los formularios publico
 
 Archivos de entrada/transporte:
 
-- `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
+- `Code.gs`: **composition root HTTP**; conserva configuración runtime, `doGet` / `doPost`, parseo de entrada y resolución del ID de pedido, y delega dominio/efectos en módulos dedicados.
 - `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
 - `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; introducido en V1.15.0 y conservado.
 - `PublicAbuseProtection.gs`: presupuesto de cuota, ráfaga global y rate-limit por actor para efectos públicos; introducido en V1.16.0 y conservado.
@@ -18,6 +18,7 @@ Archivos de entrada/transporte:
 - `OrderDelivery.gs`: clasificación postal, cotización, normalización y validación de entrega; extraído de `Code.gs` sin cambiar tarifas ni reglas.
 - `OrderNormalization.gs`: detección de contrato, normalización V1/V2 y snapshots seguros del pedido.
 - `OrderValidation.gs`: validación V1/V2, catálogo, ficha visual y personalización del pedido.
+- `RuntimeHelpers.gs`: helpers puros compartidos de normalización escalar, formato, privacidad, HTML y JSON.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 

@@ -57,6 +57,7 @@ def read(relative: str) -> str:
 
 def main() -> int:
     code = read('apps-script/takara-pedidos-web/Code.gs')
+    runtime = read('apps-script/takara-pedidos-web/RuntimeHelpers.gs')
     email = read('apps-script/takara-pedidos-web/OrderEmail.gs')
     readme = read('apps-script/takara-pedidos-web/README.md')
     gate = read('tools/takara_quality_gate.ps1')
@@ -82,8 +83,8 @@ def main() -> int:
 
     for name in CORE_NUMERIC_FUNCTIONS:
         marker = f'function {name}('
-        require(code.count(marker) == 1, f'{name} permanece en núcleo compartido')
-        require(email.count(marker) == 0, f'{name} no se acopla artificialmente a email')
+        require(runtime.count(marker) == 1, f'{name} vive en RuntimeHelpers')
+        require(email.count(marker) == 0 and code.count(marker) == 0, f'{name} no se duplica en email/Code')
 
     code_lines = len(code.splitlines())
     email_lines = len(email.splitlines())

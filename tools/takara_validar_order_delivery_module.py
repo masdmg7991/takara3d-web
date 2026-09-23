@@ -43,6 +43,7 @@ def read(relative: str) -> str:
 
 def main() -> int:
     code = read('apps-script/takara-pedidos-web/Code.gs')
+    runtime = read('apps-script/takara-pedidos-web/RuntimeHelpers.gs')
     normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
     delivery = read('apps-script/takara-pedidos-web/OrderDelivery.gs')
     normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
@@ -60,8 +61,8 @@ def main() -> int:
         require(sum(text.count(marker) for text in all_gs.values()) == 1, f'{name} tiene autoridad única')
     for name in CORE_NUMERIC_FUNCTIONS:
         marker = f'function {name}('
-        require(code.count(marker) == 1, f'{name} permanece en núcleo compartido')
-        require(delivery.count(marker) == 0, f'{name} no se acopla a delivery')
+        require(runtime.count(marker) == 1, f'{name} vive en RuntimeHelpers')
+        require(delivery.count(marker) == 0 and code.count(marker) == 0, f'{name} no se duplica en delivery/Code')
     require('normalizarEntregaPedido_(' in normalization, 'normalización de pedido delega entrega')
     require('validarEntregaPedido_(' in validation, 'validación de pedido delega entrega')
     require('textoPrecioEntrega_(' in email, 'OrderEmail consume autoridad delivery')
