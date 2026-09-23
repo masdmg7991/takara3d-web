@@ -75,6 +75,11 @@ Una revisión debe poder responder rápidamente:
 - qué pruebas lo demuestran;
 - qué riesgo queda fuera del alcance.
 
+## Gobierno GitHub
+
+La protección objetivo de `main`, el workflow requerido y la separación entre
+publicación y deploy viven en `docs/GITHUB_GOVERNANCE.md`.
+
 ## Publicación
 
 El repositorio y el despliegue son operaciones diferentes. Que un cambio esté

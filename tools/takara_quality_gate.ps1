@@ -145,6 +145,11 @@ $RequiredFiles = @(
     "docs/DATA_RETENTION_POLICY.md",
     "tools/takara_test_data_retention.js",
     "tools/takara_validar_data_retention.py",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/CODEOWNERS",
+    "docs/GITHUB_GOVERNANCE.md",
+    "config/repository-governance.json",
+    "tools/takara_validar_github_governance.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -686,6 +691,16 @@ if (Test-Path "tools/takara_validar_data_retention.py") {
     else { Err "Fallo takara_validar_data_retention.py" }
 } else {
     Err "No existe tools/takara_validar_data_retention.py"
+}
+
+if (Test-Path "tools/takara_validar_github_governance.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_github_governance.py"
+    py tools/takara_validar_github_governance.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Gobierno GitHub local validado" }
+    else { Err "Fallo takara_validar_github_governance.py" }
+} else {
+    Err "No existe tools/takara_validar_github_governance.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {

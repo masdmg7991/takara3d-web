@@ -23,6 +23,7 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | Quality Gate | `QUALITY_GATE.md` | Qué valida y qué bloquea |
 | Limpieza | `CLEANUP_POLICY.md` | Higiene y cierre de fases |
 | Repo público | `PUBLIC_REPO_POLICY.md` | Qué puede y qué no puede publicarse |
+| Gobierno GitHub | `GITHUB_GOVERNANCE.md` | PR, CI y protección objetivo de `main` |
 | Decisiones vigentes | `DECISIONES_TECNICAS.md` | Decisiones aún aplicables |
 | Errores aprendidos | `ERROR_REGISTRY.md` | Fallos reales y prevención |
 | Backend Apps Script | `../apps-script/takara-pedidos-web/README.md` | Contrato del backend |

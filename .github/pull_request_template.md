@@ -1,26 +1,33 @@
-## Qué cambia
+## Alcance
 
-Describe el cambio y su alcance técnico.
+Describe qué cambia y por qué.
 
-## Autoridad afectada
+## Contrato / autoridad afectada
 
-- [ ] No cambia ninguna fuente de verdad.
-- [ ] Cambia una autoridad y he actualizado sus derivados/contratos.
+- Contrato o fuente de verdad:
+- Comportamiento que debe permanecer estable:
 
 ## Evidencia
 
-- [ ] Pruebas específicas del área modificada.
-- [ ] Quality Gate completo GREEN.
-- [ ] `git diff --check` limpio.
-- [ ] Diff final revisado.
+- Pruebas específicas:
+- Quality Gate:
+- Resultado esperado:
 
-## Riesgo
+## Riesgo residual
 
-Indica qué puede romperse y qué queda explícitamente fuera del alcance.
+Explica qué queda fuera del alcance o qué riesgo permanece.
 
 ## Publicación
 
-- [ ] Este cambio sólo modifica el repositorio.
-- [ ] Requiere despliegue separado y está documentado.
+- [ ] Este PR no implica por sí mismo deploy de Apps Script.
+- [ ] No contiene secretos, datos reales de clientes ni rutas locales.
+- [ ] El diff fue revisado antes de publicar.
+- [ ] `git diff --check` pasa.
+- [ ] `takara_quality_gate.ps1 -Mode prepush` pasa.
 
-Un merge de código no implica autorización automática para desplegar backend.
+## Deploy
+
+Estado previsto:
+
+- [ ] Sin deploy.
+- [ ] Requiere deploy posterior y autorización explícita independiente.

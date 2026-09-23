@@ -1,0 +1,22 @@
+{
+  "schema_version": "TAKARA_REPO_GOVERNANCE_V1",
+  "repository": "masdmg7991/takara3d-web",
+  "default_branch": "main",
+  "required_workflow": "Quality Gate",
+  "activation_status": "prepared_not_applied",
+  "main_protection": {
+    "require_pull_request": true,
+    "require_status_checks": true,
+    "required_check": "Quality Gate",
+    "require_conversation_resolution": true,
+    "allow_force_pushes": false,
+    "allow_deletions": false,
+    "require_code_owner_review": false
+  },
+  "ci": {
+    "permissions": "contents:read",
+    "persist_checkout_credentials": false,
+    "deploy_coupled": false,
+    "report_artifact_retention_days": 14
+  }
+}
