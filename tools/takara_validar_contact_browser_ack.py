@@ -291,7 +291,7 @@ def main() -> int:
     )
 
     require(
-        'takara-contacto-web.js?v=contact-ack-v1' in html,
+        'takara-contacto-web.js?v=contact-ack-sandbox-v2' in html,
         "HTML activa cache build W9",
     )
     require(
