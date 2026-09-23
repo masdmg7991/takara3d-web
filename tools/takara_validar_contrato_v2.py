@@ -5,6 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CODE = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_DELIVERY = ROOT / "apps-script" / "takara-pedidos-web" / "OrderDelivery.gs"
 ORDER_EMAIL = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 ORDER_JS = ROOT / "assets" / "js" / "takara-pedido-web.js"
 ORDER_HTML = ROOT / "pedido.html"
@@ -34,7 +35,7 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8-sig")
 
 def main() -> int:
-    code = read(CODE) + "\n" + read(ORDER_EMAIL)
+    code = read(CODE) + "\n" + read(ORDER_DELIVERY) + "\n" + read(ORDER_EMAIL)
     order = read(ORDER_JS)
     page = read(ORDER_HTML)
     gate = read(QUALITY_GATE)

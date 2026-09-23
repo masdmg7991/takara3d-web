@@ -15,6 +15,7 @@ Archivos de entrada/transporte:
 - `OrderMedia.gs`: validación binaria, foto original, ficha visual y carpeta de cada pedido; extraído de `Code.gs` sin cambiar el flujo.
 - `DriveStorage.gs`: helpers compartidos de la raíz `Takara3D` y subcarpetas para pedido, Store y retención.
 - `OrderEmail.gs`: asuntos, cuerpos texto/HTML, render premium y envío de correos de pedido; extraído de `Code.gs` sin cambiar contenido ni destinatarios.
+- `OrderDelivery.gs`: clasificación postal, cotización, normalización y validación de entrega; extraído de `Code.gs` sin cambiar tarifas ni reglas.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 

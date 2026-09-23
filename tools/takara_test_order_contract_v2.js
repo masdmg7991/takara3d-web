@@ -15,6 +15,8 @@ function assert(condition, message) {
 
 function loadAppsScript(codePath) {
   const source = fs.readFileSync(codePath, "utf8");
+  const deliveryPath = path.join(path.dirname(codePath), "OrderDelivery.gs");
+  const deliverySource = fs.readFileSync(deliveryPath, "utf8");
   const emailPath = path.join(path.dirname(codePath), "OrderEmail.gs");
   const emailSource = fs.readFileSync(emailPath, "utf8");
   const context = {
@@ -48,6 +50,7 @@ function loadAppsScript(codePath) {
   };
   vm.createContext(context);
   vm.runInContext(source, context);
+  vm.runInContext(deliverySource, context, { filename: deliveryPath });
   vm.runInContext(emailSource, context, { filename: emailPath });
   return context;
 }

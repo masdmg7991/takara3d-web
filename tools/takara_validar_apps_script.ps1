@@ -15,9 +15,11 @@ $MediaRel = "apps-script/takara-pedidos-web/OrderMedia.gs"
 $MediaPath = Join-Path $Project $MediaRel
 $DriveRel = "apps-script/takara-pedidos-web/DriveStorage.gs"
 $DrivePath = Join-Path $Project $DriveRel
+$DeliveryRel = "apps-script/takara-pedidos-web/OrderDelivery.gs"
+$DeliveryPath = Join-Path $Project $DeliveryRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
-$ExpectedHash = "D9CBC2B799E5E3F5270BC95D91D3A5D0150C6567E7F9D7CEF3C374C2E8A579B3"
+$ExpectedHash = "9DF35D27217967BB46DC62D16A413CB860E41D4C35B6BBCC21CA3E073000E030"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -27,11 +29,13 @@ Write-Host "[RUN] Takara Apps Script validation"
 if (!(Test-Path $CodePath)) { Fail "No existe $CodeRel" }
 if (!(Test-Path $MediaPath)) { Fail "No existe $MediaRel" }
 if (!(Test-Path $DrivePath)) { Fail "No existe $DriveRel" }
+if (!(Test-Path $DeliveryPath)) { Fail "No existe $DeliveryRel" }
 if (!(Test-Path $EmailPath)) { Fail "No existe $EmailRel" }
 
 $Text = Get-Content $CodePath -Raw -Encoding UTF8
 $MediaText = Get-Content $MediaPath -Raw -Encoding UTF8
 $DriveText = Get-Content $DrivePath -Raw -Encoding UTF8
+$DeliveryText = Get-Content $DeliveryPath -Raw -Encoding UTF8
 $EmailText = Get-Content $EmailPath -Raw -Encoding UTF8
 $CanonicalText = $Text.Replace("`r`n", "`n").Replace("`r", "`n")
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -46,7 +50,7 @@ try {
 if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
-$Text = $Text + "`n" + $EmailText
+$Text = $Text + "`n" + $DeliveryText + "`n" + $EmailText
 $V2BodyStart = $Text.IndexOf("function construirCuerpoInternoV2_")
 $V2BodyEnd = $Text.IndexOf("/* TAKARA EMAIL PEDIDO PREMIUM V1 START */", $V2BodyStart)
 if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {

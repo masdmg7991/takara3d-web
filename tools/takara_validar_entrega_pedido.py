@@ -18,6 +18,7 @@ DELIVERY_CSS = ROOT / "assets" / "css" / "takara-pedido-delivery.css"
 ORDER_JS = ROOT / "assets" / "js" / "takara-pedido-web.js"
 ORDER_HTML = ROOT / "pedido.html"
 CODE_GS = ROOT / "apps-script" / "takara-pedidos-web" / "Code.gs"
+ORDER_DELIVERY_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderDelivery.gs"
 ORDER_EMAIL_GS = ROOT / "apps-script" / "takara-pedidos-web" / "OrderEmail.gs"
 ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 DEPLOYMENT = ROOT / "docs" / "DEPLOYMENT.md"
@@ -69,7 +70,7 @@ def require(condition: bool, message: str) -> None:
 def validate_files() -> None:
     for path in (
         CATALOG, DELIVERY_CORE, POSTAL_CORE, POSTAL_MAP, DELIVERY_UI, DELIVERY_CSS,
-        ORDER_JS, ORDER_HTML, CODE_GS, ORDER_EMAIL_GS, ORDER_CONTRACT, DEPLOYMENT, DEPLOYMENT_STATE, SEO_CONTRACT,
+        ORDER_JS, ORDER_HTML, CODE_GS, ORDER_DELIVERY_GS, ORDER_EMAIL_GS, ORDER_CONTRACT, DEPLOYMENT, DEPLOYMENT_STATE, SEO_CONTRACT,
     ):
         require(path.is_file(), f"Existe {path.relative_to(ROOT)}")
 
@@ -244,7 +245,7 @@ def validate_frontend() -> None:
 
 
 def validate_server() -> None:
-    source = read_utf8(CODE_GS) + "\n" + read_utf8(ORDER_EMAIL_GS)
+    source = read_utf8(CODE_GS) + "\n" + read_utf8(ORDER_DELIVERY_GS) + "\n" + read_utf8(ORDER_EMAIL_GS)
     for marker in (
         BACKEND, VERSION, PAYLOAD_V2, SNAPSHOT_V2, EMAIL_V2, "DELIVERY_AUTOMATIC_FREE_POSTAL_CODES",
         "DELIVERY_AUTOMATIC_NEARBY_BY_AREA", "DELIVERY_AMBIGUOUS_POSTAL_OPTIONS",
