@@ -152,6 +152,9 @@ $RequiredFiles = @(
     "tools/takara_validar_github_governance.py",
     "apps-script/takara-pedidos-web/ContactService.gs",
     "tools/takara_validar_contact_service_module.py",
+    "apps-script/takara-pedidos-web/OrderMedia.gs",
+    "apps-script/takara-pedidos-web/DriveStorage.gs",
+    "tools/takara_validar_order_media_module.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -713,6 +716,16 @@ if (Test-Path "tools/takara_validar_contact_service_module.py") {
     else { Err "Fallo takara_validar_contact_service_module.py" }
 } else {
     Err "No existe tools/takara_validar_contact_service_module.py"
+}
+
+if (Test-Path "tools/takara_validar_order_media_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_order_media_module.py"
+    py tools/takara_validar_order_media_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulos OrderMedia/DriveStorage validados" }
+    else { Err "Fallo takara_validar_order_media_module.py" }
+} else {
+    Err "No existe tools/takara_validar_order_media_module.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {

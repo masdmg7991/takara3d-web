@@ -12,6 +12,8 @@ Archivos de entrada/transporte:
 - `ContactIdempotency.gs`: ledger fail-closed para retries y correos ambiguos de contacto; introducido en V1.17.0 y conservado.
 - `ContactService.gs`: normalización, validación, correos y procesamiento de contacto; extraído de `Code.gs` sin cambiar contratos HTTP.
 - `DataRetention.gs`: política conservadora de retención; snapshots gestionados y datos de cliente en modo report-only.
+- `OrderMedia.gs`: validación binaria, foto original, ficha visual y carpeta de cada pedido; extraído de `Code.gs` sin cambiar el flujo.
+- `DriveStorage.gs`: helpers compartidos de la raíz `Takara3D` y subcarpetas para pedido, Store y retención.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 

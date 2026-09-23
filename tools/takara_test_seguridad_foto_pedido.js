@@ -11,6 +11,12 @@ const CODE_GS = path.join(
   "takara-pedidos-web",
   "Code.gs"
 );
+const ORDER_MEDIA_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderMedia.gs"
+);
 let checks = 0;
 
 function ok(condition, message) {
@@ -66,6 +72,9 @@ function loadServerContext() {
   vm.createContext(context);
   vm.runInContext(fs.readFileSync(CODE_GS, "utf8"), context, {
     filename: CODE_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_MEDIA_GS, "utf8"), context, {
+    filename: ORDER_MEDIA_GS
   });
   return context;
 }
