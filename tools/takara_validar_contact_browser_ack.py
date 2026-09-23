@@ -119,7 +119,7 @@ def main() -> int:
         "parseContactBrowserResponseRequest_",
         "contactBrowserSafeResponse_",
         "contactBrowserResponseOrJson_",
-        "window.parent.postMessage(",
+        "window.top.postMessage(",
         "XFrameOptionsMode.ALLOWALL",
     ):
         require(marker in transport, f"Transport conserva {marker}")
@@ -262,7 +262,6 @@ def main() -> int:
         "CONTACT_REQUEST_ID_PATTERN",
         "getOrCreateContactRequestId",
         "window.crypto.getRandomValues",
-        "event.source !== frame.contentWindow",
         "isAllowedContactBrowserAckOrigin(event.origin)",
         "data.nonce !== nonce",
         "data.request_id !== normalizedRequestId",
@@ -272,6 +271,10 @@ def main() -> int:
     ):
         require(marker in client, f"Cliente conserva {marker}")
 
+    require(
+        "event.source !== frame.contentWindow" not in client,
+        "Cliente acepta ACK desde iframe sandbox descendiente de Google",
+    )
     require('mode: "no-cors"' not in client, "Cliente elimina no-cors")
     require("await fetch(" not in client, "Cliente no usa fetch como ACK")
     require(
