@@ -7,6 +7,10 @@ const code = fs.readFileSync(
   path.join(ROOT, "apps-script", "takara-pedidos-web", "Code.gs"),
   "utf8"
 );
+const contactService = fs.readFileSync(
+  path.join(ROOT, "apps-script", "takara-pedidos-web", "ContactService.gs"),
+  "utf8"
+);
 
 let checks = 0;
 
@@ -151,7 +155,7 @@ function createHarness(payload) {
     "validarContactoWeb_",
     "procesarContactoWeb_"
   ]) {
-    vm.runInContext(extractFunction(code, name), context, {
+    vm.runInContext(extractFunction(contactService, name), context, {
       filename: name + ".js"
     });
   }

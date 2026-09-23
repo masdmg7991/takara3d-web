@@ -10,6 +10,7 @@ Archivos de entrada/transporte:
 - `PublicAbuseProtection.gs`: presupuesto de cuota, ráfaga global y rate-limit por actor para efectos públicos; introducido en V1.16.0 y conservado.
 - `ContactBrowserTransport.gs`: ACK causal de contacto por iframe/postMessage con origin, nonce y request_id.
 - `ContactIdempotency.gs`: ledger fail-closed para retries y correos ambiguos de contacto; introducido en V1.17.0 y conservado.
+- `ContactService.gs`: normalización, validación, correos y procesamiento de contacto; extraído de `Code.gs` sin cambiar contratos HTTP.
 - `DataRetention.gs`: política conservadora de retención; snapshots gestionados y datos de cliente en modo report-only.
 
 Módulos Store V1 del mismo proyecto Apps Script:

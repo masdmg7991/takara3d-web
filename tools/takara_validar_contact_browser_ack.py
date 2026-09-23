@@ -87,6 +87,7 @@ def extract_function(source: str, name: str) -> str:
 
 def main() -> int:
     code = read("apps-script/takara-pedidos-web/Code.gs")
+    contact_service = read("apps-script/takara-pedidos-web/ContactService.gs")
     transport = read(
         "apps-script/takara-pedidos-web/ContactBrowserTransport.gs"
     )
@@ -100,8 +101,8 @@ def main() -> int:
     deployment = json.loads(read("config/deployment-state.json"))
 
     do_post = extract_function(code, "doPost")
-    process_contact = extract_function(code, "procesarContactoWeb_")
-    normalize_contact = extract_function(code, "normalizarContactoWeb_")
+    process_contact = extract_function(contact_service, "procesarContactoWeb_")
+    normalize_contact = extract_function(contact_service, "normalizarContactoWeb_")
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,

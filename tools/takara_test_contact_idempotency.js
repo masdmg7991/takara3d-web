@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const ROOT = path.resolve(__dirname, "..");
 const APP = path.join(ROOT, "apps-script", "takara-pedidos-web");
 const code = fs.readFileSync(path.join(APP, "Code.gs"), "utf8");
+const contactService = fs.readFileSync(path.join(APP, "ContactService.gs"), "utf8");
 const moduleSource = fs.readFileSync(
   path.join(APP, "ContactIdempotency.gs"),
   "utf8"
@@ -256,7 +257,7 @@ function createHarness(payload) {
     "validarContactoWeb_",
     "procesarContactoWeb_"
   ]) {
-    vm.runInContext(extractFunction(code, name), context, {
+    vm.runInContext(extractFunction(contactService, name), context, {
       filename: name + ".js"
     });
   }

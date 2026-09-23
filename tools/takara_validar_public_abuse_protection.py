@@ -87,6 +87,7 @@ def extract_function(source: str, name: str) -> str:
 def main() -> int:
     module = read("apps-script/takara-pedidos-web/PublicAbuseProtection.gs")
     code = read("apps-script/takara-pedidos-web/Code.gs")
+    contact_service = read("apps-script/takara-pedidos-web/ContactService.gs")
     html = read("contacto.html")
     client = read("assets/js/takara-contacto-web.js")
     css = read("assets/css/styles.css")
@@ -95,8 +96,8 @@ def main() -> int:
     state = json.loads(read("config/deployment-state.json"))
 
     do_post = extract_function(code, "doPost")
-    contact = extract_function(code, "procesarContactoWeb_")
-    contact_validation = extract_function(code, "validarContactoWeb_")
+    contact = extract_function(contact_service, "procesarContactoWeb_")
+    contact_validation = extract_function(contact_service, "validarContactoWeb_")
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,

@@ -11,7 +11,7 @@ if (!$Project) {
 
 $CodeRel = "apps-script/takara-pedidos-web/Code.gs"
 $CodePath = Join-Path $Project $CodeRel
-$ExpectedHash = "3DC9BBF960EF39F600900FF3387D6BB4DCE27DA2FB83B387A84BB468FB468597"
+$ExpectedHash = "8C77693E55D8380DC8D33F6D117B9302FD2DEEE9C3E082C33F2BF2FC6D5A695E"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 

@@ -150,6 +150,8 @@ $RequiredFiles = @(
     "docs/GITHUB_GOVERNANCE.md",
     "config/repository-governance.json",
     "tools/takara_validar_github_governance.py",
+    "apps-script/takara-pedidos-web/ContactService.gs",
+    "tools/takara_validar_contact_service_module.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -701,6 +703,16 @@ if (Test-Path "tools/takara_validar_github_governance.py") {
     else { Err "Fallo takara_validar_github_governance.py" }
 } else {
     Err "No existe tools/takara_validar_github_governance.py"
+}
+
+if (Test-Path "tools/takara_validar_contact_service_module.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_contact_service_module.py"
+    py tools/takara_validar_contact_service_module.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Modulo ContactService validado" }
+    else { Err "Fallo takara_validar_contact_service_module.py" }
+} else {
+    Err "No existe tools/takara_validar_contact_service_module.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
