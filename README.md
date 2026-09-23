@@ -1,5 +1,9 @@
 # Takara 3D Web
 
+[![Quality Gate](https://github.com/masdmg7991/takara3d-web/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/masdmg7991/takara3d-web/actions/workflows/quality-gate.yml)
+
+[Web en producción](https://takara3d.es/) · [Arquitectura](docs/ARCHITECTURE.md) · [Quality Gate](docs/QUALITY_GATE.md)
+
 Web de producción de **Takara 3D** para catálogo, pedido personalizado, contacto y
 canal Store mediante QR. El frontend se sirve como sitio estático desde GitHub Pages
 y delega los efectos autoritativos en un backend modular de Google Apps Script.
