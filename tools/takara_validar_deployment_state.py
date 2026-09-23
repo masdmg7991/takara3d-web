@@ -17,7 +17,7 @@ SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
 PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
-LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1"
+LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
 LOCAL_STATUS = "candidate_not_deployed"
 
@@ -78,7 +78,7 @@ def main() -> int:
 
     require(
         local.get("script_version") == LOCAL_SCRIPT,
-        "Version local candidata es V1.15.0 idempotente",
+        "Version local candidata es V1.16.0 anti-abuso",
     )
     require(
         local.get("status") == LOCAL_STATUS,

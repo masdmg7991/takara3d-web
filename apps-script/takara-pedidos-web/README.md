@@ -6,7 +6,8 @@ Archivos de entrada/transporte:
 
 - `Code.gs`: entrypoint HTTP único (`doGet` / `doPost`).
 - `OrderBrowserTransport.gs`: adapter de ACK navegador `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`; desde V1.14.3 debe desplegarse junto a `Code.gs`.
-- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; candidato V1.15.0.
+- `OrderIdempotency.gs`: ledger idempotente fail-closed para Drive, correos y ACK; introducido en V1.15.0 y conservado en V1.16.0.
+- `PublicAbuseProtection.gs`: presupuesto de cuota, ráfaga global y rate-limit por actor para efectos públicos; candidato V1.16.0.
 
 Módulos Store V1 del mismo proyecto Apps Script:
 
@@ -71,7 +72,7 @@ Responsabilidad:
 Contrato validado:
 
 - LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1
-- candidato local no desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1
+- candidato local no desplegado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1
 - Estado mecánico actual: `../../config/deployment-state.json`
 - La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2
@@ -79,6 +80,8 @@ Contrato validado:
 - TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC
 - TAKARA_PEDIDO_WEB_V2
 - TAKARA_ORDER_VISUAL_PROOF_V1
+- TAKARA_ORDER_IDEMPOTENCY_V1
+- TAKARA_PUBLIC_ABUSE_GUARD_V1
 - doGet()
 - doPost(e)
 - CONTACTO_WEB

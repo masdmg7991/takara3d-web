@@ -86,8 +86,8 @@ def main() -> int:
     do_post = extract_function(code, "doPost")
 
     require(
-        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1"' in code,
-        "Code.gs declara candidato V1.15.0",
+        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1"' in code,
+        "Code.gs declara candidato V1.16.0",
     )
 
     for marker in (

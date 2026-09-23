@@ -8,7 +8,7 @@ const CFG = Object.freeze({
   SNAPSHOT_VERSION: "TAKARA_ORDER_SNAPSHOT_V2",
   PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1",
   VERSION_PLANTILLA_V1_COMPAT: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -45,6 +45,11 @@ const CFG = Object.freeze({
   OBSERVACIONES_TECNICAS: "",
   MAX_FOTO_BYTES: 20 * 1024 * 1024,
   MAX_FOTO_BASE64_CHARS: Math.ceil((20 * 1024 * 1024) / 3) * 4,
+  CONTACT_NAME_MAX_CHARS: 100,
+  CONTACT_SUBJECT_MAX_CHARS: 160,
+  CONTACT_MESSAGE_MAX_CHARS: 5000,
+  CONTACT_OPTIONAL_PHONE_MAX_CHARS: 32,
+  CONTACT_METADATA_MAX_CHARS: 64,
   VISUAL_PROOF_VERSION: "TAKARA_ORDER_VISUAL_PROOF_V1",
   MAX_VISUAL_PROOF_BYTES: 900 * 1024,
   MAX_VISUAL_PROOF_BASE64_CHARS: Math.ceil((900 * 1024) / 3) * 4,
@@ -182,6 +187,13 @@ function doPost(e) {
         idempotencyExecution.ack
       );
     }
+
+    reservePublicSideEffectBudget_(
+      "ORDER",
+      pedido.cliente.email,
+      2,
+      new Date()
+    );
 
     const token = idempotencyExecution.token;
     let record = idempotencyExecution.record;
@@ -420,6 +432,13 @@ function procesarContactoWeb_(payload) {
 
   validarContactoWeb_(contacto);
 
+  reservePublicSideEffectBudget_(
+    "CONTACT",
+    contacto.email,
+    2,
+    now
+  );
+
   const idContacto = generarIdContactoWeb_(now);
   const subject = construirAsuntoContactoWeb_(idContacto, contacto);
   const body = construirCuerpoContactoWeb_(idContacto, now, contacto);
@@ -447,25 +466,67 @@ function normalizarContactoWeb_(payload) {
     asunto: texto_(payload.asunto),
     mensaje: texto_(payload.mensaje),
     origen: texto_(payload.origen) || "contacto.html",
-    fecha_cliente: texto_(payload.fecha_cliente)
+    fecha_cliente: texto_(payload.fecha_cliente),
+    website: texto_(payload.website)
   };
 }
 
 function validarContactoWeb_(contacto) {
+  if (contacto.website) {
+    throw publicAbuseError_(
+      "PUBLIC_ABUSE_HONEYPOT",
+      "No se ha podido procesar la consulta."
+    );
+  }
+
   if (!contacto.nombre) {
     throw new Error("Falta el nombre en la consulta de contacto.");
+  }
+
+  if (contacto.nombre.length > CFG.CONTACT_NAME_MAX_CHARS) {
+    throw new Error("El nombre de contacto es demasiado largo.");
   }
 
   if (!contacto.email) {
     throw new Error("Falta el email en la consulta de contacto.");
   }
 
+  if (!emailPedidoValido_(contacto.email)) {
+    throw new Error("El email de contacto no es valido.");
+  }
+
   if (!contacto.asunto) {
     throw new Error("Falta el asunto en la consulta de contacto.");
   }
 
+  if (contacto.asunto.length > CFG.CONTACT_SUBJECT_MAX_CHARS) {
+    throw new Error("El asunto de contacto es demasiado largo.");
+  }
+
   if (!contacto.mensaje) {
     throw new Error("Falta el mensaje en la consulta de contacto.");
+  }
+
+  if (contacto.mensaje.length > CFG.CONTACT_MESSAGE_MAX_CHARS) {
+    throw new Error("El mensaje de contacto es demasiado largo.");
+  }
+
+  if (
+    contacto.telefono.length > CFG.CONTACT_OPTIONAL_PHONE_MAX_CHARS ||
+    contacto.whatsapp.length > CFG.CONTACT_OPTIONAL_PHONE_MAX_CHARS
+  ) {
+    throw new Error("Los datos telefonicos de contacto son demasiado largos.");
+  }
+
+  if (
+    contacto.origen.length > CFG.CONTACT_METADATA_MAX_CHARS ||
+    contacto.fecha_cliente.length > CFG.CONTACT_METADATA_MAX_CHARS
+  ) {
+    throw new Error("Los metadatos de contacto son demasiado largos.");
+  }
+
+  if (contacto.origen !== "contacto.html") {
+    throw new Error("El origen de la consulta de contacto no es valido.");
   }
 }
 

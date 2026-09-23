@@ -314,7 +314,7 @@ La frontera activa del pedido es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`;
+- Apps Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1`;
 - Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 
@@ -681,7 +681,7 @@ Garantías de cierre:
 
 ## Idempotencia de efectos externos
 
-El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`
+El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1`
 incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada continúa
 siendo `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1` hasta una
 promoción explícita.
@@ -699,3 +699,18 @@ un retry por ACK perdido sin repetir Drive ni Mail.
 Dry-run y `CONTACTO_WEB` conservan sus rutas actuales y no crean este ledger.
 
 El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
+
+
+## Protección anti-abuso de efectos públicos
+
+El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1`
+añade `TAKARA_PUBLIC_ABUSE_GUARD_V1` delante de los efectos externos públicos.
+
+- pedido real: W8 se ejecuta después de W7 y antes de Drive/Mail;
+- retry W7 `COMPLETED`: devuelve el ACK persistido sin consumir W8;
+- contacto: valida honeypot, tamaños y origen antes de reservar cuota;
+- el presupuesto usa cuota real de MailApp, reserva operativa, límite global y
+  límites por actor hasheado;
+- el estado no persiste email, IP, mensaje ni foto.
+
+El contrato detallado vive en `docs/PUBLIC_ABUSE_PROTECTION_CONTRACT.md`.

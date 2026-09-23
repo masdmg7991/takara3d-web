@@ -82,8 +82,11 @@ no crea este ledger. El dry-run tampoco crea persistencia idempotente.
 La versión LIVE continúa siendo
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
 
-El candidato local es
+W7 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`.
+
+El candidato local actual es el superset W8
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1`.
 
 Este contrato no convierte un commit ni un push en autorización de despliegue.
 La autoridad LIVE sólo cambia tras promoción explícita y verificación GET.

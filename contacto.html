@@ -117,26 +117,31 @@
           <p class="contacto-final-card__text">Si tienes una consulta, escríbenos y te responderemos por correo lo antes posible. Para gestionar un pedido personalizado con más precisión, utiliza la página de pedido.</p>
 
           <form class="contacto-final-form" data-takara-contact-form data-takara-contact-web-v2 action="https://script.google.com/macros/s/AKfycbzdrgKXZ0NbRWgx4huEi80K5MIEu3ytX217yEf6H5mQXK03-KN5W1NlMPD7W614tZ03-Q/exec" method="post" novalidate>
+            <label class="contacto-final-form__trap" aria-hidden="true">
+              <span>Deja este campo vacío</span>
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+
             <div class="contacto-final-form__row">
               <label>
                 <span>Nombre completo</span>
-                <input type="text" name="nombre" autocomplete="name" placeholder="Tu nombre" required>
+                <input type="text" name="nombre" autocomplete="name" placeholder="Tu nombre" maxlength="100" required>
               </label>
 
               <label>
                 <span>Correo electrónico</span>
-                <input type="email" name="email" autocomplete="email" placeholder="tu@email.com" required>
+                <input type="email" name="email" autocomplete="email" placeholder="tu@email.com" maxlength="254" required>
               </label>
             </div>
 
             <label>
               <span>Asunto</span>
-              <input type="text" name="asunto" placeholder="Consulta, colaboración o duda general" required>
+              <input type="text" name="asunto" placeholder="Consulta, colaboración o duda general" maxlength="160" required>
             </label>
 
             <label>
               <span>Mensaje</span>
-              <textarea name="mensaje" rows="6" placeholder="Cuéntanos en qué podemos ayudarte" required></textarea>
+              <textarea name="mensaje" rows="6" maxlength="5000" placeholder="Cuéntanos en qué podemos ayudarte" required></textarea>
             </label>
 
             <div class="contacto-final-form__actions">

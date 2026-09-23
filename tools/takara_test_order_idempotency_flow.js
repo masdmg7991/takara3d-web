@@ -84,14 +84,14 @@ function createHarness(initialPayload) {
     payload: initialPayload,
     failAfter: "",
     uuid: 0,
-    effects: { folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }
+    effects: { abuse: 0, folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }
   };
 
   const context = {
     console, Object, Array, String, Number, Boolean, Date, Error, JSON, Math, RegExp,
     CFG: {
       VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V2",
-      VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1",
+      VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1",
       ESTADO_ARCHIVO_INICIAL: "pendiente_descarga",
       DESTINO_PEDIDOS: "3d.takara@example.test"
     },
@@ -132,6 +132,10 @@ function createHarness(initialPayload) {
       return Object.freeze({ version: "TAKARA_STORE_ATTRIBUTION_V1", source_type: "DIRECT" });
     },
     validarPedido_() {},
+    reservePublicSideEffectBudget_(route, actor, units) {
+      runtime.effects.abuse += 1;
+      return { route, actor, units };
+    },
     prepararFotoOriginal_(id) {
       return { blob: { id: "blob-" + id }, nombre_archivo: id + "_original.jpg", content_type: "image/jpeg", size_bytes: 4 };
     },
@@ -190,26 +194,26 @@ const success = createHarness(makePayload("TK-WEB-20260923-ABC234"));
 const first = success.call();
 ok(first.ok === true, "first real order succeeds");
 ok(first.estado === "recibido", "first order returns received ACK");
-ok(first.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1", "ACK identifies local idempotent candidate");
-sameEffects(success.runtime.effects, { folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "first execution effect count");
+ok(first.script === "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1", "ACK identifies local idempotent candidate");
+sameEffects(success.runtime.effects, { abuse: 1, folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "first execution effect count");
 
 const duplicate = success.call();
 ok(duplicate.ok === true, "completed retry succeeds");
 ok(duplicate.id_pedido_web === first.id_pedido_web, "completed retry returns same order id");
-sameEffects(success.runtime.effects, { folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "completed retry does not repeat effects");
+sameEffects(success.runtime.effects, { abuse: 1, folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "completed retry does not repeat effects");
 
 success.runtime.payload = makePayload("TK-WEB-20260923-ABC234");
 success.runtime.payload.cliente.email = "changed@example.test";
 const conflict = success.call();
 ok(conflict.ok === false, "same id with changed payload fails");
 ok(conflict.error_code === "ORDER_IDEMPOTENCY_CONFLICT", "changed payload exposes conflict code");
-sameEffects(success.runtime.effects, { folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "conflict has no extra effects");
+sameEffects(success.runtime.effects, { abuse: 1, folder: 1, photo: 1, internalEmail: 1, clientEmail: 1 }, "conflict has no extra effects");
 
 const missingId = createHarness(makePayload(""));
 const missing = missingId.call();
 ok(missing.ok === false, "real order without stable id fails");
 ok(missing.error_code === "ORDER_IDEMPOTENCY_ID_REQUIRED", "missing id exposes idempotency code");
-sameEffects(missingId.runtime.effects, { folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }, "missing id has zero effects");
+sameEffects(missingId.runtime.effects, { abuse: 0, folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }, "missing id has zero effects");
 
 function assertAmbiguousFailure(failurePoint, expectedEffects, id) {
   const harness = createHarness(makePayload(id));
@@ -246,7 +250,7 @@ assertAmbiguousFailure(
 const dry = createHarness(makePayload("", { modo_prueba: true }));
 const dryResult = dry.call();
 ok(dryResult.ok === true && dryResult.dry_run === true, "dry-run preserved");
-sameEffects(dry.runtime.effects, { folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }, "dry-run has no effects");
+sameEffects(dry.runtime.effects, { abuse: 0, folder: 0, photo: 0, internalEmail: 0, clientEmail: 0 }, "dry-run has no effects");
 ok(Object.keys(dry.store.snapshot()).length === 0, "dry-run creates no idempotency ledger");
 
 const contact = createHarness({ tipo_solicitud: "CONTACTO_WEB", nombre: "Contacto" });

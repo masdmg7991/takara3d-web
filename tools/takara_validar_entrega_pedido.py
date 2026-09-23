@@ -27,7 +27,7 @@ VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC"
 PAYLOAD_V2 = "TAKARA_WEB_ORDER_PAYLOAD_V2"
 SNAPSHOT_V2 = "TAKARA_ORDER_SNAPSHOT_V2"
 EMAIL_V2 = "TAKARA_PEDIDO_WEB_V2"
-BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1"
+BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1"
 LIVE_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
 POSTAL_VERSION = "TAKARA_POSTAL_NATIONAL_V1_2026_08_03"
 SNAPSHOT = "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03"
@@ -54,7 +54,7 @@ def read_utf8(path: Path) -> str:
     data = path.read_bytes()
     if data.startswith(b"\xef\xbb\xbf"):
         data = data[3:]
-    return data.decode("utf-8")
+    return data.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
 
 
 def require(condition: bool, message: str) -> None:
@@ -286,14 +286,14 @@ def validate_docs() -> None:
     )
     require(
         deployment_state.get("local", {}).get("script_version") == BACKEND,
-        "Estado mecanico fija candidato local V1.15.0",
+        "Estado mecanico fija candidato local V1.16.0",
     )
     require(
         deployment_state.get("endpoint_authority") == "assets/js/takara-config.js",
         "Estado mecanico fija autoridad canonica del endpoint",
     )
     require(LIVE_BACKEND in deployment, "DEPLOYMENT documenta backend LIVE V1.14.3")
-    require(BACKEND in deployment, "DEPLOYMENT documenta candidato local V1.15.0")
+    require(BACKEND in deployment, "DEPLOYMENT documenta candidato local V1.16.0")
     require(
         "respuesta GET del" in deployment
         and "endpoint productivo" in deployment
