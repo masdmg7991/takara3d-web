@@ -92,6 +92,12 @@ def main() -> int:
 
     require(literal_images > 0, "Se validaron imagenes HTML locales con src literal")
 
+    styles = read_text(ROOT / "assets" / "css" / "styles.css")
+    require(
+        re.search(r"(?s)(?:^|\})\s*img\s*\{[^}]*\bheight\s*:\s*auto\s*;", styles) is not None,
+        "Reset responsive de imagenes conserva height:auto",
+    )
+
     print(
         "[TAKARA_ASSET_HYGIENE_OK] "
         f'{{"checks":{checks},"images":{len(images)},'

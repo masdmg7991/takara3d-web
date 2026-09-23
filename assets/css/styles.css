@@ -50,7 +50,12 @@ body.menu-open {
   overflow: hidden;
 }
 
-img,
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
 svg {
   max-width: 100%;
   display: block;
