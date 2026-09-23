@@ -12,6 +12,7 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | Arquitectura global | `ARCHITECTURE.md` | Capas, límites y evolución técnica |
 | Sistema visual | `DESIGN_SYSTEM.md` | Tokens, componentes y reglas visuales |
 | Pedido web | `ORDER_ENGINE_CONTRACT.md` | Payload, validación, precio, entrega y correo |
+| ACK de contacto | `CONTACT_BROWSER_ACK_CONTRACT.md` | Confirmación causal, request_id e idempotencia de contacto |
 | Preview | `PREVIEW_ENGINE_CONTRACT.md` | Motor y contrato del preview |
 | Store | `STORE_SYSTEM_CONTRACT.md` | Registry, QR, contexto y atribución |
 | Store Admin | `STORE_ADMIN_CONTRACT.md` | Acceso, lectura, escritura y lifecycle |

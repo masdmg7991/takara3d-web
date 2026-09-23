@@ -8,7 +8,7 @@ const CFG = Object.freeze({
   SNAPSHOT_VERSION: "TAKARA_ORDER_SNAPSHOT_V2",
   PAYLOAD_VERSION_V1_COMPAT: "TAKARA_WEB_ORDER_PAYLOAD_V1",
   VERSION_PLANTILLA_V1_COMPAT: "TAKARA_PEDIDO_WEB_V1",
-  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1",
+  VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1",
   ORIGEN: "web takara3d.es",
   CANAL_ENTRADA: "web_gmail",
   ID_MICROFACTORY_INICIAL: "pendiente_asignar",
@@ -113,11 +113,13 @@ function doGet(e) {
 
 function doPost(e) {
   let browserResponseRequest = null;
+  let contactResponseRequest = null;
   let idPedidoWeb = "";
   let idempotencyExecution = null;
 
   try {
     browserResponseRequest = parseOrderBrowserResponseRequest_(e);
+    contactResponseRequest = parseContactBrowserResponseRequest_(e);
 
     const payload = parsePayload_(e);
     assertOrderBrowserPayloadMatches_(browserResponseRequest, payload);
@@ -128,7 +130,11 @@ function doPost(e) {
       if (browserResponseRequest) {
         throw new Error("El ACK de pedido no admite solicitudes de contacto.");
       }
-      return procesarContactoWeb_(payload);
+      return procesarContactoWeb_(payload, contactResponseRequest);
+    }
+
+    if (contactResponseRequest) {
+      throw new Error("El ACK de contacto no admite solicitudes de pedido.");
     }
 
     const now = new Date();
@@ -351,13 +357,25 @@ function doPost(e) {
 
     return orderBrowserResponseOrJson_(browserResponseRequest, ack);
   } catch (error) {
-    return orderBrowserResponseOrJson_(browserResponseRequest, {
+    const errorPayload = {
       ok: false,
       error: String(error && error.message ? error.message : error),
       error_code: String(error && error.code ? error.code : ""),
       version: CFG.VERSION_PLANTILLA,
       script: CFG.VERSION_SCRIPT
-    });
+    };
+
+    if (contactResponseRequest) {
+      return contactBrowserResponseOrJson_(
+        contactResponseRequest,
+        errorPayload
+      );
+    }
+
+    return orderBrowserResponseOrJson_(
+      browserResponseRequest,
+      errorPayload
+    );
   } finally {
     if (
       idempotencyExecution &&
@@ -426,35 +444,215 @@ function parsePayload_(e) {
    CONTACTO WEB
    ============================================================ */
 
-function procesarContactoWeb_(payload) {
+function procesarContactoWeb_(payload, browserResponseRequest) {
   const now = new Date();
   const contacto = normalizarContactoWeb_(payload);
 
   validarContactoWeb_(contacto);
 
-  reservePublicSideEffectBudget_(
-    "CONTACT",
-    contacto.email,
-    2,
-    now
+  if (!browserResponseRequest) {
+    reservePublicSideEffectBudget_(
+      "CONTACT",
+      contacto.email,
+      2,
+      now
+    );
+
+    const idContactoLegacy = generarIdContactoWeb_(now);
+    const subjectLegacy = construirAsuntoContactoWeb_(
+      idContactoLegacy,
+      contacto
+    );
+    const bodyLegacy = construirCuerpoContactoWeb_(
+      idContactoLegacy,
+      now,
+      contacto
+    );
+
+    enviarEmailContactoInterno_(
+      subjectLegacy,
+      bodyLegacy,
+      contacto,
+      idContactoLegacy,
+      now
+    );
+    enviarConfirmacionContactoCliente_(
+      idContactoLegacy,
+      contacto
+    );
+
+    return contactBrowserResponseOrJson_(null, {
+      ok: true,
+      tipo_solicitud: "CONTACTO_WEB",
+      id_contacto_web: idContactoLegacy,
+      estado: "recibido",
+      email_destino: CFG.DESTINO_PEDIDOS,
+      version: CFG.VERSION_PLANTILLA,
+      script: CFG.VERSION_SCRIPT
+    });
+  }
+
+  const requestId = assertContactIdempotencyRequestId_(
+    contacto.request_id
   );
 
-  const idContacto = generarIdContactoWeb_(now);
-  const subject = construirAsuntoContactoWeb_(idContacto, contacto);
-  const body = construirCuerpoContactoWeb_(idContacto, now, contacto);
+  if (browserResponseRequest.request_id !== requestId) {
+    throw contactIdempotencyError_(
+      "CONTACT_IDEMPOTENCY_REQUEST_MISMATCH",
+      "La referencia del contacto no coincide con la solicitud de confirmacion."
+    );
+  }
 
-  enviarEmailContactoInterno_(subject, body, contacto, idContacto, now);
-  enviarConfirmacionContactoCliente_(idContacto, contacto);
+  const fingerprint =
+    buildContactIdempotencyFingerprint_(contacto);
+  let execution = null;
 
-  return json_({
-    ok: true,
-    tipo_solicitud: "CONTACTO_WEB",
-    id_contacto_web: idContacto,
-    estado: "recibido",
-    email_destino: CFG.DESTINO_PEDIDOS,
-    version: CFG.VERSION_PLANTILLA,
-    script: CFG.VERSION_SCRIPT
-  });
+  try {
+    execution = beginContactIdempotency_(
+      requestId,
+      fingerprint,
+      now
+    );
+
+    if (execution.mode === "COMPLETED") {
+      if (!execution.ack) {
+        throw contactIdempotencyError_(
+          "CONTACT_IDEMPOTENCY_ACK_MISSING",
+          "La consulta consta como completada pero no conserva su ACK."
+        );
+      }
+
+      return contactBrowserResponseOrJson_(
+        browserResponseRequest,
+        execution.ack
+      );
+    }
+
+    reservePublicSideEffectBudget_(
+      "CONTACT",
+      contacto.email,
+      2,
+      now
+    );
+
+    const token = execution.token;
+    let record = execution.record;
+    const idContacto = record.contact_id;
+    const subject = construirAsuntoContactoWeb_(
+      idContacto,
+      contacto
+    );
+    const body = construirCuerpoContactoWeb_(
+      idContacto,
+      now,
+      contacto
+    );
+
+    if (
+      record.phase ===
+      TAKARA_CONTACT_IDEMPOTENCY_PHASE.RESERVED
+    ) {
+      record = transitionContactIdempotency_(
+        requestId,
+        token,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE.RESERVED,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .INTERNAL_EMAIL_IN_FLIGHT,
+        {},
+        new Date()
+      );
+
+      enviarEmailContactoInterno_(
+        subject,
+        body,
+        contacto,
+        idContacto,
+        now
+      );
+
+      record = transitionContactIdempotency_(
+        requestId,
+        token,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .INTERNAL_EMAIL_IN_FLIGHT,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .INTERNAL_EMAIL_SENT,
+        {},
+        new Date()
+      );
+    }
+
+    if (
+      record.phase ===
+      TAKARA_CONTACT_IDEMPOTENCY_PHASE
+        .INTERNAL_EMAIL_SENT
+    ) {
+      record = transitionContactIdempotency_(
+        requestId,
+        token,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .INTERNAL_EMAIL_SENT,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .CLIENT_EMAIL_IN_FLIGHT,
+        {},
+        new Date()
+      );
+
+      enviarConfirmacionContactoCliente_(
+        idContacto,
+        contacto
+      );
+
+      const ack = {
+        ok: true,
+        tipo_solicitud: "CONTACTO_WEB",
+        contact_request_id: requestId,
+        id_contacto_web: idContacto,
+        estado: "recibido",
+        version: CFG.VERSION_PLANTILLA,
+        script: CFG.VERSION_SCRIPT
+      };
+
+      transitionContactIdempotency_(
+        requestId,
+        token,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE
+          .CLIENT_EMAIL_IN_FLIGHT,
+        TAKARA_CONTACT_IDEMPOTENCY_PHASE.COMPLETED,
+        { ack: ack },
+        new Date()
+      );
+
+      return contactBrowserResponseOrJson_(
+        browserResponseRequest,
+        ack
+      );
+    }
+
+    throw contactIdempotencyError_(
+      "CONTACT_IDEMPOTENCY_UNEXPECTED_PHASE",
+      "La consulta termino en una fase idempotente inesperada."
+    );
+  } finally {
+    if (execution && execution.token) {
+      try {
+        releaseContactIdempotencyLease_(
+          requestId,
+          execution.token,
+          new Date()
+        );
+      } catch (releaseError) {
+        console.error(
+          "[TAKARA_CONTACT_IDEMPOTENCY_RELEASE_ERROR]",
+          String(
+            releaseError && releaseError.message
+              ? releaseError.message
+              : releaseError
+          )
+        );
+      }
+    }
+  }
 }
 
 function normalizarContactoWeb_(payload) {
@@ -467,7 +665,8 @@ function normalizarContactoWeb_(payload) {
     mensaje: texto_(payload.mensaje),
     origen: texto_(payload.origen) || "contacto.html",
     fecha_cliente: texto_(payload.fecha_cliente),
-    website: texto_(payload.website)
+    website: texto_(payload.website),
+    request_id: texto_(payload.contact_request_id).toUpperCase()
   };
 }
 

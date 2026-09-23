@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1"
 checks = 0
 
 
@@ -100,7 +100,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs declara candidato W8 V1.16.0",
+        "Code.gs declara candidato W8 V1.17.0",
     )
 
     for marker in (
@@ -186,7 +186,9 @@ def main() -> int:
 
     require(".contacto-final-form__trap" in css, "CSS oculta honeypot fuera de pantalla")
     require(
-        'payload.append("website", value(form, "website"));' in client,
+        'payload.append(' in client
+        and '"website"' in client
+        and 'value(form, "website")' in client,
         "Cliente JS transporta honeypot",
     )
 
@@ -196,7 +198,7 @@ def main() -> int:
     )
     require(
         state.get("local", {}).get("script_version") == LOCAL,
-        "Deployment state declara local W8 V1.16.0",
+        "Deployment state declara local W8 V1.17.0",
     )
     require(
         state.get("local", {}).get("status") == "candidate_not_deployed",

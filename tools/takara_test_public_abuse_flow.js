@@ -101,7 +101,7 @@ function createHarness(payload) {
       DESTINO_PEDIDOS: "takara@example.test",
       VERSION_PLANTILLA: "TAKARA_PEDIDO_WEB_V2",
       VERSION_SCRIPT:
-        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1"
+        "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1"
     },
     texto_(value) {
       return String(value === undefined || value === null ? "" : value).trim();
@@ -137,6 +137,9 @@ function createHarness(payload) {
       runtime.calls.client += 1;
     },
     json_(value) {
+      return value;
+    },
+    contactBrowserResponseOrJson_(request, value) {
       return value;
     }
   };

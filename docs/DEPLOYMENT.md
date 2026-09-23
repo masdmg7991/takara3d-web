@@ -21,11 +21,11 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
 - Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
-- Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_16_0_PUBLIC_ABUSE_GUARD_V1`.
+- Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
 - Estado observado por GET: `online`.
 - Última verificación live registrada: `2026-09-23`.
 
-Producción continúa en V1.14.3. El código local V1.16.0 es un candidato no desplegado; un commit o push no cambia esa autoridad LIVE.
+Producción continúa en V1.14.3. El código local V1.17.0 es un candidato no desplegado; un commit o push no cambia esa autoridad LIVE.
 
 ## Contratos activos
 

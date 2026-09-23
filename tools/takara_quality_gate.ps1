@@ -135,6 +135,12 @@ $RequiredFiles = @(
     "tools/takara_test_public_abuse_protection.js",
     "tools/takara_test_public_abuse_flow.js",
     "tools/takara_validar_public_abuse_protection.py",
+    "apps-script/takara-pedidos-web/ContactBrowserTransport.gs",
+    "apps-script/takara-pedidos-web/ContactIdempotency.gs",
+    "docs/CONTACT_BROWSER_ACK_CONTRACT.md",
+    "tools/takara_test_contact_browser_transport.js",
+    "tools/takara_test_contact_idempotency.js",
+    "tools/takara_validar_contact_browser_ack.py",
     "tools/takara_test_contact_endpoint.js",
     "tools/takara_test_transition_v1_v2.js",
     "tools/takara_test_ficha_visual_pedido.js",
@@ -653,6 +659,19 @@ if (Test-Path "tools/takara_validar_public_abuse_protection.py") {
     }
 } else {
     Err "No existe tools/takara_validar_public_abuse_protection.py"
+}
+
+if (Test-Path "tools/takara_validar_contact_browser_ack.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_contact_browser_ack.py"
+    py tools/takara_validar_contact_browser_ack.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) {
+        Ok "ACK causal e idempotencia de contacto validados"
+    } else {
+        Err "Fallo takara_validar_contact_browser_ack.py"
+    }
+} else {
+    Err "No existe tools/takara_validar_contact_browser_ack.py"
 }
 
 if (Test-Path "tools/takara_validar_entrega_pedido.py") {
@@ -1405,6 +1424,26 @@ if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_public_abuse_flow.
     else { Err "Fallo takara_test_public_abuse_flow.js" }
 } else {
     Err "No se pudo ejecutar public abuse flow test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_browser_transport.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_browser_transport.js"
+    node tools/takara_test_contact_browser_transport.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Transporte causal de contacto validado" }
+    else { Err "Fallo takara_test_contact_browser_transport.js" }
+} else {
+    Err "No se pudo ejecutar contact browser transport test"
+}
+
+if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_idempotency.js")) {
+    Log-Line ""
+    Log-Line "[RUN] node tools/takara_test_contact_idempotency.js"
+    node tools/takara_test_contact_idempotency.js 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Idempotencia de contacto validada" }
+    else { Err "Fallo takara_test_contact_idempotency.js" }
+} else {
+    Err "No se pudo ejecutar contact idempotency test"
 }
 
 if ($null -ne $NodeCommand -and (Test-Path "tools/takara_test_contact_endpoint.js")) {
