@@ -192,10 +192,14 @@
       }
 
       function onMessage(event) {
-        if (completed || event.source !== frame.contentWindow) {
+        if (completed) {
           return;
         }
 
+        // Apps Script HtmlService executes inside a Google-managed sandbox iframe.
+        // The ACK may therefore come from a descendant browsing context rather
+        // than frame.contentWindow itself. Authentication remains bound to the
+        // trusted Google origin plus protocol version, nonce and request ID.
         if (!isAllowedContactBrowserAckOrigin(event.origin)) {
           return;
         }

@@ -131,7 +131,7 @@ function backend() {
     email_destino: "private@example.test",
   });
   ok(html.xFrameMode === "ALLOWALL", "ACK iframe output enabled");
-  ok(html.content.includes("window.parent.postMessage("), "ACK posts to parent");
+  ok(html.content.includes("window.top.postMessage("), "ACK posts to top-level Takara page");
   ok(html.content.includes("TAKARA_ORDER_BROWSER_POSTMESSAGE_V1"), "ACK marker emitted");
   ok(!html.content.includes("private@example.test"), "ACK HTML contains no PII");
 
@@ -180,7 +180,8 @@ function backend() {
 
   ok(!web.includes('mode: "no-cors"'), "no-cors success path removed");
   ok(web.includes("submitOrderWithBrowserAck(endpoint, payload)"), "submit waits for ACK");
-  ok(web.includes("event.source !== frame.contentWindow"), "ACK bound to exact iframe");
+  ok(!web.includes("event.source !== frame.contentWindow"), "ACK accepts Apps Script sandbox descendant source");
+  ok(web.includes("isAllowedOrderBrowserAckOrigin(event.origin)"), "ACK Google origin checked");
   ok(web.includes("data.nonce !== nonce"), "ACK nonce checked");
   ok(web.includes("data.order_id !== orderId"), "ACK order id checked");
   ok(web.includes("ORDER_BROWSER_ACK_TIMEOUT_MS = 120000"), "ACK timeout explicit");

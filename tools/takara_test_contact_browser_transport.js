@@ -77,7 +77,7 @@ function browserHarness() {
   const timers = Object.create(null);
   const runtime = {
     submitBehavior: "success",
-    wrongSourceFirst: false,
+    sandboxDescendantSource: false,
     submittedFields: null
   };
 
@@ -165,24 +165,10 @@ function browserHarness() {
               return;
             }
 
-            if (runtime.wrongSourceFirst) {
-              emitMessage({
-                source: { wrong: true },
-                origin: "https://script.googleusercontent.com",
-                data: {
-                  version: "TAKARA_CONTACT_BROWSER_POSTMESSAGE_V1",
-                  nonce: values.takara_contact_response_nonce,
-                  request_id: values.contact_request_id,
-                  ok: true,
-                  id_contacto_web:
-                    "TK-CONTACTO-20260923-031500-ABCDEF12",
-                  estado: "recibido"
-                }
-              });
-            }
-
             emitMessage({
-              source: frame.contentWindow,
+              source: runtime.sandboxDescendantSource
+                ? { kind: "google-sandbox-descendant" }
+                : frame.contentWindow,
               origin:
                 runtime.submitBehavior === "evil-origin"
                   ? "https://evil.example"
@@ -387,8 +373,8 @@ function browserHarness() {
   });
   ok(html.xFrameMode === "ALLOWALL", "contact ACK iframe output enabled");
   ok(
-    html.content.includes("window.parent.postMessage("),
-    "contact ACK posts to parent"
+    html.content.includes("window.top.postMessage("),
+    "contact ACK posts to top-level Takara page"
   );
   ok(
     html.content.includes("TAKARA_CONTACT_BROWSER_POSTMESSAGE_V1"),
@@ -419,12 +405,16 @@ function browserHarness() {
   ok(!web.includes('mode: "no-cors"'), "opaque no-cors path removed");
   ok(!web.includes("await fetch("), "contact client no longer trusts fetch");
   ok(
-    web.includes("submitContactWithBrowserAck(\n        endpoint,\n        payload,\n        requestId\n      )"),
+    web.includes("const ack = await submitContactWithBrowserAck("),
     "contact submit waits for browser ACK"
   );
   ok(
-    web.includes("event.source !== frame.contentWindow"),
-    "contact ACK bound to exact iframe"
+    !web.includes("event.source !== frame.contentWindow"),
+    "contact ACK accepts Apps Script sandbox descendant source"
+  );
+  ok(
+    web.includes("isAllowedContactBrowserAckOrigin(event.origin)"),
+    "contact ACK Google origin checked"
   );
   ok(web.includes("data.nonce !== nonce"), "contact ACK nonce checked");
   ok(
@@ -457,13 +447,13 @@ function browserHarness() {
   payload.append("email", "client@example.test");
   payload.append("contact_request_id", requestId);
 
-  browser.runtime.wrongSourceFirst = true;
+  browser.runtime.sandboxDescendantSource = true;
   const ack = await browser.api.submit(
     "https://script.google.com/macros/s/EXAMPLE/exec",
     payload,
     requestId
   );
-  ok(ack.estado === "recibido", "browser resolves only verified success");
+  ok(ack.estado === "recibido", "browser accepts verified Google sandbox descendant ACK");
   ok(
     ack.id_contacto_web === contactId,
     "browser returns server-generated contact id"
