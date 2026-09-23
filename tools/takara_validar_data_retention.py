@@ -6,7 +6,7 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
-LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 
 def require(condition: bool, message: str) -> None:
@@ -69,10 +69,10 @@ def main() -> int:
     require("pii_stored: false" in retention, "Informe declara W8 sin PII")
     require("actors: []" in abuse, "W8 conserva estado compacto de actores")
 
-    require(f'VERSION_SCRIPT: "{LOCAL}"' in code, "Code.gs declara candidato W10")
+    require(f'VERSION_SCRIPT: "{LOCAL}"' in code, "Code.gs conserva W10 productivo")
     require(deployment["production"]["script_version"] == LIVE, "Deployment conserva LIVE")
-    require(deployment["local"]["script_version"] == LOCAL, "Deployment declara candidato W10")
-    require(deployment["local"]["status"] == "candidate_not_deployed", "W10 sigue sin desplegar")
+    require(deployment["local"]["script_version"] == LOCAL, "Deployment declara local W10")
+    require(deployment["local"]["status"] == "deployed", "W10 figura desplegado")
 
     for marker in (
         "REPORT_ONLY", "180 días", "20 snapshots",

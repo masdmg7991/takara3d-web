@@ -314,8 +314,8 @@ La frontera activa del pedido es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
-- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`;
+- Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
+- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
@@ -332,7 +332,7 @@ requiriendo un mapeo explícito de catálogo/normalización.
 
 ### 7.5 Confirmación real de recepción en navegador
 
-La versión productiva `V1_14_3` incorpora `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1` sin crear
+La versión `V1_14_3` introdujo `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1` sin crear
 un segundo motor, endpoint ni registro de pedidos. El pedido continúa entrando
 por el mismo `Code.gs::doPost` y por las mismas autoridades de validación,
 Store attribution, Drive y correo.
@@ -365,7 +365,7 @@ Contrato del transporte navegador:
 - no se introduce polling, receipt DB, CacheService, proxy ni persistencia
   paralela de confirmaciones.
 
-La versión publicada verificada actualmente es `V1_14_3`.
+La versión publicada verificada actualmente es `V1_18_0`.
 Para versiones futuras, un commit o un push no constituyen despliegue: la promoción debe verificarse mediante GET del endpoint canónico y actualizar `config/deployment-state.json`.
 
 ---
@@ -681,9 +681,9 @@ Garantías de cierre:
 
 ## Idempotencia de efectos externos
 
-El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
-incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada continúa
-siendo `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1` hasta una
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada
+es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1` tras la
 promoción explícita.
 
 Para pedidos reales, `pedido_web_id` debe ser estable. El backend calcula un
@@ -703,7 +703,7 @@ El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
 
 ## Protección anti-abuso de efectos públicos
 
-El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
 añade `TAKARA_PUBLIC_ABUSE_GUARD_V1` delante de los efectos externos públicos.
 
 - pedido real: W8 se ejecuta después de W7 y antes de Drive/Mail;

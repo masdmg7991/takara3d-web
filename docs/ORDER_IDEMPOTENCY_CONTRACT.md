@@ -1,6 +1,6 @@
 # Contrato de idempotencia de pedidos
 
-Estado: candidato local no desplegado.
+Estado: desplegado en PUBLIC V1.18.0.
 
 ## Objetivo
 
@@ -79,13 +79,13 @@ no crea este ledger. El dry-run tampoco crea persistencia idempotente.
 
 ## Regla de despliegue
 
-La versión LIVE continúa siendo
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
+La versión LIVE actual es
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
 W7 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`.
 
-El candidato local actual es el superset W8
+El backend LIVE actual conserva W7 dentro del superset V1.18.0
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
 Este contrato no convierte un commit ni un push en autorización de despliegue.

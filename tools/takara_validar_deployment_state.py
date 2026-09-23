@@ -16,10 +16,10 @@ ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
-PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
-LOCAL_STATUS = "candidate_not_deployed"
+LOCAL_STATUS = "deployed"
 
 checks = 0
 
@@ -72,30 +72,30 @@ def main() -> int:
     )
     require(
         production.get("script_version") == PRODUCTION_SCRIPT,
-        "Version script LIVE permanece V1.14.3",
+        "Version script LIVE es V1.18.0",
     )
     require(production.get("status") == "online", "Estado productivo online")
 
     require(
         local.get("script_version") == LOCAL_SCRIPT,
-        "Version local candidata es V1.18.0 ACK causal contacto",
+        "Version local coincide con V1.18.0 desplegado",
     )
     require(
         local.get("status") == LOCAL_STATUS,
-        "Estado local declara candidato no desplegado",
+        "Estado local declara desplegado en PUBLIC",
     )
     require(
-        local.get("script_version") != production.get("script_version"),
-        "Estado mecanico distingue local de LIVE",
+        local.get("script_version") == production.get("script_version"),
+        "Estado mecanico confirma local y LIVE alineados",
     )
 
     require(
         code.count(LOCAL_SCRIPT) == 1,
-        "Code.gs declara una unica VERSION_SCRIPT candidata",
+        "Code.gs declara una unica VERSION_SCRIPT V1.18.0",
     )
     require(
-        PRODUCTION_SCRIPT not in code,
-        "Code.gs no finge ejecutar la version LIVE anterior",
+        code.count(PRODUCTION_SCRIPT) == 1,
+        "Code.gs declara una unica version LIVE",
     )
     require(
         "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config,
@@ -107,8 +107,8 @@ def main() -> int:
         PRODUCTION_SCRIPT,
         LOCAL_SCRIPT,
         "Script LIVE",
-        "Script local candidato",
-        "candidato no desplegado",
+        "Script local",
+        "desplegado en PUBLIC",
     ):
         require(marker in deployment, f"DEPLOYMENT documenta {marker}")
 
@@ -117,7 +117,7 @@ def main() -> int:
         (order_contract, "ORDER_ENGINE_CONTRACT"),
     ):
         require(PRODUCTION_SCRIPT in text, f"{name} conserva version LIVE")
-        require(LOCAL_SCRIPT in text, f"{name} documenta candidato local")
+        require(LOCAL_SCRIPT in text, f"{name} documenta version local desplegada")
 
     require(
         "OrderIdempotency.gs" in app_readme,

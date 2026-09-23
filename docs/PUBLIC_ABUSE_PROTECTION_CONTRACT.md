@@ -1,6 +1,6 @@
 # Contrato de protección anti-abuso público
 
-Estado: candidato local no desplegado.
+Estado: desplegado en PUBLIC V1.18.0.
 
 ## Objetivo
 
@@ -19,11 +19,11 @@ No cubre operaciones sin efectos:
 
 ## Autoridad
 
-La versión LIVE continúa siendo:
+La versión LIVE actual es:
 
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
-El candidato local W8 es:
+W8 forma parte del backend productivo:
 
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
@@ -151,5 +151,5 @@ La certificación W8 debe cubrir sin Drive/Mail reales:
 
 ## Regla de despliegue
 
-W8 permanece local hasta autorización explícita. Push y deploy son operaciones
+W8 está desplegado dentro de PUBLIC V1.18.0. Push y deploy son operaciones
 separadas y ninguna está autorizada por este contrato.

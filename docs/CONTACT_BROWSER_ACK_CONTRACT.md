@@ -1,6 +1,6 @@
 # Contrato de ACK causal de contacto
 
-Estado: candidato local no desplegado.
+Estado: desplegado en PUBLIC V1.18.0.
 
 ## Objetivo
 
@@ -99,13 +99,13 @@ para revisión.
 
 ## Versiones
 
-LIVE continúa en
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
+LIVE está en
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 
-El candidato local W9 es
+W9 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
 
 Un commit o push no modifica la autoridad LIVE ni autoriza despliegue.
 
-El candidato local actual W10 conserva W9 en
+El backend productivo actual W10 conserva W9 en
 TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.

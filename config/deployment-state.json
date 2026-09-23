@@ -8,11 +8,11 @@
   "production": {
     "service": "Takara Pedidos Web",
     "service_version": "TAKARA_PEDIDO_WEB_V2",
-    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1",
+    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
     "status": "online"
   },
   "local": {
     "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
-    "status": "candidate_not_deployed"
+    "status": "deployed"
   }
 }

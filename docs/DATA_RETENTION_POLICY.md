@@ -1,6 +1,6 @@
 # Política de retención de datos
 
-Estado: candidato local no desplegado.
+Estado: desplegado en PUBLIC V1.18.0.
 
 ## Objetivo
 
@@ -94,8 +94,8 @@ forma parte del procesamiento normal de pedidos, contacto o Store público.
 
 ## Versiones
 
-LIVE permanece en
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1.
+LIVE está en
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.
 
-El candidato local W10 es
+El backend productivo W10 es
 TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.

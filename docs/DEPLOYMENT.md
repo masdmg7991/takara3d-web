@@ -20,12 +20,12 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Endpoint authority: `assets/js/takara-config.js`.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
-- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1`.
-- Script local candidato: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
 - Estado observado por GET: `online`.
 - Última verificación live registrada: `2026-09-23`.
 
-Producción continúa en V1.14.3. El código local V1.18.0 incorpora gobierno de retención W10 y es un candidato no desplegado; un commit o push no cambia esa autoridad LIVE.
+Producción PUBLIC está en V1.18.0. El código local V1.18.0 coincide con el backend PUBLIC desplegado; un commit o push no cambia esa autoridad LIVE.
 
 ## Contratos activos
 
@@ -34,8 +34,8 @@ Producción continúa en V1.14.3. El código local V1.18.0 incorpora gobierno de
 - `TAKARA_PEDIDO_WEB_V2`
 - `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`
 - `TAKARA_ORDER_BROWSER_POSTMESSAGE_V1`
-- `TAKARA_ORDER_IDEMPOTENCY_V1` (candidato local, no desplegado)
-- `TAKARA_PUBLIC_ABUSE_GUARD_V1` (candidato local, no desplegado)
+- `TAKARA_ORDER_IDEMPOTENCY_V1` (desplegado en PUBLIC)
+- `TAKARA_PUBLIC_ABUSE_GUARD_V1` (desplegado en PUBLIC)
 - `TAKARA_STORE_CONTEXT_V1`
 
 El backend mantiene la compatibilidad V1 deliberada que todavía tenga consumidor

@@ -32,7 +32,7 @@ PAYLOAD_V2 = "TAKARA_WEB_ORDER_PAYLOAD_V2"
 SNAPSHOT_V2 = "TAKARA_ORDER_SNAPSHOT_V2"
 EMAIL_V2 = "TAKARA_PEDIDO_WEB_V2"
 BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
-LIVE_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_14_3_ORDER_BROWSER_ACK_V1"
+LIVE_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
 POSTAL_VERSION = "TAKARA_POSTAL_NATIONAL_V1_2026_08_03"
 SNAPSHOT = "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03"
 EXPECTED_FREE = ["28911", "28912", "28913", "28915", "28916", "28918", "28919"]
@@ -286,18 +286,18 @@ def validate_docs() -> None:
     deployment_state = json.loads(read_utf8(DEPLOYMENT_STATE))
     require(
         deployment_state.get("production", {}).get("script_version") == LIVE_BACKEND,
-        "Estado mecanico conserva backend LIVE V1.14.3",
+        "Estado mecanico confirma backend LIVE V1.18.0",
     )
     require(
         deployment_state.get("local", {}).get("script_version") == BACKEND,
-        "Estado mecanico fija candidato local V1.18.0",
+        "Estado mecanico fija local V1.18.0",
     )
     require(
         deployment_state.get("endpoint_authority") == "assets/js/takara-config.js",
         "Estado mecanico fija autoridad canonica del endpoint",
     )
-    require(LIVE_BACKEND in deployment, "DEPLOYMENT documenta backend LIVE V1.14.3")
-    require(BACKEND in deployment, "DEPLOYMENT documenta candidato local V1.18.0")
+    require(LIVE_BACKEND in deployment, "DEPLOYMENT documenta backend LIVE V1.18.0")
+    require(BACKEND in deployment, "DEPLOYMENT documenta local V1.18.0")
     require(
         "respuesta GET del" in deployment
         and "endpoint productivo" in deployment
