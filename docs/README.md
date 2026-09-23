@@ -12,6 +12,9 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | Arquitectura global | `ARCHITECTURE.md` | Capas, límites y evolución técnica |
 | Sistema visual | `DESIGN_SYSTEM.md` | Tokens, componentes y reglas visuales |
 | Pedido web | `ORDER_ENGINE_CONTRACT.md` | Payload, validación, precio, entrega y correo |
+| Idempotencia de pedido | `ORDER_IDEMPOTENCY_CONTRACT.md` | Ledger, fases, concurrencia, retry y recuperación manual |
+| Personalización de marco | `FRAME_TEXT_CONTRACT.md` | Geometría, lados, color, precio y contrato del texto del marco |
+| Protección anti-abuso | `PUBLIC_ABUSE_PROTECTION_CONTRACT.md` | Cuota, rate limits, honeypot y protección de efectos públicos |
 | ACK de contacto | `CONTACT_BROWSER_ACK_CONTRACT.md` | Confirmación causal, request_id e idempotencia de contacto |
 | Preview | `PREVIEW_ENGINE_CONTRACT.md` | Motor y contrato del preview |
 | Store | `STORE_SYSTEM_CONTRACT.md` | Registry, QR, contexto y atribución |
@@ -22,6 +25,7 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | Retención de datos | `DATA_RETENTION_POLICY.md` | Ciclo de vida, snapshots y límites de borrado |
 | Quality Gate | `QUALITY_GATE.md` | Qué valida y qué bloquea |
 | Limpieza | `CLEANUP_POLICY.md` | Higiene y cierre de fases |
+| Assets públicos | `ASSET_POLICY.md` | Consumidores web, peso, dimensiones y conservación de originales |
 | Repo público | `PUBLIC_REPO_POLICY.md` | Qué puede y qué no puede publicarse |
 | Gobierno GitHub | `GITHUB_GOVERNANCE.md` | PR, CI y protección objetivo de `main` |
 | Decisiones vigentes | `DECISIONES_TECNICAS.md` | Decisiones aún aplicables |

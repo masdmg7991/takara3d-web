@@ -172,7 +172,8 @@ $RequiredFiles = @(
     "tools/takara_validar_datos_estructurados.py",
     "tools/takara_validar_web_hygiene.py",
     "tools/takara_validar_assets.py",
-    "docs/ASSET_POLICY.md"
+    "docs/ASSET_POLICY.md",
+    "tools/takara_validar_documentation_map.py"
 )
 
 foreach ($File in $RequiredFiles) {
@@ -644,6 +645,16 @@ if (Test-Path "tools/takara_validar_web_hygiene.py") {
     }
 } else {
     Err "No existe tools/takara_validar_web_hygiene.py"
+}
+
+if (Test-Path "tools/takara_validar_documentation_map.py") {
+    Log-Line ""
+    Log-Line "[RUN] py tools/takara_validar_documentation_map.py"
+    py tools/takara_validar_documentation_map.py 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Mapa de autoridad documental validado" }
+    else { Err "Fallo takara_validar_documentation_map.py" }
+} else {
+    Err "No existe tools/takara_validar_documentation_map.py"
 }
 
 if (Test-Path "tools/takara_validar_assets.py") {
