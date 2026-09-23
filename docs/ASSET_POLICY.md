@@ -1,26 +1,30 @@
-# Pol?tica de assets p?blicos
+# Política de assets públicos
 
-El repositorio p?blico contiene **assets de entrega**, no un archivo hist?rico
-de originales de dise?o.
+El repositorio público contiene **assets de entrega**, no un archivo histórico
+de originales de diseño.
 
 ## Reglas
 
-1. Un asset pesado debe tener un consumidor verificable en HTML, CSS, JavaScript
-   o documentaci?n t?cnica necesaria.
+1. Un asset pesado público debe tener un consumidor verificable de runtime web:
+   HTML, CSS, JavaScript, JSON o XML. Una mención documental o de test no basta
+   para justificar que el binario permanezca en `assets/`.
 2. Los masters, comparativas de trabajo, renders descartados y backups viven
    fuera del repositorio.
-3. No se recomprime un asset usado s?lo para reducir bytes sin comprobar
-   calidad visual y dimensiones.
-4. Para fotograf?as p?blicas se prefiere WebP cuando no se pierde calidad
+3. No se recomprime un asset usado sólo para reducir bytes sin comprobar
+   calidad visual, dimensiones y semántica de color/transparencia.
+4. Para fotografías públicas se prefiere WebP cuando no se pierde calidad
    relevante ni compatibilidad necesaria.
-5. Los nombres deben describir el uso, no la sesi?n o fase que los cre?.
-6. El Quality Gate bloquea im?genes grandes sin referencias conocidas.
+5. Los nombres deben describir el uso, no la sesión o fase que los creó.
+6. El Quality Gate bloquea imágenes grandes sin consumidores web reales.
+7. Las imágenes locales con `src` literal en HTML declaran `width` y `height`
+   intrínsecos para reservar su relación de aspecto antes de completar la carga.
+8. Las imágenes fuera del primer viewport deben usar carga diferida cuando no
+   afecte al comportamiento o a la experiencia prevista.
 
 ## Umbrales
 
-- A partir de 200 KiB, una imagen debe tener al menos un consumidor textual
-  detectable dentro del repositorio.
-- Ning?n asset individual debe superar 2,5 MB sin una decisi?n t?cnica
+- A partir de 200 KiB, una imagen debe tener al menos un consumidor web real.
+- Ningún asset individual debe superar 2,5 MB sin una decisión técnica
   documentada.
 
 Los originales retirados del repo se conservan, cuando sea necesario, en el
