@@ -681,8 +681,9 @@
       "use strict";
 
       const UI_VERSION = "TAKARA_STORE_ADMIN_UI_V1";
-      const STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s=";
+      const STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/";
       const STORE_PUBLIC_CODE_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
+      const STORE_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
       const STORE_QR_SIZE = 37;
       const STORE_QR_DATA_CODEWORDS = 108;
       const STORE_QR_EC_CODEWORDS = 26;
@@ -724,12 +725,46 @@
           : String(value);
       }
 
-      function buildStorePublicUrl(storePublicCode) {
-        const code = String(storePublicCode || "").trim();
-        if (!STORE_PUBLIC_CODE_PATTERN.test(code)) {
-          throw new Error("STORE_PUBLIC_CODE_INVALID");
+      function normalizeStoreSlug(value) {
+        return String(value || "").trim().toLowerCase();
+      }
+
+      function slugifyPreviewStoreName(value) {
+        let slug = String(value || "").trim();
+        if (typeof slug.normalize === "function") slug = slug.normalize("NFD");
+        slug = slug
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 64)
+          .replace(/-+$/g, "");
+        return slug || "tienda";
+      }
+
+      function buildPreviewStoreSlug(displayName, stores) {
+        const base = slugifyPreviewStoreName(displayName);
+        const used = new Set(
+          (stores || []).map(function (store) {
+            return normalizeStoreSlug(store.store_slug);
+          }).filter(Boolean)
+        );
+        if (!used.has(base)) return base;
+        for (let ordinal = 2; ordinal <= 9999; ordinal += 1) {
+          const suffix = "-" + String(ordinal);
+          const prefix = base.slice(0, 64 - suffix.length).replace(/-+$/g, "");
+          const candidate = (prefix || "tienda") + suffix;
+          if (!used.has(candidate)) return candidate;
         }
-        return STORE_PUBLIC_URL_PREFIX + encodeURIComponent(code);
+        throw new Error("STORE_SLUG_EXHAUSTED");
+      }
+
+      function buildStorePublicUrl(storeSlug) {
+        const slug = normalizeStoreSlug(storeSlug);
+        if (!STORE_SLUG_PATTERN.test(slug)) {
+          throw new Error("STORE_SLUG_INVALID");
+        }
+        return STORE_PUBLIC_URL_PREFIX + encodeURIComponent(slug);
       }
 
       function qrGfMultiply(left, right) {
@@ -1326,6 +1361,10 @@
                 store_id: id,
                 store_public_code:
                   "st_PREVIEW_" + id.replace("STO_", "") + "_LOCAL_ONLY",
+                store_slug: buildPreviewStoreSlug(
+                  input && input.display_name,
+                  preview.stores
+                ),
                 status: "ACTIVE",
                 created_at: now,
                 updated_at: now,
@@ -1898,7 +1937,7 @@
         head.appendChild(actions);
         els.detail.appendChild(head);
 
-        const storeUrl = buildStorePublicUrl(store.store_public_code);
+        const storeUrl = buildStorePublicUrl(store.store_slug);
         const publicAccess = createNode("section", "store-public-access");
         const publicInfo = createNode("div");
         publicInfo.appendChild(createNode("h3", "", "Acceso público de la tienda"));

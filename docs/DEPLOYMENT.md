@@ -21,11 +21,11 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
 - Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
-- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+- Script local candidate: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` (no desplegado).
 - Estado observado por GET: `online`.
 - Última verificación live registrada: `2026-09-23`.
 
-Producción PUBLIC está en V1.18.0. El código local V1.18.0 coincide con el backend PUBLIC desplegado; un commit o push no cambia esa autoridad LIVE.
+Producción PUBLIC continúa en V1.18.0. El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` todavía no está desplegado; un commit o push no cambia esa autoridad LIVE.
 
 ## Contratos activos
 
@@ -64,12 +64,20 @@ Para Admin:
 
 ## Store
 
-El QR canónico de Store es:
+QR canónico nuevo:
 
-`https://takara3d.es/tienda/?s=<store_public_code>`
+https://takara3d.es/tienda/<store_slug>
 
-Store Public usa el endpoint definido por `assets/js/takara-config.js` y resuelve
-la identidad mediante el Registry autoritativo. `store_id` no forma parte del QR.
+La entrada V1 https://takara3d.es/tienda/?s=<store_public_code> permanece operativa
+para no romper enlaces o QR emitidos.
+
+GitHub Pages no ofrece rewrites dinámicos. 404.html actúa únicamente para paths
+/tienda/<store_slug> canónicos y los lleva al bootstrap interno por slug; el cliente
+restaura la URL bonita después de resolver. No se crea HTML ni deploy por Store.
+
+Store Public usa el endpoint de assets/js/takara-config.js. Backend resuelve slug o
+store_public_code legacy contra el mismo Registry y devuelve el store_ref canónico.
+store_id nunca forma parte del QR.
 
 ## Regla de promoción
 

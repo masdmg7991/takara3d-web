@@ -22,11 +22,7 @@ function createStoreRuntime_(input) {
   );
 }
 
-function resolveStoreContextRuntime_(storePublicCode) {
-  const context = resolveStoreContextService_(
-    getStoreRuntimeRepository_(),
-    storePublicCode
-  );
+function decorateStoreContextBranding_(context) {
   let branding = buildDefaultStoreBrandingPublic_();
   try {
     branding = resolveStoreBrandingPublicService_(
@@ -39,6 +35,24 @@ function resolveStoreContextRuntime_(storePublicCode) {
   return Object.freeze(Object.assign({}, context, {
     branding: branding,
   }));
+}
+
+function resolveStoreContextRuntime_(storePublicCode) {
+  return decorateStoreContextBranding_(
+    resolveStoreContextService_(
+      getStoreRuntimeRepository_(),
+      storePublicCode
+    )
+  );
+}
+
+function resolveStoreContextBySlugRuntime_(storeSlug) {
+  return decorateStoreContextBranding_(
+    resolveStoreContextBySlugService_(
+      getStoreRuntimeRepository_(),
+      storeSlug
+    )
+  );
 }
 
 function resolveStoreOrderIdentityRuntime_(storePublicCode) {

@@ -314,7 +314,7 @@ La frontera activa del pedido es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
+- Apps Script local candidato no desplegado: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`;
 - Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 

@@ -1,5 +1,7 @@
 # Store Public SystemScenario V1
 
+> Nota histórica — baseline F2/V1. Este documento conserva la certificación histórica de Store Public V1. El contrato vigente usa Store URL V2 /tienda/<store_slug> y mantiene V1 como compatibilidad. La autoridad actual está en STORE_SYSTEM_CONTRACT.md.
+
 F2D valida el flujo horizontal de Store Public sin introducir una autoridad
 nueva:
 

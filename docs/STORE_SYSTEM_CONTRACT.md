@@ -1,7 +1,7 @@
 # TAKARA STORE SYSTEM CONTRACT
 
 Version: `TAKARA_STORE_SYSTEM_CONTRACT_V1`
-Estado: FROZEN STORE-F0
+Estado: FROZEN STORE-F0 + ADDENDA V2
 Fecha de freeze: 2026-08-29
 
 ## 1. Frontera de capacidad
@@ -20,7 +20,9 @@ Product QR:
 Store QR:
 - vive en el expositor del establecimiento colaborador;
 - abre el Store Channel;
-- identifica una Store mediante `store_public_code`;
+- V2 expone `store_slug` como identidad de URL legible;
+- backend resuelve ese slug al `store_public_code`/`store_ref` canónico;
+- V1 por `store_public_code` permanece como compatibilidad;
 - inicia un flujo de pedido cerrado y atribuible;
 - no reutiliza identificadores ni contratos Product QR.
 
@@ -28,26 +30,31 @@ Store QR:
 
 ### `store_id`
 
-Identidad interna:
-- unica;
-- inmutable;
-- no reciclable;
-- formato logico `STO_*`.
+Identidad interna, única, inmutable, no reciclable y con formato lógico STO_*.
 
 ### `store_public_code`
 
-Identidad publica del Store QR:
-- unica;
+Identidad pública canónica de backend:
+- única;
 - aleatoria/opaca;
 - inmutable;
 - no secreta;
 - independiente del nombre comercial.
 
-Cambiar `display_name` nunca obliga a reimprimir el Store QR.
+### `store_slug`
+
+Identificador público de URL V2:
+- único dentro del Registry;
+- derivado inicialmente de display_name;
+- ASCII, minúsculas y guiones;
+- inmutable una vez asignado;
+- no sustituye store_public_code como identidad canónica de backend;
+- una colisión recibe sufijo determinista -2, -3, etc.
 
 ### `display_name`
 
-Nombre comercial visible y editable.
+Nombre comercial visible y editable. Cambiarlo no rota store_slug,
+store_public_code ni QR.
 
 ## 3. Estado Store
 
@@ -65,17 +72,25 @@ Una Store `INACTIVE`:
 
 ## 4. Ruta publica Store
 
-Ruta V1 congelada:
+Ruta canónica V2:
 
-`https://takara3d.es/tienda/?s=<store_public_code>`
+https://takara3d.es/tienda/<store_slug>
 
-La ruta:
-- usa una unica plantilla fisica;
-- no requiere HTML por tienda;
-- no requiere deploy por alta;
-- no depende de un slug mutable;
-- debe usar `noindex,nofollow,noarchive`;
-- no ofrece navegacion al catalogo general.
+Compatibilidad V1:
+
+https://takara3d.es/tienda/?s=<store_public_code>
+
+Reglas:
+- una única plantilla física /tienda/index.html;
+- ninguna Store genera HTML propio;
+- ninguna alta requiere deploy web;
+- GitHub Pages usa un bridge 404 limitado a /tienda/<store_slug>;
+- el bridge sólo acepta slug canónico sin query/hash y salta al bootstrap interno /tienda/?slug=<store_slug>;
+- tras resolver, history.replaceState restaura la URL bonita;
+- store_slug es inmutable y no se recalcula al renombrar;
+- V1 permanece funcional para QR/enlaces ya emitidos;
+- la superficie usa noindex,nofollow,noarchive;
+- no ofrece navegación al catálogo general.
 
 ## 5. Store Context
 
@@ -83,9 +98,11 @@ Contrato:
 
 `TAKARA_STORE_CONTEXT_V1`
 
-El navegador transporta `store_ref`.
+La entrada pública puede transportar store_slug V2 o store_ref V1.
+Backend resuelve ambos contra el mismo Registry y el Store Context devuelve
+siempre el store_ref canónico.
 
-El navegador no es autoridad de `store_id`.
+El navegador no es autoridad de store_id.
 
 ## 6. Atribucion de pedido
 
@@ -121,15 +138,23 @@ Autoridad logica unica:
 
 `TAKARA_STORE_REGISTRY_V1`
 
-Persistencia fisica V1:
+Persistencia fisica de la autoridad V1:
 
 Google Spreadsheet dedicado.
+
+Compatibilidad de esquema:
+- lectura acepta el esquema legacy de 16 columnas y el esquema actual de 17 columnas;
+- el esquema actual añade `store_slug`;
+- una mutación sobre un Registry legacy migra 16→17 bajo el mismo write lock;
+- la migración preserva los 16 campos existentes y asigna slugs de forma determinista;
+- `TAKARA_STORE_REGISTRY_V1` sigue identificando la autoridad lógica, no el ancho físico de la hoja.
 
 Reglas:
 - acceso mediante Store Service/Admin;
 - no editar manualmente como flujo operativo normal;
 - unicidad de `store_id`;
 - unicidad de `store_public_code`;
+- unicidad de `store_slug`;
 - control de `version`;
 - timestamps;
 - baja logica;
@@ -147,11 +172,16 @@ La mutacion debe adquirir el lock antes de leer-modificar-escribir.
 
 Se reutiliza el Google Apps Script ligero ya existente como adapter backend.
 
-Lectura publica conceptual:
+Lectura pública V2:
 
-`GET .../exec?action=store_public&ref=<store_public_code>`
+GET .../exec?action=store.resolve&store_slug=<store_slug>
 
-Solo devuelve una proyeccion publica sanitizada.
+Compatibilidad V1:
+
+GET .../exec?action=store.resolve&store_ref=<store_public_code>
+
+Ambas rutas devuelven sólo una proyección pública sanitizada y convergen en el mismo
+Store Registry. No existe una segunda autoridad por slug.
 
 No expone:
 - notas internas;
@@ -195,14 +225,15 @@ Admin Store:
 
 Los logs tecnicos/security no son Analytics comercial.
 
-## 12. Topologia V1
+## 12. Topologia vigente — V2 con compatibilidad V1
 
 ```text
 takara3d.es
     |
     +-- GitHub Pages
     |      |
-    |      +-- /tienda/?s=<store_public_code>
+    |      +-- /tienda/<store_slug>            [canónica V2]
+    |      +-- /tienda/?s=<store_public_code> [legacy V1]
     |
     +-- Google Apps Script
            |
@@ -216,7 +247,7 @@ takara3d.es
              TAKARA_STORE_REGISTRY_V1
 ```
 
-No se requiere en V1:
+Para la topologia vigente no se requiere:
 - migrar DNS;
 - Cloudflare Worker;
 - D1;
@@ -259,6 +290,7 @@ Debe mantenerse:
 Si Apps Script/Spreadsheet deja de ser suficiente, se cambia el adapter fisico sin cambiar:
 - `store_id`;
 - `store_public_code`;
+- `store_slug`;
 - `TAKARA_STORE_CONTEXT_V1`;
 - `TAKARA_STORE_ATTRIBUTION_V1`;
 - semantica `ACTIVE/INACTIVE`;
@@ -266,7 +298,8 @@ Si Apps Script/Spreadsheet deja de ser suficiente, se cambia el adapter fisico s
 
 ## 16. Addendum Store Web V2 — superficie unica de pedido
 
-Este addendum no reescribe el freeze historico STORE-F0 ni cambia las identidades o autoridades V1.
+Este addendum no reescribe el freeze historico STORE-F0 ni sustituye las autoridades V1.
+Añade `store_slug` como identificador de URL V2 estable, resuelto siempre contra la misma autoridad Store.
 
 Invariante de presentacion:
 
@@ -274,7 +307,7 @@ Invariante de presentacion:
 
 Reglas:
 - `/pedido.html` es la unica superficie fisica y autoridad del formulario de pedido;
-- Store reutiliza ese mismo documento en `/tienda/?s=<store_public_code>` y no mantiene una copia del formulario;
+- Store reutiliza ese mismo documento desde `/tienda/<store_slug>` y conserva `/tienda/?s=<store_public_code>` únicamente como entrada legacy, sin mantener una copia del formulario;
 - preview, catalogo/pricing, personalizacion, entrega, validacion y submit permanecen compartidos;
 - Store solo aporta resolucion fail-closed, `display_name`, presentacion white-label y `TAKARA_STORE_CONTEXT_V1` verificado;
 - el consentimiento opcional `autoriza_publicacion_resultado` pertenece a la superficie compartida y debe permanecer disponible tanto en DIRECT como en STORE;

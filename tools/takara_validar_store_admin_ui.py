@@ -97,12 +97,12 @@ def main() -> int:
         "UI no inyecta Store data con innerHTML",
     )
     require(
-        'STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s="' in ui,
+        'STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/"' in ui,
         "Admin conserva URL pública Store canónica",
     )
     require(
-        "buildStorePublicUrl(store.store_public_code)" in ui,
-        "Admin deriva URL pública desde store_public_code",
+        "buildStorePublicUrl(store.store_slug)" in ui,
+        "Admin deriva URL pública desde store_slug",
     )
     require(
         "buildStorePublicUrl(store.store_id)" not in ui,

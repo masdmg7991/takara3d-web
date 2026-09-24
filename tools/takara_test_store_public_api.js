@@ -46,6 +46,19 @@ const context = {
     }
     throw new Error("secret backend detail");
   },
+  resolveStoreContextBySlugRuntime_(storeSlug) {
+    if (storeSlug === "foto-garcia") {
+      return {
+        version: "TAKARA_STORE_CONTEXT_V1",
+        store_ref: "st_123456789012345678901234",
+        display_name: "Foto García",
+        status: "ACTIVE",
+      };
+    }
+    const error = new Error("missing");
+    error.code = "STORE_NOT_FOUND";
+    throw error;
+  },
 };
 
 vm.createContext(context);
@@ -77,6 +90,18 @@ function request(storeRef, extra = {}) {
       {
         action: "store.resolve",
         store_ref: storeRef,
+      },
+      extra
+    ),
+  };
+}
+
+function slugRequest(storeSlug, extra = {}) {
+  return {
+    parameter: Object.assign(
+      {
+        action: "store.resolve",
+        store_slug: storeSlug,
       },
       extra
     ),
@@ -122,6 +147,55 @@ ok(
   !Object.prototype.hasOwnProperty.call(success.store_context, "store_id"),
   "public response excludes store_id"
 );
+
+const slugSuccess = context.resolveStorePublicApi_(slugRequest("foto-garcia"));
+ok(slugSuccess.ok === true, "active Store resolves by slug");
+ok(
+  slugSuccess.store_context.store_ref === "st_123456789012345678901234",
+  "slug resolution returns opaque canonical store_ref"
+);
+const conflict = context.resolveStorePublicApi_(
+  request("st_123456789012345678901234", { store_slug: "foto-garcia" })
+);
+ok(conflict.ok === false, "ref plus slug fails closed");
+ok(
+  conflict.error.code === "STORE_PUBLIC_LOOKUP_CONFLICT",
+  "ref plus slug conflict code"
+);
+
+const duplicateSlug = context.resolveStorePublicApi_({
+  parameter: {
+    action: "store.resolve",
+    store_slug: "foto-garcia",
+  },
+  parameters: {
+    store_slug: ["foto-garcia", "foto-garcia-2"],
+  },
+});
+ok(duplicateSlug.ok === false, "duplicate slug fails closed");
+ok(
+  duplicateSlug.error.code === "STORE_PUBLIC_LOOKUP_CONFLICT",
+  "duplicate slug conflict code"
+);
+
+const duplicateRef = context.resolveStorePublicApi_({
+  parameter: {
+    action: "store.resolve",
+    store_ref: "st_123456789012345678901234",
+  },
+  parameters: {
+    store_ref: [
+      "st_123456789012345678901234",
+      "st_abcdefghijklmnopqrstuvwx",
+    ],
+  },
+});
+ok(duplicateRef.ok === false, "duplicate ref fails closed");
+ok(
+  duplicateRef.error.code === "STORE_PUBLIC_LOOKUP_CONFLICT",
+  "duplicate ref conflict code"
+);
+
 ok(
   JSON.stringify(success).indexOf("STO_INJECTED") === -1,
   "client cannot inject store_id"
@@ -136,8 +210,8 @@ const missingRef = context.resolveStorePublicApi_({
 });
 ok(missingRef.ok === false, "missing store_ref fails");
 ok(
-  missingRef.error.code === "STORE_PUBLIC_REF_REQUIRED",
-  "missing store_ref error code"
+  missingRef.error.code === "STORE_PUBLIC_LOOKUP_REQUIRED",
+  "missing Store lookup error code"
 );
 
 const badAction = context.resolveStorePublicApi_({

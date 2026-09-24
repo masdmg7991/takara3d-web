@@ -63,8 +63,9 @@ en GitHub no promociona automáticamente el backend.
 
 ### 3.1 Superficie pública
 
-index.html, productos.html, pedido.html, contacto.html, qr/ y tienda/ son entradas
-estáticas e indexables.
+index.html, productos.html, pedido.html, contacto.html y qr/ son entradas
+públicas estáticas. tienda/ también es estática, pero la superficie Store se sirve
+con noindex,nofollow,noarchive y no se considera una página indexable.
 
 Responsabilidades:
 
@@ -107,22 +108,29 @@ Store es independiente del QR de producto:
 
 **PRODUCT_QR != STORE_QR**
 
-assets/js/takara-store-public.js resuelve la experiencia desde
-/tienda/?s=<store_public_code>.
+assets/js/takara-store-public.js resuelve la entrada canónica desde
+/tienda/<store_slug>. La entrada V1 /tienda/?s=<store_public_code> se conserva
+para enlaces y QR ya emitidos.
 
 Invariantes:
 
 - store_id es interno;
-- store_public_code es público, opaco e inmutable;
-- una referencia inválida o inactiva falla cerrada;
+- store_public_code es público, opaco, inmutable y sigue siendo identidad canónica de backend;
+- store_slug es público, legible, único e inmutable una vez asignado;
+- display_name puede cambiar sin rotar slug, código público ni QR;
+- una referencia o slug inválido/inactivo falla cerrada;
 - el navegador no decide la identidad Store;
 - la atribución permanece explícita hasta backend.
 
-## Store QR URL Contract V1
+## Store QR URL Contract V2
 
 **PRODUCT_QR != STORE_QR**
 
-El QR físico de Store usa exclusivamente:
+URL canónica para QR nuevos:
+
+https://takara3d.es/tienda/<store_slug>
+
+Compatibilidad V1 permanente:
 
 https://takara3d.es/tienda/?s=<store_public_code>
 
@@ -130,15 +138,19 @@ Reglas:
 
 - HTTPS obligatorio;
 - host canónico takara3d.es;
-- ruta /tienda/;
-- un único parámetro s;
-- sin hash ni parámetros auxiliares;
+- V2 no admite query, hash, credenciales ni puerto explícito;
+- store_slug se genera al crear la Store y es único e inmutable;
 - `store_id` nunca forma parte del Store QR;
-- store_public_code es opaco, público, inmutable y no secuencial;
+- store_public_code sigue siendo opaco, público, inmutable y no secuencial;
+- GitHub Pages usa 404.html sólo como bridge de /tienda/<store_slug> al bootstrap interno por slug;
+- el cliente restaura la URL bonita después de resolver;
+- V1 continúa resolviendo para no romper QR existentes;
 - `/qr` pertenece al Product QR y no es una ruta válida del Store QR;
 - Store Registry sigue siendo la autoridad de identidad y estado.
 
-Resolver un código Store no convierte al navegador en autoridad de identidad.
+Resolver un slug no convierte al navegador en autoridad: backend lo resuelve contra
+Registry y devuelve el store_ref canónico.
+
 ### 3.5 Backend Apps Script
 
 apps-script/takara-pedidos-web/ está dividido por responsabilidad. Code.gs compone y
@@ -225,11 +237,11 @@ una segunda fuente de verdad. Si no puede verificarse mecánicamente, se conside
 
 ### Store
 
-1. El QR aporta store_public_code.
-2. Backend lo resuelve contra Registry.
-3. Estado e identidad proceden de la autoridad Store.
+1. El QR V2 aporta store_slug; un QR/enlace V1 legacy puede aportar store_public_code.
+2. Backend resuelve cualquiera de las dos entradas contra el mismo Registry y obtiene la identidad canónica Store.
+3. Estado e identidad proceden de la autoridad Store; el navegador nunca decide store_id.
 4. Sólo un Store válido y activo alimenta contexto y branding.
-5. El pedido conserva atribución explícita hasta backend.
+5. El pedido conserva atribución explícita mediante store_ref hasta backend.
 
 ## 6. Invariantes de seguridad y robustez
 

@@ -188,6 +188,42 @@ ok(
 );
 ok(copiedStores.frozenRows === 1, "snapshot freezes Store header");
 
+// Current 17-column Registry snapshot preserves immutable Store slug.
+const currentHeaders = headers.concat("store_slug");
+const currentStores = new FakeSheet("stores", [
+  currentHeaders,
+  [
+    "STO_000001", "st_AAAAAAAAAAAAAAAAAAAAAAAA", "ACTIVE",
+    "2026-09-01", "2026-09-01", "", 1, "Foto García", "Ana",
+    "ana@example.test", "600000001", "Calle Uno", "28001", "Madrid",
+    "Madrid", "", "foto-garcia",
+  ],
+]);
+const currentSnapshotStores = new FakeSheet("stores", []);
+const currentRows = context.copyStoreRegistrySheetToSnapshot_(
+  currentStores,
+  currentSnapshotStores,
+  context.storeRegistrySchemaHeaders_(currentStores),
+  context.assertStoreRegistrySchema_
+);
+ok(currentRows === 1, "current snapshot reports one Store row");
+ok(
+  currentSnapshotStores.getLastColumn() === 17,
+  "current snapshot preserves 17-column Registry width"
+);
+ok(
+  JSON.stringify(currentSnapshotStores.rows) === JSON.stringify(currentStores.rows),
+  "current snapshot preserves Store slug and all Registry values"
+);
+ok(
+  currentSnapshotStores.rows[1][16] === "foto-garcia",
+  "current snapshot preserves immutable store_slug"
+);
+ok(
+  currentSnapshotStores.frozenRows === 1,
+  "current snapshot freezes Store header"
+);
+
 const copiedBranding = snapshot.getSheetByName("store_branding");
 ok(Boolean(copiedBranding), "snapshot contains store_branding when present");
 ok(

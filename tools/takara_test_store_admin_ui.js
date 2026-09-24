@@ -175,17 +175,67 @@ ok(
   "F4C read foundation remains under F4D"
 );
 ok(
-  html.includes('STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/?s="'),
+  html.includes('STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/"'),
   "Admin derives canonical Store public URL"
 );
 ok(
-  html.includes("buildStorePublicUrl(store.store_public_code)"),
-  "Admin public URL derives from store_public_code"
+  html.includes("buildStorePublicUrl(store.store_slug)"),
+  "Admin public URL derives from immutable store_slug"
 );
 ok(
   !html.includes("buildStorePublicUrl(store.store_id)"),
   "Admin never builds public URL from store_id"
 );
+
+const slugSourceStart = html.indexOf("function normalizeStoreSlug");
+const slugSourceEnd = html.indexOf("function qrGfMultiply");
+ok(
+  slugSourceStart >= 0 && slugSourceEnd > slugSourceStart,
+  "Admin slug helpers are extractable for parity test"
+);
+const slugContext = { String, Set, Error };
+vm.createContext(slugContext);
+vm.runInContext(
+  [
+    'const STORE_PUBLIC_URL_PREFIX = "https://takara3d.es/tienda/";',
+    'const STORE_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;',
+    html.slice(slugSourceStart, slugSourceEnd),
+    "this.slugifyPreviewStoreName = slugifyPreviewStoreName;",
+    "this.buildPreviewStoreSlug = buildPreviewStoreSlug;",
+    "this.buildStorePublicUrl = buildStorePublicUrl;",
+  ].join("\n"),
+  slugContext,
+  { filename: "StoreAdminUi.slug-preview.js" }
+);
+
+ok(
+  slugContext.slugifyPreviewStoreName("Árbol Ñandú") === "arbol-nandu",
+  "Admin preview slug strips accents like backend"
+);
+ok(
+  slugContext.slugifyPreviewStoreName("東京") === "tienda",
+  "Admin preview slug uses same non-ASCII fallback as backend"
+);
+const previewMaxBase = slugContext.buildPreviewStoreSlug("A".repeat(120), []);
+ok(
+  previewMaxBase.length === 64,
+  "Admin preview slug respects 64-character backend limit"
+);
+const previewMaxCollision = slugContext.buildPreviewStoreSlug(
+  "A".repeat(120),
+  [{ store_slug: previewMaxBase }]
+);
+ok(
+  previewMaxCollision.length === 64 &&
+    previewMaxCollision.endsWith("-2"),
+  "Admin preview collision suffix stays inside backend limit"
+);
+const maxPrettyUrl = slugContext.buildStorePublicUrl("a".repeat(64));
+ok(
+  maxPrettyUrl === "https://takara3d.es/tienda/" + "a".repeat(64),
+  "Admin builds maximum canonical V2 Store URL"
+);
+
 ok(html.includes("renderStoreQrCanvas("), "Admin renders local QR from canonical URL");
 ok(html.includes("Abrir tienda"), "Admin exposes open Store action");
 ok(html.includes("Copiar enlace"), "Admin exposes copy Store URL action");
@@ -248,6 +298,16 @@ const qrFingerprint = crypto
 ok(
   qrFingerprint === "272547b03fbafcd2393bbc3486cf5f61a03d73e2899c0ed42f1578fdb0a5b7d9",
   "local QR matches independent Version 5-L reference matrix"
+);
+
+const maxPrettyQrMatrix = qrContext.buildStoreQrMatrix(maxPrettyUrl);
+ok(
+  maxPrettyQrMatrix.length === 37 &&
+    maxPrettyQrMatrix.every((row) =>
+      row.length === 37 &&
+      row.every((value) => typeof value === "boolean")
+    ),
+  "local QR encodes maximum-length V2 Store URL"
 );
 
 ok(html.includes('id="backup"'), "Admin exposes explicit Registry backup action");

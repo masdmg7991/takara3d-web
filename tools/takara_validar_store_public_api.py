@@ -23,11 +23,14 @@ def main() -> int:
         "TAKARA_STORE_PUBLIC_API_V1",
         "store.resolve",
         "isStorePublicResolveRequest_",
-        "getStorePublicRef_",
+        "getStorePublicLookup_",
         "storePublicErrorCode_",
         "resolveStorePublicApi_",
         "resolveStoreContextRuntime_",
-        "STORE_PUBLIC_REF_REQUIRED",
+        "resolveStoreContextBySlugRuntime_",
+        "STORE_PUBLIC_LOOKUP_REQUIRED",
+        "STORE_PUBLIC_LOOKUP_CONFLICT",
+        "STORE_SLUG_INVALID",
         "STORE_PUBLIC_ACTION_INVALID",
         "STORE_RESOLUTION_FAILED",
     ):
@@ -47,19 +50,20 @@ def main() -> int:
         "deactivateStoreRuntime_",
         "deleteStore",
         "store_id",
+        "function getStorePublicRef_",
+        "function getStorePublicSlug_",
     ):
         require(forbidden not in api, f"Public API no posee/incluye {forbidden}")
 
-    require(
-        "TAKARA_STORE_PUBLIC_API_TEST_OK" in test,
-        "Test public API conserva marcador final",
-    )
+    require("TAKARA_STORE_PUBLIC_API_TEST_OK" in test, "Test public API conserva marcador final")
+    require("active Store resolves by slug" in test, "Test cubre resolucion por slug")
+    require("ref plus slug fails closed" in test, "Test cubre lookup ambiguo")
     require("client cannot inject store_id" in test, "Test cubre store_id manipulado")
     require("unexpected backend detail not leaked" in test, "Test cubre no leakage")
     require("STORE_INACTIVE" in test, "Test cubre INACTIVE fail-closed")
     require("STORE_NOT_FOUND" in test, "Test cubre Store inexistente")
 
-    print("[TAKARA_STORE_PUBLIC_API_STATIC_OK] 29 comprobaciones")
+    print("[TAKARA_STORE_PUBLIC_API_STATIC_OK] dual ref+slug")
     return 0
 
 

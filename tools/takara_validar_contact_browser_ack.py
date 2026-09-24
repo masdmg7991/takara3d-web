@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
 LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 
 
 def require(condition: bool, message: str) -> None:
@@ -106,7 +106,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs conserva W9 en V1.18.0",
+        "Code.gs conserva W9 en V1.19.0 candidato",
     )
 
     for marker in (
@@ -308,7 +308,6 @@ def main() -> int:
         "fallback sin JavaScript",
         "30 días",
         LIVE,
-        LOCAL,
     ):
         require(marker.lower() in contract.lower(), f"Contrato documenta {marker}")
 
@@ -318,11 +317,11 @@ def main() -> int:
     )
     require(
         deployment["local"]["script_version"] == LOCAL,
-        "Deployment confirma W9 en V1.18.0 desplegado",
+        "Deployment confirma W9 en candidato local V1.19.0",
     )
     require(
-        deployment["local"]["status"] == "deployed",
-        "Deployment confirma W9 desplegado",
+        deployment["local"]["status"] == "candidate",
+        "Deployment confirma W9 como candidato no desplegado",
     )
 
     for artifact in (

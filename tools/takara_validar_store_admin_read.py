@@ -141,6 +141,7 @@ def main() -> int:
         "contract_version: TAKARA_STORE_ADMIN_READ_VERSION",
         "store_id: assertStoreId_(store.store_id)",
         "store_public_code: assertStorePublicCode_(store.store_public_code)",
+        "store_slug: assertStoreSlug_(store.store_slug)",
         "status: assertStoreStatus_(store.status)",
         "display_name: normalizeStoreDisplayName_(store.display_name)",
         "email: normalizeStoreOptionalText_(store.email, 254)",
@@ -227,8 +228,8 @@ def main() -> int:
         "Sheets adapter implementa listAll",
     )
     require(
-        ".map(storeRowToRecord_)" in sheets,
-        "listAll reutiliza mapping canónico",
+        "storeRowToRecord_(row, headers)" in sheets,
+        "listAll reutiliza mapping canónico compatible con schema",
     )
 
     require(

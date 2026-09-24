@@ -228,7 +228,7 @@ function createBrowser(search, responsePayload) {
   }
 
   const window = {
-    location: { search },
+    location: { search, pathname: "/tienda/", hash: "" },
     crypto: webcrypto,
     setTimeout,
     clearTimeout,

@@ -67,7 +67,7 @@ def main() -> int:
         require(marker in code, f"Health conserva {marker}")
 
     require(
-        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"'
+        'VERSION_SCRIPT: "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"'
         in code,
         "Order backend local candidate version matches V1.18.0 public abuse guard",
     )

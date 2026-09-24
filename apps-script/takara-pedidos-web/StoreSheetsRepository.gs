@@ -11,7 +11,7 @@ const TAKARA_STORE_REGISTRY_SPREADSHEET_PROPERTY =
 const TAKARA_STORE_REGISTRY_SHEET_NAME = "stores";
 const TAKARA_STORE_WRITE_LOCK_TIMEOUT_MS = 10000;
 
-const TAKARA_STORE_REGISTRY_HEADERS = Object.freeze([
+const TAKARA_STORE_REGISTRY_LEGACY_HEADERS = Object.freeze([
   "store_id",
   "store_public_code",
   "status",
@@ -30,6 +30,10 @@ const TAKARA_STORE_REGISTRY_HEADERS = Object.freeze([
   "notes",
 ]);
 
+const TAKARA_STORE_REGISTRY_HEADERS = Object.freeze(
+  TAKARA_STORE_REGISTRY_LEGACY_HEADERS.concat(["store_slug"])
+);
+
 function getStoreRegistrySpreadsheetId_() {
   const value = PropertiesService.getScriptProperties().getProperty(
     TAKARA_STORE_REGISTRY_SPREADSHEET_PROPERTY
@@ -43,6 +47,42 @@ function getStoreRegistrySpreadsheetId_() {
   }
 
   return String(value).trim();
+}
+
+function storeRegistrySchemaHeaders_(sheet) {
+  const lastColumn = sheet.getLastColumn();
+  let expected = null;
+  if (lastColumn === TAKARA_STORE_REGISTRY_LEGACY_HEADERS.length) {
+    expected = TAKARA_STORE_REGISTRY_LEGACY_HEADERS;
+  } else if (lastColumn === TAKARA_STORE_REGISTRY_HEADERS.length) {
+    expected = TAKARA_STORE_REGISTRY_HEADERS;
+  } else {
+    throw storeDomainError_(
+      "STORE_REGISTRY_SCHEMA_INVALID",
+      "Store Registry column count is invalid."
+    );
+  }
+
+  const headers = sheet
+    .getRange(1, 1, 1, expected.length)
+    .getValues()[0]
+    .map(function (value) {
+      return String(value || "").trim();
+    });
+
+  expected.forEach(function (name, index) {
+    if (headers[index] !== name) {
+      throw storeDomainError_(
+        "STORE_REGISTRY_SCHEMA_INVALID",
+        "Store Registry header mismatch at column " + (index + 1) + "."
+      );
+    }
+  });
+  return expected;
+}
+
+function assertStoreRegistrySchema_(sheet) {
+  storeRegistrySchemaHeaders_(sheet);
 }
 
 function openStoreRegistrySheet_() {
@@ -60,74 +100,103 @@ function openStoreRegistrySheet_() {
   return sheet;
 }
 
-function assertStoreRegistrySchema_(sheet) {
-  const lastColumn = sheet.getLastColumn();
-  if (lastColumn !== TAKARA_STORE_REGISTRY_HEADERS.length) {
-    throw storeDomainError_(
-      "STORE_REGISTRY_SCHEMA_INVALID",
-      "Store Registry column count is invalid."
-    );
-  }
-
-  const headers = sheet
-    .getRange(1, 1, 1, TAKARA_STORE_REGISTRY_HEADERS.length)
-    .getValues()[0]
-    .map(function (value) {
-      return String(value || "").trim();
-    });
-
-  TAKARA_STORE_REGISTRY_HEADERS.forEach(function (expected, index) {
-    if (headers[index] !== expected) {
-      throw storeDomainError_(
-        "STORE_REGISTRY_SCHEMA_INVALID",
-        "Store Registry header mismatch at column " + (index + 1) + "."
-      );
-    }
-  });
-}
-
-function storeRecordToRow_(record) {
-  return TAKARA_STORE_REGISTRY_HEADERS.map(function (header) {
+function storeRecordToRow_(record, headers) {
+  const columns = headers || TAKARA_STORE_REGISTRY_HEADERS;
+  return columns.map(function (header) {
     return Object.prototype.hasOwnProperty.call(record, header)
       ? record[header]
       : "";
   });
 }
 
-function storeRowToRecord_(row) {
+function storeRowToRecord_(row, headers) {
+  const columns = headers || TAKARA_STORE_REGISTRY_HEADERS;
   const record = {};
-  TAKARA_STORE_REGISTRY_HEADERS.forEach(function (header, index) {
+  columns.forEach(function (header, index) {
     record[header] = row[index];
   });
   record.version = Number(record.version || 0);
+  if (!Object.prototype.hasOwnProperty.call(record, "store_slug")) {
+    record.store_slug = "";
+  }
   return record;
 }
 
-function findStoreRowByField_(sheet, field, value) {
-  const columnIndex = TAKARA_STORE_REGISTRY_HEADERS.indexOf(field);
-  if (columnIndex < 0) {
-    throw storeDomainError_("STORE_REPOSITORY_FIELD_INVALID", "Unsupported Store field.");
-  }
-
+function readStoreRegistryRecords_(sheet) {
+  const headers = storeRegistrySchemaHeaders_(sheet);
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) {
-    return null;
+  if (lastRow < 2) return [];
+
+  return hydrateStoreSlugs_(
+    sheet
+      .getRange(2, 1, lastRow - 1, headers.length)
+      .getValues()
+      .map(function (row) {
+        return storeRowToRecord_(row, headers);
+      })
+  );
+}
+
+function findStoreRowByField_(sheet, field, value) {
+  if (TAKARA_STORE_REGISTRY_HEADERS.indexOf(field) < 0) {
+    throw storeDomainError_(
+      "STORE_REPOSITORY_FIELD_INVALID",
+      "Unsupported Store field."
+    );
   }
 
-  const values = sheet
-    .getRange(2, 1, lastRow - 1, TAKARA_STORE_REGISTRY_HEADERS.length)
-    .getValues();
-
-  for (let index = 0; index < values.length; index += 1) {
-    if (String(values[index][columnIndex]) === String(value)) {
+  const records = readStoreRegistryRecords_(sheet);
+  for (let index = 0; index < records.length; index += 1) {
+    if (String(records[index][field]) === String(value)) {
       return {
         rowNumber: index + 2,
-        record: storeRowToRecord_(values[index]),
+        record: records[index],
       };
     }
   }
-
   return null;
+}
+
+function ensureStoreSlugSchemaForWrite_(sheet) {
+  const headers = storeRegistrySchemaHeaders_(sheet);
+  const records = readStoreRegistryRecords_(sheet);
+  const slugColumn = TAKARA_STORE_REGISTRY_HEADERS.indexOf("store_slug") + 1;
+  let migrated = false;
+
+  if (headers.length === TAKARA_STORE_REGISTRY_LEGACY_HEADERS.length) {
+    sheet
+      .getRange(1, 1, 1, TAKARA_STORE_REGISTRY_HEADERS.length)
+      .setValues([TAKARA_STORE_REGISTRY_HEADERS.slice()]);
+    migrated = true;
+  }
+
+  if (records.length) {
+    const existing = sheet
+      .getRange(2, slugColumn, records.length, 1)
+      .getValues()
+      .map(function (row) {
+        return String(row[0] || "").trim();
+      });
+    const needsWrite = migrated || existing.some(function (value) {
+      return !value;
+    });
+
+    if (needsWrite) {
+      sheet
+        .getRange(2, slugColumn, records.length, 1)
+        .setValues(records.map(function (record) {
+          return [assertStoreSlug_(record.store_slug)];
+        }));
+      migrated = true;
+    }
+  }
+
+  assertStoreRegistrySchema_(sheet);
+  return Object.freeze({
+    version: TAKARA_STORE_SLUG_VERSION,
+    migrated: migrated,
+    store_count: records.length,
+  });
 }
 
 function createStoreSheetsRepository_() {
@@ -146,24 +215,10 @@ function createStoreSheetsRepository_() {
     },
 
     nextStoreSequence: function () {
-      const sheet = openStoreRegistrySheet_();
-      const lastRow = sheet.getLastRow();
-      if (lastRow < 2) {
-        return 1;
-      }
-
-      const storeIdColumn =
-        TAKARA_STORE_REGISTRY_HEADERS.indexOf("store_id") + 1;
-      const storeIds = sheet
-        .getRange(2, storeIdColumn, lastRow - 1, 1)
-        .getValues()
-        .map(function (row) {
-          return String(row[0] || "").trim();
-        });
-
+      const records = readStoreRegistryRecords_(openStoreRegistrySheet_());
       let maxSequence = 0;
-      storeIds.forEach(function (storeId) {
-        const match = /^STO_(\d{6})$/.exec(storeId);
+      records.forEach(function (record) {
+        const match = /^STO_(\d{6})$/.exec(String(record.store_id || ""));
         if (match) {
           maxSequence = Math.max(maxSequence, Number(match[1]));
         }
@@ -180,22 +235,7 @@ function createStoreSheetsRepository_() {
     },
 
     listAll: function () {
-      const sheet = openStoreRegistrySheet_();
-      const lastRow = sheet.getLastRow();
-
-      if (lastRow < 2) {
-        return [];
-      }
-
-      return sheet
-        .getRange(
-          2,
-          1,
-          lastRow - 1,
-          TAKARA_STORE_REGISTRY_HEADERS.length
-        )
-        .getValues()
-        .map(storeRowToRecord_);
+      return readStoreRegistryRecords_(openStoreRegistrySheet_());
     },
 
     findById: function (storeId) {
@@ -216,40 +256,62 @@ function createStoreSheetsRepository_() {
       return result ? result.record : null;
     },
 
+    findBySlug: function (storeSlug) {
+      const result = findStoreRowByField_(
+        openStoreRegistrySheet_(),
+        "store_slug",
+        assertStoreSlug_(storeSlug)
+      );
+      return result ? result.record : null;
+    },
+
     insert: function (record) {
       const sheet = openStoreRegistrySheet_();
+      ensureStoreSlugSchemaForWrite_(sheet);
 
       if (findStoreRowByField_(sheet, "store_id", record.store_id)) {
         throw storeDomainError_("STORE_ID_COLLISION", "store_id already exists.");
       }
-      if (
-        findStoreRowByField_(
-          sheet,
-          "store_public_code",
-          record.store_public_code
-        )
-      ) {
+      if (findStoreRowByField_(sheet, "store_public_code", record.store_public_code)) {
         throw storeDomainError_(
           "STORE_PUBLIC_CODE_COLLISION",
           "store_public_code already exists."
         );
       }
+      if (findStoreRowByField_(sheet, "store_slug", record.store_slug)) {
+        throw storeDomainError_(
+          "STORE_SLUG_COLLISION",
+          "store_slug already exists."
+        );
+      }
 
-      sheet.appendRow(storeRecordToRow_(record));
+      sheet.appendRow(
+        storeRecordToRow_(record, TAKARA_STORE_REGISTRY_HEADERS)
+      );
     },
 
     update: function (record) {
       const sheet = openStoreRegistrySheet_();
-      const existing = findStoreRowByField_(sheet, "store_id", record.store_id);
+      ensureStoreSlugSchemaForWrite_(sheet);
+      const existing = findStoreRowByField_(
+        sheet,
+        "store_id",
+        record.store_id
+      );
 
       if (!existing) {
         throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
       }
-
       if (record.store_public_code !== existing.record.store_public_code) {
         throw storeDomainError_(
           "STORE_PUBLIC_CODE_IMMUTABLE",
           "store_public_code cannot change."
+        );
+      }
+      if (record.store_slug !== existing.record.store_slug) {
+        throw storeDomainError_(
+          "STORE_SLUG_IMMUTABLE",
+          "store_slug cannot change."
         );
       }
 
@@ -260,7 +322,9 @@ function createStoreSheetsRepository_() {
           1,
           TAKARA_STORE_REGISTRY_HEADERS.length
         )
-        .setValues([storeRecordToRow_(record)]);
+        .setValues([
+          storeRecordToRow_(record, TAKARA_STORE_REGISTRY_HEADERS),
+        ]);
     },
   };
 }

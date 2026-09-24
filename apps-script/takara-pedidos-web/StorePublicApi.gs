@@ -1,9 +1,8 @@
 /**
  * TAKARA STORE PUBLIC API V1
  *
- * Public read-only boundary for resolving a Store by opaque store_ref.
- * Returns transport-neutral objects. HTTP routing/serialization belongs to
- * the existing Apps Script entrypoint and is intentionally not owned here.
+ * Public read-only boundary for resolving a Store by opaque store_ref or by
+ * its public immutable store_slug.
  */
 
 const TAKARA_STORE_PUBLIC_API_VERSION = "TAKARA_STORE_PUBLIC_API_V1";
@@ -18,18 +17,56 @@ function isStorePublicResolveRequest_(event) {
   return getStorePublicAction_(event) === TAKARA_STORE_PUBLIC_RESOLVE_ACTION;
 }
 
-function getStorePublicRef_(event) {
-  const parameter = event && event.parameter ? event.parameter : {};
-  const storeRef = String(parameter.store_ref || "").trim();
+function getStorePublicParameterValues_(event, name) {
+  const parameters = event && event.parameters ? event.parameters : {};
+  if (Object.prototype.hasOwnProperty.call(parameters, name)) {
+    const rawValues = Array.isArray(parameters[name])
+      ? parameters[name]
+      : [parameters[name]];
+    return rawValues.map(function (value) {
+      return String(value || "").trim();
+    });
+  }
 
-  if (!storeRef) {
+  const parameter = event && event.parameter ? event.parameter : {};
+  const value = String(parameter[name] || "").trim();
+  return value ? [value] : [];
+}
+
+function getStorePublicLookup_(event) {
+  const storeRefs = getStorePublicParameterValues_(event, "store_ref");
+  const storeSlugs = getStorePublicParameterValues_(event, "store_slug");
+
+  if (
+    storeRefs.length > 1 ||
+    storeSlugs.length > 1 ||
+    (storeRefs.length && storeSlugs.length)
+  ) {
     throw storeDomainError_(
-      "STORE_PUBLIC_REF_REQUIRED",
-      "Store public reference is required."
+      "STORE_PUBLIC_LOOKUP_CONFLICT",
+      "Store resolve accepts one public lookup only."
     );
   }
 
-  return storeRef;
+  const storeRef = storeRefs.length ? storeRefs[0] : "";
+  const storeSlug = storeSlugs.length ? storeSlugs[0] : "";
+
+  if (storeRef) {
+    return Object.freeze({
+      kind: "REF",
+      value: storeRef,
+    });
+  }
+  if (storeSlug) {
+    return Object.freeze({
+      kind: "SLUG",
+      value: storeSlug,
+    });
+  }
+  throw storeDomainError_(
+    "STORE_PUBLIC_LOOKUP_REQUIRED",
+    "Store public reference or slug is required."
+  );
 }
 
 function storePublicErrorCode_(error) {
@@ -37,7 +74,11 @@ function storePublicErrorCode_(error) {
 
   if (
     code === "STORE_PUBLIC_REF_REQUIRED" ||
+    code === "STORE_PUBLIC_SLUG_REQUIRED" ||
+    code === "STORE_PUBLIC_LOOKUP_REQUIRED" ||
+    code === "STORE_PUBLIC_LOOKUP_CONFLICT" ||
     code === "STORE_PUBLIC_CODE_INVALID" ||
+    code === "STORE_SLUG_INVALID" ||
     code === "STORE_NOT_FOUND" ||
     code === "STORE_INACTIVE" ||
     code === "STORE_REGISTRY_NOT_CONFIGURED" ||
@@ -59,7 +100,10 @@ function resolveStorePublicApi_(event) {
       );
     }
 
-    const context = resolveStoreContextRuntime_(getStorePublicRef_(event));
+    const lookup = getStorePublicLookup_(event);
+    const context = lookup.kind === "SLUG"
+      ? resolveStoreContextBySlugRuntime_(lookup.value)
+      : resolveStoreContextRuntime_(lookup.value);
 
     return {
       ok: true,

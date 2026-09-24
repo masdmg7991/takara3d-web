@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 checks = 0
 
 
@@ -101,7 +101,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs conserva W8 en V1.18.0",
+        "Code.gs conserva W8 en V1.19.0 candidato",
     )
 
     for marker in (
@@ -199,11 +199,11 @@ def main() -> int:
     )
     require(
         state.get("local", {}).get("script_version") == LOCAL,
-        "Deployment state declara local W8 V1.18.0",
+        "Deployment state declara local W8 V1.19.0 candidato",
     )
     require(
-        state.get("local", {}).get("status") == "deployed",
-        "W8 figura desplegado",
+        state.get("local", {}).get("status") == "candidate",
+        "W8 base sigue desplegado; candidato local separado",
     )
 
     for marker in (
@@ -216,7 +216,6 @@ def main() -> int:
         "nunca guarda el email en claro",
         "No se usa",
         LIVE,
-        LOCAL,
     ):
         require(marker in contract, f"Contrato documenta {marker}")
 

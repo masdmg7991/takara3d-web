@@ -21,6 +21,7 @@ const HEADERS = [
   "city",
   "province",
   "notes",
+  "store_slug",
 ];
 
 class FakeRange {
@@ -472,9 +473,10 @@ for (const storeRef of ["", "st_bad"]) {
   );
   ok(response.ok === false, "invalid identity fails");
   ok(
-    ["STORE_PUBLIC_REF_REQUIRED", "STORE_PUBLIC_CODE_INVALID"].includes(
-      response.error.code
-    ),
+    [
+      "STORE_PUBLIC_LOOKUP_REQUIRED",
+      "STORE_PUBLIC_CODE_INVALID",
+    ].includes(response.error.code),
     "invalid identity exposes only safe error code"
   );
 }

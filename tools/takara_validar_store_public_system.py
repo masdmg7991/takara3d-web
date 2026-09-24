@@ -42,19 +42,28 @@ def main() -> int:
         "provisionStoreRegistry_",
         "createStoreRuntime_",
         "buildStorePublicUrl",
+        "buildStorePrettyUrl",
         "DOMContentLoaded",
         "action=store.resolve",
         "deactivateStoreRuntime_",
         "activateStoreRuntime_",
         "same physical QR reflects authoritative rename",
+        "pretty path resolves ACTIVE Store end to end",
+        "pretty path sends immutable Store slug",
+        "pretty path is restored after resolver bootstrap",
+        "rename preserves immutable pretty slug",
         "invalid identity makes no network request",
         "missing Store ref makes no network request",
     ):
         require(marker in test, f"System test conserva {marker}")
 
     require(
+        "TAKARA_STORE_QR_URL_V2" in store_js,
+        "SystemScenario atraviesa QR contract V2",
+    )
+    require(
         "TAKARA_STORE_QR_URL_V1" in store_js,
-        "F2D atraviesa QR contract F2C",
+        "SystemScenario conserva QR contract V1 legacy",
     )
     require(
         "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in store_js,
@@ -88,7 +97,7 @@ def main() -> int:
         "HTML no expone store_id",
     )
 
-    print("[TAKARA_STORE_PUBLIC_SYSTEM_F2D_STATIC_OK] 29 comprobaciones")
+    print("[TAKARA_STORE_PUBLIC_SYSTEM_F2D_STATIC_OK] V2+V1 horizontal coverage")
     return 0
 
 

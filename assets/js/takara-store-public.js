@@ -12,9 +12,11 @@
     /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
   const STORE_LOGO_DATA_URL_MAX_LENGTH = 699092;
   const STORE_REF_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
+  const STORE_SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
   const CALLBACK_PATTERN = /^takaraStoreCb_[A-Za-z0-9_]{8,64}$/;
   const DEFAULT_TIMEOUT_MS = 8000;
-  const STORE_QR_CONTRACT_VERSION = "TAKARA_STORE_QR_URL_V1";
+  const STORE_QR_CONTRACT_VERSION = "TAKARA_STORE_QR_URL_V2";
+  const STORE_QR_LEGACY_CONTRACT_VERSION = "TAKARA_STORE_QR_URL_V1";
   const STORE_PUBLIC_CANONICAL_ORIGIN = "https://takara3d.es";
   const STORE_PUBLIC_CANONICAL_PATH = "/tienda/";
   const ORDER_FRAME_URL = "/pedido.html?channel=store";
@@ -34,9 +36,28 @@
     return STORE_REF_PATTERN.test(normalizeStoreRef(value));
   }
 
+  function normalizeStoreSlug(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function isValidStoreSlug(value) {
+    return STORE_SLUG_PATTERN.test(normalizeStoreSlug(value));
+  }
+
   function readStoreRef(search) {
     const params = new URLSearchParams(String(search || ""));
     return normalizeStoreRef(params.get("s"));
+  }
+
+  function readStoreSlug(search, pathname) {
+    const params = new URLSearchParams(String(search || ""));
+    const querySlug = normalizeStoreSlug(params.get("slug"));
+    if (querySlug) return querySlug;
+    const match =
+      /^\/tienda\/([a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)\/?$/.exec(
+        String(pathname || "")
+      );
+    return match ? normalizeStoreSlug(match[1]) : "";
   }
 
   function buildStorePublicUrl(storeRef) {
@@ -44,7 +65,20 @@
     if (!isValidStoreRef(ref)) {
       throw fail("STORE_PUBLIC_CODE_INVALID", "Store public reference is invalid.");
     }
-    return STORE_PUBLIC_CANONICAL_ORIGIN + STORE_PUBLIC_CANONICAL_PATH + "?s=" + encodeURIComponent(ref);
+    return STORE_PUBLIC_CANONICAL_ORIGIN +
+      STORE_PUBLIC_CANONICAL_PATH +
+      "?s=" +
+      encodeURIComponent(ref);
+  }
+
+  function buildStorePrettyUrl(storeSlug) {
+    const slug = normalizeStoreSlug(storeSlug);
+    if (!isValidStoreSlug(slug)) {
+      throw fail("STORE_SLUG_INVALID", "Store public slug is invalid.");
+    }
+    return STORE_PUBLIC_CANONICAL_ORIGIN +
+      STORE_PUBLIC_CANONICAL_PATH +
+      encodeURIComponent(slug);
   }
 
   function parseStorePublicUrl(value) {
@@ -56,12 +90,36 @@
       throw fail("STORE_QR_URL_INVALID", "Store QR URL is invalid.");
     }
     if (
-      rawValue !== parsed.href || parsed.protocol !== "https:" ||
+      rawValue !== parsed.href ||
+      parsed.protocol !== "https:" ||
       parsed.origin !== STORE_PUBLIC_CANONICAL_ORIGIN ||
-      parsed.pathname !== STORE_PUBLIC_CANONICAL_PATH || parsed.username ||
-      parsed.password || parsed.port || parsed.hash
+      parsed.username ||
+      parsed.password ||
+      parsed.port ||
+      parsed.hash
     ) {
       throw fail("STORE_QR_URL_INVALID", "Store QR URL is not canonical.");
+    }
+
+    const prettyMatch =
+      /^\/tienda\/([a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)$/.exec(
+        parsed.pathname
+      );
+    if (prettyMatch && !parsed.search) {
+      const storeSlug = normalizeStoreSlug(prettyMatch[1]);
+      const canonicalUrl = buildStorePrettyUrl(storeSlug);
+      if (parsed.href !== canonicalUrl) {
+        throw fail("STORE_QR_URL_INVALID", "Store pretty URL is not canonical.");
+      }
+      return Object.freeze({
+        version: STORE_QR_CONTRACT_VERSION,
+        store_slug: storeSlug,
+        url: canonicalUrl,
+      });
+    }
+
+    if (parsed.pathname !== STORE_PUBLIC_CANONICAL_PATH) {
+      throw fail("STORE_QR_URL_INVALID", "Store QR URL path is invalid.");
     }
     const keys = Array.from(parsed.searchParams.keys());
     const refs = parsed.searchParams.getAll("s");
@@ -76,7 +134,11 @@
     if (parsed.href !== canonicalUrl) {
       throw fail("STORE_QR_URL_INVALID", "Store QR URL is not canonical.");
     }
-    return Object.freeze({version: STORE_QR_CONTRACT_VERSION, store_ref: storeRef, url: canonicalUrl});
+    return Object.freeze({
+      version: STORE_QR_LEGACY_CONTRACT_VERSION,
+      store_ref: storeRef,
+      url: canonicalUrl,
+    });
   }
 
   function isStorePublicUrl(value) {
@@ -86,6 +148,68 @@
     } catch (error) {
       return false;
     }
+  }
+
+  function readStorePublicLookup(search, pathname, hash) {
+    const rawSearch = String(search || "");
+    const rawPathname = String(pathname || "");
+    const rawHash = String(hash || "");
+
+    if (
+      rawPathname === STORE_PUBLIC_CANONICAL_PATH &&
+      !rawSearch &&
+      !rawHash
+    ) {
+      throw fail(
+        "STORE_PUBLIC_LOOKUP_REQUIRED",
+        "Store public lookup is missing."
+      );
+    }
+
+    if (rawPathname === STORE_PUBLIC_CANONICAL_PATH && !rawHash) {
+      const params = new URLSearchParams(rawSearch);
+      const keys = Array.from(params.keys());
+      const slugs = params.getAll("slug");
+      if (
+        keys.length === 1 &&
+        keys[0] === "slug" &&
+        slugs.length === 1
+      ) {
+        const storeSlug = normalizeStoreSlug(slugs[0]);
+        if (!isValidStoreSlug(storeSlug)) {
+          throw fail("STORE_SLUG_INVALID", "Store public slug is invalid.");
+        }
+        if (rawSearch !== "?slug=" + encodeURIComponent(storeSlug)) {
+          throw fail(
+            "STORE_QR_URL_INVALID",
+            "Store bridge lookup is not canonical."
+          );
+        }
+        return Object.freeze({
+          source: "BRIDGE",
+          store_slug: storeSlug,
+        });
+      }
+    }
+
+    const parsed = parseStorePublicUrl(
+      STORE_PUBLIC_CANONICAL_ORIGIN +
+        rawPathname +
+        rawSearch +
+        rawHash
+    );
+
+    if (parsed.store_slug) {
+      return Object.freeze({
+        source: "V2",
+        store_slug: parsed.store_slug,
+      });
+    }
+
+    return Object.freeze({
+      source: "V1",
+      store_ref: parsed.store_ref,
+    });
   }
 
   function assertEndpoint(endpoint) {
@@ -133,6 +257,22 @@
       throw fail("STORE_CLIENT_CALLBACK_INVALID", "Store callback is invalid.");
     }
     return base + "?action=store.resolve&store_ref=" + encodeURIComponent(ref) + "&prefix=" + encodeURIComponent(callbackName);
+  }
+
+  function buildResolveSlugUrl(endpoint, storeSlug, callbackName) {
+    const base = assertEndpoint(endpoint);
+    const slug = normalizeStoreSlug(storeSlug);
+    if (!isValidStoreSlug(slug)) {
+      throw fail("STORE_SLUG_INVALID", "Store public slug is invalid.");
+    }
+    if (!CALLBACK_PATTERN.test(String(callbackName || ""))) {
+      throw fail("STORE_CLIENT_CALLBACK_INVALID", "Store callback is invalid.");
+    }
+    return base +
+      "?action=store.resolve&store_slug=" +
+      encodeURIComponent(slug) +
+      "&prefix=" +
+      encodeURIComponent(callbackName);
   }
 
   function normalizeStoreBrandingContext(value) {
@@ -183,7 +323,14 @@
     if (Object.prototype.hasOwnProperty.call(context, "store_id")) {
       throw fail("STORE_CONTEXT_INTERNAL_ID_EXPOSED", "Store context exposed an internal identifier.");
     }
-    if (context.version !== CONTEXT_VERSION || context.store_ref !== expectedRef || context.status !== "ACTIVE") {
+    const actualRef = normalizeStoreRef(context.store_ref);
+    const requiredRef = normalizeStoreRef(expectedRef);
+    if (
+      context.version !== CONTEXT_VERSION ||
+      !isValidStoreRef(actualRef) ||
+      (requiredRef && actualRef !== requiredRef) ||
+      context.status !== "ACTIVE"
+    ) {
       throw fail("STORE_CONTEXT_INVALID", "Store context failed validation.");
     }
     const displayName = String(context.display_name || "").trim();
@@ -193,7 +340,7 @@
     const branding = normalizeStoreBrandingContext(context.branding);
     return Object.freeze({
       version: CONTEXT_VERSION,
-      store_ref: expectedRef,
+      store_ref: actualRef,
       display_name: displayName,
       status: "ACTIVE",
       branding: branding,
@@ -207,38 +354,79 @@
     const cryptoApi = config.crypto || windowApi.crypto;
     const endpoint = assertEndpoint(config.endpoint);
     const storeRef = normalizeStoreRef(config.storeRef);
-    if (!isValidStoreRef(storeRef)) {
-      return Promise.reject(fail("STORE_PUBLIC_CODE_INVALID", "Store public reference is invalid."));
+    const storeSlug = normalizeStoreSlug(config.storeSlug);
+
+    if (storeRef && storeSlug) {
+      return Promise.reject(
+        fail("STORE_PUBLIC_LOOKUP_CONFLICT", "Store resolve accepts one public lookup only.")
+      );
     }
+    if (!storeRef && !storeSlug) {
+      return Promise.reject(
+        fail("STORE_PUBLIC_LOOKUP_REQUIRED", "Store public reference or slug is required.")
+      );
+    }
+    if (storeRef && !isValidStoreRef(storeRef)) {
+      return Promise.reject(
+        fail("STORE_PUBLIC_CODE_INVALID", "Store public reference is invalid.")
+      );
+    }
+    if (storeSlug && !isValidStoreSlug(storeSlug)) {
+      return Promise.reject(
+        fail("STORE_SLUG_INVALID", "Store public slug is invalid.")
+      );
+    }
+
     const callbackName = createCallbackName(cryptoApi);
-    const timeoutMs = Number(config.timeoutMs) > 0 ? Number(config.timeoutMs) : DEFAULT_TIMEOUT_MS;
+    const timeoutMs = Number(config.timeoutMs) > 0
+      ? Number(config.timeoutMs)
+      : DEFAULT_TIMEOUT_MS;
+
     return new Promise(function (resolve, reject) {
       const script = documentApi.createElement("script");
       let settled = false;
       let timeoutId = null;
+
       function cleanup() {
         if (timeoutId !== null) windowApi.clearTimeout(timeoutId);
         if (script.parentNode) script.parentNode.removeChild(script);
-        try { delete windowApi[callbackName]; } catch (error) { windowApi[callbackName] = undefined; }
+        try {
+          delete windowApi[callbackName];
+        } catch (error) {
+          windowApi[callbackName] = undefined;
+        }
       }
+
       function settle(action, value) {
         if (settled) return;
         settled = true;
         cleanup();
         action(value);
       }
+
       windowApi[callbackName] = function (payload) {
-        try { settle(resolve, validateStoreContextResponse(payload, storeRef)); }
-        catch (error) { settle(reject, error); }
+        try {
+          settle(resolve, validateStoreContextResponse(payload, storeRef));
+        } catch (error) {
+          settle(reject, error);
+        }
       };
       script.async = true;
       script.referrerPolicy = "no-referrer";
-      script.src = buildResolveUrl(endpoint, storeRef, callbackName);
+      script.src = storeSlug
+        ? buildResolveSlugUrl(endpoint, storeSlug, callbackName)
+        : buildResolveUrl(endpoint, storeRef, callbackName);
       script.onerror = function () {
-        settle(reject, fail("STORE_RESOLVER_NETWORK_ERROR", "Store resolver could not be loaded."));
+        settle(
+          reject,
+          fail("STORE_RESOLVER_NETWORK_ERROR", "Store resolver could not be loaded.")
+        );
       };
       timeoutId = windowApi.setTimeout(function () {
-        settle(reject, fail("STORE_RESOLVER_TIMEOUT", "Store resolver timed out."));
+        settle(
+          reject,
+          fail("STORE_RESOLVER_TIMEOUT", "Store resolver timed out.")
+        );
       }, timeoutMs);
       documentApi.head.appendChild(script);
     });
@@ -538,15 +726,37 @@
     setPanelState(root, "error");
   }
 
+  function restorePrettyStoreUrl(storeSlug) {
+    const slug = normalizeStoreSlug(storeSlug);
+    if (!isValidStoreSlug(slug)) return;
+    if (!window.history || typeof window.history.replaceState !== "function") return;
+    window.history.replaceState(
+      null,
+      "",
+      STORE_PUBLIC_CANONICAL_PATH + encodeURIComponent(slug)
+    );
+  }
+
   function bootStorePublicPage() {
     const root = document.querySelector("[data-takara-store-app]");
     if (!root) return;
     setPanelState(root, "loading");
-    const storeRef = readStoreRef(window.location.search);
-    if (!isValidStoreRef(storeRef)) {
-      renderError(root, fail("STORE_PUBLIC_CODE_INVALID", "Store public reference is invalid."));
+
+    let lookup = null;
+    try {
+      lookup = readStorePublicLookup(
+        window.location.search,
+        window.location.pathname,
+        window.location.hash
+      );
+    } catch (error) {
+      renderError(root, error);
       return;
     }
+
+    const storeRef = normalizeStoreRef(lookup.store_ref);
+    const storeSlug = normalizeStoreSlug(lookup.store_slug);
+
     let endpoint = "";
     try {
       endpoint = getCentralAppsScriptEndpoint(window);
@@ -554,11 +764,24 @@
       renderError(root, error);
       return;
     }
-    resolveStoreContextJsonp({endpoint: endpoint, storeRef: storeRef, document: document, window: window, crypto: window.crypto}).then(
+
+    resolveStoreContextJsonp({
+      endpoint: endpoint,
+      storeRef: storeRef,
+      storeSlug: storeSlug,
+      document: document,
+      window: window,
+      crypto: window.crypto,
+    }).then(
       function (context) {
-        return renderStore(root, context).catch(function (error) { renderError(root, error); });
+        if (storeSlug) restorePrettyStoreUrl(storeSlug);
+        return renderStore(root, context).catch(function (error) {
+          renderError(root, error);
+        });
       },
-      function (error) { renderError(root, error); }
+      function (error) {
+        renderError(root, error);
+      }
     );
   }
 
@@ -566,14 +789,20 @@
     version: CLIENT_VERSION,
     normalizeStoreRef: normalizeStoreRef,
     isValidStoreRef: isValidStoreRef,
+    normalizeStoreSlug: normalizeStoreSlug,
+    isValidStoreSlug: isValidStoreSlug,
     readStoreRef: readStoreRef,
+    readStoreSlug: readStoreSlug,
+    readStorePublicLookup: readStorePublicLookup,
     buildStorePublicUrl: buildStorePublicUrl,
+    buildStorePrettyUrl: buildStorePrettyUrl,
     parseStorePublicUrl: parseStorePublicUrl,
     isStorePublicUrl: isStorePublicUrl,
     assertEndpoint: assertEndpoint,
     getCentralAppsScriptEndpoint: getCentralAppsScriptEndpoint,
     createCallbackName: createCallbackName,
     buildResolveUrl: buildResolveUrl,
+    buildResolveSlugUrl: buildResolveSlugUrl,
     validateStoreContextResponse: validateStoreContextResponse,
     resolveStoreContextJsonp: resolveStoreContextJsonp,
   });

@@ -207,7 +207,7 @@ function backend() {
     "Store feedback cache build active"
   );
   ok(
-    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"),
+    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"),
     "backend ACK candidate version"
   );
   ok(code.includes("parseOrderBrowserResponseRequest_(e)"), "doPost reads ACK envelope");

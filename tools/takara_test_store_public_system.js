@@ -295,7 +295,7 @@ function createOrderFrame() {
   return { frame, form, frameWindow };
 }
 
-function createBrowser(backend, search) {
+function createBrowser(backend, search, pathname = "/tienda/", hash = "") {
   const listeners = {};
   const loading = element();
   const active = element();
@@ -337,6 +337,7 @@ function createBrowser(backend, search) {
   let removeCount = 0;
   let lastScriptUrl = "";
   let observerObserveCount = 0;
+  let replacedPath = "";
 
   function MutationObserver(callback) {
     this.callback = callback;
@@ -423,7 +424,15 @@ function createBrowser(backend, search) {
   ];
 
   const window = {
-    location: { search },
+    location: { search, pathname, hash },
+    history: {
+      replaceState(_state, _title, nextPath) {
+        replacedPath = String(nextPath || "");
+        window.location.pathname = replacedPath;
+        window.location.search = "";
+        window.location.hash = "";
+      },
+    },
     crypto: {
       getRandomValues(values) {
         for (let i = 0; i < values.length; i += 1) {
@@ -512,6 +521,7 @@ function createBrowser(backend, search) {
     getRemoveCount: () => removeCount,
     getLastScriptUrl: () => lastScriptUrl,
     getObserverObserveCount: () => observerObserveCount,
+    getReplacedPath: () => replacedPath,
   };
 }
 
@@ -540,6 +550,7 @@ function ok(condition, message) {
   ok(store.status === "ACTIVE", "Store starts ACTIVE");
   ok(store.store_id === "STO_000001", "Store has internal id");
   ok(store.store_public_code.startsWith("st_"), "Store has public code");
+  ok(store.store_slug === "foto-garcia", "Store has deterministic immutable slug");
 
   const helperBrowser = createBrowser(backend, "");
   await helperBrowser.boot();
@@ -559,6 +570,109 @@ function ok(condition, message) {
       "https://takara3d.es/tienda/?s=" +
         store.store_public_code,
     "Store QR builds canonical URL"
+  );
+
+  const prettyUrl = publicApi.buildStorePrettyUrl(store.store_slug);
+  ok(
+    prettyUrl === "https://takara3d.es/tienda/foto-garcia",
+    "Store V2 builds canonical pretty URL"
+  );
+
+  const prettyBrowser = createBrowser(
+    backend,
+    "",
+    new URL(prettyUrl).pathname
+  );
+  await prettyBrowser.boot();
+
+  ok(
+    prettyBrowser.rootNode.attributes["data-state"] === "active",
+    "pretty path resolves ACTIVE Store end to end"
+  );
+  ok(
+    prettyBrowser.name.textContent === "Foto García",
+    "pretty path renders authoritative Store name"
+  );
+  ok(
+    prettyBrowser.getLastScriptUrl().includes(
+      "store_slug=" + store.store_slug
+    ),
+    "pretty path sends immutable Store slug"
+  );
+  ok(
+    prettyBrowser.getLastScriptUrl().indexOf("store_ref=") === -1,
+    "pretty path does not send legacy Store ref"
+  );
+  ok(
+    prettyBrowser.getReplacedPath() === "/tienda/" + store.store_slug,
+    "pretty path is restored after resolver bootstrap"
+  );
+
+  const bridgeBrowser = createBrowser(
+    backend,
+    "?slug=" + store.store_slug,
+    "/tienda/"
+  );
+  await bridgeBrowser.boot();
+  ok(
+    bridgeBrowser.rootNode.attributes["data-state"] === "active",
+    "404 bridge bootstrap resolves ACTIVE Store"
+  );
+  ok(
+    bridgeBrowser.getLastScriptUrl().includes(
+      "store_slug=" + store.store_slug
+    ),
+    "404 bridge bootstrap sends immutable Store slug"
+  );
+  ok(
+    bridgeBrowser.getReplacedPath() === "/tienda/" + store.store_slug,
+    "404 bridge bootstrap restores pretty URL"
+  );
+
+  const prettyExtraQuery = createBrowser(
+    backend,
+    "?utm_source=x",
+    new URL(prettyUrl).pathname
+  );
+  await prettyExtraQuery.boot();
+  ok(
+    prettyExtraQuery.rootNode.attributes["data-state"] === "error",
+    "pretty path with query fails closed"
+  );
+  ok(
+    prettyExtraQuery.getAppendCount() === 0,
+    "pretty path with query makes no network request"
+  );
+
+  const prettyTrailingSlash = createBrowser(
+    backend,
+    "",
+    new URL(prettyUrl).pathname + "/"
+  );
+  await prettyTrailingSlash.boot();
+  ok(
+    prettyTrailingSlash.rootNode.attributes["data-state"] === "error",
+    "pretty path with trailing slash fails closed"
+  );
+  ok(
+    prettyTrailingSlash.getAppendCount() === 0,
+    "pretty trailing slash makes no network request"
+  );
+
+  const prettyHash = createBrowser(
+    backend,
+    "",
+    new URL(prettyUrl).pathname,
+    "#fragment"
+  );
+  await prettyHash.boot();
+  ok(
+    prettyHash.rootNode.attributes["data-state"] === "error",
+    "pretty path with hash fails closed"
+  );
+  ok(
+    prettyHash.getAppendCount() === 0,
+    "pretty hash makes no network request"
   );
 
   const activeBrowser = createBrowser(
@@ -614,13 +728,18 @@ function ok(condition, message) {
     "browser uses central Apps Script endpoint"
   );
 
-  backend.context.updateStoreRuntime_(store.store_id, {
+  const renamedStore = backend.context.updateStoreRuntime_(store.store_id, {
     display_name: "Foto García Centro",
   });
+  ok(
+    renamedStore.store_slug === store.store_slug,
+    "rename preserves immutable pretty slug"
+  );
 
   const renamedBrowser = createBrowser(
     backend,
-    new URL(canonicalUrl).search
+    "",
+    new URL(prettyUrl).pathname
   );
   await renamedBrowser.boot();
 
@@ -633,7 +752,8 @@ function ok(condition, message) {
 
   const inactiveBrowser = createBrowser(
     backend,
-    new URL(canonicalUrl).search
+    "",
+    new URL(prettyUrl).pathname
   );
   await inactiveBrowser.boot();
 
@@ -658,7 +778,8 @@ function ok(condition, message) {
 
   const reactivatedBrowser = createBrowser(
     backend,
-    new URL(canonicalUrl).search
+    "",
+    new URL(prettyUrl).pathname
   );
   await reactivatedBrowser.boot();
 

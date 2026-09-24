@@ -17,9 +17,9 @@ SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
 PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
-LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
+LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
-LOCAL_STATUS = "deployed"
+LOCAL_STATUS = "candidate"
 
 checks = 0
 
@@ -78,24 +78,24 @@ def main() -> int:
 
     require(
         local.get("script_version") == LOCAL_SCRIPT,
-        "Version local coincide con V1.18.0 desplegado",
+        "Version local identifica el candidato V1.19.0",
     )
     require(
         local.get("status") == LOCAL_STATUS,
-        "Estado local declara desplegado en PUBLIC",
+        "Estado local declara candidato no desplegado",
     )
     require(
-        local.get("script_version") == production.get("script_version"),
-        "Estado mecanico confirma local y LIVE alineados",
+        local.get("script_version") != production.get("script_version"),
+        "Estado mecanico distingue candidato local de LIVE",
     )
 
     require(
         code.count(LOCAL_SCRIPT) == 1,
-        "Code.gs declara una unica VERSION_SCRIPT V1.18.0",
+        "Code.gs declara una unica VERSION_SCRIPT candidata V1.19.0",
     )
     require(
-        code.count(PRODUCTION_SCRIPT) == 1,
-        "Code.gs declara una unica version LIVE",
+        PRODUCTION_SCRIPT not in code,
+        "Code.gs no se hace pasar por la version LIVE anterior",
     )
     require(
         "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config,
@@ -108,7 +108,7 @@ def main() -> int:
         LOCAL_SCRIPT,
         "Script LIVE",
         "Script local",
-        "desplegado en PUBLIC",
+        "candidato local",
     ):
         require(marker in deployment, f"DEPLOYMENT documenta {marker}")
 
@@ -117,7 +117,6 @@ def main() -> int:
         (order_contract, "ORDER_ENGINE_CONTRACT"),
     ):
         require(PRODUCTION_SCRIPT in text, f"{name} conserva version LIVE")
-        require(LOCAL_SCRIPT in text, f"{name} documenta version local desplegada")
 
     require(
         "OrderIdempotency.gs" in app_readme,

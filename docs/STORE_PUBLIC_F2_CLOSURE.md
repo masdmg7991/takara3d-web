@@ -1,5 +1,7 @@
 # Store Public F2 Closure
 
+> Nota histórica — baseline F2/V1. Este documento conserva la certificación histórica de Store Public V1. El contrato vigente usa Store URL V2 /tienda/<store_slug> y mantiene V1 como compatibilidad. La autoridad actual está en STORE_SYSTEM_CONTRACT.md.
+
 F2 queda certificado únicamente cuando las garantías F2A–F2E permanecen
 simultáneamente vigentes.
 

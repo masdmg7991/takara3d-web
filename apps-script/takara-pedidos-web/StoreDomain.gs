@@ -17,6 +17,106 @@ const TAKARA_STORE_STATUS = Object.freeze({
 
 const TAKARA_STORE_ID_PATTERN = /^STO_\d{6}$/;
 const TAKARA_STORE_PUBLIC_CODE_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
+const TAKARA_STORE_SLUG_VERSION = "TAKARA_STORE_SLUG_V1";
+const TAKARA_STORE_SLUG_MAX_LENGTH = 64;
+const TAKARA_STORE_SLUG_PATTERN =
+  /^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$/;
+
+function assertStoreSlug_(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!TAKARA_STORE_SLUG_PATTERN.test(normalized)) {
+    throw storeDomainError_("STORE_SLUG_INVALID", "Invalid store_slug.");
+  }
+  return normalized;
+}
+
+function slugifyStoreDisplayName_(value) {
+  const displayName = normalizeStoreDisplayName_(value);
+  let normalized = displayName;
+  if (typeof normalized.normalize === "function") {
+    normalized = normalized.normalize("NFD");
+  }
+  normalized = normalized
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (!normalized) normalized = "tienda";
+  normalized = normalized
+    .slice(0, TAKARA_STORE_SLUG_MAX_LENGTH)
+    .replace(/-+$/g, "");
+  if (!normalized) normalized = "tienda";
+  return assertStoreSlug_(normalized);
+}
+
+function buildStoreSlugCandidate_(displayName, ordinal) {
+  const base = slugifyStoreDisplayName_(displayName);
+  const index = Number(ordinal || 1);
+  if (!Number.isInteger(index) || index < 1 || index > 9999) {
+    throw storeDomainError_("STORE_SLUG_SEQUENCE_INVALID", "Invalid Store slug sequence.");
+  }
+  if (index === 1) return base;
+  const suffix = "-" + String(index);
+  const prefix = base
+    .slice(0, TAKARA_STORE_SLUG_MAX_LENGTH - suffix.length)
+    .replace(/-+$/g, "");
+  return assertStoreSlug_((prefix || "tienda") + suffix);
+}
+
+function hydrateStoreSlugs_(records) {
+  const source = Array.isArray(records) ? records : [];
+  const result = source.map(function (record) {
+    return Object.assign({}, record || {});
+  });
+  const used = Object.create(null);
+
+  result.forEach(function (record) {
+    const raw = String(record.store_slug || "").trim();
+    if (!raw) return;
+    const slug = assertStoreSlug_(raw);
+    if (used[slug]) {
+      throw storeDomainError_("STORE_SLUG_COLLISION", "Persisted store_slug is duplicated.");
+    }
+    used[slug] = true;
+    record.store_slug = slug;
+  });
+
+  result
+    .filter(function (record) {
+      return !String(record.store_slug || "").trim();
+    })
+    .sort(function (left, right) {
+      return String(left.store_id || "").localeCompare(String(right.store_id || ""));
+    })
+    .forEach(function (record) {
+      let ordinal = 1;
+      let candidate = "";
+      do {
+        candidate = buildStoreSlugCandidate_(record.display_name, ordinal);
+        ordinal += 1;
+      } while (used[candidate] && ordinal <= 9999);
+      if (used[candidate]) {
+        throw storeDomainError_("STORE_SLUG_EXHAUSTED", "Could not allocate Store slug.");
+      }
+      used[candidate] = true;
+      record.store_slug = candidate;
+    });
+
+  return result;
+}
+
+function allocateStoreSlug_(repository, displayName) {
+  if (!repository || typeof repository.findBySlug !== "function") {
+    throw storeDomainError_("STORE_REPOSITORY_INVALID", "Store repository does not implement findBySlug.");
+  }
+  for (let ordinal = 1; ordinal <= 9999; ordinal += 1) {
+    const candidate = buildStoreSlugCandidate_(displayName, ordinal);
+    if (!repository.findBySlug(candidate)) return candidate;
+  }
+  throw storeDomainError_("STORE_SLUG_EXHAUSTED", "Could not allocate Store slug.");
+}
+
 
 const TAKARA_STORE_BRANDING_PUBLIC_VERSION =
   "TAKARA_STORE_BRANDING_PUBLIC_V1";
@@ -417,6 +517,7 @@ function createStoreRecord_(params) {
   return {
     store_id: assertStoreId_(source.store_id),
     store_public_code: assertStorePublicCode_(source.store_public_code),
+    store_slug: assertStoreSlug_(source.store_slug),
     status: TAKARA_STORE_STATUS.ACTIVE,
     created_at: timestamp,
     updated_at: timestamp,

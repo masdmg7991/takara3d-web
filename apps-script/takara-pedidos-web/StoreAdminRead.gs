@@ -9,6 +9,7 @@ function toStoreAdminReadModel_(store) {
     contract_version: TAKARA_STORE_ADMIN_READ_VERSION,
     store_id: assertStoreId_(store.store_id),
     store_public_code: assertStorePublicCode_(store.store_public_code),
+    store_slug: assertStoreSlug_(store.store_slug),
     status: assertStoreStatus_(store.status),
     created_at: String(store.created_at || ""),
     updated_at: String(store.updated_at || ""),

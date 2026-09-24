@@ -31,6 +31,17 @@ function assertStoreRepositoryPort_(repository) {
   return repository;
 }
 
+function assertStoreSlugRepositoryPort_(repository) {
+  const repo = assertStoreRepositoryPort_(repository);
+  if (typeof repo.findBySlug !== "function") {
+    throw storeDomainError_(
+      "STORE_REPOSITORY_INVALID",
+      "Store repository does not implement findBySlug."
+    );
+  }
+  return repo;
+}
+
 function assertStoreLookupRepositoryPort_(repository) {
   if (!repository) {
     throw storeDomainError_(
@@ -222,7 +233,7 @@ function updateStoreBrandingService_(
 }
 
 function createStoreService_(repository, input, dependencies) {
-  const repo = assertStoreRepositoryPort_(repository);
+  const repo = assertStoreSlugRepositoryPort_(repository);
   const deps = dependencies || {};
 
   if (typeof deps.nowIso !== "function") {
@@ -238,6 +249,7 @@ function createStoreService_(repository, input, dependencies) {
   return repo.withWriteLock(function () {
     const storeId = buildStoreId_(repo.nextStoreSequence());
     const publicCode = assertStorePublicCode_(deps.createPublicCode());
+    const storeSlug = allocateStoreSlug_(repo, input && input.display_name);
 
     if (repo.findById(storeId)) {
       throw storeDomainError_("STORE_ID_COLLISION", "Generated store_id already exists.");
@@ -252,6 +264,7 @@ function createStoreService_(repository, input, dependencies) {
     const record = createStoreRecord_({
       store_id: storeId,
       store_public_code: publicCode,
+      store_slug: storeSlug,
       timestamp: deps.nowIso(),
       data: input,
     });
@@ -309,6 +322,18 @@ function resolveStoreContextService_(repository, storePublicCode) {
   const repo = assertStoreRepositoryPort_(repository);
   const publicCode = assertStorePublicCode_(storePublicCode);
   const store = repo.findByPublicCode(publicCode);
+
+  if (!store) {
+    throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
+  }
+
+  return toStoreContext_(store);
+}
+
+function resolveStoreContextBySlugService_(repository, storeSlug) {
+  const repo = assertStoreSlugRepositoryPort_(repository);
+  const slug = assertStoreSlug_(storeSlug);
+  const store = repo.findBySlug(slug);
 
   if (!store) {
     throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");

@@ -20,6 +20,7 @@ const headers = [
   "city",
   "province",
   "notes",
+  "store_slug",
 ];
 
 class FakeRange {
@@ -261,6 +262,123 @@ ok(health.configured === true, "health configured");
 ok(health.schema_valid === true, "health schema valid");
 ok(health.sheet_name === "stores", "health sheet name");
 ok(!Object.prototype.hasOwnProperty.call(health, "spreadsheet_id"), "health hides spreadsheet id");
+
+// Legacy 16-column Registry migrates deterministically on write preparation.
+const legacyHeaders = headers.slice(0, -1);
+const legacyRows = [
+  legacyHeaders,
+  [
+    "STO_000002",
+    "st_222222222222222222222222",
+    "ACTIVE",
+    "2026-08-01T10:00:00.000Z",
+    "2026-08-01T10:00:00.000Z",
+    "",
+    1,
+    "Café Norte",
+    "Dos",
+    "dos@example.test",
+    "",
+    "",
+    "",
+    "Madrid",
+    "Madrid",
+    "legacy-two",
+  ],
+  [
+    "STO_000001",
+    "st_111111111111111111111111",
+    "ACTIVE",
+    "2026-08-01T09:00:00.000Z",
+    "2026-08-01T09:00:00.000Z",
+    "",
+    1,
+    "Café Norte",
+    "Uno",
+    "uno@example.test",
+    "",
+    "",
+    "",
+    "Madrid",
+    "Madrid",
+    "legacy-one",
+  ],
+];
+const legacy = createHarness({
+  propertyValue: "existing-id",
+  existingSheetName: "stores",
+  existingRows: legacyRows,
+});
+const legacySheet = legacy.existingSpreadsheet.getSheetByName("stores");
+const legacyFullBefore = legacySheet.rows.map((row) => row.slice());
+const legacyRepository = legacy.context.createStoreSheetsRepository_();
+const legacyBaseRead = legacyRepository.findBySlug("cafe-norte");
+const legacyCollisionRead = legacyRepository.findBySlug("cafe-norte-2");
+ok(
+  legacyBaseRead && legacyBaseRead.store_id === "STO_000001",
+  "legacy 16-column read resolves deterministic base slug"
+);
+ok(
+  legacyCollisionRead && legacyCollisionRead.store_id === "STO_000002",
+  "legacy 16-column read resolves deterministic collision slug"
+);
+ok(
+  legacySheet.getLastColumn() === 16,
+  "legacy slug read does not migrate schema"
+);
+ok(
+  JSON.stringify(legacySheet.rows) === JSON.stringify(legacyFullBefore),
+  "legacy slug read is side-effect free"
+);
+const legacyBefore = legacySheet.rows.slice(1).map((row) => row.slice());
+const migrated = legacy.context.ensureStoreSlugSchemaForWrite_(legacySheet);
+
+ok(migrated.migrated === true, "legacy Registry reports migration");
+ok(migrated.store_count === 2, "legacy migration preserves Store count");
+ok(
+  JSON.stringify(legacySheet.rows[0]) === JSON.stringify(headers),
+  "legacy migration upgrades header 16 to 17 columns"
+);
+ok(
+  JSON.stringify(legacySheet.rows[1].slice(0, 16)) === JSON.stringify(legacyBefore[0]),
+  "legacy migration preserves first Store data"
+);
+ok(
+  JSON.stringify(legacySheet.rows[2].slice(0, 16)) === JSON.stringify(legacyBefore[1]),
+  "legacy migration preserves second Store data"
+);
+ok(
+  legacySheet.rows[1][16] === "cafe-norte-2",
+  "legacy hydration assigns suffix by stable store_id order"
+);
+ok(
+  legacySheet.rows[2][16] === "cafe-norte",
+  "legacy hydration gives base slug to lowest store_id"
+);
+
+const migratedAgain = legacy.context.ensureStoreSlugSchemaForWrite_(legacySheet);
+ok(migratedAgain.migrated === false, "second migration pass is idempotent");
+ok(
+  legacySheet.rows[1][16] === "cafe-norte-2" &&
+    legacySheet.rows[2][16] === "cafe-norte",
+  "second migration pass preserves assigned slugs"
+);
+
+const duplicatedSlugRows = legacySheet.rows.map((row) => row.slice());
+duplicatedSlugRows[1][16] = "cafe-norte";
+duplicatedSlugRows[2][16] = "cafe-norte";
+const duplicatedSlug = createHarness({
+  propertyValue: "existing-id",
+  existingSheetName: "stores",
+  existingRows: duplicatedSlugRows,
+});
+const duplicatedSlugSheet =
+  duplicatedSlug.existingSpreadsheet.getSheetByName("stores");
+throwsCode(
+  () => duplicatedSlug.context.ensureStoreSlugSchemaForWrite_(duplicatedSlugSheet),
+  "STORE_SLUG_COLLISION",
+  "persisted duplicate slug fails closed before write"
+);
 
 // Invalid existing schema fails closed and never creates replacement.
 const invalidHeaders = headers.slice();

@@ -4,6 +4,19 @@
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <script>
+        (function () {
+          "use strict";
+          if (window.location.search || window.location.hash) return;
+          var match = /^\/tienda\/([a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?)$/.exec(
+            window.location.pathname
+          );
+          if (!match) return;
+          window.location.replace(
+            "/tienda/?slug=" + encodeURIComponent(match[1])
+          );
+        })();
+      </script>
       <title>Página no encontrada | Takara 3D</title>
       <meta name="description" content="La página solicitada no existe. Vuelve a Takara 3D para crear tu litofanía personalizada.">
       <link rel="canonical" href="https://takara3d.es/404.html">
@@ -30,7 +43,6 @@
     <meta name="theme-color" content="#1f1511">
     <meta name="msapplication-TileColor" content="#1f1511">
     <!-- TAKARA OFFICIAL FAVICON V2 END -->
-  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a33d526d98b94d2daf9152868f5fa030"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 
 <body>

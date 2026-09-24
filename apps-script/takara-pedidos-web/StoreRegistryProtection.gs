@@ -77,7 +77,7 @@ function createStoreRegistrySnapshot_() {
     const storeRowCount = copyStoreRegistrySheetToSnapshot_(
       sourceStores,
       snapshotStores,
-      TAKARA_STORE_REGISTRY_HEADERS,
+      storeRegistrySchemaHeaders_(sourceStores),
       assertStoreRegistrySchema_
     );
 

@@ -365,7 +365,17 @@ if (Test-Path $StoreContractPath) {
         "TAKARA_STORE_CONTEXT_V1",
         "TAKARA_STORE_ATTRIBUTION_V1",
         "autoriza_publicacion_resultado",
+        "/tienda/<store_slug>",
         "/tienda/?s=<store_public_code>",
+        "store_slug",
+        "Compatibilidad de esquema:",
+        "16 columnas",
+        "17 columnas",
+        'V2 expone `store_slug` como identidad de URL legible;',
+        'V1 por `store_public_code` permanece como compatibilidad;',
+        ("migra 16" + [char]0x2192 + "17 bajo el mismo write lock;"),
+        "noindex,nofollow,noarchive",
+        'unicidad de `store_slug`;',
         "source_type = STORE",
         "source_type = DIRECT",
         "ACTIVE",
@@ -380,6 +390,27 @@ if (Test-Path $StoreContractPath) {
             Ok ("Store conserva contrato: " + $Marker)
         } else {
             Err ("Store no contiene contrato: " + $Marker)
+        }
+    }
+}
+
+$ArchitecturePath = Join-Path $Project "docs/ARCHITECTURE.md"
+if (Test-Path $ArchitecturePath) {
+    $ArchitectureText = Read-Utf8 $ArchitecturePath
+    $ArchitectureStoreMarkers = @(
+        "/tienda/<store_slug>",
+        "/tienda/?s=<store_public_code>",
+        "noindex,nofollow,noarchive",
+        ("store_public_code es p" + [char]0x00FA + "blico, opaco, inmutable y sigue siendo identidad can" + [char]0x00F3 + "nica de backend;"),
+        ("store_slug es p" + [char]0x00FA + "blico, legible, " + [char]0x00FA + "nico e inmutable una vez asignado;"),
+        ("atribuci" + [char]0x00F3 + "n expl" + [char]0x00ED + "cita mediante store_ref hasta backend.")
+    )
+
+    foreach ($Marker in $ArchitectureStoreMarkers) {
+        if ($ArchitectureText.Contains($Marker)) {
+            Ok ("Arquitectura Store conserva V2/V1: " + $Marker)
+        } else {
+            Err ("Arquitectura Store no contiene contrato V2/V1: " + $Marker)
         }
     }
 }
