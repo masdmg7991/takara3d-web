@@ -159,4 +159,4 @@ Prevencion: limitar el Base64 antes de decodificar, comparar el tamano binario
 real y exigir marcadores JPEG de inicio y fin. Una ficha invalida se descarta
 sin crear blob, sin adjuntarse a correos y sin bloquear el pedido principal.
 
-Estado: corregido en Apps Script V1.12.1, pendiente de despliegue controlado.
+Estado: corregido desde Apps Script V1.12.1 y ya incluido en la línea PUBLIC desplegada. La versión LIVE vigente se consulta en la autoridad de despliegue.

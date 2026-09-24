@@ -357,6 +357,155 @@ function throwsCode(fn, code, message) {
     "JSONP callback removed"
   );
 
+  // V2 slug JSONP transport must resolve through store_slug without leaking store_ref.
+  appended = null;
+  removed = false;
+  callbackName = null;
+  const validSlug = "foto-garcia";
+  const resolvedBySlug = await api.resolveStoreContextJsonp({
+    endpoint,
+    storeSlug: validSlug,
+    document: fakeDocument,
+    window: fakeWindow,
+    crypto: fakeWindow.crypto,
+    timeoutMs: 500,
+  });
+  ok(Boolean(appended), "slug JSONP appends script");
+  ok(
+    appended.src.includes("store_slug=" + validSlug),
+    "slug JSONP URL has store_slug"
+  );
+  ok(
+    !appended.src.includes("store_ref="),
+    "slug JSONP URL has no store_ref"
+  );
+  ok(resolvedBySlug.store_ref === validRef, "slug JSONP resolves authoritative store_ref");
+  ok(removed === true, "slug JSONP script removed");
+  ok(
+    typeof fakeWindow[callbackName] === "undefined",
+    "slug JSONP callback removed"
+  );
+
+  // Network error must fail closed and clean up the JSONP callback/script.
+  let networkRemoved = false;
+  let networkCallbackName = null;
+  const networkWindow = {
+    crypto: fakeWindow.crypto,
+    setTimeout() {
+      return 8;
+    },
+    clearTimeout(id) {
+      ok(id === 8, "network error clears exact timeout");
+    },
+  };
+  const networkDocument = {
+    createElement(name) {
+      ok(name === "script", "network error creates script element");
+      return {
+        async: false,
+        referrerPolicy: "",
+        src: "",
+        onerror: null,
+        parentNode: {
+          removeChild() {
+            networkRemoved = true;
+          },
+        },
+      };
+    },
+    head: {
+      appendChild(script) {
+        networkCallbackName = new URL(script.src).searchParams.get("prefix");
+        process.nextTick(() => script.onerror());
+      },
+    },
+  };
+  let networkError = null;
+  try {
+    await api.resolveStoreContextJsonp({
+      endpoint,
+      storeRef: validRef,
+      document: networkDocument,
+      window: networkWindow,
+      crypto: networkWindow.crypto,
+      timeoutMs: 500,
+    });
+  } catch (error) {
+    networkError = error;
+  }
+  ok(Boolean(networkError), "network error rejects");
+  ok(
+    networkError.code === "STORE_RESOLVER_NETWORK_ERROR",
+    "network error fail-closed code"
+  );
+  ok(networkRemoved === true, "network error removes JSONP script");
+  ok(
+    typeof networkWindow[networkCallbackName] === "undefined",
+    "network error removes JSONP callback"
+  );
+
+  // Timeout must fail closed and clean up without requiring a network callback.
+  let timeoutRemoved = false;
+  let timeoutCallback = null;
+  let timeoutCallbackName = null;
+  const timeoutWindow = {
+    crypto: fakeWindow.crypto,
+    setTimeout(callback) {
+      timeoutCallback = callback;
+      return 9;
+    },
+    clearTimeout(id) {
+      ok(id === 9, "timeout clears exact timeout");
+    },
+  };
+  const timeoutDocument = {
+    createElement(name) {
+      ok(name === "script", "timeout creates script element");
+      return {
+        async: false,
+        referrerPolicy: "",
+        src: "",
+        onerror: null,
+        parentNode: {
+          removeChild() {
+            timeoutRemoved = true;
+          },
+        },
+      };
+    },
+    head: {
+      appendChild(script) {
+        timeoutCallbackName = new URL(script.src).searchParams.get("prefix");
+      },
+    },
+  };
+  const timeoutPromise = api.resolveStoreContextJsonp({
+    endpoint,
+    storeRef: validRef,
+    document: timeoutDocument,
+    window: timeoutWindow,
+    crypto: timeoutWindow.crypto,
+    timeoutMs: 25,
+  });
+  ok(typeof timeoutCallback === "function", "timeout schedules fail-closed timer");
+  timeoutCallback();
+  let timeoutError = null;
+  try {
+    await timeoutPromise;
+  } catch (error) {
+    timeoutError = error;
+  }
+  ok(Boolean(timeoutError), "timeout rejects");
+  ok(
+    timeoutError.code === "STORE_RESOLVER_TIMEOUT",
+    "timeout fail-closed code"
+  );
+  ok(timeoutRemoved === true, "timeout removes JSONP script");
+  ok(
+    typeof timeoutWindow[timeoutCallbackName] === "undefined",
+    "timeout removes JSONP callback"
+  );
+
   let appendCount = 0;
   const noAppendDocument = {
     createElement() {

@@ -41,8 +41,8 @@ en varias secciones.
 - La vía de recurrencia se denomina `Crear otro recuerdo`.
 - La tienda colaboradora se presenta como una vía válida para solicitar otra
   pieza, al mismo nivel textual que Takara 3D.
-- Los QR exclusivos de tiendas y su atribución se resolverán en un flujo
-  independiente; esta página no debe inventar identificadores de tienda.
+- Los QR exclusivos de tiendas y su atribución pertenecen al sistema Store
+  independiente; esta página no resuelve ni inventa identificadores de tienda.
 
 ## Datos técnicos contractuales
 
