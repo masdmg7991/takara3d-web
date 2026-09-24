@@ -4,6 +4,36 @@ const vm = require("vm");
 const { webcrypto } = require("crypto");
 
 const root = path.resolve(__dirname, "..");
+const pedidoHtml = fs.readFileSync(path.join(root, "pedido.html"), "utf8");
+const pedidoStart = pedidoHtml.indexOf('<section class="pedido-stl-page" id="pedido">');
+const pedidoEnd = pedidoHtml.indexOf("<!-- TAKARA PEDIDO STL PREVIEW END -->");
+if (pedidoStart < 0 || pedidoEnd <= pedidoStart) {
+  throw new Error("[FAIL] real pedido surface markers");
+}
+const realPedidoSurfaceHtml = pedidoHtml.slice(pedidoStart, pedidoEnd);
+const realPedidoSurfaceText = realPedidoSurfaceHtml
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+function extractConsentLabelText(attributeMarker) {
+  const inputIndex = realPedidoSurfaceHtml.indexOf(attributeMarker);
+  if (inputIndex < 0) throw new Error("[FAIL] real consent marker: " + attributeMarker);
+  const labelStart = realPedidoSurfaceHtml.lastIndexOf("<label", inputIndex);
+  const labelEnd = realPedidoSurfaceHtml.indexOf("</label>", inputIndex);
+  if (labelStart < 0 || labelEnd < 0) throw new Error("[FAIL] real consent label bounds");
+  return realPedidoSurfaceHtml
+    .slice(labelStart, labelEnd + 8)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const realIdentityDisclosureTexts = [
+  extractConsentLabelText('name="autoriza_publicacion_resultado"'),
+  extractConsentLabelText('data-takara-accept-proxy="autoriza_publicacion_resultado"'),
+];
+
 let checks = 0;
 
 function ok(condition, message) {
@@ -44,9 +74,20 @@ function createOrderFrame() {
       this.attrs[name] = value;
     },
   };
+  const identityControls = realIdentityDisclosureTexts.map((text) => ({
+    closest(selector) {
+      return selector === "label" ? { textContent: text } : null;
+    },
+  }));
   const surface = {
-    textContent: "",
-    querySelectorAll() {
+    textContent: realPedidoSurfaceText,
+    querySelectorAll(selector) {
+      if (
+        selector ===
+        '[name="autoriza_publicacion_resultado"], [data-takara-accept-proxy="autoriza_publicacion_resultado"]'
+      ) {
+        return identityControls;
+      }
       return [];
     },
     querySelector(selector) {
@@ -100,7 +141,7 @@ function createOrderFrame() {
       return this._src;
     },
   };
-  return { frame, form, frameWindow };
+  return { frame, form, frameWindow, surface };
 }
 
 function createBrowser(search, responsePayload) {
@@ -299,6 +340,26 @@ function createBrowser(search, responsePayload) {
   ok(
     active.order.form.attrs["data-takara-order-channel"] === "STORE",
     "shared order form is explicitly STORE channel"
+  );
+  ok(
+    realIdentityDisclosureTexts.length === 2,
+    "real pedido exposes both canonical publication-consent labels"
+  );
+  ok(
+    realPedidoSurfaceText.includes("Takara 3D"),
+    "regression fixture uses real pedido text containing the legal Takara identity"
+  );
+
+  const brandingLeak = createBrowser("?s=" + ref, good);
+  brandingLeak.order.surface.textContent += " Takara 3D";
+  await brandingLeak.boot();
+  ok(
+    brandingLeak.rootNode.attrs["data-state"] === "error",
+    "unmarked Takara branding still fails closed"
+  );
+  ok(
+    brandingLeak.order.frame.hidden === true,
+    "unmarked Takara branding never exposes the order surface"
   );
   ok(active.getAppendCount() === 1, "active makes one JSONP request");
   ok(active.getRemoveCount() === 1, "active cleans JSONP script");

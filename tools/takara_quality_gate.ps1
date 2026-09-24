@@ -472,19 +472,33 @@ if (Test-Path $StoreSingleAppClientPath) {
         }
     }
 
+    $StoreSocialConsentAuditMarkers = @(
+        'const WHITE_LABEL_IDENTITY_DISCLOSURE_SELECTOR =',
+        '[name="autoriza_publicacion_resultado"], [data-takara-accept-proxy="autoriza_publicacion_resultado"]',
+        'control.closest("label")',
+        'STORE_WHITE_LABEL_DISCLOSURE_MISMATCH'
+    )
+
+    foreach ($Marker in $StoreSocialConsentAuditMarkers) {
+        if ($StoreSingleAppClientText.Contains($Marker)) {
+            Ok ("Store single-app identifica consentimiento legal sin eliminarlo: " + $Marker)
+        } else {
+            Err ("Store single-app pierde limite semantico del consentimiento legal: " + $Marker)
+        }
+    }
+
     $StoreSocialConsentRemovalMarkers = @(
-        'input[name="autoriza_publicacion_resultado"]',
-        'data-takara-accept-proxy="autoriza_publicacion_resultado"'
+        'control.remove()',
+        'container.remove()'
     )
 
     foreach ($Marker in $StoreSocialConsentRemovalMarkers) {
         if ($StoreSingleAppClientText.Contains($Marker)) {
             Err ("Store single-app elimina consentimiento opcional compartido: " + $Marker)
         } else {
-            Ok ("Store single-app conserva consentimiento opcional compartido: " + $Marker)
+            Ok ("Store single-app no elimina consentimiento opcional compartido: " + $Marker)
         }
     }
-
     $StoreSingleAppForbiddenClientMarkers = @(
         "data-store-order-mount",
         "TAKARA_STORE_ORDER_HANDOFF_V1",

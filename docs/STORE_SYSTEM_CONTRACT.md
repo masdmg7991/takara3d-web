@@ -279,6 +279,7 @@ Reglas:
 - Store solo aporta resolucion fail-closed, `display_name`, presentacion white-label y `TAKARA_STORE_CONTEXT_V1` verificado;
 - el consentimiento opcional `autoriza_publicacion_resultado` pertenece a la superficie compartida y debe permanecer disponible tanto en DIRECT como en STORE;
 - la capa white-label Store puede retirar branding, navegacion o acciones exclusivas DIRECT, pero nunca eliminar ni preseleccionar ese consentimiento;
+- las menciones de identidad necesarias dentro de `autoriza_publicacion_resultado` son divulgacion legal, no branding visual; la auditoria white-label solo puede excluir el texto asociado a los dos controles canonicos de ese consentimiento (`name="autoriza_publicacion_resultado"` y `data-takara-accept-proxy="autoriza_publicacion_resultado"`), y cualquier otra aparicion de branding Takara sigue fallando cerrada;
 - un formulario ejecutado como canal `STORE` no puede degradar silenciosamente a `DIRECT` si falta Store Context valido;
 - no se permiten paginas, motores, pricing, preview, delivery ni submit alternativos por Store;
 - la UI publica Store no muestra branding Takara ni navegacion DIRECT;

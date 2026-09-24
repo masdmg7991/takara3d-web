@@ -120,12 +120,20 @@ function throwsCode(fn, code, message) {
     "embedded Store neutralizes canvas viewport min-height"
   );
   ok(
-    !storeClientSource.includes('input[name="autoriza_publicacion_resultado"]'),
-    "Store preserves optional social publication consent field"
+    storeClientSource.includes(
+      'const WHITE_LABEL_IDENTITY_DISCLOSURE_SELECTOR ='
+    ) &&
+      storeClientSource.includes(
+        '[name="autoriza_publicacion_resultado"], [data-takara-accept-proxy="autoriza_publicacion_resultado"]'
+      ) &&
+      storeClientSource.includes('control.closest("label")') &&
+      storeClientSource.includes("STORE_WHITE_LABEL_DISCLOSURE_MISMATCH"),
+    "Store scopes legal identity disclosure to optional publication consent"
   );
   ok(
-    !storeClientSource.includes('data-takara-accept-proxy="autoriza_publicacion_resultado"'),
-    "Store preserves optional social publication consent proxy"
+    !storeClientSource.includes("control.remove()") &&
+      !storeClientSource.includes("container.remove()"),
+    "Store preserves optional social publication consent controls"
   );
 
   ok(api.version === "TAKARA_STORE_PUBLIC_CLIENT_V1", "client version");

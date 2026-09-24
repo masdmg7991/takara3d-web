@@ -266,8 +266,45 @@
     form.setAttribute("data-takara-order-channel", "STORE");
   }
 
+  const WHITE_LABEL_IDENTITY_DISCLOSURE_SELECTOR =
+    '[name="autoriza_publicacion_resultado"], [data-takara-accept-proxy="autoriza_publicacion_resultado"]';
+
+  function getWhiteLabelAuditText(surface) {
+    let auditText = String(surface.textContent || "");
+    surface.querySelectorAll(WHITE_LABEL_IDENTITY_DISCLOSURE_SELECTOR).forEach(function (control) {
+      const container =
+        control && typeof control.closest === "function"
+          ? control.closest("label")
+          : null;
+      if (!container) {
+        throw fail(
+          "STORE_WHITE_LABEL_DISCLOSURE_MISMATCH",
+          "No se pudo verificar una mención legal permitida en la superficie compartida."
+        );
+      }
+      const allowedText = String(container.textContent || "");
+      if (!allowedText.trim()) {
+        throw fail(
+          "STORE_WHITE_LABEL_DISCLOSURE_MISMATCH",
+          "La mención legal permitida está vacía."
+        );
+      }
+      const index = auditText.indexOf(allowedText);
+      if (index < 0) {
+        throw fail(
+          "STORE_WHITE_LABEL_DISCLOSURE_MISMATCH",
+          "La mención legal permitida no pertenece a la superficie compartida."
+        );
+      }
+      auditText =
+        auditText.slice(0, index) +
+        auditText.slice(index + allowedText.length);
+    });
+    return auditText;
+  }
+
   function assertWhiteLabelSurface(surface) {
-    if (/takara\s*3d|takara3d/i.test(surface.textContent || "")) {
+    if (/takara\s*3d|takara3d/i.test(getWhiteLabelAuditText(surface))) {
       throw fail("STORE_WHITE_LABEL_TEXT_LEAK", "La superficie compartida contiene branding no permitido.");
     }
     surface.querySelectorAll("[aria-label], [title], [alt]").forEach(function (node) {
