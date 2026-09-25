@@ -158,6 +158,7 @@ $RequiredFiles = @(
     "apps-script/takara-pedidos-web/OrderEmail.gs",
     "tools/takara_validar_order_email_module.py",
     "apps-script/takara-pedidos-web/OrderDelivery.gs",
+    "apps-script/takara-pedidos-web/OrderFulfillment.gs",
     "tools/takara_validar_order_delivery_module.py",
     "apps-script/takara-pedidos-web/OrderNormalization.gs",
     "tools/takara_validar_order_normalization_module.py",

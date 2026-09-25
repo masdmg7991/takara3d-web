@@ -315,6 +315,16 @@ function normalizarEntregaPedido_(rawEntrega, rawTotales, cantidad, precioUnitar
     : {};
   const hasDeliveryContract = Object.keys(deliverySource).length > 0;
   const productTotal = calcularTotalMostrado_(precioUnitario, cantidad);
+  const fulfillmentMethod = normalizarFulfillmentMethod_(
+    deliverySource.fulfillment_method
+  );
+
+  if (
+    hasDeliveryContract &&
+    fulfillmentMethod === TAKARA_FULFILLMENT_METHOD.STORE_PICKUP
+  ) {
+    return construirRecogidaTienda_(deliverySource, totalsSource, productTotal);
+  }
 
   if (!hasDeliveryContract) {
     return {
@@ -382,6 +392,7 @@ function normalizarEntregaPedido_(rawEntrega, rawTotales, cantidad, precioUnitar
     entrega: {
       contrato_activo: true,
       version: CFG.DELIVERY_VERSION,
+      fulfillment_method: TAKARA_FULFILLMENT_METHOD.DELIVERY,
       valida: quote.valida,
       codigo: quote.codigo,
       modalidad_solicitada: quote.modalidad_solicitada,
@@ -405,6 +416,7 @@ function normalizarEntregaPedido_(rawEntrega, rawTotales, cantidad, precioUnitar
       direccion_completa_solicitada: false,
       texto_cliente: quote.texto_cliente,
       declarada: {
+        fulfillment_method: fulfillmentMethod,
         version: texto_(deliverySource.version),
         modalidad_solicitada: texto_(deliverySource.modalidad_solicitada),
         modalidad: texto_(deliverySource.modalidad_resuelta || deliverySource.modalidad),
@@ -503,10 +515,16 @@ function normalizarImporteOpcional_(value) {
   return normalizarImporteEstricto_(value);
 }
 
-function validarEntregaPedido_(entrega, totales) {
+function validarEntregaPedido_(entrega, totales, attribution) {
   if (!entrega || !entrega.contrato_activo) {
     return;
   }
+
+  const fulfillmentMethod = normalizarFulfillmentMethod_(
+    entrega.fulfillment_method
+  );
+
+  validarRecogidaTienda_(entrega, attribution, fulfillmentMethod);
 
   if (!entrega.valida) {
     throw new Error("El c\u00F3digo postal y la ubicaci\u00F3n de entrega no son compatibles.");
@@ -515,6 +533,7 @@ function validarEntregaPedido_(entrega, totales) {
   const declarada = entrega.declarada || {};
   const declaredTotals = totales && totales.declarado ? totales.declarado : {};
   const deliveryChecks = [
+    [declarada.fulfillment_method, fulfillmentMethod, "método de entrega"],
     [declarada.version, CFG.DELIVERY_VERSION, "versi\u00F3n"],
     [declarada.modalidad_solicitada, entrega.modalidad_solicitada, "modalidad calculada"],
     [declarada.modalidad, entrega.modalidad, "modalidad"],

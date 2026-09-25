@@ -26,6 +26,8 @@
       catalog: null,
       quote: null,
       totals: null,
+      fulfillmentMethod: "DELIVERY",
+      pickupContext: null,
       lastPostalCode: "",
       postalMap: null,
       postalMapPromise: null,
@@ -38,7 +40,15 @@
     const nodes = {
       form: form,
       panel: panel,
+      realFulfillment: form.querySelector('[name="fulfillment_method"]'),
       realMode: form.querySelector('[name="modalidad_entrega"]'),
+      fulfillmentWrap: panel.querySelector("[data-takara-store-fulfillment]"),
+      fulfillmentDelivery: panel.querySelector('[data-takara-fulfillment-method="DELIVERY"]'),
+      fulfillmentPickup: panel.querySelector('[data-takara-fulfillment-method="STORE_PICKUP"]'),
+      pickupInfo: panel.querySelector("[data-takara-store-pickup-info]"),
+      postalContent: panel.querySelector("[data-takara-delivery-postal-content]"),
+      postalTariffs: panel.querySelector("[data-takara-delivery-postal-tariffs]"),
+      postalSource: panel.querySelector("[data-takara-delivery-postal-source]"),
       realPostal: form.querySelector('[name="codigo_postal_entrega"]'),
       realLocationCode: form.querySelector('[name="ubicacion_entrega_codigo"]'),
       realLocationName: form.querySelector('[name="ubicacion_entrega_nombre"]'),
@@ -67,6 +77,7 @@
     };
 
     if (
+      !nodes.realFulfillment ||
       !nodes.realMode ||
       !nodes.realPostal ||
       !nodes.realLocationCode ||
@@ -88,6 +99,7 @@
     }
 
     revealLocalReview(nodes);
+    bindFulfillmentChoice(nodes, state, deliveryApi, postalApi);
     bindPostalBridge(nodes, state, deliveryApi, postalApi);
     bindInformativeLocalityBridge(nodes);
     bindMunicipalityBridge(nodes, state, deliveryApi, postalApi);
@@ -118,8 +130,95 @@
       },
       getMunicipalityResolution: function () {
         return state.municipalityResolution;
+      },
+      setStorePickupContext: function (pickup) {
+        return setStorePickupContext(nodes, state, deliveryApi, postalApi, pickup);
       }
     });
+  }
+
+  function normalizeStorePickupContext(value) {
+    const source = value && typeof value === "object" ? value : {};
+    if (source.available !== true) return null;
+    const addressLine = String(source.address_line || "").trim();
+    const postalCode = String(source.postal_code || "").trim();
+    const city = String(source.city || "").trim();
+    const province = String(source.province || "").trim();
+    if (!addressLine || !/^\d{5}$/.test(postalCode) || !city || !province) return null;
+    return Object.freeze({
+      available: true,
+      address_line: addressLine,
+      postal_code: postalCode,
+      city: city,
+      province: province
+    });
+  }
+
+  function setStorePickupContext(nodes, state, deliveryApi, postalApi, pickup) {
+    state.pickupContext = normalizeStorePickupContext(pickup);
+    if (nodes.fulfillmentWrap) nodes.fulfillmentWrap.hidden = !state.pickupContext;
+    if (nodes.pickupInfo) {
+      nodes.pickupInfo.textContent = state.pickupContext
+        ? "Recogida en " + state.pickupContext.address_line + ", " +
+          state.pickupContext.postal_code + " " + state.pickupContext.city +
+          " (" + state.pickupContext.province + "). Sin coste de entrega."
+        : "";
+    }
+    if (!state.pickupContext && state.fulfillmentMethod === "STORE_PICKUP") {
+      selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, "DELIVERY");
+    } else {
+      refresh(nodes, state, deliveryApi, postalApi, false);
+    }
+    return Boolean(state.pickupContext);
+  }
+
+  function bindFulfillmentChoice(nodes, state, deliveryApi, postalApi) {
+    function bind(button, method) {
+      if (!button) return;
+      button.addEventListener("click", function () {
+        selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, method);
+      });
+    }
+    bind(nodes.fulfillmentDelivery, "DELIVERY");
+    bind(nodes.fulfillmentPickup, "STORE_PICKUP");
+  }
+
+  function selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, method) {
+    const next = method === "STORE_PICKUP" && state.pickupContext
+      ? "STORE_PICKUP"
+      : "DELIVERY";
+    state.fulfillmentMethod = next;
+    nodes.realFulfillment.value = next;
+    const pickup = next === "STORE_PICKUP";
+    if (nodes.fulfillmentDelivery) nodes.fulfillmentDelivery.classList.toggle("is-active", !pickup);
+    if (nodes.fulfillmentPickup) nodes.fulfillmentPickup.classList.toggle("is-active", pickup);
+    if (nodes.postalContent) nodes.postalContent.hidden = pickup;
+    if (nodes.postalTariffs) nodes.postalTariffs.hidden = pickup;
+    if (nodes.postalSource) nodes.postalSource.hidden = pickup;
+    if (nodes.pickupInfo) nodes.pickupInfo.hidden = !pickup;
+    refresh(nodes, state, deliveryApi, postalApi, false);
+  }
+
+  function pickupQuote() {
+    return {
+      valid: true,
+      code: "store_pickup",
+      requested_mode: "recogida_tienda",
+      mode: "recogida_tienda",
+      postal_code: "",
+      zone_code: "",
+      zone_name: "",
+      area_code: "",
+      decision_source: "store_pickup",
+      location_required: false,
+      location_code: "",
+      location_name: "",
+      price_eur: "0.00",
+      currency: "EUR",
+      price_status: "confirmado",
+      customer_text: "Recogida en tienda sin coste. Te avisaremos cuando el pedido esté preparado.",
+      suggestion: ""
+    };
   }
 
   function loadCatalog(state) {
@@ -636,8 +735,19 @@
   }
 
   function refresh(nodes, state, deliveryApi, postalApi, announce) {
-    const postalCode = deliveryApi.normalizePostalCode(nodes.realPostal.value);
     const pricing = getPricing(nodes, state);
+    if (state.fulfillmentMethod === "STORE_PICKUP" && state.pickupContext) {
+      const quote = pickupQuote();
+      const totals = deliveryApi.calculateTotals(pricing.productSubtotal, quote);
+      state.quote = quote;
+      state.totals = totals;
+      syncDerivedDelivery(nodes, quote);
+      renderPricing(nodes, pricing, quote, totals, deliveryApi);
+      renderStatus(nodes, quote, announce);
+      return quote;
+    }
+
+    const postalCode = deliveryApi.normalizePostalCode(nodes.realPostal.value);
     const commercial = updateCommercialLocationOptions(nodes, state, deliveryApi, postalCode);
 
     if (!commercial) {
@@ -717,6 +827,9 @@
   function validate(nodes, state, deliveryApi, postalApi, showMessage) {
     const quote = refresh(nodes, state, deliveryApi, postalApi, showMessage);
     clearPostalValidity(nodes);
+    if (state.fulfillmentMethod === "STORE_PICKUP") {
+      return Boolean(state.pickupContext && quote && quote.valid);
+    }
     clearLocationValidity(nodes);
     clearMunicipalityValidity(nodes);
 

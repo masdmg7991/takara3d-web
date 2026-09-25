@@ -10,6 +10,13 @@ function nombreModalidadEntrega_(entrega) {
     return "Pendiente de confirmar";
   }
 
+  if (
+    entrega.fulfillment_method === "STORE_PICKUP" ||
+    entrega.modalidad === "recogida_tienda"
+  ) {
+    return "Recogida en tienda";
+  }
+
   if (entrega.modalidad === CFG.DELIVERY_MODE_LOCAL) {
     return "Entrega local";
   }
@@ -39,6 +46,24 @@ function textoTotalEstimado_(totales) {
 
 function construirBloqueEntregaClienteTexto_(pedido) {
   const entrega = pedido.entrega || {};
+  if (entrega.fulfillment_method === "STORE_PICKUP") {
+    const pickup = pedido.attribution && pedido.attribution.pickup
+      ? pedido.attribution.pickup
+      : {};
+    const point = [
+      pickup.address_line || "",
+      [pickup.postal_code || "", pickup.city || ""].filter(Boolean).join(" "),
+      pickup.province || ""
+    ].filter(Boolean).join(", ");
+    const pickupLines = [
+      "Modalidad: Recogida en tienda",
+      "Punto de recogida: " + (point || "Tienda pendiente de confirmar"),
+      "Coste de entrega: " + textoPrecioEntrega_(entrega)
+    ];
+    if (entrega.texto_cliente) pickupLines.push("Nota: " + entrega.texto_cliente);
+    return pickupLines.join("\n");
+  }
+
   const lines = [
     "Modalidad: " + nombreModalidadEntrega_(entrega),
     "C\u00F3digo postal: " + (entrega.codigo_postal || "Pendiente"),
@@ -65,6 +90,30 @@ function construirBloqueEntregaClienteTexto_(pedido) {
 
 function construirFilasEntregaEmailPremium_(pedido) {
   const entrega = pedido.entrega || {};
+  if (entrega.fulfillment_method === "STORE_PICKUP") {
+    const pickup = pedido.attribution && pedido.attribution.pickup
+      ? pedido.attribution.pickup
+      : {};
+    const point = [
+      pickup.address_line || "",
+      [pickup.postal_code || "", pickup.city || ""].filter(Boolean).join(" "),
+      pickup.province || ""
+    ].filter(Boolean).join(", ");
+    return [
+      construirFilaResumenEmailPremium_("Modalidad", "Recogida en tienda", false),
+      construirFilaResumenEmailPremium_(
+        "Punto de recogida",
+        escapeHtml_(point || "Tienda pendiente de confirmar"),
+        false
+      ),
+      construirFilaResumenEmailPremium_(
+        "Coste de entrega",
+        escapeHtml_(textoPrecioEntrega_(entrega)),
+        false
+      )
+    ].join("");
+  }
+
   const rows = [
     construirFilaResumenEmailPremium_("Modalidad", escapeHtml_(nombreModalidadEntrega_(entrega)), false),
     construirFilaResumenEmailPremium_("C\u00F3digo postal", escapeHtml_(entrega.codigo_postal || "Pendiente"), false),

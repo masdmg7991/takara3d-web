@@ -59,12 +59,18 @@ function buildAuthoritativeOrderAttribution_(payload) {
     );
   }
 
-  return Object.freeze({
+  const attribution = {
     version: TAKARA_STORE_ATTRIBUTION_VERSION,
     source_type: TAKARA_ORDER_SOURCE_TYPE.STORE,
     store_id: assertStoreId_(identity.store_id),
     store_name_snapshot: normalizeStoreDisplayName_(
       identity.display_name
     ),
-  });
+  };
+
+  if (identity.pickup) {
+    attribution.pickup = identity.pickup;
+  }
+
+  return Object.freeze(attribution);
 }

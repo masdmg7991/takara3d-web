@@ -580,6 +580,43 @@ function setStoreStatus_(currentStore, nextStatus, timestamp) {
   });
 }
 
+const TAKARA_STORE_PICKUP_CONTEXT_VERSION = "TAKARA_STORE_PICKUP_V1";
+
+function buildStorePickupContext_(store) {
+  const source = store || {};
+  const addressLine = normalizeStoreOptionalText_(source.address_line, 240);
+  const postalCode = normalizeStoreOptionalText_(source.postal_code, 20);
+  const city = normalizeStoreOptionalText_(source.city, 120);
+  const province = normalizeStoreOptionalText_(source.province, 120);
+  const prefix = /^\d{5}$/.test(postalCode)
+    ? parseInt(postalCode.slice(0, 2), 10)
+    : NaN;
+  const available = Boolean(
+    addressLine &&
+    city &&
+    province &&
+    isFinite(prefix) &&
+    prefix >= 1 &&
+    prefix <= 52
+  );
+
+  if (!available) {
+    return Object.freeze({
+      version: TAKARA_STORE_PICKUP_CONTEXT_VERSION,
+      available: false,
+    });
+  }
+
+  return Object.freeze({
+    version: TAKARA_STORE_PICKUP_CONTEXT_VERSION,
+    available: true,
+    address_line: addressLine,
+    postal_code: postalCode,
+    city: city,
+    province: province,
+  });
+}
+
 function toStoreContext_(store) {
   if (!store) {
     throw storeDomainError_("STORE_NOT_FOUND", "Store not found.");
@@ -594,6 +631,7 @@ function toStoreContext_(store) {
     store_ref: assertStorePublicCode_(store.store_public_code),
     display_name: normalizeStoreDisplayName_(store.display_name),
     status: TAKARA_STORE_STATUS.ACTIVE,
+    pickup: buildStorePickupContext_(store),
   };
 }
 
@@ -612,5 +650,6 @@ function toStoreOrderIdentity_(store) {
     store_id: assertStoreId_(store.store_id),
     display_name: normalizeStoreDisplayName_(store.display_name),
     status: TAKARA_STORE_STATUS.ACTIVE,
+    pickup: buildStorePickupContext_(store),
   });
 }

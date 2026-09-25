@@ -645,6 +645,7 @@
       store_ref: context.store_ref,
       display_name: context.display_name,
       status: context.status,
+      pickup: context.pickup,
     });
     frame.hidden = false;
     observeOrderFrame(frame);

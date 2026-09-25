@@ -266,7 +266,7 @@ def validate_server() -> None:
     require('DELIVERY_PRICE_LOCAL_FREE_EUR: "0.00"' in source, "Servidor conserva Leganés 0,00 EUR")
     require('DELIVERY_PRICE_LOCAL_NEARBY_EUR: "3.00"' in source, "Servidor conserva zona cercana 3,00 EUR")
     require('DELIVERY_PRICE_MAINLAND_TRACKED_EUR: "6.50"' in source, "Servidor conserva Península 6,50 EUR")
-    require("validarEntregaPedido_(pedido.entrega, pedido.totales);" in source, "Validación principal ejecuta contrato de entrega")
+    require("validarEntregaPedido_(pedido.entrega, pedido.totales, pedido.attribution);" in source, "Validación principal ejecuta contrato de entrega con atribución autoritativa")
     require("deliverySource.codigo_postal" in source and "deliverySource.ubicacion_codigo" in source, "Servidor recalcula desde CP y ubicación oficial")
     require("deliverySource.modalidad" not in source[source.index("const quote = calcularCotizacionEntrega_"):source.index("const deliveryCents =")], "Servidor no usa la modalidad del cliente para cotizar")
     require("precio de entrega" in source.lower() and "total estimado" in source.lower(), "Servidor rechaza precio y total incoherentes")

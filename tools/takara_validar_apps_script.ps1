@@ -23,6 +23,8 @@ $ValidationRel = "apps-script/takara-pedidos-web/OrderValidation.gs"
 $ValidationPath = Join-Path $Project $ValidationRel
 $DeliveryRel = "apps-script/takara-pedidos-web/OrderDelivery.gs"
 $DeliveryPath = Join-Path $Project $DeliveryRel
+$FulfillmentRel = "apps-script/takara-pedidos-web/OrderFulfillment.gs"
+$FulfillmentPath = Join-Path $Project $FulfillmentRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
 $ExpectedHash = "DE707A620A695BF07FB98B84E1A355123C05F7F9EA5A4DDBC70B970004DE0199"
@@ -39,6 +41,7 @@ if (!(Test-Path $RuntimePath)) { Fail "No existe $RuntimeRel" }
 if (!(Test-Path $NormalizationPath)) { Fail "No existe $NormalizationRel" }
 if (!(Test-Path $ValidationPath)) { Fail "No existe $ValidationRel" }
 if (!(Test-Path $DeliveryPath)) { Fail "No existe $DeliveryRel" }
+if (!(Test-Path $FulfillmentPath)) { Fail "No existe $FulfillmentRel" }
 if (!(Test-Path $EmailPath)) { Fail "No existe $EmailRel" }
 
 $Text = Get-Content $CodePath -Raw -Encoding UTF8
@@ -48,6 +51,7 @@ $RuntimeText = Get-Content $RuntimePath -Raw -Encoding UTF8
 $NormalizationText = Get-Content $NormalizationPath -Raw -Encoding UTF8
 $ValidationText = Get-Content $ValidationPath -Raw -Encoding UTF8
 $DeliveryText = Get-Content $DeliveryPath -Raw -Encoding UTF8
+$FulfillmentText = Get-Content $FulfillmentPath -Raw -Encoding UTF8
 $EmailText = Get-Content $EmailPath -Raw -Encoding UTF8
 $CanonicalText = $Text.Replace("`r`n", "`n").Replace("`r", "`n")
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -62,7 +66,7 @@ try {
 if ($Hash -ne $ExpectedHash) { Fail "Hash Code.gs inesperado: $Hash" }
 Ok "Hash Code.gs exacto"
 
-$Text = $Text + "`n" + $RuntimeText + "`n" + $NormalizationText + "`n" + $ValidationText + "`n" + $DeliveryText + "`n" + $EmailText
+$Text = $Text + "`n" + $RuntimeText + "`n" + $NormalizationText + "`n" + $ValidationText + "`n" + $DeliveryText + "`n" + $FulfillmentText + "`n" + $EmailText
 $V2BodyStart = $Text.IndexOf("function construirCuerpoInternoV2_")
 $V2BodyEnd = $Text.IndexOf("/* TAKARA EMAIL PEDIDO PREMIUM V1 START */", $V2BodyStart)
 if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {
@@ -98,7 +102,7 @@ $Checks = @(
         $Text -match 'DELIVERY_FIXED_MAINLAND_MAX_QUANTITY:\s*1'
     ) },
     @{ Name = "Entrega postal recalculada y fail closed"; Pass = (
-        $Text -match 'validarEntregaPedido_\(pedido\.entrega,\s*pedido\.totales\)' -and
+        $Text -match 'validarEntregaPedido_\(pedido\.entrega,\s*pedido\.totales,\s*pedido\.attribution\)' -and
         $Text -match 'clasificarCodigoPostalEntrega_' -and
         $Text -match 'deliverySource\.codigo_postal' -and
         $Text -match 'deliverySource\.ubicacion_codigo' -and
@@ -111,6 +115,15 @@ $Checks = @(
         $Text -match 'total estimado' -and
         $Text -match 'direccion_completa_solicitada' -and
         $Text -match 'legacy_sin_entrega'
+    ) },
+    @{ Name = "Recogida Store-only fail closed"; Pass = (
+        $FulfillmentText -match 'TAKARA_FULFILLMENT_METHOD' -and
+        $FulfillmentText -match 'STORE_PICKUP' -and
+        $FulfillmentText -match 'precio_eur:\s*"0\.00"' -and
+        $FulfillmentText -match 'attribution\.source_type\s*!==\s*"STORE"' -and
+        $FulfillmentText -match 'pickup\.available\s*!==\s*true' -and
+        $DeliveryText -match 'construirRecogidaTienda_' -and
+        $DeliveryText -match 'validarRecogidaTienda_'
     ) },
     @{ Name = "Entrega y ubicacion en correos"; Pass = (
         $Text -match '\[ENTREGA\]' -and

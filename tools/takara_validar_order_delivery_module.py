@@ -46,6 +46,7 @@ def main() -> int:
     runtime = read('apps-script/takara-pedidos-web/RuntimeHelpers.gs')
     normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
     delivery = read('apps-script/takara-pedidos-web/OrderDelivery.gs')
+    fulfillment = read('apps-script/takara-pedidos-web/OrderFulfillment.gs')
     normalization = read('apps-script/takara-pedidos-web/OrderNormalization.gs')
     validation = read('apps-script/takara-pedidos-web/OrderValidation.gs')
     email = read('apps-script/takara-pedidos-web/OrderEmail.gs')
@@ -53,12 +54,29 @@ def main() -> int:
     gate = read('tools/takara_quality_gate.ps1')
     require('TAKARA ORDER DELIVERY V1' in delivery, 'OrderDelivery declara versión arquitectónica')
     require('function doGet(' not in delivery and 'function doPost(' not in delivery, 'OrderDelivery no posee HTTP')
+    require('TAKARA ORDER FULFILLMENT V1' in fulfillment, 'OrderFulfillment declara versión arquitectónica')
+    require('function doGet(' not in fulfillment and 'function doPost(' not in fulfillment, 'OrderFulfillment no posee HTTP')
     all_gs = {p.name: p.read_text(encoding='utf-8-sig') for p in APP.glob('*.gs')}
     for name in DELIVERY_FUNCTIONS:
         marker = f'function {name}('
         require(delivery.count(marker) == 1, f'{name} existe una vez en OrderDelivery')
         require(code.count(marker) == 0, f'{name} ya no vive en Code.gs')
         require(sum(text.count(marker) for text in all_gs.values()) == 1, f'{name} tiene autoridad única')
+    fulfillment_functions = (
+        'normalizarFulfillmentMethod_',
+        'construirRecogidaTienda_',
+        'validarRecogidaTienda_',
+    )
+    for name in fulfillment_functions:
+        marker = f'function {name}('
+        require(fulfillment.count(marker) == 1, f'{name} existe una vez en OrderFulfillment')
+        require(delivery.count(marker) == 0, f'{name} no invade OrderDelivery')
+        require(sum(text.count(marker) for text in all_gs.values()) == 1, f'{name} tiene autoridad única')
+    require('STORE_PICKUP' in fulfillment, 'OrderFulfillment declara STORE_PICKUP')
+    require('precio_eur: "0.00"' in fulfillment, 'Recogida fija coste de entrega 0.00')
+    require('attribution.source_type !== "STORE"' in fulfillment, 'Recogida rechaza canal no STORE')
+    require('pickup.available !== true' in fulfillment, 'Recogida exige punto físico autoritativo')
+
     for name in CORE_NUMERIC_FUNCTIONS:
         marker = f'function {name}('
         require(runtime.count(marker) == 1, f'{name} vive en RuntimeHelpers')
@@ -66,13 +84,16 @@ def main() -> int:
     require('normalizarEntregaPedido_(' in normalization, 'normalización de pedido delega entrega')
     require('validarEntregaPedido_(' in validation, 'validación de pedido delega entrega')
     require('textoPrecioEntrega_(' in email, 'OrderEmail consume autoridad delivery')
-    code_lines=len(code.splitlines()); delivery_lines=len(delivery.splitlines())
+    code_lines=len(code.splitlines()); delivery_lines=len(delivery.splitlines()); fulfillment_lines=len(fulfillment.splitlines())
     require(code_lines < 1450, 'Code.gs baja de 1450 líneas')
     require(540 <= delivery_lines <= 590, 'OrderDelivery mantiene bloque acotado')
+    require(110 <= fulfillment_lines <= 170, 'OrderFulfillment mantiene bloque acotado')
     require('OrderDelivery.gs' in readme, 'README documenta OrderDelivery')
     require('apps-script/takara-pedidos-web/OrderDelivery.gs' in gate, 'Gate exige OrderDelivery')
+    require('OrderFulfillment.gs' in readme, 'README documenta OrderFulfillment')
+    require('apps-script/takara-pedidos-web/OrderFulfillment.gs' in gate, 'Gate exige OrderFulfillment')
     require('tools/takara_validar_order_delivery_module.py' in gate, 'Gate exige validador W12.4')
-    print('[TAKARA_ORDER_DELIVERY_MODULE_OK] '+json.dumps({'checks':checks,'code_lines':code_lines,'delivery_lines':delivery_lines,'functions':len(DELIVERY_FUNCTIONS)},ensure_ascii=False,separators=(',',':')))
+    print('[TAKARA_ORDER_DELIVERY_MODULE_OK] '+json.dumps({'checks':checks,'code_lines':code_lines,'delivery_lines':delivery_lines,'fulfillment_lines':fulfillment_lines,'functions':len(DELIVERY_FUNCTIONS)},ensure_ascii=False,separators=(',',':')))
     return 0
 
 if __name__ == '__main__':

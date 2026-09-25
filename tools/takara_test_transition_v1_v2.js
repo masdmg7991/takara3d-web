@@ -68,11 +68,13 @@ function loadServer() {
   vm.runInContext(fs.readFileSync(normalizationPath, "utf8"), context, { filename: normalizationPath });
   const validationPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderValidation.gs");
   vm.runInContext(fs.readFileSync(validationPath, "utf8"), context, { filename: validationPath });
+  const fulfillmentPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderFulfillment.gs");
+  vm.runInContext(fs.readFileSync(fulfillmentPath, "utf8"), context, { filename: fulfillmentPath });
   const deliveryPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderDelivery.gs");
   vm.runInContext(fs.readFileSync(deliveryPath, "utf8"), context, { filename: deliveryPath });
   const emailPath = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
   vm.runInContext(fs.readFileSync(emailPath, "utf8"), context, { filename: emailPath });
-  return { context, source: source + "\n" + fs.readFileSync(runtimePath, "utf8") + "\n" + fs.readFileSync(normalizationPath, "utf8") + "\n" + fs.readFileSync(validationPath, "utf8") + "\n" + fs.readFileSync(deliveryPath, "utf8") + "\n" + fs.readFileSync(emailPath, "utf8") };
+  return { context, source: source + "\n" + fs.readFileSync(runtimePath, "utf8") + "\n" + fs.readFileSync(normalizationPath, "utf8") + "\n" + fs.readFileSync(validationPath, "utf8") + "\n" + fs.readFileSync(fulfillmentPath, "utf8") + "\n" + fs.readFileSync(deliveryPath, "utf8") + "\n" + fs.readFileSync(emailPath, "utf8") };
 }
 
 function personalizacion2() {

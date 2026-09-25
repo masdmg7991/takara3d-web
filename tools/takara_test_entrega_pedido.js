@@ -18,6 +18,7 @@ const RUNTIME_HELPERS_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", 
 const ORDER_NORMALIZATION_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderNormalization.gs");
 const ORDER_VALIDATION_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderValidation.gs");
 const ORDER_DELIVERY_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderDelivery.gs");
+const ORDER_FULFILLMENT_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderFulfillment.gs");
 const ORDER_EMAIL_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
 const STORE_DOMAIN = path.join(
   ROOT,
@@ -97,6 +98,7 @@ function loadServerContext() {
   vm.runInContext(fs.readFileSync(RUNTIME_HELPERS_GS, "utf8"), context, { filename: RUNTIME_HELPERS_GS });
   vm.runInContext(fs.readFileSync(ORDER_NORMALIZATION_GS, "utf8"), context, { filename: ORDER_NORMALIZATION_GS });
   vm.runInContext(fs.readFileSync(ORDER_VALIDATION_GS, "utf8"), context, { filename: ORDER_VALIDATION_GS });
+  vm.runInContext(fs.readFileSync(ORDER_FULFILLMENT_GS, "utf8"), context, { filename: ORDER_FULFILLMENT_GS });
   vm.runInContext(fs.readFileSync(ORDER_DELIVERY_GS, "utf8"), context, { filename: ORDER_DELIVERY_GS });
   vm.runInContext(fs.readFileSync(ORDER_EMAIL_GS, "utf8"), context, { filename: ORDER_EMAIL_GS });
 
@@ -628,6 +630,68 @@ function testServerAndEmails(deliveryApi) {
   }, /snapshot|entrega|total/i, "Payload V2 incompleto se rechaza sin degradación legacy");
 }
 
+function testStorePickupContract() {
+  const server = loadServerContext();
+  const pickup = server.buildStorePickupContext_({
+    address_line: "Calle Prueba 1",
+    postal_code: "28911",
+    city: "Leganés",
+    province: "Madrid"
+  });
+  ok(pickup.available === true, "Store física habilita recogida");
+  const bundle = server.construirRecogidaTienda_(
+    {
+      fulfillment_method: "STORE_PICKUP",
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      modalidad_solicitada: "recogida_tienda",
+      modalidad_resuelta: "recogida_tienda",
+      fuente_decision: "store_pickup",
+      precio_eur: "0.00",
+      moneda: "EUR",
+      estado_precio: "confirmado",
+      direccion_completa_solicitada: false,
+      texto_cliente: "Recogida en tienda sin coste. Te avisaremos cuando el pedido esté preparado."
+    },
+    {
+      version: "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC",
+      subtotal_productos_eur: "35.00",
+      precio_entrega_eur: "0.00",
+      total_estimado_eur: "35.00",
+      moneda: "EUR",
+      estado_total: "confirmado"
+    },
+    "35.00"
+  );
+  ok(bundle.entrega.precio_eur === "0.00", "Recogida fija coste de entrega 0,00 EUR");
+  ok(bundle.totales.total_estimado_eur === "35.00", "Recogida no incrementa el total");
+  server.validarRecogidaTienda_(
+    bundle.entrega,
+    { source_type: "STORE", pickup: pickup },
+    "STORE_PICKUP"
+  );
+  ok(true, "Servidor acepta recogida de Store física autoritativa");
+  expectThrow(function () {
+    server.validarRecogidaTienda_(
+      bundle.entrega,
+      { source_type: "DIRECT", pickup: pickup },
+      "STORE_PICKUP"
+    );
+  }, /no está disponible/i, "Servidor rechaza recogida desde DIRECT");
+  const unavailable = server.buildStorePickupContext_({
+    postal_code: "28911",
+    city: "Leganés",
+    province: "Madrid"
+  });
+  ok(unavailable.available === false, "Store sin dirección no habilita recogida");
+  expectThrow(function () {
+    server.validarRecogidaTienda_(
+      bundle.entrega,
+      { source_type: "STORE", pickup: unavailable },
+      "STORE_PICKUP"
+    );
+  }, /no está disponible/i, "Servidor rechaza Store sin punto físico");
+}
+
 function testStaticContract() {
   const page = fs.readFileSync(ORDER_HTML, "utf8");
   const orderSource = fs.readFileSync(ORDER_JS, "utf8");
@@ -636,6 +700,10 @@ function testStaticContract() {
   const contract = fs.readFileSync(ORDER_CONTRACT, "utf8");
 
   ok(page.includes('type="hidden" name="modalidad_entrega"'), "Formulario conserva modalidad derivada oculta");
+  ok(page.includes('name="fulfillment_method" value="DELIVERY"'), "Formulario conserva fulfillment DELIVERY por defecto");
+  ok(page.includes("data-takara-store-fulfillment"), "Selector de recogida existe oculto para Store");
+  ok(uiSource.includes("setStorePickupContext"), "UI sólo habilita pickup desde contexto Store");
+  ok(orderSource.includes("orderStorePickupContext"), "Motor conserva contexto pickup separado del transporte Store");
   ok(page.includes('name="codigo_postal_entrega"'), "Formulario conserva código postal");
   ok(page.includes('name="ubicacion_entrega_codigo"'), "Formulario conserva ubicación oficial");
   ok(page.includes('name="localidad_entrega_informativa"'), "Formulario conserva localidad informativa");
@@ -677,6 +745,7 @@ function main() {
   testNationalPostalMap();
   const deliveryApi = testCoreAndCatalog();
   testServerAndEmails(deliveryApi);
+  testStorePickupContract();
   testStaticContract();
   process.stdout.write("[TAKARA_DELIVERY_ORDER_TEST_OK] " + checks + " comprobaciones\n");
 }

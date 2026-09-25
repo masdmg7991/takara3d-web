@@ -23,6 +23,8 @@ function loadAppsScript(codePath) {
   const validationSource = fs.readFileSync(validationPath, "utf8");
   const deliveryPath = path.join(path.dirname(codePath), "OrderDelivery.gs");
   const deliverySource = fs.readFileSync(deliveryPath, "utf8");
+  const fulfillmentPath = path.join(path.dirname(codePath), "OrderFulfillment.gs");
+  const fulfillmentSource = fs.readFileSync(fulfillmentPath, "utf8");
   const emailPath = path.join(path.dirname(codePath), "OrderEmail.gs");
   const emailSource = fs.readFileSync(emailPath, "utf8");
   const context = {
@@ -59,6 +61,7 @@ function loadAppsScript(codePath) {
   vm.runInContext(runtimeSource, context, { filename: runtimePath });
   vm.runInContext(normalizationSource, context, { filename: normalizationPath });
   vm.runInContext(validationSource, context, { filename: validationPath });
+  vm.runInContext(fulfillmentSource, context, { filename: fulfillmentPath });
   vm.runInContext(deliverySource, context, { filename: deliveryPath });
   vm.runInContext(emailSource, context, { filename: emailPath });
   return context;

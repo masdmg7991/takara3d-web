@@ -37,6 +37,12 @@ const ORDER_DELIVERY_GS = path.join(
   "takara-pedidos-web",
   "OrderDelivery.gs"
 );
+const ORDER_FULFILLMENT_GS = path.join(
+  ROOT,
+  "apps-script",
+  "takara-pedidos-web",
+  "OrderFulfillment.gs"
+);
 const ORDER_MEDIA_GS = path.join(
   ROOT,
   "apps-script",
@@ -160,6 +166,9 @@ function loadServerContext() {
   });
   vm.runInContext(fs.readFileSync(ORDER_VALIDATION_GS, "utf8"), context, {
     filename: ORDER_VALIDATION_GS
+  });
+  vm.runInContext(fs.readFileSync(ORDER_FULFILLMENT_GS, "utf8"), context, {
+    filename: ORDER_FULFILLMENT_GS
   });
   vm.runInContext(fs.readFileSync(ORDER_DELIVERY_GS, "utf8"), context, {
     filename: ORDER_DELIVERY_GS

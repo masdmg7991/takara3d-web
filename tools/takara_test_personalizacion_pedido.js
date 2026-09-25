@@ -15,6 +15,7 @@ const RUNTIME_HELPERS_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", 
 const ORDER_NORMALIZATION_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderNormalization.gs");
 const ORDER_VALIDATION_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderValidation.gs");
 const ORDER_DELIVERY_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderDelivery.gs");
+const ORDER_FULFILLMENT_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderFulfillment.gs");
 const ORDER_EMAIL_GS = path.join(ROOT, "apps-script", "takara-pedidos-web", "OrderEmail.gs");
 const STORE_DOMAIN = path.join(
   ROOT,
@@ -246,6 +247,7 @@ function loadServerContext() {
   vm.runInContext(fs.readFileSync(RUNTIME_HELPERS_GS, "utf8"), context, { filename: RUNTIME_HELPERS_GS });
   vm.runInContext(fs.readFileSync(ORDER_NORMALIZATION_GS, "utf8"), context, { filename: ORDER_NORMALIZATION_GS });
   vm.runInContext(fs.readFileSync(ORDER_VALIDATION_GS, "utf8"), context, { filename: ORDER_VALIDATION_GS });
+  vm.runInContext(fs.readFileSync(ORDER_FULFILLMENT_GS, "utf8"), context, { filename: ORDER_FULFILLMENT_GS });
   vm.runInContext(fs.readFileSync(ORDER_DELIVERY_GS, "utf8"), context, { filename: ORDER_DELIVERY_GS });
   vm.runInContext(fs.readFileSync(ORDER_EMAIL_GS, "utf8"), context, { filename: ORDER_EMAIL_GS });
 

@@ -300,6 +300,7 @@
               </label>
 
               <div data-takara-delivery-real hidden>
+                <input type="hidden" name="fulfillment_method" value="DELIVERY">
                 <input type="hidden" name="modalidad_entrega" value="">
                 <input type="hidden" name="codigo_postal_entrega" value="">
                 <input type="hidden" name="ubicacion_entrega_codigo" value="">
@@ -574,7 +575,20 @@
 
             <div class="takara-delivery-layout">
               <div class="takara-delivery-choice">
-                <div class="takara-delivery-calculator">
+                <div class="takara-preview-format-options takara-store-fulfillment" data-takara-store-fulfillment hidden>
+                  <button type="button" class="takara-preview-format-card is-active" data-takara-fulfillment-method="DELIVERY">
+                    <strong>Entrega</strong>
+                    <span>Envío a domicilio</span>
+                  </button>
+                  <button type="button" class="takara-preview-format-card" data-takara-fulfillment-method="STORE_PICKUP">
+                    <strong>Recoger en tienda</strong>
+                    <span>Sin coste</span>
+                  </button>
+                </div>
+
+                <p class="takara-delivery-location-note" data-takara-store-pickup-info hidden></p>
+
+                <div class="takara-delivery-calculator" data-takara-delivery-postal-content>
                   <div class="takara-delivery-fields">
                     <label class="takara-delivery-field">
                       <span>Código postal de entrega</span>
@@ -605,8 +619,8 @@
                   <p class="takara-delivery-status" data-takara-delivery-status data-state="neutral" role="status">Introduce tu código postal para calcular automáticamente la entrega.</p>
                 </div>
 
-                <p class="takara-delivery-tariffs"><strong>Tarifas iniciales:</strong> Leganés gratis · zona cercana de Madrid Sur 3 € · resto de Península 6,50 €. Baleares, Canarias, Ceuta y Melilla se confirman aparte.</p>
-                <p class="takara-delivery-source">Municipios según CartoCiudad · IGN/CNIG.</p>
+                <p class="takara-delivery-tariffs" data-takara-delivery-postal-tariffs><strong>Tarifas iniciales:</strong> Leganés gratis · zona cercana de Madrid Sur 3 € · resto de Península 6,50 €. Baleares, Canarias, Ceuta y Melilla se confirman aparte.</p>
+                <p class="takara-delivery-source" data-takara-delivery-postal-source>Municipios según CartoCiudad · IGN/CNIG.</p>
               </div>
 
               <aside class="takara-delivery-summary" aria-label="Resumen de precio">

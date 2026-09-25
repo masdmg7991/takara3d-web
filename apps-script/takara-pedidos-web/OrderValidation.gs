@@ -32,6 +32,11 @@ function validarSnapshotV2_(pedido) {
     [texto_(product.codigo_producto), pedido.producto.codigo_producto, "producto"],
     [texto_(product.variante_codigo), pedido.producto.variante_codigo, "variante"],
     [normalizarCantidad_(product.cantidad), pedido.producto.cantidad, "cantidad"],
+    [
+      texto_(delivery.fulfillment_method || "DELIVERY"),
+      pedido.entrega.fulfillment_method || "DELIVERY",
+      "método de entrega"
+    ],
     [texto_(delivery.codigo_postal), pedido.entrega.codigo_postal, "código postal"],
     [texto_(delivery.ubicacion_codigo), pedido.entrega.ubicacion_codigo, "ubicación"],
     [
@@ -173,7 +178,7 @@ function validarPedidoV2_(pedido) {
     pedido.producto.precio_unitario_mostrado_eur
   );
 
-  validarEntregaPedido_(pedido.entrega, pedido.totales);
+  validarEntregaPedido_(pedido.entrega, pedido.totales, pedido.attribution);
 }
 
 function validarProductoCatalogoV2_(pedido) {

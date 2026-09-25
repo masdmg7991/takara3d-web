@@ -10,11 +10,15 @@
   const ORDER_SNAPSHOT_VERSION = "TAKARA_ORDER_SNAPSHOT_V2";
   const DELIVERY_VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC";
   const STORE_CONTEXT_VERSION = "TAKARA_STORE_CONTEXT_V1";
+  const STORE_PICKUP_CONTEXT_VERSION = "TAKARA_STORE_PICKUP_V1";
+  const FULFILLMENT_DELIVERY = "DELIVERY";
+  const FULFILLMENT_STORE_PICKUP = "STORE_PICKUP";
   const ORDER_STORE_CONTEXT_BRIDGE_VERSION =
     "TAKARA_ORDER_STORE_CONTEXT_BRIDGE_V1";
   const STORE_REF_PATTERN = /^st_[A-Za-z0-9_-]{24,64}$/;
 
   let orderStoreContextTransport = null;
+  let orderStorePickupContext = null;
   const ORDER_ID_PREFIX = "TK-WEB";
   const FRAME_TEXT_VERSION = "TAKARA_FRAME_TEXT_V1_4";
   const FRAME_TEXT_SIDES = Object.freeze(["top", "right", "bottom", "left"]);
@@ -441,11 +445,23 @@
         meta: payload.meta || {}
       });
 
-      const deliveryQuote = deliveryApi.quote({
-        postalCode: payload.entrega && payload.entrega.codigo_postal,
-        locationCode: payload.entrega && payload.entrega.ubicacion_codigo,
-        quantity: catalogQuote.producto.cantidad
-      });
+      const fulfillmentMethod =
+        payload.entrega && payload.entrega.fulfillment_method === FULFILLMENT_STORE_PICKUP
+          ? FULFILLMENT_STORE_PICKUP
+          : FULFILLMENT_DELIVERY;
+      if (
+        fulfillmentMethod === FULFILLMENT_STORE_PICKUP &&
+        (!orderStorePickupContext || orderStorePickupContext.available !== true)
+      ) {
+        throw new Error("La recogida en tienda no está disponible para este pedido.");
+      }
+      const deliveryQuote = fulfillmentMethod === FULFILLMENT_STORE_PICKUP
+        ? buildStorePickupQuote()
+        : deliveryApi.quote({
+            postalCode: payload.entrega && payload.entrega.codigo_postal,
+            locationCode: payload.entrega && payload.entrega.ubicacion_codigo,
+            quantity: catalogQuote.producto.cantidad
+          });
 
       if (!deliveryQuote.valid) {
         throw new Error(
@@ -538,6 +554,7 @@
       "store_ref",
       "display_name",
       "status",
+      "pickup",
     ];
 
     const unexpectedKeys = Object.keys(value).filter(function (key) {
@@ -570,21 +587,70 @@
       throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
     }
 
+    let pickup = null;
+    if (value.pickup !== undefined) {
+      const source = value.pickup;
+      if (!source || typeof source !== "object" || Array.isArray(source)) {
+        throw orderStoreContextError("ORDER_STORE_CONTEXT_INVALID");
+      }
+      if (source.version !== STORE_PICKUP_CONTEXT_VERSION) {
+        throw orderStoreContextError("ORDER_STORE_PICKUP_VERSION_INVALID");
+      }
+      if (source.available === true) {
+        const addressLine = String(source.address_line || "").trim();
+        const postalCode = String(source.postal_code || "").trim();
+        const city = String(source.city || "").trim();
+        const province = String(source.province || "").trim();
+        if (!addressLine || !/^\d{5}$/.test(postalCode) || !city || !province) {
+          throw orderStoreContextError("ORDER_STORE_PICKUP_INVALID");
+        }
+        pickup = Object.freeze({
+          version: STORE_PICKUP_CONTEXT_VERSION,
+          available: true,
+          address_line: addressLine,
+          postal_code: postalCode,
+          city: city,
+          province: province,
+        });
+      } else if (source.available === false) {
+        pickup = Object.freeze({
+          version: STORE_PICKUP_CONTEXT_VERSION,
+          available: false,
+        });
+      } else {
+        throw orderStoreContextError("ORDER_STORE_PICKUP_INVALID");
+      }
+    }
+
     return Object.freeze({
       version: STORE_CONTEXT_VERSION,
       store_ref: storeRef,
+      pickup: pickup,
     });
   }
 
-  function setVerifiedOrderStoreContext(value) {
-    orderStoreContextTransport =
-      normalizeVerifiedStoreContext(value);
+  function syncStorePickupUi() {
+    const deliveryUi = window.TAKARA_DELIVERY_UI_V2;
+    if (deliveryUi && typeof deliveryUi.setStorePickupContext === "function") {
+      deliveryUi.setStorePickupContext(orderStorePickupContext);
+    }
+  }
 
+  function setVerifiedOrderStoreContext(value) {
+    const normalized = normalizeVerifiedStoreContext(value);
+    orderStoreContextTransport = Object.freeze({
+      version: normalized.version,
+      store_ref: normalized.store_ref,
+    });
+    orderStorePickupContext = normalized.pickup;
+    syncStorePickupUi();
     return orderStoreContextTransport;
   }
 
   function clearOrderStoreContext() {
     orderStoreContextTransport = null;
+    orderStorePickupContext = null;
+    syncStorePickupUi();
   }
 
   function getOrderStoreContextTransport() {
@@ -632,6 +698,9 @@
       formatoKey
     );
     const notas = value(form, "notas");
+    const fulfillmentMethod = value(form, "fulfillment_method") === FULFILLMENT_STORE_PICKUP
+      ? FULFILLMENT_STORE_PICKUP
+      : FULFILLMENT_DELIVERY;
     const codigoPostalEntrega = value(form, "codigo_postal_entrega");
     const ubicacionEntregaCodigo = value(form, "ubicacion_entrega_codigo");
     const localidadEntregaInformativa = value(form, "localidad_entrega_informativa");
@@ -640,11 +709,19 @@
     const provinciaEntregaNombre = value(form, "provincia_entrega_nombre");
     const municipioEntregaFuente = value(form, "municipio_entrega_fuente");
     const deliveryApi = getTakaraCore("TAKARA_DELIVERY_CORE_V2");
-    const deliveryQuote = deliveryApi.quote({
-      postalCode: codigoPostalEntrega,
-      locationCode: ubicacionEntregaCodigo,
-      quantity: cantidad
-    });
+    if (
+      fulfillmentMethod === FULFILLMENT_STORE_PICKUP &&
+      (!orderStorePickupContext || orderStorePickupContext.available !== true)
+    ) {
+      throw new Error("La recogida en tienda no está disponible para este pedido.");
+    }
+    const deliveryQuote = fulfillmentMethod === FULFILLMENT_STORE_PICKUP
+      ? buildStorePickupQuote()
+      : deliveryApi.quote({
+          postalCode: codigoPostalEntrega,
+          locationCode: ubicacionEntregaCodigo,
+          quantity: cantidad
+        });
     const aceptaContacto = isChecked(form, "acepta_contacto");
     const aceptaRevision = isChecked(form, "acepta_revision");
     const autorizaPublicacionResultado = isChecked(
@@ -761,11 +838,35 @@
     };
   }
 
+  function buildStorePickupQuote() {
+    return {
+      valid: true,
+      code: "store_pickup",
+      fulfillment_method: FULFILLMENT_STORE_PICKUP,
+      requested_mode: "recogida_tienda",
+      mode: "recogida_tienda",
+      postal_code: "",
+      zone_code: "",
+      zone_name: "",
+      area_code: "",
+      decision_source: "store_pickup",
+      location_required: false,
+      location_code: "",
+      location_name: "",
+      price_eur: "0.00",
+      currency: "EUR",
+      price_status: "confirmado",
+      customer_text: "Recogida en tienda sin coste. Te avisaremos cuando el pedido esté preparado.",
+      suggestion: ""
+    };
+  }
+
   function deliveryPayloadFromQuote(quote, informativeLocality, municipalityMeta) {
     const municipality = normalizeMunicipalityMeta(municipalityMeta);
     const hasCommercialLocation = Boolean(quote.location_required);
     return {
       version: DELIVERY_VERSION,
+      fulfillment_method: quote.fulfillment_method || FULFILLMENT_DELIVERY,
       modalidad_solicitada: quote.requested_mode,
       modalidad_resuelta: quote.mode,
       codigo_postal: quote.postal_code,
