@@ -3,16 +3,16 @@
   "endpoint_authority": "assets/js/takara-config.js",
   "live_verification": {
     "method": "GET canonical endpoint; inspect JSON field script",
-    "verified_on": "2026-09-23"
+    "verified_on": "2026-09-25"
   },
   "production": {
     "service": "Takara Pedidos Web",
     "service_version": "TAKARA_PEDIDO_WEB_V2",
-    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1",
+    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2",
     "status": "online"
   },
   "local": {
     "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2",
-    "status": "candidate"
+    "status": "deployed"
   }
 }

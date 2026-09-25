@@ -20,12 +20,13 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Endpoint authority: `assets/js/takara-config.js`.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
-- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
-- Script local candidate: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` (no desplegado).
+- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` (desplegado y sincronizado).
+- Deployment PUBLIC: versión inmutable 35.
 - Estado observado por GET: `online`.
-- Última verificación live registrada: `2026-09-23`.
+- Última verificación live registrada: `2026-09-25`.
 
-Producción PUBLIC continúa en V1.18.0. El candidato local `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` todavía no está desplegado; un commit o push no cambia esa autoridad LIVE.
+Producción PUBLIC está en V1.19.0. El deployment PUBLIC existente fue actualizado a la versión 35; el deployment ADMIN permanece separado e intacto. La autoridad mecánica del estado sigue siendo `config/deployment-state.json` y la autoridad LIVE se confirma mediante GET del endpoint canónico.
 
 ## Contratos activos
 

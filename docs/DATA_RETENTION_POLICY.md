@@ -94,8 +94,8 @@ forma parte del procesamiento normal de pedidos, contacto o Store público.
 
 ## Versiones
 
-LIVE está en
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.
+La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
+A fecha 2026-09-25 está en
+TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2.
 
-El backend productivo W10 es
-TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1.
+La política W10 permanece incluida en el backend productivo actual.

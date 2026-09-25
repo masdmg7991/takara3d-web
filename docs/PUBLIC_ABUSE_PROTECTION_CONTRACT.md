@@ -19,13 +19,12 @@ No cubre operaciones sin efectos:
 
 ## Autoridad
 
-La versión LIVE actual es:
+La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
+A fecha 2026-09-25 está en:
 
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
 
-W8 forma parte del backend productivo:
-
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`.
+W8 forma parte del backend productivo actual.
 
 Un commit o push no cambia la versión LIVE.
 

@@ -315,7 +315,7 @@ La frontera activa del pedido es:
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
 - Apps Script local candidato no desplegado: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`;
-- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`;
+- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
@@ -681,9 +681,9 @@ Garantías de cierre:
 
 ## Idempotencia de efectos externos
 
-El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`
 incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada
-es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1` tras la
+es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` tras la
 promoción explícita.
 
 Para pedidos reales, `pedido_web_id` debe ser estable. El backend calcula un
@@ -703,7 +703,7 @@ El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
 
 ## Protección anti-abuso de efectos públicos
 
-El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1`
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`
 añade `TAKARA_PUBLIC_ABUSE_GUARD_V1` delante de los efectos externos públicos.
 
 - pedido real: W8 se ejecuta después de W7 y antes de Drive/Mail;

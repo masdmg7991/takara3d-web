@@ -16,10 +16,10 @@ ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
-PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_18_0_DATA_RETENTION_V1"
+PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
-LOCAL_STATUS = "candidate"
+LOCAL_STATUS = "deployed"
 
 checks = 0
 
@@ -72,30 +72,30 @@ def main() -> int:
     )
     require(
         production.get("script_version") == PRODUCTION_SCRIPT,
-        "Version script LIVE es V1.18.0",
+        "Version script LIVE es V1.19.0",
     )
     require(production.get("status") == "online", "Estado productivo online")
 
     require(
         local.get("script_version") == LOCAL_SCRIPT,
-        "Version local identifica el candidato V1.19.0",
+        "Version local identifica V1.19.0",
     )
     require(
         local.get("status") == LOCAL_STATUS,
-        "Estado local declara candidato no desplegado",
+        "Estado local declara version desplegada",
     )
     require(
-        local.get("script_version") != production.get("script_version"),
-        "Estado mecanico distingue candidato local de LIVE",
+        local.get("script_version") == production.get("script_version"),
+        "Estado mecanico alinea local desplegado con LIVE",
     )
 
     require(
         code.count(LOCAL_SCRIPT) == 1,
-        "Code.gs declara una unica VERSION_SCRIPT candidata V1.19.0",
+        "Code.gs declara una unica VERSION_SCRIPT V1.19.0",
     )
     require(
-        PRODUCTION_SCRIPT not in code,
-        "Code.gs no se hace pasar por la version LIVE anterior",
+        PRODUCTION_SCRIPT in code,
+        "Code.gs coincide con la version LIVE desplegada",
     )
     require(
         "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config,
@@ -108,7 +108,7 @@ def main() -> int:
         LOCAL_SCRIPT,
         "Script LIVE",
         "Script local",
-        "candidato local",
+        "desplegado",
     ):
         require(marker in deployment, f"DEPLOYMENT documenta {marker}")
 
