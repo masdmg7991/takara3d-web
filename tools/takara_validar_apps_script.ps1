@@ -27,7 +27,7 @@ $FulfillmentRel = "apps-script/takara-pedidos-web/OrderFulfillment.gs"
 $FulfillmentPath = Join-Path $Project $FulfillmentRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
-$ExpectedHash = "DE707A620A695BF07FB98B84E1A355123C05F7F9EA5A4DDBC70B970004DE0199"
+$ExpectedHash = "3707569B2BA1EC654042AB35CED7653016589BBD87B5546ABFE14CAC72720BD5"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -75,7 +75,7 @@ if ($V2BodyStart -lt 0 -or $V2BodyEnd -le $V2BodyStart) {
 $V2BodyText = $Text.Substring($V2BodyStart, $V2BodyEnd - $V2BodyStart)
 
 $Checks = @(
-    @{ Name = "VERSION_SCRIPT V1_19_0 Store URL V2 candidate"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2") },
+    @{ Name = "VERSION_SCRIPT V1_20_0 Store Pickup candidate"; Pass = ($Text -match "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP") },
     @{ Name = "Privacidad fail-closed"; Pass = (
         $Text -match 'function\s+normalizarPrivacidad_\s*\(' -and
         $Text -match 'text\s*===\s*"si"' -and

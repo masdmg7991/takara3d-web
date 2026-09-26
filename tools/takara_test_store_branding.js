@@ -330,7 +330,7 @@ ok(
 ok(
   publicIndexSource.includes("data-store-logo") &&
     publicIndexSource.includes(
-      '<script src="../assets/js/takara-store-public.js?v=store-pretty-v1"></script>'
+      '<script src="../assets/js/takara-store-public.js?v=store-pretty-v1&amp;p=store-pickup-v1"></script>'
     ),
   "Public Store shell loads the cache-busted Store client"
 );

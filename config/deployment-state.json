@@ -12,7 +12,7 @@
     "status": "online"
   },
   "local": {
-    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2",
-    "status": "deployed"
+    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP",
+    "status": "candidate"
   }
 }

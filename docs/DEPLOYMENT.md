@@ -21,12 +21,12 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
 - Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
-- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2` (desplegado y sincronizado).
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP` (candidato certificado; aún no desplegado).
 - Deployment PUBLIC: versión inmutable 35.
 - Estado observado por GET: `online`.
 - Última verificación live registrada: `2026-09-25`.
 
-Producción PUBLIC está en V1.19.0. El deployment PUBLIC existente fue actualizado a la versión 35; el deployment ADMIN permanece separado e intacto. La autoridad mecánica del estado sigue siendo `config/deployment-state.json` y la autoridad LIVE se confirma mediante GET del endpoint canónico.
+Producción PUBLIC sigue en V1.19.0 / versión inmutable 35 hasta completar esta promoción. El candidato local V1.20.0 añade recogida en tienda STORE-only con coste 0,00 EUR. El deployment ADMIN permanece separado e intacto. La autoridad mecánica del estado sigue siendo `config/deployment-state.json` y la autoridad LIVE se confirma mediante GET del endpoint canónico.
 
 ## Contratos activos
 

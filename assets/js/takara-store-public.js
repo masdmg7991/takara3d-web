@@ -4,6 +4,7 @@
   const CLIENT_VERSION = "TAKARA_STORE_PUBLIC_CLIENT_V1";
   const API_VERSION = "TAKARA_STORE_PUBLIC_API_V1";
   const CONTEXT_VERSION = "TAKARA_STORE_CONTEXT_V1";
+  const PICKUP_CONTEXT_VERSION = "TAKARA_STORE_PICKUP_V1";
   const BRANDING_VERSION = "TAKARA_STORE_BRANDING_PUBLIC_V1";
   const BRANDING_NAME = "NAME";
   const BRANDING_LOGO = "LOGO";
@@ -307,6 +308,37 @@
     });
   }
 
+  function normalizeStorePickupContext(value) {
+    if (value === undefined || value === null) return null;
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw fail("STORE_PICKUP_CONTEXT_INVALID", "Store pickup context is invalid.");
+    }
+    if (value.version !== PICKUP_CONTEXT_VERSION || typeof value.available !== "boolean") {
+      throw fail("STORE_PICKUP_CONTEXT_INVALID", "Store pickup context is invalid.");
+    }
+    if (value.available === false) {
+      return Object.freeze({
+        version: PICKUP_CONTEXT_VERSION,
+        available: false,
+      });
+    }
+    const addressLine = String(value.address_line || "").trim();
+    const postalCode = String(value.postal_code || "").trim();
+    const city = String(value.city || "").trim();
+    const province = String(value.province || "").trim();
+    if (!addressLine || !/^\d{5}$/.test(postalCode) || !city || !province) {
+      throw fail("STORE_PICKUP_CONTEXT_INVALID", "Store pickup point is invalid.");
+    }
+    return Object.freeze({
+      version: PICKUP_CONTEXT_VERSION,
+      available: true,
+      address_line: addressLine,
+      postal_code: postalCode,
+      city: city,
+      province: province,
+    });
+  }
+
   function validateStoreContextResponse(payload, expectedRef) {
     if (!payload || payload.ok !== true) {
       const responseCode = payload && payload.error && typeof payload.error.code === "string"
@@ -338,12 +370,14 @@
       throw fail("STORE_CONTEXT_INVALID", "Store display name is invalid.");
     }
     const branding = normalizeStoreBrandingContext(context.branding);
+    const pickup = normalizeStorePickupContext(context.pickup);
     return Object.freeze({
       version: CONTEXT_VERSION,
       store_ref: actualRef,
       display_name: displayName,
       status: "ACTIVE",
       branding: branding,
+      pickup: pickup,
     });
   }
 

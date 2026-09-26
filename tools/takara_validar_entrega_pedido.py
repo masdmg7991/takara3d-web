@@ -31,7 +31,7 @@ VERSION = "TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC"
 PAYLOAD_V2 = "TAKARA_WEB_ORDER_PAYLOAD_V2"
 SNAPSHOT_V2 = "TAKARA_ORDER_SNAPSHOT_V2"
 EMAIL_V2 = "TAKARA_PEDIDO_WEB_V2"
-BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 LIVE_BACKEND = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
 POSTAL_VERSION = "TAKARA_POSTAL_NATIONAL_V1_2026_08_03"
 SNAPSHOT = "TAKARA_F3_ZONAS_POSTALES_OFICIALES_2026_08_03"
@@ -290,14 +290,14 @@ def validate_docs() -> None:
     )
     require(
         deployment_state.get("local", {}).get("script_version") == BACKEND,
-        "Estado mecanico fija V1.19.0 desplegado",
+        "Estado mecanico fija V1.20.0 candidato",
     )
     require(
         deployment_state.get("endpoint_authority") == "assets/js/takara-config.js",
         "Estado mecanico fija autoridad canonica del endpoint",
     )
     require(LIVE_BACKEND in deployment, "DEPLOYMENT documenta backend LIVE V1.18.0")
-    require(BACKEND in deployment, "DEPLOYMENT documenta V1.19.0 desplegado")
+    require(BACKEND in deployment, "DEPLOYMENT documenta V1.20.0 candidato")
     require(
         "respuesta GET del" in deployment
         and "endpoint productivo" in deployment

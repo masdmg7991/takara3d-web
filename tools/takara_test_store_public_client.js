@@ -179,6 +179,14 @@ function throwsCode(fn, code, message) {
       store_ref: validRef,
       display_name: "Foto García",
       status: "ACTIVE",
+      pickup: {
+        version: "TAKARA_STORE_PICKUP_V1",
+        available: true,
+        address_line: "Calle Prueba 1",
+        postal_code: "28911",
+        city: "Leganés",
+        province: "Madrid",
+      },
     },
   };
 
@@ -189,6 +197,8 @@ function throwsCode(fn, code, message) {
   ok(storeContext.store_ref === validRef, "validated ref");
   ok(storeContext.display_name === "Foto García", "validated name");
   ok(storeContext.status === "ACTIVE", "validated active");
+  ok(storeContext.pickup && storeContext.pickup.available === true, "validated pickup retained");
+  ok(storeContext.pickup.address_line === "Calle Prueba 1", "validated pickup address");
   ok(
     !Object.prototype.hasOwnProperty.call(storeContext, "store_id"),
     "validated context has no store_id"
@@ -240,6 +250,29 @@ function throwsCode(fn, code, message) {
       ),
     "STORE_CONTEXT_INTERNAL_ID_EXPOSED",
     "internal id leak"
+  );
+
+  throwsCode(
+    () =>
+      api.validateStoreContextResponse(
+        {
+          ...goodPayload,
+          store_context: {
+            ...goodPayload.store_context,
+            pickup: {
+              version: "TAKARA_STORE_PICKUP_V1",
+              available: true,
+              address_line: "Calle Prueba 1",
+              postal_code: "INVALID",
+              city: "Leganés",
+              province: "Madrid",
+            },
+          },
+        },
+        validRef
+      ),
+    "STORE_PICKUP_CONTEXT_INVALID",
+    "invalid pickup context"
   );
 
   throwsCode(

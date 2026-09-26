@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
 LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 
 
 def require(condition: bool, message: str) -> None:
@@ -106,7 +106,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs conserva W9 en V1.19.0 candidato",
+        "Code.gs conserva W9 en V1.20.0 candidato",
     )
 
     for marker in (
@@ -317,10 +317,10 @@ def main() -> int:
     )
     require(
         deployment["local"]["script_version"] == LOCAL,
-        "Deployment confirma W9 en V1.19.0 desplegado",
+        "Deployment confirma W9 en V1.20.0 candidato",
     )
     require(
-        deployment["local"]["status"] == "deployed",
+        deployment["local"]["status"] == "candidate",
         "Deployment confirma V1.19.0 como desplegado",
     )
 
