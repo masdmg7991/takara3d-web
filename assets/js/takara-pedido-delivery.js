@@ -46,6 +46,7 @@
       fulfillmentDelivery: panel.querySelector('[data-takara-fulfillment-method="DELIVERY"]'),
       fulfillmentPickup: panel.querySelector('[data-takara-fulfillment-method="STORE_PICKUP"]'),
       pickupInfo: panel.querySelector("[data-takara-store-pickup-info]"),
+      title: panel.querySelector("[data-takara-delivery-title]"),
       intro: panel.querySelector("[data-takara-delivery-intro]"),
       deliveryLabel: panel.querySelector("[data-takara-delivery-summary-label]"),
       privacyCopy: panel.querySelector("[data-takara-delivery-privacy-copy]"),
@@ -170,6 +171,7 @@
     if (!state.pickupContext && state.fulfillmentMethod === "STORE_PICKUP") {
       selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, "DELIVERY");
     } else {
+      syncFulfillmentPresentation(nodes, state);
       refresh(nodes, state, deliveryApi, postalApi, false);
     }
     return Boolean(state.pickupContext);
@@ -186,23 +188,32 @@
     bind(nodes.fulfillmentPickup, "STORE_PICKUP");
   }
 
-  function selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, method) {
-    const next = method === "STORE_PICKUP" && state.pickupContext
-      ? "STORE_PICKUP"
-      : "DELIVERY";
-    state.fulfillmentMethod = next;
-    nodes.realFulfillment.value = next;
-    const pickup = next === "STORE_PICKUP";
-    if (nodes.fulfillmentDelivery) nodes.fulfillmentDelivery.classList.toggle("is-active", !pickup);
-    if (nodes.fulfillmentPickup) nodes.fulfillmentPickup.classList.toggle("is-active", pickup);
+  function syncFulfillmentPresentation(nodes, state) {
+    const store = Boolean(state.pickupContext);
+    const pickup = store && state.fulfillmentMethod === "STORE_PICKUP";
+
+    if (nodes.fulfillmentDelivery) {
+      nodes.fulfillmentDelivery.classList.toggle("is-active", !pickup);
+      nodes.fulfillmentDelivery.setAttribute("aria-pressed", pickup ? "false" : "true");
+    }
+    if (nodes.fulfillmentPickup) {
+      nodes.fulfillmentPickup.classList.toggle("is-active", pickup);
+      nodes.fulfillmentPickup.setAttribute("aria-pressed", pickup ? "true" : "false");
+    }
     if (nodes.postalContent) nodes.postalContent.hidden = pickup;
     if (nodes.postalTariffs) nodes.postalTariffs.hidden = pickup;
     if (nodes.postalSource) nodes.postalSource.hidden = pickup;
     if (nodes.pickupInfo) nodes.pickupInfo.hidden = !pickup;
+
+    if (nodes.title) {
+      nodes.title.textContent = store ? "Elige cómo recibir tu pedido" : "Entrega";
+    }
     if (nodes.intro) {
-      nodes.intro.textContent = pickup
-        ? "Recoge tu pedido en esta tienda sin coste de entrega. No necesitas indicar código postal ni municipio."
-        : "Escribe tu código postal y calcularemos automáticamente la opción de entrega más económica que corresponda.";
+      nodes.intro.textContent = !store
+        ? "Escribe tu código postal y calcularemos automáticamente la opción de entrega más económica que corresponda."
+        : pickup
+          ? "Recogida en tienda seleccionada. Sin coste de entrega."
+          : "Entrega a domicilio seleccionada. Introduce tu código postal para calcular el envío.";
     }
     if (nodes.deliveryLabel) nodes.deliveryLabel.textContent = pickup ? "Recogida" : "Entrega";
     if (nodes.privacyCopy) {
@@ -210,6 +221,21 @@
         ? "Para recoger en tienda no necesitas código postal ni dirección de entrega."
         : "La dirección completa se solicitará únicamente después de revisar la fotografía y confirmar el pedido contigo.";
     }
+    if (nodes.panel) {
+      nodes.panel.setAttribute(
+        "data-takara-fulfillment-state",
+        store ? (pickup ? "pickup" : "delivery") : "direct"
+      );
+    }
+  }
+
+  function selectFulfillmentMethod(nodes, state, deliveryApi, postalApi, method) {
+    const next = method === "STORE_PICKUP" && state.pickupContext
+      ? "STORE_PICKUP"
+      : "DELIVERY";
+    state.fulfillmentMethod = next;
+    nodes.realFulfillment.value = next;
+    syncFulfillmentPresentation(nodes, state);
     refresh(nodes, state, deliveryApi, postalApi, false);
   }
 

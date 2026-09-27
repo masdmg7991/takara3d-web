@@ -18,7 +18,7 @@
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="assets/css/styles.css?v=pedido-consentimiento-color-v1-img-auto-20260923">
-      <link rel="stylesheet" href="assets/css/takara-pedido-delivery.css?v=entrega-v2-2">
+      <link rel="stylesheet" href="assets/css/takara-pedido-delivery.css?v=entrega-v2-2&amp;p=store-choice-v1">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -567,7 +567,7 @@
           <section class="takara-preview-delivery-panel" aria-labelledby="takara-delivery-title" data-takara-delivery-panel>
             <div class="takara-delivery-head">
               <div class="takara-delivery-head__copy">
-                <h2 id="takara-delivery-title">Entrega</h2>
+                <h2 id="takara-delivery-title" data-takara-delivery-title>Entrega</h2>
                 <p data-takara-delivery-intro>Escribe tu código postal y calcularemos automáticamente la opción de entrega más económica que corresponda.</p>
               </div>
               <p class="takara-delivery-local-review" data-takara-local-review hidden>Vista local · ningún pedido se enviará</p>
@@ -575,14 +575,14 @@
 
             <div class="takara-delivery-layout">
               <div class="takara-delivery-choice">
-                <div class="takara-preview-format-options takara-store-fulfillment" data-takara-store-fulfillment hidden>
-                  <button type="button" class="takara-preview-format-card is-active" data-takara-fulfillment-method="DELIVERY">
-                    <strong>Entrega</strong>
-                    <span>Envío a domicilio</span>
+                <div class="takara-preview-format-options takara-store-fulfillment" data-takara-store-fulfillment aria-label="Cómo quieres recibir tu pedido" hidden>
+                  <button type="button" class="takara-preview-format-card is-active" data-takara-fulfillment-method="DELIVERY" aria-pressed="true">
+                    <strong>Entrega a domicilio</strong>
+                    <span>Calculamos el envío con tu código postal</span>
                   </button>
-                  <button type="button" class="takara-preview-format-card" data-takara-fulfillment-method="STORE_PICKUP">
-                    <strong>Recoger en tienda</strong>
-                    <span>Sin coste</span>
+                  <button type="button" class="takara-preview-format-card" data-takara-fulfillment-method="STORE_PICKUP" aria-pressed="false">
+                    <strong>Recogida en tienda</strong>
+                    <span>Sin coste · recoge cuando esté preparado</span>
                   </button>
                 </div>
 
@@ -717,7 +717,7 @@
   <script src="assets/js/core/takara-order-snapshot.js?v=catalogo-v2b1"></script>
   <script src="assets/js/core/takara-delivery.js?v=entrega-v2-2"></script>
   <script src="assets/js/core/takara-postal-national.js?v=postal-nacional-v1"></script>
-  <script src="assets/js/takara-pedido-delivery.js?v=entrega-v2-2&amp;p=store-pickup-v2"></script>
+  <script src="assets/js/takara-pedido-delivery.js?v=entrega-v2-2&amp;p=store-choice-v1"></script>
   <script src="assets/js/takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-sandbox-v1&amp;p=store-pickup-v1"></script>
   <!-- Motor legado desactivado: assets/js/pedido.js -->
   <script src="assets/js/takara-pedido-preview.js" defer></script>
