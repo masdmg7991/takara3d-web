@@ -154,6 +154,10 @@ body.pedido-premium main .takara-delivery-calculator {
     rgba(255, 255, 255, 0.025);
 }
 
+body.pedido-premium main .takara-delivery-calculator[hidden] {
+  display: none !important;
+}
+
 body.pedido-premium main .takara-delivery-fields {
   display: grid;
   grid-template-columns: minmax(11rem, 0.42fr) minmax(14rem, 0.58fr);

@@ -737,7 +737,9 @@ function testStaticContract() {
   ok(page.includes("calcularemos automáticamente la opción de entrega más económica"), "Interfaz explica cálculo automático");
   ok(page.includes("La dirección completa se solicitará únicamente después"), "Interfaz aplaza dirección completa");
   ok(!/name=["'](?:direccion|calle|numero|número|piso|puerta)["']/i.test(page), "No hay dirección completa inicial");
-  ok(page.includes("takara-pedido-delivery.css?v=entrega-v2-2&amp;p=store-choice-v1"), "CSS V2 versionado con cache-buster Store");
+  ok(page.includes("takara-pedido-delivery.css?v=entrega-v2-2&amp;p=store-choice-v2"), "CSS V2 versionado con cache-buster Store");
+  ok(cssSource.includes(".takara-delivery-calculator[hidden]"), "Recogida oculta el calculador postal completo");
+  ok(cssSource.includes("display: none !important;"), "El atributo hidden prevalece sobre el display grid del calculador");
   ok(page.includes("takara-delivery.js?v=entrega-v2-2"), "Core V2 versionado");
   ok(page.includes("takara-pedido-delivery.js?v=entrega-v2-2"), "UI V2 versionada");
   ok(page.includes("takara-pedido-web.js?v=pedido-entrega-v2-3"), "Motor de pedido V2 versionado");
