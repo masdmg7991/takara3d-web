@@ -46,6 +46,9 @@
       fulfillmentDelivery: panel.querySelector('[data-takara-fulfillment-method="DELIVERY"]'),
       fulfillmentPickup: panel.querySelector('[data-takara-fulfillment-method="STORE_PICKUP"]'),
       pickupInfo: panel.querySelector("[data-takara-store-pickup-info]"),
+      intro: panel.querySelector("[data-takara-delivery-intro]"),
+      deliveryLabel: panel.querySelector("[data-takara-delivery-summary-label]"),
+      privacyCopy: panel.querySelector("[data-takara-delivery-privacy-copy]"),
       postalContent: panel.querySelector("[data-takara-delivery-postal-content]"),
       postalTariffs: panel.querySelector("[data-takara-delivery-postal-tariffs]"),
       postalSource: panel.querySelector("[data-takara-delivery-postal-source]"),
@@ -196,6 +199,17 @@
     if (nodes.postalTariffs) nodes.postalTariffs.hidden = pickup;
     if (nodes.postalSource) nodes.postalSource.hidden = pickup;
     if (nodes.pickupInfo) nodes.pickupInfo.hidden = !pickup;
+    if (nodes.intro) {
+      nodes.intro.textContent = pickup
+        ? "Recoge tu pedido en esta tienda sin coste de entrega. No necesitas indicar código postal ni municipio."
+        : "Escribe tu código postal y calcularemos automáticamente la opción de entrega más económica que corresponda.";
+    }
+    if (nodes.deliveryLabel) nodes.deliveryLabel.textContent = pickup ? "Recogida" : "Entrega";
+    if (nodes.privacyCopy) {
+      nodes.privacyCopy.textContent = pickup
+        ? "Para recoger en tienda no necesitas código postal ni dirección de entrega."
+        : "La dirección completa se solicitará únicamente después de revisar la fotografía y confirmar el pedido contigo.";
+    }
     refresh(nodes, state, deliveryApi, postalApi, false);
   }
 

@@ -703,6 +703,13 @@ function testStaticContract() {
   ok(page.includes('name="fulfillment_method" value="DELIVERY"'), "Formulario conserva fulfillment DELIVERY por defecto");
   ok(page.includes("data-takara-store-fulfillment"), "Selector de recogida existe oculto para Store");
   ok(uiSource.includes("setStorePickupContext"), "UI sólo habilita pickup desde contexto Store");
+  ok(page.includes("data-takara-delivery-intro"), "Copy principal de entrega es conmutable para recogida");
+  ok(page.includes("data-takara-delivery-summary-label"), "Etiqueta de resumen es conmutable entre entrega y recogida");
+  ok(page.includes("data-takara-delivery-privacy-copy"), "Copy de privacidad es conmutable para recogida");
+  ok(uiSource.includes("nodes.postalContent.hidden = pickup"), "Recogida oculta todo el bloque postal");
+  ok(uiSource.includes("No necesitas indicar código postal ni municipio."), "Recogida no solicita código postal ni municipio");
+  ok(uiSource.includes("Para recoger en tienda no necesitas código postal ni dirección de entrega."), "Recogida no solicita dirección de entrega");
+  ok(page.includes("store-pickup-v2"), "Pedido fuerza cache-buster del fix de recogida sin CP");
   ok(orderSource.includes("orderStorePickupContext"), "Motor conserva contexto pickup separado del transporte Store");
   ok(page.includes('name="codigo_postal_entrega"'), "Formulario conserva código postal");
   ok(page.includes('name="ubicacion_entrega_codigo"'), "Formulario conserva ubicación oficial");
