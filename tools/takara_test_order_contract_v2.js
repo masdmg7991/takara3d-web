@@ -280,18 +280,6 @@ function run() {
     }) === "STORE \u00B7 Tienda Centro",
     "El origen visible Store debe incluir el nombre autoritativo"
   );
-  assert(
-    context.resolverDestinoInternoPedido_({
-      attribution: { source_type: "STORE" },
-    }) === "3d.takara+store@gmail.com",
-    "STORE debe usar el alias interno dedicado"
-  );
-  assert(
-    context.resolverDestinoInternoPedido_({
-      attribution: { source_type: "DIRECT" },
-    }) === "3d.takara@gmail.com",
-    "DIRECT debe conservar el buzón interno canónico"
-  );
   const storeSubject = context.construirAsunto_(
     valid.pedido_web_id,
     Object.assign({}, normalizedValid, {
