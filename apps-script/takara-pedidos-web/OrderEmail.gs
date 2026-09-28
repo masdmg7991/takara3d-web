@@ -177,10 +177,10 @@ function construirOrigenVisiblePedido_(pedido) {
 }
 
 function construirAsunto_(idPedidoWeb, pedido) {
-  return "[TAKARA PEDIDO WEB] " +
-    idPedidoWeb +
-    " \u00B7 " +
+  return "[TAKARA PEDIDO \u00B7 " +
     construirOrigenVisiblePedido_(pedido) +
+    "] " +
+    idPedidoWeb +
     " \u00B7 " +
     pedido.producto.formato +
     " \u00B7 " +
@@ -475,6 +475,22 @@ function enviarEmailInterno_(
     ];
   }
 
+  const sourceType = String(
+    pedido && pedido.attribution ? pedido.attribution.source_type || "" : ""
+  ).trim().toUpperCase();
+  if (sourceType === "STORE") {
+    const gmailOptions = Object.assign({}, options);
+    ["to", "subject", "body"].forEach(function (key) { delete gmailOptions[key]; });
+    const message = GmailApp.createDraft(
+      options.to, options.subject, options.body, gmailOptions
+    ).send();
+    message.getThread().moveToInbox().markUnread();
+    message.refresh();
+    if (!message.isInInbox() || !message.isUnread()) {
+      throw new Error("El correo interno STORE no quedó visible en Recibidos.");
+    }
+    return;
+  }
   MailApp.sendEmail(options);
 }
 
