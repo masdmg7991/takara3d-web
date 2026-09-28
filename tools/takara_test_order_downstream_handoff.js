@@ -156,7 +156,7 @@ function runHandoff(source, body, attribution) {
 
   const context = {
     CFG: {
-      DESTINO_PEDIDOS: "3d.takara@example.test",
+      DESTINO_PEDIDOS: "3d.takara@gmail.com",
     },
     MailApp: {
       sendEmail(options) {
@@ -175,11 +175,17 @@ function runHandoff(source, body, attribution) {
   };
 
   vm.createContext(context);
-  vm.runInContext(
-    extractFunction(source, "enviarEmailInterno_"),
-    context,
-    { filename: "enviarEmailInterno_.js" }
-  );
+  for (const name of [
+    "construirOrigenVisiblePedido_",
+    "construirDestinoEmailInterno_",
+    "enviarEmailInterno_",
+  ]) {
+    vm.runInContext(
+      extractFunction(source, name),
+      context,
+      { filename: name + ".js" }
+    );
+  }
 
   const pedido = makePedido(attribution);
   const attributionBefore = JSON.stringify(attribution);
@@ -233,8 +239,8 @@ ok(
   "STORE name snapshot survives handoff"
 );
 ok(
-  store.sent[0].to === "3d.takara@example.test",
-  "STORE internal destination preserved"
+  store.sent[0].to === "3d.takara+store@gmail.com",
+  "STORE internal destination reaches the same Takara inbox through Gmail plus alias"
 );
 ok(
   store.htmlCalls.length === 1,
@@ -259,6 +265,10 @@ const directAttribution = Object.freeze({
 const direct = runHandoff(source, directBody(), directAttribution);
 
 ok(direct.sent.length === 1, "DIRECT sends one internal email");
+ok(
+  direct.sent[0].to === "3d.takara@gmail.com",
+  "DIRECT internal destination stays on the canonical Takara address"
+);
 ok(
   direct.sent[0].body === directBody(),
   "DIRECT technical body reaches MailApp byte-for-byte"
