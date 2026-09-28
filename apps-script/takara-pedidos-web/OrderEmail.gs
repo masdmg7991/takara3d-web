@@ -177,10 +177,10 @@ function construirOrigenVisiblePedido_(pedido) {
 }
 
 function construirAsunto_(idPedidoWeb, pedido) {
-  return "[TAKARA PEDIDO \u00B7 " +
-    construirOrigenVisiblePedido_(pedido) +
-    "] " +
+  return "[TAKARA PEDIDO WEB] " +
     idPedidoWeb +
+    " \u00B7 " +
+    construirOrigenVisiblePedido_(pedido) +
     " \u00B7 " +
     pedido.producto.formato +
     " \u00B7 " +
