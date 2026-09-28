@@ -264,8 +264,8 @@ function run() {
   );
   const email = buildEmail(context, valid);
   assert(
-    email.includes("Asunto: [TAKARA PEDIDO \u00B7 DIRECT \u00B7 takara3d.es]"),
-    "El asunto interno debe identificar claramente el origen DIRECT"
+    email.includes("Asunto: [TAKARA PEDIDO WEB] " + valid.pedido_web_id + " \u00B7 DIRECT \u00B7 takara3d.es"),
+    "El asunto interno debe conservar el prefijo canónico e identificar claramente el origen DIRECT"
   );
   assert(
     email.includes("Origen visible: DIRECT \u00B7 takara3d.es"),
@@ -290,8 +290,8 @@ function run() {
     })
   );
   assert(
-    storeSubject.indexOf("[TAKARA PEDIDO \u00B7 STORE \u00B7 Tienda Centro]") === 0,
-    "El asunto interno Store debe identificar la tienda de forma visible"
+    storeSubject.indexOf("[TAKARA PEDIDO WEB] " + valid.pedido_web_id + " \u00B7 STORE \u00B7 Tienda Centro") === 0,
+    "El asunto interno Store debe conservar el prefijo canónico e identificar la tienda de forma visible"
   );
 
   [
