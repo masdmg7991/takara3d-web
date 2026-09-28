@@ -179,6 +179,8 @@ function createBrowser() {
 const codeSource = fs.readFileSync(CODE, "utf8") + "\n" +
   fs.readFileSync(path.join(APP, "OrderEmail.gs"), "utf8");
 const doPostSource = extractFunction(codeSource, "doPost");
+const visibleOriginSource = extractFunction(codeSource, "construirOrigenVisiblePedido_");
+const destinationSource = extractFunction(codeSource, "construirDestinoEmailInterno_");
 const handoffSource = extractFunction(codeSource, "enviarEmailInterno_");
 
 function createOrderHarness(backend, payload) {
@@ -264,11 +266,13 @@ function createOrderHarness(backend, payload) {
 function handoff(body, pedido) {
   const sent = [];
   const context = {
-    CFG: { DESTINO_PEDIDOS: "3d.takara@example.test" },
+    CFG: { DESTINO_PEDIDOS: "3d.takara@gmail.com" },
     MailApp: { sendEmail(options) { sent.push(options); } },
     construirHtmlInterno_() { return "<p>internal</p>"; },
   };
   vm.createContext(context);
+  vm.runInContext(visibleOriginSource, context, { filename: "construirOrigenVisiblePedido_.js" });
+  vm.runInContext(destinationSource, context, { filename: "construirDestinoEmailInterno_.js" });
   vm.runInContext(handoffSource, context, { filename: "enviarEmailInterno_.js" });
   context.enviarEmailInterno_(
     "Pedido F3F",
@@ -280,6 +284,10 @@ function handoff(body, pedido) {
   );
   ok(sent.length === 1, "handoff sends exactly one internal email");
   ok(sent[0].body === body, "handoff preserves technical body byte-for-byte");
+  const expectedTo = pedido.attribution.source_type === "STORE"
+    ? "3d.takara+store@gmail.com"
+    : "3d.takara@gmail.com";
+  ok(sent[0].to === expectedTo, "handoff uses the expected Takara internal destination");
   return sent[0];
 }
 
