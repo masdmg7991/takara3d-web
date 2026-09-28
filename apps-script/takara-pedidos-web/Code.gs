@@ -145,6 +145,12 @@ function doPost(e) {
 
     validarPedido_(pedido);
 
+    const internalEmailDestination =
+      resolveOrderInternalEmailDestination_(
+        pedido.attribution,
+        CFG.DESTINO_PEDIDOS
+      );
+
     if (pedido.modo_prueba) {
       const fotoPrueba = {
         foto_recibida: true,
@@ -276,7 +282,8 @@ function doPost(e) {
         idPedidoWeb,
         pedido,
         foto,
-        fichaVisual
+        fichaVisual,
+        internalEmailDestination
       );
 
       record = transitionOrderIdempotency_(

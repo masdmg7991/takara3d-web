@@ -261,7 +261,7 @@ function createOrderHarness(backend, payload) {
   };
 }
 
-function handoff(body, pedido) {
+function handoff(body, pedido, internalDestination) {
   const sent = [];
   const context = {
     CFG: { DESTINO_PEDIDOS: "3d.takara@example.test" },
@@ -276,7 +276,8 @@ function handoff(body, pedido) {
     "TK-WEB-F3F",
     pedido,
     { foto_recibida: true },
-    { ficha_visual_recibida: false, blob: null }
+    { ficha_visual_recibida: false, blob: null },
+    internalDestination
   );
   ok(sent.length === 1, "handoff sends exactly one internal email");
   ok(sent[0].body === body, "handoff preserves technical body byte-for-byte");
@@ -314,7 +315,15 @@ ok(storeOrder.getSideEffects() === 0, "STORE dry-run has no external effects");
 const initialPedido = storeOrder.getPedido();
 ok(Object.isFrozen(initialPedido.attribution), "STORE attribution is frozen");
 const firstSnapshot = clone(initialPedido.attribution);
-const storeMail = handoff(storeOrder.result.technical_email_body, initialPedido);
+const storeMail = handoff(
+  storeOrder.result.technical_email_body,
+  initialPedido,
+  backend.resolveOrderInternalEmailDestination_(
+    initialPedido.attribution,
+    "3d.takara@gmail.com"
+  )
+);
+ok(storeMail.to === "3d.takara+store@gmail.com", "STORE handoff uses resolved internal alias");
 ok(storeMail.body.includes("Store ID: STO_000001"), "STORE identity reaches internal mail handoff");
 
 // DIRECT: clear bridge, no Store lookup, no Store identity.
@@ -327,7 +336,16 @@ ok(directOrder.result.technical_email_body.includes("Store ID: \n"), "DIRECT tec
 const directStoreLookups = repo.metrics.findByPublicCode - directBefore;
 ok(directStoreLookups === 0, "DIRECT performs zero Store lookups");
 ok(!Object.prototype.hasOwnProperty.call(directOrder.getPedido().attribution, "store_id"), "DIRECT attribution has no store_id");
-handoff(directOrder.result.technical_email_body, directOrder.getPedido());
+const directPedido = directOrder.getPedido();
+const directMail = handoff(
+  directOrder.result.technical_email_body,
+  directPedido,
+  backend.resolveOrderInternalEmailDestination_(
+    directPedido.attribution,
+    "3d.takara@gmail.com"
+  )
+);
+ok(directMail.to === "3d.takara@gmail.com", "DIRECT handoff keeps canonical internal destination");
 
 // Manipulación: backend refuses extra derived fields before Store lookup/validation/body.
 const manipulatedBefore = repo.metrics.findByPublicCode;

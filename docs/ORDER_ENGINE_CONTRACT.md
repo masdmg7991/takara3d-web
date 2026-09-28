@@ -533,6 +533,10 @@ Reglas:
 - navegador no puede aportar `source_type`, `store_id`, `store_name_snapshot`
   ni una atribución ya construida.
 - el resultado se congela y es la única fuente para persistir atribución.
+- F3C resuelve también el destino operativo del único correo interno a partir
+  de la atribución ya autoritativa: DIRECT conserva el buzón canónico y STORE,
+  cuando el buzón es Gmail, usa el alias `+store` del mismo buzón. Esta
+  resolución no añade destinatarios ni nuevos efectos laterales.
 - F3C define el contrato; F3D lo conectará al procesamiento real `doPost`.
 
 ## Real doPost attribution wiring (F3D)
@@ -552,6 +556,8 @@ Garantías:
 - DIRECT y STORE usan el mismo contrato autoritativo F3C.
 - un STORE inválido falla antes de Drive, email o persistencia.
 - `Code.gs` no deriva `source_type`, `store_id` ni nombre; consume el builder F3C.
+- `Code.gs` consume `resolveOrderInternalEmailDestination_` una sola vez y
+  entrega su resultado a F3E; no reconstruye esa decisión.
 - el cuerpo técnico interno V1/V2 persiste `[ATRIBUCION]`, versión, origen,
   `store_id` y `store_name_snapshot`.
 - DIRECT persiste `source_type=DIRECT` con campos Store vacíos.
@@ -594,6 +600,9 @@ Frontera contractual:
 `pedido.attribution`
 → `construirCuerpoInterno_`
 → cuerpo técnico
+y, en paralelo, `pedido.attribution`
+→ `resolveOrderInternalEmailDestination_`
+→ `internalEmailDestination`
 → `enviarEmailInterno_`
 → `MailApp.sendEmail(options)`.
 
@@ -604,7 +613,9 @@ Garantías:
   `store_id` y `store_name_snapshot` hasta el correo técnico interno.
 - DIRECT conserva `source_type=DIRECT` y no inventa identidad Store.
 - `enviarEmailInterno_` no resuelve Store, no consulta Registry/Sheets y no
-  recalcula atribución.
+  recalcula atribución; recibe un destino ya resuelto y falla cerrado si falta.
+- el handoff mantiene exactamente un correo interno por pedido: DIRECT usa el
+  destino canónico y STORE el alias operativo resuelto por F3C.
 - la confirmación del cliente y la respuesta HTTP no exponen `store_id`,
   `store_name_snapshot` ni la atribución interna.
 - el cuerpo técnico interno es la única representación downstream de

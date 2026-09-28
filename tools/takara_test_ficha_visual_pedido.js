@@ -579,7 +579,8 @@ function testServerEmailOnly() {
     "TK-WEB-TEST",
     order,
     photo,
-    visual
+    visual,
+    "3d.takara@gmail.com"
   );
   server.enviarConfirmacionCliente_(
     "TK-WEB-TEST",

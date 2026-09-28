@@ -119,6 +119,13 @@ ok(
 );
 ok(Object.isFrozen(direct), "DIRECT frozen");
 ok(findCalls === 0, "DIRECT does not query Registry");
+ok(
+  context.resolveOrderInternalEmailDestination_(
+    direct,
+    "3d.takara@gmail.com"
+  ) === "3d.takara@gmail.com",
+  "DIRECT internal email keeps canonical destination"
+);
 
 currentStore = {
   store_id: "STO_000001",
@@ -145,6 +152,13 @@ ok(
 );
 ok(Object.isFrozen(store), "STORE frozen");
 ok(findCalls === 1, "STORE queries Registry once");
+ok(
+  context.resolveOrderInternalEmailDestination_(
+    store,
+    "3d.takara@gmail.com"
+  ) === "3d.takara+store@gmail.com",
+  "STORE internal email uses dedicated Gmail alias"
+);
 ok(
   !Object.prototype.hasOwnProperty.call(store, "store_ref"),
   "attribution does not persist public transport ref"

@@ -36,6 +36,40 @@ function assertNoBrowserDerivedAttribution_(payload) {
   });
 }
 
+function resolveOrderInternalEmailDestination_(attribution, defaultDestination) {
+  const destination = String(defaultDestination || "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destination)) {
+    throw orderAttributionError_(
+      "ORDER_INTERNAL_EMAIL_DESTINATION_INVALID",
+      "Internal order email destination is invalid."
+    );
+  }
+
+  if (
+    !attribution ||
+    attribution.version !== TAKARA_STORE_ATTRIBUTION_VERSION
+  ) {
+    throw orderAttributionError_(
+      "ORDER_ATTRIBUTION_INVALID",
+      "Order attribution is not authoritative."
+    );
+  }
+
+  if (attribution.source_type === TAKARA_ORDER_SOURCE_TYPE.DIRECT) {
+    return destination;
+  }
+
+  if (attribution.source_type !== TAKARA_ORDER_SOURCE_TYPE.STORE) {
+    throw orderAttributionError_(
+      "ORDER_ATTRIBUTION_SOURCE_INVALID",
+      "Order attribution source is invalid."
+    );
+  }
+
+  const gmail = /^([^@+]+)(?:\+[^@]*)?@gmail\.com$/i.exec(destination);
+  return gmail ? gmail[1] + "+store@gmail.com" : destination;
+}
+
 function buildAuthoritativeOrderAttribution_(payload) {
   assertNoBrowserDerivedAttribution_(payload);
 

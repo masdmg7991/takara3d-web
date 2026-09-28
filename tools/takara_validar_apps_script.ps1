@@ -27,7 +27,7 @@ $FulfillmentRel = "apps-script/takara-pedidos-web/OrderFulfillment.gs"
 $FulfillmentPath = Join-Path $Project $FulfillmentRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
-$ExpectedHash = "3707569B2BA1EC654042AB35CED7653016589BBD87B5546ABFE14CAC72720BD5"
+$ExpectedHash = "18F787F93034CFE467220D8B66F2881D696F141723DF0239ED68280AE08AF9E4"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
@@ -162,6 +162,11 @@ $Checks = @(
         $Text -match 'function\s+validarPedidoV1Compat_\s*\(' -and
         $Text -match 'function\s+construirCuerpoInternoV1Compat_\s*\(' -and
         $Text -match 'Payload V2 declarado pero no compatible o incompleto'
+    ) },
+    @{ Name = "Destino interno F3C consumido por doPost"; Pass = (
+        $Text -match 'resolveOrderInternalEmailDestination_\(' -and
+        $Text -match 'internalEmailDestination' -and
+        $Text -match 'fichaVisual,\s*internalEmailDestination'
     ) },
     @{ Name = "Atribucion F3D construida antes de validar"; Pass = (
         $Text -match 'pedido\.attribution\s*=\s*buildAuthoritativeOrderAttribution_\(payload\)' -and

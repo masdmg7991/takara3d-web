@@ -150,13 +150,13 @@ function makePedido(attribution) {
   };
 }
 
-function runHandoff(source, body, attribution) {
+function runHandoff(source, body, attribution, internalDestination) {
   const sent = [];
   const htmlCalls = [];
 
   const context = {
     CFG: {
-      DESTINO_PEDIDOS: "3d.takara@gmail.com",
+      DESTINO_PEDIDOS: "3d.takara@example.test",
     },
     MailApp: {
       sendEmail(options) {
@@ -190,7 +190,8 @@ function runHandoff(source, body, attribution) {
     "TK-WEB-F3E",
     pedido,
     { foto_recibida: true },
-    { ficha_visual_recibida: false, blob: null }
+    { ficha_visual_recibida: false, blob: null },
+    internalDestination
   );
 
   return {
@@ -211,7 +212,7 @@ const storeAttribution = Object.freeze({
   store_name_snapshot: "Foto García",
 });
 
-const store = runHandoff(source, storeBody(), storeAttribution);
+const store = runHandoff(source, storeBody(), storeAttribution, "3d.takara+store@gmail.com");
 
 ok(store.sent.length === 1, "STORE sends one internal email");
 ok(
@@ -234,7 +235,7 @@ ok(
 );
 ok(
   store.sent[0].to === "3d.takara+store@gmail.com",
-  "STORE internal destination uses dedicated Gmail alias in same Takara mailbox"
+  "STORE internal destination is the F3C-resolved alias"
 );
 ok(
   store.htmlCalls.length === 1,
@@ -256,7 +257,7 @@ const directAttribution = Object.freeze({
   source_type: "DIRECT",
 });
 
-const direct = runHandoff(source, directBody(), directAttribution);
+const direct = runHandoff(source, directBody(), directAttribution, "3d.takara@example.test");
 
 ok(direct.sent.length === 1, "DIRECT sends one internal email");
 ok(
@@ -276,10 +277,6 @@ ok(
     "Store nombre snapshot: \n"
   ),
   "DIRECT handoff keeps Store name empty"
-);
-ok(
-  direct.sent[0].to === "3d.takara@gmail.com",
-  "DIRECT internal destination remains canonical Takara mailbox"
 );
 ok(
   !Object.prototype.hasOwnProperty.call(

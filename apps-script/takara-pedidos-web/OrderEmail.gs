@@ -445,23 +445,21 @@ function enviarEmailInterno_(
   idPedidoWeb,
   pedido,
   foto,
-  fichaVisual
+  fichaVisual,
+  internalDestination
 ) {
   fichaVisual = fichaVisual || {
     ficha_visual_recibida: false,
     blob: null
   };
 
-  const sourceType = String(
-    pedido && pedido.attribution && pedido.attribution.source_type || ""
-  ).trim().toUpperCase();
-  const internalDestination =
-    sourceType === "STORE" && /@gmail\.com$/i.test(String(CFG.DESTINO_PEDIDOS || ""))
-      ? String(CFG.DESTINO_PEDIDOS).replace(/@gmail\.com$/i, "+store@gmail.com")
-      : CFG.DESTINO_PEDIDOS;
+  const destination = String(internalDestination || "").trim();
+  if (!destination) {
+    throw new Error("Falta el destino interno autoritativo del pedido.");
+  }
 
   const options = {
-    to: internalDestination,
+    to: destination,
     subject: subject,
     body: body,
     htmlBody: construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual),
