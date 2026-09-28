@@ -185,6 +185,11 @@ function runHandoff(source, body, attribution) {
         };
       },
     },
+    construirOrigenVisiblePedido_(pedido) {
+      return pedido.attribution.source_type === "STORE"
+        ? "STORE · " + pedido.attribution.store_name_snapshot
+        : "DIRECT · takara3d.es";
+    },
     construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
       htmlCalls.push({
         idPedidoWeb,
