@@ -1,6 +1,5 @@
 const CFG = Object.freeze({
   DESTINO_PEDIDOS: "3d.takara@gmail.com",
-  DESTINO_PEDIDOS_STORE: "3d.takara+store@gmail.com",
   TZ: "Europe/Madrid",
   ROOT_FOLDER: "Takara3D",
   PEDIDOS_FOLDER: "Pedidos Web",

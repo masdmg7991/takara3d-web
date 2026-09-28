@@ -157,7 +157,6 @@ function runHandoff(source, body, attribution) {
   const context = {
     CFG: {
       DESTINO_PEDIDOS: "3d.takara@example.test",
-      DESTINO_PEDIDOS_STORE: "3d.takara+store@example.test",
     },
     MailApp: {
       sendEmail(options) {
@@ -176,11 +175,6 @@ function runHandoff(source, body, attribution) {
   };
 
   vm.createContext(context);
-  vm.runInContext(
-    extractFunction(source, "resolverDestinoInternoPedido_"),
-    context,
-    { filename: "resolverDestinoInternoPedido_.js" }
-  );
   vm.runInContext(
     extractFunction(source, "enviarEmailInterno_"),
     context,
@@ -239,8 +233,8 @@ ok(
   "STORE name snapshot survives handoff"
 );
 ok(
-  store.sent[0].to === "3d.takara+store@example.test",
-  "STORE internal destination uses dedicated Gmail alias"
+  store.sent[0].to === "3d.takara@example.test",
+  "STORE internal destination preserved"
 );
 ok(
   store.htmlCalls.length === 1,
@@ -273,11 +267,6 @@ ok(
   direct.sent[0].body.includes("Origen pedido: DIRECT"),
   "DIRECT source survives handoff"
 );
-ok(
-  direct.sent[0].to === "3d.takara@example.test",
-  "DIRECT internal destination keeps canonical mailbox"
-);
-
 ok(
   direct.sent[0].body.includes("Store ID: \n"),
   "DIRECT handoff keeps Store id empty"
