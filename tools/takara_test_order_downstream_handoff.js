@@ -152,6 +152,8 @@ function makePedido(attribution) {
 
 function runHandoff(source, body, attribution) {
   const sent = [];
+  const gmailSent = [];
+  const gmailState = { inbox: false, unread: false, refreshed: false };
   const htmlCalls = [];
 
   const context = {
@@ -161,6 +163,26 @@ function runHandoff(source, body, attribution) {
     MailApp: {
       sendEmail(options) {
         sent.push(options);
+      },
+    },
+    GmailApp: {
+      createDraft(to, subject, draftBody, options) {
+        gmailSent.push(Object.assign({ to, subject, body: draftBody }, options || {}));
+        return {
+          send() {
+            return {
+              getThread() {
+                return {
+                  moveToInbox() { gmailState.inbox = true; return this; },
+                  markUnread() { gmailState.unread = true; return this; },
+                };
+              },
+              refresh() { gmailState.refreshed = true; return this; },
+              isInInbox() { return gmailState.inbox; },
+              isUnread() { return gmailState.unread; },
+            };
+          },
+        };
       },
     },
     construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
@@ -195,6 +217,8 @@ function runHandoff(source, body, attribution) {
 
   return {
     sent,
+    gmailSent,
+    gmailState,
     htmlCalls,
     pedido,
     attributionBefore,
@@ -213,28 +237,33 @@ const storeAttribution = Object.freeze({
 
 const store = runHandoff(source, storeBody(), storeAttribution);
 
-ok(store.sent.length === 1, "STORE sends one internal email");
+ok(store.sent.length === 0, "STORE does not duplicate internal mail through MailApp");
+ok(store.gmailSent.length === 1, "STORE sends exactly one internal Gmail message");
 ok(
-  store.sent[0].body === storeBody(),
-  "STORE technical body reaches MailApp byte-for-byte"
+  store.gmailSent[0].body === storeBody(),
+  "STORE technical body reaches Gmail draft byte-for-byte"
 );
 ok(
-  store.sent[0].body.includes("Origen pedido: STORE"),
+  store.gmailSent[0].body.includes("Origen pedido: STORE"),
   "STORE source survives handoff"
 );
 ok(
-  store.sent[0].body.includes("Store ID: STO_000001"),
+  store.gmailSent[0].body.includes("Store ID: STO_000001"),
   "STORE id survives handoff"
 );
 ok(
-  store.sent[0].body.includes(
+  store.gmailSent[0].body.includes(
     "Store nombre snapshot: Foto García"
   ),
   "STORE name snapshot survives handoff"
 );
 ok(
-  store.sent[0].to === "3d.takara@example.test",
+  store.gmailSent[0].to === "3d.takara@example.test",
   "STORE internal destination preserved"
+);
+ok(
+  store.gmailState.inbox && store.gmailState.unread && store.gmailState.refreshed,
+  "STORE internal Gmail message is moved to Inbox, marked unread and refreshed"
 );
 ok(
   store.htmlCalls.length === 1,
@@ -259,6 +288,7 @@ const directAttribution = Object.freeze({
 const direct = runHandoff(source, directBody(), directAttribution);
 
 ok(direct.sent.length === 1, "DIRECT sends one internal email");
+ok(direct.gmailSent.length === 0, "DIRECT keeps MailApp path without Gmail mutation");
 ok(
   direct.sent[0].body === directBody(),
   "DIRECT technical body reaches MailApp byte-for-byte"
@@ -303,7 +333,14 @@ ok(
 );
 ok(
   internalSource.includes("MailApp.sendEmail(options)"),
-  "internal email hands options to MailApp"
+  "DIRECT internal email keeps MailApp handoff"
+);
+ok(
+  internalSource.includes("GmailApp.createDraft(") &&
+    internalSource.includes("moveToInbox().markUnread()") &&
+    internalSource.includes("message.isInInbox()") &&
+    internalSource.includes("message.isUnread()"),
+  "STORE internal email enforces Inbox and unread visibility"
 );
 
 const clientSource = extractFunction(
