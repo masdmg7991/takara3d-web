@@ -24,6 +24,7 @@
   const ORDER_FRAME_TIMEOUT_MS = 15000;
   const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
   const ORDER_BROWSER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1";
+  const STORE_ORDER_FEEDBACK_VERSION = "TAKARA_STORE_ORDER_FEEDBACK_V1";
   const ORDER_BROWSER_NONCE_PATTERN = /^[A-HJ-NP-Z2-9]{24,64}$/;
   const ORDER_BROWSER_ORDER_ID_PATTERN = /^TK-WEB-\d{8}-[A-HJ-NP-Z2-9]{6}$/;
   let activeOrderAckRelayCleanup = null;
@@ -91,6 +92,91 @@
     return true;
   }
 
+  function normalizeStoreOrderFeedback(event, frame) {
+    const frameWindow = frame && frame.contentWindow;
+    if (
+      !event ||
+      !frameWindow ||
+      event.origin !== STORE_PUBLIC_CANONICAL_ORIGIN ||
+      event.source !== frameWindow
+    ) return null;
+    const data = event.data;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    const orderId = String(data.order_id || "").trim().toUpperCase();
+    if (
+      data.version !== STORE_ORDER_FEEDBACK_VERSION ||
+      data.type !== "success" ||
+      !ORDER_BROWSER_ORDER_ID_PATTERN.test(orderId)
+    ) return null;
+    return Object.freeze({
+      version: STORE_ORDER_FEEDBACK_VERSION,
+      type: "success",
+      order_id: orderId
+    });
+  }
+
+  function showStoreOrderFeedback(feedback) {
+    if (!feedback || feedback.type !== "success") return false;
+    document.querySelectorAll("[data-takara-store-order-modal]").forEach(function (node) {
+      node.remove();
+    });
+    const overlay = document.createElement("div");
+    const card = document.createElement("div");
+    const title = document.createElement("strong");
+    const body = document.createElement("p");
+    const close = document.createElement("button");
+
+    overlay.setAttribute("data-takara-store-order-modal", "");
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-live", "polite");
+    overlay.style.cssText = [
+      "position:fixed","inset:0","z-index:2147483647","display:flex",
+      "align-items:center","justify-content:center","padding:24px",
+      "background:rgba(24,13,7,.42)","backdrop-filter:blur(2px)"
+    ].join(";");
+    card.style.cssText = [
+      "box-sizing:border-box","width:min(92vw,460px)","border-radius:24px",
+      "padding:24px 24px 22px","border:2px solid rgba(62,132,77,.55)",
+      "background:#effaf1","color:#173f24","box-shadow:0 28px 90px rgba(23,13,7,.34)",
+      "font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+    ].join(";");
+    title.textContent = "Solicitud recibida";
+    title.style.cssText = "display:block;margin:0 0 10px;font-size:22px;line-height:1.2;font-weight:950";
+    body.textContent =
+      "Solicitud recibida correctamente. Referencia: " +
+      feedback.order_id +
+      ". Revisa tu correo para conservar la confirmación.";
+    body.style.cssText = "margin:0;font-size:16px;line-height:1.55;font-weight:650";
+    close.type = "button";
+    close.textContent = "Entendido";
+    close.style.cssText = [
+      "display:inline-flex","align-items:center","justify-content:center",
+      "margin-top:20px","min-height:44px","padding:0 20px","border:0",
+      "border-radius:999px","background:#2f7d43","color:#fff",
+      "font:inherit","font-weight:900","cursor:pointer"
+    ].join(";");
+
+    function closeModal() {
+      overlay.remove();
+      document.removeEventListener("keydown", onKeyDown);
+    }
+    function onKeyDown(event) {
+      if (event.key === "Escape") closeModal();
+    }
+    close.addEventListener("click", closeModal);
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay) closeModal();
+    });
+    document.addEventListener("keydown", onKeyDown);
+    card.appendChild(title);
+    card.appendChild(body);
+    card.appendChild(close);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    return true;
+  }
+
   function disconnectOrderAckRelay() {
     if (activeOrderAckRelayCleanup) {
       activeOrderAckRelayCleanup();
@@ -101,6 +187,11 @@
   function connectOrderAckRelay(frame) {
     disconnectOrderAckRelay();
     const onMessage = function (event) {
+      const feedback = normalizeStoreOrderFeedback(event, frame);
+      if (feedback) {
+        showStoreOrderFeedback(feedback);
+        return;
+      }
       relayOrderBrowserAckToFrame(frame, event);
     };
     window.addEventListener("message", onMessage);
