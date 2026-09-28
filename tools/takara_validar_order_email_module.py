@@ -89,7 +89,7 @@ def main() -> int:
     code_lines = len(code.splitlines())
     email_lines = len(email.splitlines())
     require(code_lines < 2000, 'Code.gs baja de 2000 líneas tras extracción email')
-    require(1000 <= email_lines <= 1120, 'OrderEmail mantiene bloque completo y acotado')
+    require(1000 <= email_lines <= 1160, 'OrderEmail mantiene bloque completo y acotado')
 
     require('OrderEmail.gs' in readme, 'README documenta OrderEmail')
     require('apps-script/takara-pedidos-web/OrderEmail.gs' in gate, 'Quality Gate exige OrderEmail')

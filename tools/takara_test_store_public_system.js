@@ -443,6 +443,8 @@ function createBrowser(backend, search, pathname = "/tienda/", hash = "") {
     },
     setTimeout,
     clearTimeout,
+    addEventListener() {},
+    removeEventListener() {},
     requestAnimationFrame(callback) {
       callback();
       return 1;

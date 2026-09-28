@@ -44,6 +44,7 @@
   const VISUAL_PROOF_JPEG_QUALITY = 0.86;
   const VISUAL_PROOF_READY_TIMEOUT_MS = 2000;
   const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
+  const STORE_ORDER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1";
   const ORDER_BROWSER_RESPONSE_MODE = "postmessage_v1";
   const ORDER_BROWSER_ACK_TIMEOUT_MS = 120000;
 
@@ -190,6 +191,29 @@
     form.appendChild(input);
   }
 
+  function unwrapOrderBrowserAckMessage(event) {
+    if (!event) return null;
+    const data = event.data;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    if (isAllowedOrderBrowserAckOrigin(event.origin)) return data;
+    const relayOrigin =
+      event.origin === "https://takara3d.es" ||
+      event.origin === "https://www.takara3d.es";
+    const trustedParent =
+      window.parent &&
+      window.parent !== window &&
+      event.source === window.parent;
+    if (
+      relayOrigin &&
+      trustedParent &&
+      data.version === STORE_ORDER_ACK_RELAY_VERSION &&
+      data.ack &&
+      typeof data.ack === "object" &&
+      !Array.isArray(data.ack)
+    ) return data.ack;
+    return null;
+  }
+
   function submitOrderWithBrowserAck(endpoint, payload) {
     return new Promise(function (resolve, reject) {
       const orderId = String(payload && payload.pedido_web_id || "")
@@ -265,12 +289,8 @@
         // The ACK may therefore come from a descendant browsing context rather
         // than frame.contentWindow itself. Authentication remains bound to the
         // trusted Google origin plus protocol version, nonce and exact order ID.
-        if (!isAllowedOrderBrowserAckOrigin(event.origin)) {
-          return;
-        }
-
-        const data = event.data;
-        if (!data || typeof data !== "object" || Array.isArray(data)) {
+        const data = unwrapOrderBrowserAckMessage(event);
+        if (!data) {
           return;
         }
 
@@ -326,6 +346,8 @@
     version: ORDER_BROWSER_TRANSPORT_VERSION,
     timeout_ms: ORDER_BROWSER_ACK_TIMEOUT_MS,
     isAllowedResponseOrigin: isAllowedOrderBrowserAckOrigin,
+    relay_version: STORE_ORDER_ACK_RELAY_VERSION,
+    unwrapMessage: unwrapOrderBrowserAckMessage,
     submit: submitOrderWithBrowserAck
   });
 

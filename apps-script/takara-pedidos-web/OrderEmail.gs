@@ -160,8 +160,26 @@ function construirFilasEntregaEmailPremium_(pedido) {
   return rows.join("");
 }
 
+function construirOrigenVisiblePedido_(pedido) {
+  const attribution = pedido && pedido.attribution
+    ? pedido.attribution
+    : {};
+  const sourceType = String(attribution.source_type || "")
+    .trim()
+    .toUpperCase();
+
+  if (sourceType === "STORE") {
+    const storeName = String(attribution.store_name_snapshot || "").trim();
+    return storeName ? "STORE \u00B7 " + storeName : "STORE";
+  }
+
+  return "DIRECT \u00B7 takara3d.es";
+}
+
 function construirAsunto_(idPedidoWeb, pedido) {
-  return "[TAKARA PEDIDO WEB] " +
+  return "[TAKARA PEDIDO \u00B7 " +
+    construirOrigenVisiblePedido_(pedido) +
+    "] " +
     idPedidoWeb +
     " \u00B7 " +
     pedido.producto.formato +
@@ -192,6 +210,7 @@ function construirCuerpoInternoV1Compat_(idPedidoWeb, now, pedido, foto, fichaVi
     "ID pedido web: " + idPedidoWeb,
     "ID MicroFactory: " + CFG.ID_MICROFACTORY_INICIAL,
     "Fecha solicitud: " + fecha,
+    "Origen visible: " + construirOrigenVisiblePedido_(pedido),
     "Origen: " + CFG.ORIGEN,
     "Página origen: " + pedido.meta.pagina_origen,
     "Entorno: " + pedido.meta.entorno,
@@ -280,6 +299,7 @@ function construirCuerpoInternoV2_(idPedidoWeb, now, pedido, foto, fichaVisual) 
     "ID pedido web: " + idPedidoWeb,
     "ID pedido TK:",
     "Fecha solicitud: " + fecha,
+    "Origen visible: " + construirOrigenVisiblePedido_(pedido),
     "Origen: " + CFG.ORIGEN,
     "Página origen: " + pedido.meta.pagina_origen,
     "Entorno: " + pedido.meta.entorno,
@@ -482,6 +502,7 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
     ? "Fotograf\u00EDa guardada correctamente"
     : "Fotograf\u00EDa pendiente de asociar";
   const safeDriveUrl = escapeHtml_(foto.enlace_drive || "");
+  const safeOrderOrigin = escapeHtml_(construirOrigenVisiblePedido_(pedido));
 
   const driveButton = foto.enlace_drive
     ? [
@@ -509,6 +530,12 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
     'El cuerpo de texto plano conserva \u00EDntegro el contrato <strong>[',
     escapeHtml_(CFG.VERSION_PLANTILLA),
     ']</strong> para MicroFactory.</div>',
+
+    '<div style="margin:0 0 22px 0;padding:14px 16px;border:1px solid #E5D4BB;',
+    'border-radius:10px;background:#FBF6ED;color:#24170F;font-family:Arial,Helvetica,sans-serif;',
+    'font-size:14px;line-height:1.5;"><strong>Origen del pedido:</strong> ',
+    safeOrderOrigin,
+    '</div>',
 
     construirReferenciaEmailPremium_("ID pedido web", safeId),
 

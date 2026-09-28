@@ -32,6 +32,7 @@ function createBaseContext() {
     Error,
     Promise,
     Uint32Array,
+    URL,
     URLSearchParams,
     encodeURIComponent,
     document,
@@ -138,6 +139,59 @@ function throwsCode(fn, code, message) {
 
   ok(api.version === "TAKARA_STORE_PUBLIC_CLIENT_V1", "client version");
   ok(api.isValidStoreRef(validRef), "valid Store ref");
+
+  const relayNonce = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const relayOrderId = "TK-WEB-20260927-ABC234";
+  const relayed = [];
+  const relayFrame = {
+    contentWindow: {
+      postMessage(payload, origin) {
+        relayed.push({ payload, origin });
+      },
+    },
+  };
+  const relayEvent = {
+    origin: "https://script.google.com",
+    data: {
+      version: "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1",
+      nonce: relayNonce,
+      order_id: relayOrderId,
+      ok: true,
+      id_pedido_web: relayOrderId,
+      estado: "recibido",
+      message: "Pedido recibido.",
+    },
+  };
+  ok(
+    api.isAllowedOrderBrowserAckOrigin(relayEvent.origin),
+    "Store relay accepts trusted Google ACK origin"
+  );
+  ok(
+    api.relayOrderBrowserAckToFrame(relayFrame, relayEvent) === true,
+    "Store relays accepted browser ACK to embedded order frame"
+  );
+  ok(relayed.length === 1, "Store relay emits one message");
+  ok(
+    relayed[0].origin === "https://takara3d.es",
+    "Store relay targets canonical Takara origin"
+  );
+  ok(
+    relayed[0].payload.version === "TAKARA_STORE_ORDER_ACK_RELAY_V1",
+    "Store relay wraps ACK in explicit relay protocol"
+  );
+  ok(
+    relayed[0].payload.ack.order_id === relayOrderId &&
+      relayed[0].payload.ack.estado === "recibido",
+    "Store relay preserves correlated accepted ACK"
+  );
+  ok(
+    api.relayOrderBrowserAckToFrame(relayFrame, {
+      origin: "https://evil.example",
+      data: relayEvent.data,
+    }) === false &&
+      relayed.length === 1,
+    "Store relay rejects untrusted ACK origin"
+  );
   ok(!api.isValidStoreRef("STO_000001"), "internal Store id rejected");
   ok(!api.isValidStoreRef("st_short"), "short Store ref rejected");
   ok(!api.isValidStoreRef("st_bad value 123456789012345678"), "spaces rejected");

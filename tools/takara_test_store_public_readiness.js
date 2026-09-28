@@ -232,6 +232,8 @@ function createBrowser(search, responsePayload) {
     crypto: webcrypto,
     setTimeout,
     clearTimeout,
+    addEventListener() {},
+    removeEventListener() {},
     requestAnimationFrame(callback) {
       callback();
       return 1;

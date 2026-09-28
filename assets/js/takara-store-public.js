@@ -22,11 +22,91 @@
   const STORE_PUBLIC_CANONICAL_PATH = "/tienda/";
   const ORDER_FRAME_URL = "/pedido.html?channel=store";
   const ORDER_FRAME_TIMEOUT_MS = 15000;
+  const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
+  const ORDER_BROWSER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1";
+  const ORDER_BROWSER_NONCE_PATTERN = /^[A-HJ-NP-Z2-9]{24,64}$/;
+  const ORDER_BROWSER_ORDER_ID_PATTERN = /^TK-WEB-\d{8}-[A-HJ-NP-Z2-9]{6}$/;
+  let activeOrderAckRelayCleanup = null;
 
   function fail(code, message) {
     const error = new Error(message || code);
     error.code = code;
     return error;
+  }
+
+  function isAllowedOrderBrowserAckOrigin(origin) {
+    try {
+      const parsed = new URL(String(origin || ""));
+      const host = parsed.hostname.toLowerCase();
+      if (parsed.protocol !== "https:") return false;
+      return (
+        host === "script.google.com" ||
+        host === "script.googleusercontent.com" ||
+        host.endsWith(".googleusercontent.com")
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function normalizeOrderBrowserAckForRelay(event) {
+    if (!event || !isAllowedOrderBrowserAckOrigin(event.origin)) return null;
+    const data = event.data;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    const nonce = String(data.nonce || "").trim().toUpperCase();
+    const orderId = String(data.order_id || "").trim().toUpperCase();
+    if (
+      data.version !== ORDER_BROWSER_TRANSPORT_VERSION ||
+      !ORDER_BROWSER_NONCE_PATTERN.test(nonce) ||
+      !ORDER_BROWSER_ORDER_ID_PATTERN.test(orderId)
+    ) return null;
+    const accepted = data.ok === true;
+    const acceptedOrderId = String(data.id_pedido_web || "").trim().toUpperCase();
+    const acceptedState = String(data.estado || "").trim().toLowerCase();
+    if (accepted && (acceptedOrderId !== orderId || acceptedState !== "recibido")) {
+      return null;
+    }
+    return Object.freeze({
+      version: ORDER_BROWSER_TRANSPORT_VERSION,
+      nonce: nonce,
+      order_id: orderId,
+      ok: accepted,
+      id_pedido_web: accepted ? orderId : "",
+      estado: accepted ? "recibido" : "",
+      error: accepted ? "" : String(data.error || ""),
+      message: String(data.message || "")
+    });
+  }
+
+  function relayOrderBrowserAckToFrame(frame, event) {
+    const ack = normalizeOrderBrowserAckForRelay(event);
+    const frameWindow = frame && frame.contentWindow;
+    if (!ack || !frameWindow || typeof frameWindow.postMessage !== "function") {
+      return false;
+    }
+    frameWindow.postMessage(
+      Object.freeze({ version: ORDER_BROWSER_ACK_RELAY_VERSION, ack: ack }),
+      STORE_PUBLIC_CANONICAL_ORIGIN
+    );
+    return true;
+  }
+
+  function disconnectOrderAckRelay() {
+    if (activeOrderAckRelayCleanup) {
+      activeOrderAckRelayCleanup();
+      activeOrderAckRelayCleanup = null;
+    }
+  }
+
+  function connectOrderAckRelay(frame) {
+    disconnectOrderAckRelay();
+    const onMessage = function (event) {
+      relayOrderBrowserAckToFrame(frame, event);
+    };
+    window.addEventListener("message", onMessage);
+    activeOrderAckRelayCleanup = function () {
+      window.removeEventListener("message", onMessage);
+    };
   }
 
   function normalizeStoreRef(value) {
@@ -681,6 +761,7 @@
       status: context.status,
       pickup: context.pickup,
     });
+    connectOrderAckRelay(frame);
     frame.hidden = false;
     observeOrderFrame(frame);
   }
@@ -730,6 +811,7 @@
   }
 
   function clearStoreOrder(root) {
+    disconnectOrderAckRelay();
     const frame = root.querySelector("[data-store-order-frame]");
     if (frame) {
       const frameWindow = frame.contentWindow;
@@ -840,6 +922,9 @@
     buildResolveSlugUrl: buildResolveSlugUrl,
     validateStoreContextResponse: validateStoreContextResponse,
     resolveStoreContextJsonp: resolveStoreContextJsonp,
+    isAllowedOrderBrowserAckOrigin: isAllowedOrderBrowserAckOrigin,
+    normalizeOrderBrowserAckForRelay: normalizeOrderBrowserAckForRelay,
+    relayOrderBrowserAckToFrame: relayOrderBrowserAckToFrame,
   });
 
   if (document.readyState === "loading") {

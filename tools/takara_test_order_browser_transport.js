@@ -173,6 +173,14 @@ function backend() {
     "utf8"
   );
   const pedido = fs.readFileSync(path.join(root, "pedido.html"), "utf8");
+  const storeClient = fs.readFileSync(
+    path.join(root, "assets", "js", "takara-store-public.js"),
+    "utf8"
+  );
+  const storePage = fs.readFileSync(
+    path.join(root, "tienda", "index.html"),
+    "utf8"
+  );
   const code = fs.readFileSync(
     path.join(root, "apps-script", "takara-pedidos-web", "Code.gs"),
     "utf8"
@@ -181,8 +189,12 @@ function backend() {
   ok(!web.includes('mode: "no-cors"'), "no-cors success path removed");
   ok(web.includes("submitOrderWithBrowserAck(endpoint, payload)"), "submit waits for ACK");
   ok(!web.includes("event.source !== frame.contentWindow"), "ACK accepts Apps Script sandbox descendant source");
-  ok(web.includes("isAllowedOrderBrowserAckOrigin(event.origin)"), "ACK Google origin checked");
-  ok(web.includes("data.nonce !== nonce"), "ACK nonce checked");
+  ok(web.includes("unwrapOrderBrowserAckMessage(event)"), "ACK unwrap supports direct and Store relay paths");
+  ok(web.includes("isAllowedOrderBrowserAckOrigin(event.origin)"), "direct ACK Google origin checked");
+  ok(web.includes('STORE_ORDER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1"'), "Store ACK relay protocol explicit");
+  ok(web.includes("event.source === window.parent"), "Store ACK relay binds to trusted parent frame");
+  ok(web.includes("data.version === STORE_ORDER_ACK_RELAY_VERSION"), "Store ACK relay version checked");
+  ok(web.includes("data.nonce !== nonce"), "ACK nonce checked after unwrap");
   ok(web.includes("data.order_id !== orderId"), "ACK order id checked");
   ok(web.includes("ORDER_BROWSER_ACK_TIMEOUT_MS = 120000"), "ACK timeout explicit");
   ok(web.includes("function isStoreEmbeddedStatus(node)"), "Store feedback channel detection present");
@@ -203,8 +215,17 @@ function backend() {
     "fixed modal is direct-only for terminal feedback"
   );
   ok(
-    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-sandbox-v1"),
-    "Store feedback cache build active"
+    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1"),
+    "Store ACK relay cache build active"
+  );
+  ok(
+    storeClient.includes("relayOrderBrowserAckToFrame(frame, event)") &&
+      storeClient.includes("connectOrderAckRelay(frame)"),
+    "Store shell relays Google ACK to embedded order"
+  );
+  ok(
+    storePage.includes("order-ack-relay-v1"),
+    "Store shell cache build includes ACK relay"
   );
   ok(
     code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"),

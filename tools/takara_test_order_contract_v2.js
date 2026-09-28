@@ -263,6 +263,36 @@ function run() {
     "El municipio nacional informativo debe sobrevivir a la normalización"
   );
   const email = buildEmail(context, valid);
+  assert(
+    email.includes("Asunto: [TAKARA PEDIDO \u00B7 DIRECT \u00B7 takara3d.es]"),
+    "El asunto interno debe identificar claramente el origen DIRECT"
+  );
+  assert(
+    email.includes("Origen visible: DIRECT \u00B7 takara3d.es"),
+    "El cuerpo interno debe identificar claramente el origen DIRECT"
+  );
+  assert(
+    context.construirOrigenVisiblePedido_({
+      attribution: {
+        source_type: "STORE",
+        store_name_snapshot: "Tienda Centro",
+      },
+    }) === "STORE \u00B7 Tienda Centro",
+    "El origen visible Store debe incluir el nombre autoritativo"
+  );
+  const storeSubject = context.construirAsunto_(
+    valid.pedido_web_id,
+    Object.assign({}, normalizedValid, {
+      attribution: Object.assign({}, normalizedValid.attribution, {
+        source_type: "STORE",
+        store_name_snapshot: "Tienda Centro",
+      }),
+    })
+  );
+  assert(
+    storeSubject.indexOf("[TAKARA PEDIDO \u00B7 STORE \u00B7 Tienda Centro]") === 0,
+    "El asunto interno Store debe identificar la tienda de forma visible"
+  );
 
   [
     "[TAKARA_PEDIDO_WEB_V2]",
