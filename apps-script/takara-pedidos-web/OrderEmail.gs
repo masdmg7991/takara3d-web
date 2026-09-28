@@ -177,16 +177,24 @@ function construirOrigenVisiblePedido_(pedido) {
 }
 
 function construirAsunto_(idPedidoWeb, pedido) {
-  return "[TAKARA PEDIDO WEB] " +
-    idPedidoWeb +
-    " \u00B7 " +
+  return "[TAKARA PEDIDO \u00B7 " +
     construirOrigenVisiblePedido_(pedido) +
+    "] " +
+    idPedidoWeb +
     " \u00B7 " +
     pedido.producto.formato +
     " \u00B7 " +
     pedido.producto.color_marco +
     " \u00B7 " +
     pedido.cliente.nombre;
+}
+
+function construirDestinoEmailInterno_(pedido) {
+  const destino = String(CFG.DESTINO_PEDIDOS || "").trim();
+  if (construirOrigenVisiblePedido_(pedido).indexOf("STORE") !== 0) return destino;
+  const match = destino.match(/^([^@]+)@gmail\.com$/i);
+  if (!match) throw new Error("STORE requiere un destino interno Gmail compatible.");
+  return match[1] + "+store@gmail.com";
 }
 
 function versionPlantillaPedido_(pedido) {
@@ -453,7 +461,7 @@ function enviarEmailInterno_(
   };
 
   const options = {
-    to: CFG.DESTINO_PEDIDOS,
+    to: construirDestinoEmailInterno_(pedido),
     subject: subject,
     body: body,
     htmlBody: construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual),
