@@ -439,6 +439,21 @@ function construirCuerpoInternoV2_(idPedidoWeb, now, pedido, foto, fichaVisual) 
 
 /* TAKARA EMAIL PEDIDO PREMIUM V1 START */
 
+function resolverDestinoInternoPedido_(pedido) {
+  const attribution = pedido && pedido.attribution
+    ? pedido.attribution
+    : {};
+  const sourceType = String(attribution.source_type || "")
+    .trim()
+    .toUpperCase();
+
+  if (sourceType === "STORE" && CFG.DESTINO_PEDIDOS_STORE) {
+    return CFG.DESTINO_PEDIDOS_STORE;
+  }
+
+  return CFG.DESTINO_PEDIDOS;
+}
+
 function enviarEmailInterno_(
   subject,
   body,
@@ -453,7 +468,7 @@ function enviarEmailInterno_(
   };
 
   const options = {
-    to: CFG.DESTINO_PEDIDOS,
+    to: resolverDestinoInternoPedido_(pedido),
     subject: subject,
     body: body,
     htmlBody: construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual),
