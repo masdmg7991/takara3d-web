@@ -221,6 +221,10 @@ function createOrderHarness(backend, payload) {
       trace.push("attribution");
       return backend.buildAuthoritativeOrderAttribution_(value);
     },
+    resolveOrderInternalEmailDestination_(attribution, destination) {
+      trace.push("email-destination");
+      return backend.resolveOrderInternalEmailDestination_(attribution, destination);
+    },
     validarPedido_(pedido) {
       trace.push("validate");
       validatedPedido = pedido;

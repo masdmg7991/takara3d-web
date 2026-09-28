@@ -143,6 +143,10 @@ function createHarness(payload) {
       trace.push("validate");
       ok(Boolean(pedido.attribution), "validation sees attribution");
     },
+    resolveOrderInternalEmailDestination_(attribution, destination) {
+      trace.push("email-destination");
+      return String(destination || "").trim();
+    },
     construirCuerpoInterno_(id, now, pedido) {
       trace.push("body");
       return [

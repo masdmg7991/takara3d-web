@@ -133,6 +133,9 @@ function createHarness(initialPayload) {
     buildAuthoritativeOrderAttribution_() {
       return Object.freeze({ version: "TAKARA_STORE_ATTRIBUTION_V1", source_type: "DIRECT" });
     },
+    resolveOrderInternalEmailDestination_(attribution, destination) {
+      return String(destination || "").trim();
+    },
     validarPedido_() {},
     reservePublicSideEffectBudget_(route, actor, units) {
       runtime.effects.abuse += 1;
