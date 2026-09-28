@@ -603,14 +603,22 @@ Garantías:
 - STORE conserva `TAKARA_STORE_ATTRIBUTION_V1`, `source_type=STORE`,
   `store_id` y `store_name_snapshot` hasta el correo técnico interno.
 - DIRECT conserva `source_type=DIRECT` y no inventa identidad Store.
+- DIRECT entrega el correo interno a `CFG.DESTINO_PEDIDOS` sin cambios.
+- STORE entrega el mismo correo interno mediante el alias Gmail
+  `<usuario>+store@gmail.com`, que pertenece al mismo buzón Takara, evitando
+  el autoenvío exacto dirección-a-la-misma-dirección sin añadir un segundo
+  mensaje ni ampliar scopes OAuth.
+- el alias STORE se deriva únicamente del destino operativo Gmail configurado;
+  si deja de ser compatible, el envío falla cerrado antes de la confirmación
+  al cliente y del ACK.
 - `enviarEmailInterno_` no resuelve Store, no consulta Registry/Sheets y no
-  recalcula atribución.
+  recalcula atribución; consume el origen visible ya derivado.
 - la confirmación del cliente y la respuesta HTTP no exponen `store_id`,
   `store_name_snapshot` ni la atribución interna.
 - el cuerpo técnico interno es la única representación downstream de
   atribución dentro de Takara Web; no se crea un payload paralelo.
-- F3E no cambia runtime de producto: instala evidencia y regresiones
-  permanentes sobre la frontera ya implementada por F3D.
+- F3E mantiene una única frontera MailApp; la única variación de runtime para
+  STORE es el destinatario alias del mismo buzón operativo.
 - F5 verificará el despliegue/E2E más allá de esta frontera del repositorio.
 - los validadores documentales verifican invariantes semánticos y no una
   conjugación o frase literal completa cuando la prosa no es la autoridad.
