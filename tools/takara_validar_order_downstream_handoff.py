@@ -117,6 +117,10 @@ def main() -> int:
         "handoff real usa MailApp options",
     )
     require(
+        "construirDestinoEmailInterno_(pedido)" in internal,
+        "handoff usa destino interno derivado sin re-resolver Store",
+    )
+    require(
         "construirHtmlInterno_(" in internal,
         "renderer interno recibe pedido autoritativo",
     )
@@ -189,6 +193,11 @@ def main() -> int:
         "Contrato F3E conserva frontera MailApp",
     )
     require(
+        "+store@gmail.com" in contract
+        and "sin ampliar scopes OAuth" in contract,
+        "Contrato F3E documenta alias Gmail STORE sin ampliar permisos",
+    )
+    require(
         "byte-for-byte" in contract,
         "Contrato F3E exige preservación exacta del body",
     )
@@ -222,6 +231,10 @@ def main() -> int:
         "Test F3E compara body STORE exacto en MailApp",
     )
     require(
+        'store.sent[0].to === "3d.takara+store@gmail.com"' in normalized_test,
+        "Test F3E verifica alias Gmail STORE en el mismo buzón Takara",
+    )
+    require(
         'store.sent[0].body.includes("Store ID: STO_000001")'
         in normalized_test,
         "Test F3E verifica store_id STORE downstream",
@@ -233,6 +246,10 @@ def main() -> int:
     require(
         'direct.sent[0].body === directBody()' in normalized_test,
         "Test F3E compara body DIRECT exacto en MailApp",
+    )
+    require(
+        'direct.sent[0].to === "3d.takara@gmail.com"' in normalized_test,
+        "Test F3E conserva destino DIRECT canónico",
     )
     require(
         'Object.prototype.hasOwnProperty.call( directAttribution, "store_id" )'
