@@ -27,7 +27,7 @@ $FulfillmentRel = "apps-script/takara-pedidos-web/OrderFulfillment.gs"
 $FulfillmentPath = Join-Path $Project $FulfillmentRel
 $EmailRel = "apps-script/takara-pedidos-web/OrderEmail.gs"
 $EmailPath = Join-Path $Project $EmailRel
-$ExpectedHash = "3707569B2BA1EC654042AB35CED7653016589BBD87B5546ABFE14CAC72720BD5"
+$ExpectedHash = "56C7E001602797C57D171958D879D21A2B18BB408B4999E3311289B01CB85502"
 function Ok($Message) { Write-Host "[OK] $Message" -ForegroundColor Green }
 function Fail($Message) { Write-Host "[ERROR] $Message" -ForegroundColor Red; exit 1 }
 
