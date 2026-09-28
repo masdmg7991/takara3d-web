@@ -387,7 +387,16 @@ ok(renamedOrder.result.ok === true, "renamed STORE new order succeeds");
 ok(renamedOrder.result.technical_email_body.includes("Store nombre snapshot: Foto García Centro"), "renamed STORE new order freezes latest name");
 ok(firstSnapshot.store_name_snapshot === "Foto García", "previous STORE attribution snapshot remains immutable historically");
 ok(renamedOrder.getPedido().attribution.store_id === firstSnapshot.store_id, "rename keeps same authoritative store_id");
-handoff(renamedOrder.result.technical_email_body, renamedOrder.getPedido());
+const renamedPedido = renamedOrder.getPedido();
+const renamedMail = handoff(
+  renamedOrder.result.technical_email_body,
+  renamedPedido,
+  backend.resolveOrderInternalEmailDestination_(
+    renamedPedido.attribution,
+    "3d.takara@gmail.com"
+  )
+);
+ok(renamedMail.to === "3d.takara+store@gmail.com", "renamed STORE keeps resolved internal alias");
 
 // INACTIVE: public context and stale order transport both fail closed; no fallback/effects.
 const inactive = backend.deactivateStoreRuntime_("STO_000001");
