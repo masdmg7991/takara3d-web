@@ -283,13 +283,13 @@ function run() {
   assert(
     context.resolverDestinoInternoPedido_({
       attribution: { source_type: "STORE" },
-    }) === context.CFG.DESTINO_PEDIDOS_STORE,
+    }) === "3d.takara+store@gmail.com",
     "STORE debe usar el alias interno dedicado"
   );
   assert(
     context.resolverDestinoInternoPedido_({
       attribution: { source_type: "DIRECT" },
-    }) === context.CFG.DESTINO_PEDIDOS,
+    }) === "3d.takara@gmail.com",
     "DIRECT debe conservar el buzón interno canónico"
   );
   const storeSubject = context.construirAsunto_(
