@@ -475,10 +475,7 @@ function enviarEmailInterno_(
     ];
   }
 
-  const sourceType = String(
-    pedido && pedido.attribution ? pedido.attribution.source_type || "" : ""
-  ).trim().toUpperCase();
-  if (sourceType === "STORE") {
+  if (construirOrigenVisiblePedido_(pedido).indexOf("STORE") === 0) {
     const gmailOptions = Object.assign({}, options);
     ["to", "subject", "body"].forEach(function (key) { delete gmailOptions[key]; });
     const message = GmailApp.createDraft(
