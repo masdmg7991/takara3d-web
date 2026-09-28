@@ -156,7 +156,7 @@ function runHandoff(source, body, attribution) {
 
   const context = {
     CFG: {
-      DESTINO_PEDIDOS: "3d.takara@example.test",
+      DESTINO_PEDIDOS: "3d.takara@gmail.com",
     },
     MailApp: {
       sendEmail(options) {
@@ -233,8 +233,8 @@ ok(
   "STORE name snapshot survives handoff"
 );
 ok(
-  store.sent[0].to === "3d.takara@example.test",
-  "STORE internal destination preserved"
+  store.sent[0].to === "3d.takara+store@gmail.com",
+  "STORE internal destination uses dedicated Gmail alias in same Takara mailbox"
 );
 ok(
   store.htmlCalls.length === 1,
@@ -276,6 +276,10 @@ ok(
     "Store nombre snapshot: \n"
   ),
   "DIRECT handoff keeps Store name empty"
+);
+ok(
+  direct.sent[0].to === "3d.takara@gmail.com",
+  "DIRECT internal destination remains canonical Takara mailbox"
 );
 ok(
   !Object.prototype.hasOwnProperty.call(

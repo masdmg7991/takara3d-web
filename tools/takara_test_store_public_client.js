@@ -192,6 +192,57 @@ function throwsCode(fn, code, message) {
       relayed.length === 1,
     "Store relay rejects untrusted ACK origin"
   );
+  const feedbackFrameWindow = {};
+  const feedbackFrame = { contentWindow: feedbackFrameWindow };
+  const feedback = api.normalizeStoreOrderFeedback(
+    {
+      origin: "https://takara3d.es",
+      source: feedbackFrameWindow,
+      data: {
+        version: "TAKARA_STORE_ORDER_FEEDBACK_V1",
+        type: "success",
+        order_id: relayOrderId,
+      },
+    },
+    feedbackFrame
+  );
+  ok(
+    feedback &&
+      feedback.type === "success" &&
+      feedback.order_id === relayOrderId,
+    "Store accepts correlated success feedback from embedded order"
+  );
+  ok(
+    api.normalizeStoreOrderFeedback(
+      {
+        origin: "https://evil.example",
+        source: feedbackFrameWindow,
+        data: {
+          version: "TAKARA_STORE_ORDER_FEEDBACK_V1",
+          type: "success",
+          order_id: relayOrderId,
+        },
+      },
+      feedbackFrame
+    ) === null,
+    "Store rejects feedback from foreign origin"
+  );
+  ok(
+    api.normalizeStoreOrderFeedback(
+      {
+        origin: "https://takara3d.es",
+        source: {},
+        data: {
+          version: "TAKARA_STORE_ORDER_FEEDBACK_V1",
+          type: "success",
+          order_id: relayOrderId,
+        },
+      },
+      feedbackFrame
+    ) === null,
+    "Store binds feedback to exact embedded frame"
+  );
+
   ok(!api.isValidStoreRef("STO_000001"), "internal Store id rejected");
   ok(!api.isValidStoreRef("st_short"), "short Store ref rejected");
   ok(!api.isValidStoreRef("st_bad value 123456789012345678"), "spaces rejected");

@@ -45,6 +45,7 @@
   const VISUAL_PROOF_READY_TIMEOUT_MS = 2000;
   const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
   const STORE_ORDER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1";
+  const STORE_ORDER_FEEDBACK_VERSION = "TAKARA_STORE_ORDER_FEEDBACK_V1";
   const ORDER_BROWSER_RESPONSE_MODE = "postmessage_v1";
   const ORDER_BROWSER_ACK_TIMEOUT_MS = 120000;
 
@@ -157,11 +158,40 @@
           ". Revisa tu correo para conservar la confirmación.",
         "success"
       );
+      notifyStoreParentOrderSuccess(form, ack);
     } catch (error) {
       setStatus(statusNode, error && error.message ? error.message : "No se pudo enviar la solicitud.", "error");
     } finally {
       setBusy(submitButton, false);
     }
+  }
+
+  function notifyStoreParentOrderSuccess(form, ack) {
+    if (
+      !form ||
+      form.getAttribute("data-takara-order-channel") !== "STORE" ||
+      !ack ||
+      ack.version !== ORDER_BROWSER_TRANSPORT_VERSION ||
+      ack.estado !== "recibido"
+    ) return false;
+
+    const orderId = String(ack.id_pedido_web || "").trim().toUpperCase();
+    if (!/^TK-WEB-\d{8}-[A-HJ-NP-Z2-9]{6}$/.test(orderId)) return false;
+    if (
+      !window.parent ||
+      window.parent === window ||
+      typeof window.parent.postMessage !== "function"
+    ) return false;
+
+    window.parent.postMessage(
+      Object.freeze({
+        version: STORE_ORDER_FEEDBACK_VERSION,
+        type: "success",
+        order_id: orderId
+      }),
+      "https://takara3d.es"
+    );
+    return true;
   }
 
   function isAllowedOrderBrowserAckOrigin(origin) {

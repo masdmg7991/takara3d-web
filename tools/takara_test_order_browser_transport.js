@@ -192,6 +192,7 @@ function backend() {
   ok(web.includes("unwrapOrderBrowserAckMessage(event)"), "ACK unwrap supports direct and Store relay paths");
   ok(web.includes("isAllowedOrderBrowserAckOrigin(event.origin)"), "direct ACK Google origin checked");
   ok(web.includes('STORE_ORDER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1"'), "Store ACK relay protocol explicit");
+  ok(web.includes('STORE_ORDER_FEEDBACK_VERSION = "TAKARA_STORE_ORDER_FEEDBACK_V1"'), "Store success feedback protocol explicit");
   ok(web.includes("event.source === window.parent"), "Store ACK relay binds to trusted parent frame");
   ok(web.includes("data.version === STORE_ORDER_ACK_RELAY_VERSION"), "Store ACK relay version checked");
   ok(web.includes("data.nonce !== nonce"), "ACK nonce checked after unwrap");
@@ -212,10 +213,14 @@ function backend() {
   );
   ok(
     web.includes("if (terminalState && !storeEmbedded)"),
-    "fixed modal is direct-only for terminal feedback"
+    "embedded pedido keeps its own fixed modal direct-only"
   );
   ok(
-    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1"),
+    web.includes("notifyStoreParentOrderSuccess(form, ack);"),
+    "Store notifies parent only after correlated ACK resolves"
+  );
+  ok(
+    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1-store-feedback-v1"),
     "Store ACK relay cache build active"
   );
   ok(
@@ -224,7 +229,12 @@ function backend() {
     "Store shell relays Google ACK to embedded order"
   );
   ok(
-    storePage.includes("order-ack-relay-v1"),
+    storeClient.includes("normalizeStoreOrderFeedback(event, frame)") &&
+      storeClient.includes("showStoreOrderFeedback(feedback)"),
+    "Store shell renders success only after trusted iframe feedback"
+  );
+  ok(
+    storePage.includes("order-ack-relay-v1-store-feedback-v1"),
     "Store shell cache build includes ACK relay"
   );
   ok(
