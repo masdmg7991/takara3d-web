@@ -14,6 +14,7 @@ EMAIL_FUNCTIONS = (
     'construirBloqueEntregaClienteTexto_',
     'construirFilasEntregaEmailPremium_',
     'construirAsunto_',
+    'construirDestinoEmailInterno_',
     'versionPlantillaPedido_',
     'construirCuerpoInterno_',
     'construirCuerpoInternoV1Compat_',
