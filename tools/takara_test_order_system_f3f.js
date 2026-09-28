@@ -263,9 +263,36 @@ function createOrderHarness(backend, payload) {
 
 function handoff(body, pedido) {
   const sent = [];
+  const gmailSent = [];
+  const gmailState = { inbox: false, unread: false, refreshed: false };
   const context = {
     CFG: { DESTINO_PEDIDOS: "3d.takara@example.test" },
     MailApp: { sendEmail(options) { sent.push(options); } },
+    GmailApp: {
+      createDraft(to, subject, draftBody, options) {
+        gmailSent.push(Object.assign({ to, subject, body: draftBody }, options || {}));
+        return {
+          send() {
+            return {
+              getThread() {
+                return {
+                  moveToInbox() { gmailState.inbox = true; return this; },
+                  markUnread() { gmailState.unread = true; return this; },
+                };
+              },
+              refresh() { gmailState.refreshed = true; return this; },
+              isInInbox() { return gmailState.inbox; },
+              isUnread() { return gmailState.unread; },
+            };
+          },
+        };
+      },
+    },
+    construirOrigenVisiblePedido_(order) {
+      return order.attribution.source_type === "STORE"
+        ? "STORE · " + order.attribution.store_name_snapshot
+        : "DIRECT · takara3d.es";
+    },
     construirHtmlInterno_() { return "<p>internal</p>"; },
   };
   vm.createContext(context);
@@ -278,9 +305,20 @@ function handoff(body, pedido) {
     { foto_recibida: true },
     { ficha_visual_recibida: false, blob: null }
   );
-  ok(sent.length === 1, "handoff sends exactly one internal email");
-  ok(sent[0].body === body, "handoff preserves technical body byte-for-byte");
-  return sent[0];
+  const isStore = pedido.attribution.source_type === "STORE";
+  ok(
+    isStore ? gmailSent.length === 1 && sent.length === 0 : sent.length === 1 && gmailSent.length === 0,
+    "handoff sends exactly one internal email through the expected channel"
+  );
+  const delivered = isStore ? gmailSent[0] : sent[0];
+  ok(delivered.body === body, "handoff preserves technical body byte-for-byte");
+  if (isStore) {
+    ok(
+      gmailState.inbox && gmailState.unread && gmailState.refreshed,
+      "STORE handoff leaves internal mail visible and unread in Inbox"
+    );
+  }
+  return delivered;
 }
 
 function projectPublicContextForOrder(context) {
