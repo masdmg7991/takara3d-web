@@ -16,6 +16,9 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 ## Estado actual
 
 - Web pública: GitHub Pages.
+- Repositorio privado; GitHub Pages requiere un plan compatible con repositorios privados.
+- Publicación desde `main` y raíz mediante Jekyll. `_config.yml` excluye backend,
+  documentación, pruebas y configuración interna; el Quality Gate comprueba ese límite.
 - Dominio público: `https://takara3d.es/`.
 - Endpoint authority: `assets/js/takara-config.js`.
 - Servicio backend: `Takara Pedidos Web`.

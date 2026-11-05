@@ -1,0 +1,15 @@
+# Publish website files only. The repository and its internal sources stay private.
+exclude:
+  - apps-script
+  - config
+  - docs
+  - tools
+  - README.md
+  - CONTRIBUTING.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle
+  - vendor/cache
+  - vendor/gems
+  - vendor/ruby

@@ -201,6 +201,8 @@ $Old3DErrorActionPreference = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 python (Join-Path $PSScriptRoot "takara_validar_3d.py") 2>&1 | ForEach-Object { Log-Line $_ }
 if ($LASTEXITCODE -eq 0) { Ok "Arquitectura 3D y modelos aprobados" } else { Err "Contrato 3D incumplido" }
+python (Join-Path $PSScriptRoot "takara_validar_pages_privacy.py") 2>&1 | ForEach-Object { Log-Line $_ }
+if ($LASTEXITCODE -eq 0) { Ok "Pages conserva fuentes internas privadas" } else { Err "Publicacion Pages expone fuentes internas" }
 foreach ($Test3D in @("test_marco3d_contract.mjs", "test_3d_lifecycle.mjs", "test_text_order_3d.mjs", "test_3d_editor_contract.mjs", "test_3d_surface_cache.mjs")) {
     node (Join-Path $PSScriptRoot $Test3D) 2>&1 | ForEach-Object { Log-Line $_ }
     if ($LASTEXITCODE -eq 0) { Ok ("Contrato 3D: " + $Test3D) } else { Err ("Fallo " + $Test3D) }
