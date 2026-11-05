@@ -29,7 +29,7 @@
       image: "assets/img/fotos/producto-caja-cuatro-fotos-100x100.png",
       alt: "Caja negra de litofanía personalizada con cuatro fotos y luz cálida",
       modifier: "product-tile--caja", action: "Consultar esta caja", channel: "whatsapp",
-      description: "Cuatro recuerdos, una misma luz.", fromPrice: false
+      description: "Un giro de 360° para iluminar tus recuerdos.", fromPrice: false
     }
   ];
   const buttons = [...document.querySelectorAll("[data-filter]")];
@@ -113,7 +113,8 @@
       });
       return { ...product, title: pricing.variante_nombre,
         measure: product.measurePrefix + pricing.medida.replace(/ x /g, " × "), price: pricing.precio_visible,
-        image: canonical.imagenes[product.variantCode] || canonical.imagenes.principal };
+        image: canonical.imagenes[product.variantCode] || canonical.imagenes.principal,
+        description: product.channel === "whatsapp" ? canonical.descripcion_corta : product.description };
     });
     renderTakaraProducts();
   }).catch(error => {
