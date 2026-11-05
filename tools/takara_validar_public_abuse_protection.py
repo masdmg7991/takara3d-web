@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 checks = 0
 
@@ -101,7 +101,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs conserva W8 en V1.20.0 candidato",
+        "Code.gs conserva W8 en V1.20.0 verificado",
     )
 
     for marker in (
@@ -195,15 +195,15 @@ def main() -> int:
 
     require(
         state.get("production", {}).get("script_version") == LIVE,
-        "Deployment state confirma LIVE V1.18.0",
+        "Deployment state confirma LIVE V1.20.0",
     )
     require(
         state.get("local", {}).get("script_version") == LOCAL,
-        "Deployment state declara local W8 V1.20.0 candidato",
+        "Deployment state declara local W8 V1.20.0 verificado",
     )
     require(
-        state.get("local", {}).get("status") == "candidate",
-        "Estado local confirma V1.20.0 candidato",
+        state.get("local", {}).get("status") == "version_matches_live",
+        "Estado local confirma version coincidente con LIVE",
     )
 
     for marker in (

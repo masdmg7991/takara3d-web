@@ -235,6 +235,8 @@ export class LithophaneSurface {
     this.options={intensity:0.64,brightness:0.5,relief:0.62,contrast:1,temperature:"warm",shadowDepth:0.45,presence:0,lightingProfile:"classic"};
     this.disposed=false;
     this.lastResult=null;
+    // At most two map sets for the current photo/options. No photo history.
+    this.renderCache=new Map();
   }
   initialize(){
     if(this.disposed)throw new Error("La superficie está cerrada");
@@ -267,6 +269,7 @@ export class LithophaneSurface {
   }
   setImage(image){
     if(!this.material)throw new Error("Falta inicializar el material");
+    this.renderCache.clear();
     if(!image){this.prepared=null;this.render();return;}
     const w=this.profile.width,h=this.profile.height;
     const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
@@ -285,16 +288,25 @@ export class LithophaneSurface {
     this.mode=mode;this.render();
   }
   setOptions(partial){
+    let changed=false;
     for(const key of ["intensity","brightness","relief","contrast","temperature","shadowDepth","presence","lightingProfile"]){
-      if(Object.prototype.hasOwnProperty.call(partial,key))this.options[key]=partial[key];
+      if(Object.prototype.hasOwnProperty.call(partial,key)&&!Object.is(this.options[key],partial[key])){
+        this.options[key]=partial[key];changed=true;
+      }
     }
+    if(!changed)return;
+    this.renderCache.clear();
     this.render();
   }
   render(){
     if(!this.material||!this.textures)return;
     const w=this.profile.width,h=this.profile.height;
     if(this.prepared){
-      const result=renderLithophaneMaps(this.prepared,this.mode,this.options,this.profile);
+      let result=this.renderCache.get(this.mode);
+      if(!result){
+        result=renderLithophaneMaps(this.prepared,this.mode,this.options,this.profile);
+        this.renderCache.set(this.mode,result);
+      }
       drawIntoCanvas(this.textures.base,result.base,w,h);
       if(this.material.normalTexture?.setTexture)drawIntoCanvas(this.textures.normal,result.normal,w,h);
       if(this.material.emissiveTexture?.setTexture)drawIntoCanvas(this.textures.emission,result.emission,w,h);
@@ -337,6 +349,7 @@ export class LithophaneSurface {
       texture.source.element.height=1;
       texture.source.update();
     }
+    this.renderCache.clear();
     this.prepared=null;this.lastResult=null;this.material=null;
     this.textures=null;this.viewer=null;this.disposed=true;
   }

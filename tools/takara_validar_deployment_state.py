@@ -16,10 +16,10 @@ ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
-PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
-LOCAL_STATUS = "candidate"
+LOCAL_STATUS = "version_matches_live"
 
 checks = 0
 
@@ -72,7 +72,7 @@ def main() -> int:
     )
     require(
         production.get("script_version") == PRODUCTION_SCRIPT,
-        "Version script LIVE es V1.19.0",
+        "Version script LIVE es V1.20.0",
     )
     require(production.get("status") == "online", "Estado productivo online")
 
@@ -82,11 +82,11 @@ def main() -> int:
     )
     require(
         local.get("status") == LOCAL_STATUS,
-        "Estado local declara candidato certificado",
+        "Estado local declara version coincidente con LIVE",
     )
     require(
-        local.get("script_version") != production.get("script_version"),
-        "Candidato local permanece separado de LIVE hasta promocion",
+        local.get("script_version") == production.get("script_version"),
+        "Version declarada local coincide con LIVE verificado",
     )
 
     require(
@@ -95,7 +95,7 @@ def main() -> int:
     )
     require(
         LOCAL_SCRIPT in code,
-        "Code.gs coincide con el candidato local",
+        "Code.gs coincide con el codigo local",
     )
     require(
         "TAKARA_GET_APPS_SCRIPT_ENDPOINT" in config,
@@ -108,14 +108,14 @@ def main() -> int:
         LOCAL_SCRIPT,
         "Script LIVE",
         "Script local",
-        "candidato",
+        "verificado",
     ):
         require(marker in deployment, f"DEPLOYMENT documenta {marker}")
 
     require(PRODUCTION_SCRIPT in app_readme, "Apps Script README conserva version LIVE")
-    require(LOCAL_SCRIPT in app_readme, "Apps Script README documenta candidato local")
+    require(LOCAL_SCRIPT in app_readme, "Apps Script README documenta codigo local")
     require(PRODUCTION_SCRIPT in order_contract, "ORDER_ENGINE_CONTRACT conserva version LIVE")
-    require(LOCAL_SCRIPT in order_contract, "ORDER_ENGINE_CONTRACT documenta candidato local")
+    require(LOCAL_SCRIPT in order_contract, "ORDER_ENGINE_CONTRACT documenta codigo local")
 
     require(
         "OrderIdempotency.gs" in app_readme,

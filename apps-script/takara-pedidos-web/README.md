@@ -83,8 +83,8 @@ Responsabilidad:
 
 Contrato validado:
 
-- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2
-- local candidato certificado: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP
+- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP
+- versión declarada local, coincidente con LIVE: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP
 - Estado mecánico actual: `../../config/deployment-state.json`
 - La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2

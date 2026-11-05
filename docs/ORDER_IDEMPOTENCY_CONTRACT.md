@@ -80,13 +80,13 @@ no crea este ledger. El dry-run tampoco crea persistencia idempotente.
 ## Regla de despliegue
 
 La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
-A fecha 2026-09-25 está en
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
+A fecha 2026-11-05 está en
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
 
 W7 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_15_0_ORDER_IDEMPOTENCY_V1`.
 
-El backend LIVE actual conserva W7 dentro del superset V1.19.0.
+El backend LIVE actual conserva W7 dentro del superset V1.20.0.
 
 Este contrato no convierte un commit ni un push en autorización de despliegue.
 La autoridad LIVE sólo cambia tras promoción explícita y verificación GET.
