@@ -1,4 +1,4 @@
-# Publish website files only. The repository and its internal sources stay private.
+# Publish website files only. Internal files are excluded from the Pages output.
 exclude:
   - apps-script
   - config

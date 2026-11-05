@@ -16,7 +16,8 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 ## Estado actual
 
 - Web pública: GitHub Pages.
-- Repositorio privado; GitHub Pages requiere un plan compatible con repositorios privados.
+- Repositorio público y GitHub Pages gratuito. Mantener Pages con un repositorio
+  privado requiere un plan compatible, como GitHub Pro.
 - Publicación desde `main` y raíz mediante Jekyll. `_config.yml` excluye backend,
   documentación, pruebas y configuración interna; el Quality Gate comprueba ese límite.
 - Dominio público: `https://takara3d.es/`.
