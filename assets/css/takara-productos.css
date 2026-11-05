@@ -1,0 +1,22 @@
+/* Catalog layout follows the existing product-card design. */
+.product-tile--caja .product-tile__media img {
+  object-fit: contain;
+  padding: 0.62rem;
+  background: #201712;
+}
+
+.product-tile__description {
+  margin: 0 0 0.5rem;
+  color: rgba(48, 35, 26, 0.76);
+  line-height: 1.5;
+}
+
+.product-tile__price-group {
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 1100px) {
+  .grid[data-products-grid] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -8,10 +8,11 @@ herramientas externas.
 
 ## Productos activos
 
-Las tres entidades `Product` actuales son:
+Las cuatro entidades `Product` actuales son:
 
 - marco vertical en `productos.html`;
 - marco horizontal en `productos.html`;
+- caja de luz de cuatro fotos en `productos.html`, con consulta por WhatsApp;
 - marco de litofanía configurable en `pedido.html`.
 
 Cada entidad debe incluir:
@@ -20,7 +21,7 @@ Cada entidad debe incluir:
 - `url`;
 - `image` con URL HTTPS absoluta y archivo real del mismo producto;
 - `brand`;
-- `offers.price` igual a `35.00`;
+- `offers.price` igual al precio del catálogo: `35.00` para el marco y `75.00` para la caja;
 - `offers.priceCurrency` igual a `EUR`;
 - `offers.availability` igual a `https://schema.org/InStock`.
 
@@ -30,6 +31,8 @@ Cada entidad debe incluir:
   `https://takara3d.es/assets/img/fotos/producto-marco-vertical-familia-card-v18.webp`
 - Horizontal:
   `https://takara3d.es/assets/img/fotos/producto-marco-horizontal-mascota.webp`
+- Caja de cuatro fotos:
+  `https://takara3d.es/assets/img/fotos/producto-caja-cuatro-fotos-100x100.png`
 
 La entidad general de `pedido.html` puede declarar ambas imágenes.
 
@@ -42,7 +45,7 @@ para esos campos.
 ## Regresión
 
 `tools/takara_validar_datos_estructurados.py` debe parsear el JSON-LD, comprobar
-las tres entidades `Product`, validar sus imágenes locales y confirmar precio,
+las cuatro entidades `Product`, validar sus imágenes locales y confirmar precio,
 moneda y disponibilidad antes de cualquier commit o push.
 ## Política de entrega en revisión local
 

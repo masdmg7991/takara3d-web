@@ -87,6 +87,47 @@ async function main() {
         report.externalRequests.push(url.split("?")[0]); return route.abort();
       });
       const page = await context.newPage();
+      const productsPage = await context.newPage();
+      productsPage.on("pageerror", error => report.errors.push(error.message));
+      await productsPage.goto(origin + "/productos.html");
+      await productsPage.waitForFunction(() => document.querySelector("#caja-cuatro-fotos .product-tile__price")?.textContent === "75,00 €");
+      assert.equal(await productsPage.locator(".product-tile").count(), 3);
+      assert.equal(await productsPage.locator(".product-tile__price").allTextContents().then(values => values.filter(value => value === "35,00 €").length), 2);
+      const boxLink = new URL(await productsPage.locator("#caja-cuatro-fotos a").getAttribute("href"));
+      assert.equal(boxLink.hostname, "wa.me");
+      assert.match(boxLink.searchParams.get("text"), /4 fotos.*100 × 100 mm.*75,00 €/);
+      assert.equal(await productsPage.locator("#caja-cuatro-fotos .product-tile__price-label").count(), 0);
+      await productsPage.locator('[data-filter="cajas"]').click();
+      assert.equal(await productsPage.locator(".product-tile").count(), 1);
+      assert.equal(await productsPage.locator('[data-filter="cajas"]').getAttribute("aria-pressed"), "true");
+      await productsPage.locator('[data-filter="marcos"]').click();
+      assert.equal(await productsPage.locator(".product-tile").count(), 2);
+      assert.equal(await productsPage.locator("#caja-cuatro-fotos").count(), 0);
+      await productsPage.locator('[data-filter="todos"]').click();
+      await productsPage.locator("#caja-cuatro-fotos img").scrollIntoViewIfNeeded();
+      await productsPage.waitForFunction(() => document.querySelector("#caja-cuatro-fotos img")?.naturalWidth > 0);
+      const catalogLayout = await productsPage.evaluate(() => ({
+        overflow: document.documentElement.scrollWidth > innerWidth,
+        positions: [...document.querySelectorAll(".product-tile")].map(node => { const r=node.getBoundingClientRect(); return {x:r.x,y:r.y,bottom:r.bottom}; }),
+        modelDownloads: performance.getEntriesByType("resource").filter(entry => new URL(entry.name).pathname.endsWith(".glb")).length
+      }));
+      assert.equal(catalogLayout.overflow, false);
+      assert.equal(catalogLayout.modelDownloads, 0, "The catalog cannot load the future box 3D viewer");
+      if (mobile) assert.ok(catalogLayout.positions[1].y >= catalogLayout.positions[0].bottom);
+      else assert.ok(catalogLayout.positions[0].x < catalogLayout.positions[1].x && catalogLayout.positions[1].x < catalogLayout.positions[2].x);
+      if (reportDir) await productsPage.screenshot({path:path.join(reportDir,label+"-catalogo.png"),fullPage:true});
+      await productsPage.close();
+      passed(label + ": three catalog cards, box 75 EUR, WhatsApp, filters, responsive layout and no box 3D");
+      const productsFallback = await context.newPage();
+      productsFallback.on("pageerror", error => report.errors.push(error.message));
+      await productsFallback.route("**/assets/data/catalogo.json", route => route.abort());
+      await productsFallback.goto(origin + "/productos.html");
+      await productsFallback.waitForFunction(() => [...document.querySelectorAll(".product-tile__price")].filter(node => node.textContent === "Consultar").length === 3);
+      await productsFallback.locator('[data-filter="cajas"]').click();
+      assert.equal(await productsFallback.locator(".product-tile").count(), 1);
+      assert.equal(new URL(await productsFallback.locator("#caja-cuatro-fotos a").getAttribute("href")).hostname, "wa.me");
+      await productsFallback.close();
+      passed(label + ": catalog failure retains filters and box contact without inventing a price");
       let payload;
       page.on("pageerror", error => report.errors.push(error.message));
       page.on("console", async msg => {
