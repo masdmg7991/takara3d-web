@@ -16,7 +16,7 @@
 }
 
 @media (min-width: 1100px) {
-  .grid[data-products-grid] {
+  .grid[data-products-grid][data-takara-current-filter="todos"] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
