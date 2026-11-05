@@ -156,6 +156,19 @@ async function main() {
       assert.equal(Buffer.from(vertical.data, "base64").subarray(0, 3).toString("hex"), "ffd8ff");
       passed(label + ": photo, multiword text, color and vertical JPEG");
 
+      await page.locator('[data-takara-litho-mode="off"]').click(); await ready(page);
+      const firstOff = await capture(page);
+      await page.locator('[data-takara-litho-mode="on"]').click(); await ready(page);
+      const cachedOn = await capture(page);
+      assert.ok(await meanPixelDifference(page, vertical.data, cachedOn.data) < 5,
+        "Cached ON appearance matches the original photo, color and text");
+      await page.locator('[data-takara-litho-mode="off"]').click(); await ready(page);
+      const cachedOff = await capture(page);
+      assert.ok(await meanPixelDifference(page, firstOff.data, cachedOff.data) < 5,
+        "Cached OFF appearance matches the first OFF render");
+      await page.locator('[data-takara-litho-mode="on"]').click(); await ready(page);
+      passed(label + ": repeated light changes preserve ON/OFF photo and capture appearance");
+
       await page.locator('[data-takara-format-proxy="horizontal"]').click(); await ready(page);
       const horizontalState = await page.evaluate(() => window.TAKARA_PRODUCT_PREVIEW.getSnapshot());
       assert.equal(horizontalState.state.variant, "horizontal");

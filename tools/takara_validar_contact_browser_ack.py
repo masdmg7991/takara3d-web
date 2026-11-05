@@ -6,7 +6,7 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
-LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 
 
@@ -106,7 +106,7 @@ def main() -> int:
 
     require(
         f'VERSION_SCRIPT: "{LOCAL}"' in code,
-        "Code.gs conserva W9 en V1.20.0 candidato",
+        "Code.gs conserva W9 en V1.20.0 verificado",
     )
 
     for marker in (
@@ -313,15 +313,15 @@ def main() -> int:
 
     require(
         deployment["production"]["script_version"] == LIVE,
-        "Deployment confirma LIVE V1.18.0",
+        "Deployment confirma LIVE V1.20.0",
     )
     require(
         deployment["local"]["script_version"] == LOCAL,
-        "Deployment confirma W9 en V1.20.0 candidato",
+        "Deployment confirma W9 en V1.20.0 verificado",
     )
     require(
-        deployment["local"]["status"] == "candidate",
-        "Deployment confirma V1.19.0 como desplegado",
+        deployment["local"]["status"] == "version_matches_live",
+        "Deployment confirma version coincidente con LIVE",
     )
 
     for artifact in (

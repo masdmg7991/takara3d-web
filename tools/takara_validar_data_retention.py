@@ -6,7 +6,7 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
-LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2"
+LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
 
 def require(condition: bool, message: str) -> None:
@@ -72,7 +72,7 @@ def main() -> int:
     require(f'VERSION_SCRIPT: "{LOCAL}"' in code, "Code.gs conserva W10 productivo")
     require(deployment["production"]["script_version"] == LIVE, "Deployment conserva LIVE")
     require(deployment["local"]["script_version"] == LOCAL, "Deployment declara local W10")
-    require(deployment["local"]["status"] == "candidate", "Estado local confirma V1.20.0 candidato")
+    require(deployment["local"]["status"] == "version_matches_live", "Estado local confirma version coincidente con LIVE")
 
     for marker in (
         "REPORT_ONLY", "180 días", "20 snapshots",

@@ -20,13 +20,13 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Endpoint authority: `assets/js/takara-config.js`.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
-- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
-- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP` (candidato certificado; aún no desplegado).
-- Deployment PUBLIC: versión inmutable 35.
+- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP` (versión declarada coincidente con LIVE).
+- Deployment PUBLIC: versión de script confirmada por GET; número inmutable no verificado en esta revisión.
 - Estado observado por GET: `online`.
-- Última verificación live registrada: `2026-09-25`.
+- Última verificación live registrada: `2026-11-05`.
 
-Producción PUBLIC sigue en V1.19.0 / versión inmutable 35 hasta completar esta promoción. El candidato local V1.20.0 añade recogida en tienda STORE-only con coste 0,00 EUR. El deployment ADMIN permanece separado e intacto. La autoridad mecánica del estado sigue siendo `config/deployment-state.json` y la autoridad LIVE se confirma mediante GET del endpoint canónico.
+El GET canónico del 2026-11-05 devuelve PUBLIC V1.20.0, con estado online. El código local declara la misma versión; esto no certifica igualdad byte a byte con el deployment. La revisión del visor publica únicamente archivos de GitHub Pages: no despliega Apps Script ni modifica ADMIN. El anterior registro V1.19.0 / versión 35 queda en el historial Git.
 
 ## Contratos activos
 

@@ -20,9 +20,9 @@ No cubre operaciones sin efectos:
 ## Autoridad
 
 La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
-A fecha 2026-09-25 está en:
+A fecha 2026-11-05 está en:
 
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_19_0_STORE_URL_V2`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
 
 W8 forma parte del backend productivo actual.
 
