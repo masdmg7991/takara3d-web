@@ -304,7 +304,9 @@ $ProductosPath = Join-Path $Project "productos.html"
 if (Test-Path $ProductosPath) {
     $ProductosText = Read-Utf8 $ProductosPath
     if ($ProductosText.Contains('<script src="assets/js/productos.js"></script>')) { Err "productos.html carga motor legado productos.js" } else { Ok "productos.html no carga motor legado productos.js" }
-    if ($ProductosText.Contains("renderTakaraProducts") -and $ProductosText.Contains("assets/js/core/takara-catalogo.js") -and $ProductosText.Contains("assets/js/core/takara-pricing.js")) { Ok "productos.html conserva motor catalogo actual" } else { Err "productos.html no conserva motor catalogo actual" }
+    $ProductosScriptPath = Join-Path $Project "assets/js/takara-productos.js"
+    $ProductosScriptText = if (Test-Path $ProductosScriptPath) { Read-Utf8 $ProductosScriptPath } else { "" }
+    if ($ProductosText.Contains("assets/js/takara-productos.js") -and $ProductosScriptText.Contains("renderTakaraProducts") -and $ProductosText.Contains("assets/js/core/takara-catalogo.js") -and $ProductosText.Contains("assets/js/core/takara-pricing.js")) { Ok "productos.html conserva motor catalogo modular" } else { Err "productos.html no conserva motor catalogo modular" }
 } else {
     Err "No existe productos.html"
 }

@@ -9,6 +9,9 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parents[1]
 SITE_ORIGIN = "https://takara3d.es"
 EXPECTED_IMAGES = {
+    "Caja de luz de cuatro fotos personalizada": (
+        f"{SITE_ORIGIN}/assets/img/fotos/producto-caja-cuatro-fotos-100x100.png"
+    ),
     "Marco vertical de litofanía personalizado": (
         f"{SITE_ORIGIN}/assets/img/fotos/"
         "producto-marco-vertical-familia-card-v18.webp"
@@ -111,7 +114,8 @@ def validate_product(product: dict) -> None:
     offers = product.get("offers")
     require(isinstance(offers, dict), f"{name} contiene Offer")
     require(offers.get("@type") == "Offer", f"{name} declara @type Offer")
-    require(str(offers.get("price")) == "35.00", f"{name} conserva precio 35.00")
+    expected_price = "75.00" if name == "Caja de luz de cuatro fotos personalizada" else "35.00"
+    require(str(offers.get("price")) == expected_price, f"{name} conserva precio {expected_price}")
     require(offers.get("priceCurrency") == "EUR", f"{name} conserva moneda EUR")
     require(
         offers.get("availability") == "https://schema.org/InStock",
@@ -132,10 +136,10 @@ def validate_product(product: dict) -> None:
 
 def main() -> int:
     products = product_nodes("productos.html") + product_nodes("pedido.html")
-    require(len(products) == 3, "Se detectan exactamente tres entidades Product")
+    require(len(products) == 4, "Se detectan exactamente cuatro entidades Product")
 
     names = [product.get("name") for product in products]
-    require(len(set(names)) == 3, "Las tres entidades Product son distintas")
+    require(len(set(names)) == 4, "Las cuatro entidades Product son distintas")
     require(set(names) == set(EXPECTED_IMAGES), "No falta ningún Product contractual")
 
     for product in products:
