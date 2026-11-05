@@ -36,7 +36,7 @@ def main():
     assert manifest['version'] == '4.4.0'
     for filename, record in manifest['files'].items():
         data = (vendor / filename).read_bytes()
-        assert len(data) == record['bytes']
+        assert len(data) == record['bytes'], f'Vendor size changed: {filename}'
         assert hashlib.sha256(data).hexdigest() == record['sha256'], f'Vendor changed: {filename}'
     print('TAKARA_3D_ARCHITECTURE_OK: one renderer, product isolation, approved GLBs, real capture')
 

@@ -154,11 +154,18 @@ export class ProductViewer {
     const parent = viewer.parentNode;
     const sibling = viewer.nextSibling;
     const bounds = viewer.getBoundingClientRect();
+    const renderer = viewer.constructor;
+    // v4.4.0 exposes the setter but its getter can return undefined.
+    // In that case restore its documented default floor of 0.5.
+    const minimumScale = renderer.minimumRenderScale ?? 0.5;
     const captureHost = document.createElement("div");
     captureHost.setAttribute("aria-hidden", "true");
     captureHost.style.cssText = "position:fixed;inset:0;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;";
     this.notify();
     try {
+      // Adaptive rendering may halve resolution on slower GPUs. Export at
+      // native resolution, then restore the interactive performance policy.
+      renderer.minimumRenderScale = 1;
       // A fixed viewport and camera make the order image independent of the
       // customer's rotation, zoom and screen size. Restore their view afterwards.
       // Move the SAME viewer into the viewport temporarily: model-viewer pauses
@@ -209,6 +216,7 @@ export class ProductViewer {
           viewer.style.opacity = "0";
           parent.insertBefore(viewer, sibling);
         }
+        renderer.minimumRenderScale = minimumScale;
         captureHost.remove();
         this.capturing = false;
         if (!this.disposed) this.notify();
