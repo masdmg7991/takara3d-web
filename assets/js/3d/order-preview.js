@@ -1,6 +1,6 @@
 /** Page adapter. The form owns the order; the viewer receives its configuration. */
 import { ProductViewer } from "./product-viewer.js";
-import { MARCO_PRODUCT } from "./marco-product.js";
+import { MARCO_PRODUCT } from "./marco-product.js?v=back-normals-1";
 import { FrameTextEditor } from "./text-editor.js";
 
 const form = document.querySelector("[data-takara-pedido-form]");

@@ -46,10 +46,20 @@ de los correos simulados; la recepción real fue confirmada por el usuario.
 
 ## Modelos y dependencia
 
-Se conservan los GLB aprobados sin modificar:
+Se conserva la geometría CAD aprobada. La tapa vertical tiene una reparación de
+normales de sombreado, reproducible desde su exportación original:
 
-- Vertical: `903bbd8ce6ffdc6f44eb0d248829d7a8ce83b89b8a069864f361c6dcfd350e33`.
+- Vertical: `b9924227d15439f2d6f863226036bdfaf4ddafa701619a07d14da3e82f92eb9b`.
 - Horizontal: `3bd9650529315713deb88b0aa9998c6ad52a0348fcee503f978e88cc97c6fba8`.
+
+La exportación vertical original mezclaba normales entre la cara plana, los
+bordes y las ranuras de ventilación, formando un sombreado diagonal falso.
+`tools/takara_repair_vertical_normals.py` separa los vértices compartidos de esa
+tapa y usa normales por cara, como la tapa horizontal. La auditoría compara con
+el original conservado en Git: mismos 1132 triángulos, posiciones y orientación;
+las otras mallas, materiales y texturas quedan iguales. El horizontal conserva
+su SHA-256 original. La vista frontal de comparación no cambia píxeles.
+El modelo y sus módulos de carga llevan una versión de URL para renovar la caché.
 
 Los parámetros de apariencia son los aprobados. La textura corrige la orientación
 horizontal de la fotografía del GLB vertical sin cambiar su geometría.
@@ -73,9 +83,9 @@ y evidencias se generan fuera del árbol público. CI ejecuta las mismas pruebas
 
 ## Rendimiento y límites de verificación
 
-Se descarga una orientación inicial. El GLB vertical ocupa 8,1 MB sin comprimir;
-GitHub Pages lo entrega con gzip, aproximadamente 2,35 MB en la revisión del
-2026-11-05. La biblioteca se entrega en unos 293 KB comprimidos. Son mediciones
+Se descarga una orientación inicial. El GLB vertical ocupa unos 8,2 MB sin comprimir tras la reparación de normales.
+GitHub Pages lo entrega con gzip; la medición previa a esta reparación fue de
+aproximadamente 2,35 MB el 2026-11-05. La biblioteca se entrega en unos 293 KB comprimidos. Son mediciones
 de esa respuesta, no un presupuesto garantizado para todas las conexiones.
 
 La memoria de luz evita recalcular mapas ya disponibles; no conserva fotos
