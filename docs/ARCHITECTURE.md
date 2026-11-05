@@ -91,7 +91,7 @@ aquello que no debe confiar al cliente.
 
 ### 3.3 Pedido, personalización y preview
 
-Los módulos takara-pedido-*, takara-frame-text.js y takara-pedido-preview.js separan:
+Los módulos comerciales `takara-pedido-*` y los módulos visuales `assets/js/3d/` separan:
 
 - captura de datos;
 - personalización;
@@ -99,8 +99,14 @@ Los módulos takara-pedido-*, takara-frame-text.js y takara-pedido-preview.js se
 - transporte al backend;
 - representación visual.
 
-El preview es un componente protegido: sus cambios requieren validaciones específicas y
-no se mezclan incidentalmente con Store, transporte o backend.
+`product-viewer.js` es el núcleo común: carga GLB, ciclo de vida, cámara, errores y captura.
+Recibe un perfil pequeño (`id`, `defaults`, `variants`, `validate`, `createController`).
+El controlador del producto aplica su estado y libera sus recursos. El núcleo no conoce
+litofanías, letras, precios ni formularios. `marco-product.js` adapta el marco aprobado;
+`order-preview.js` conecta ese perfil con los controles y el editor de texto.
+La ficha del correo usa el mismo modelo con cámara y dimensiones controladas.
+No existe un renderizador 2D paralelo. Los canvas se usan únicamente para texturas y JPG.
+La reutilización se verifica cargando un segundo GLB generado en el test, sin cambios al núcleo.
 
 ### 3.4 Store
 

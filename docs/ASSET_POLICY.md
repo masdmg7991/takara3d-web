@@ -27,5 +27,12 @@ de originales de diseño.
 - Ningún asset individual debe superar 2,5 MB sin una decisión técnica
   documentada.
 
+Los modelos GLB aprobados del marco superan el umbral general de 2,5 MB.
+Se conservan sus geometrías y hashes por aprobación visual; solo se descarga la
+orientación inicial. Una optimización posterior requiere medir carga en móvil y
+comparar la identidad visual. No se admite precargar ambos modelos al entrar.
+La dependencia model-viewer se sirve localmente y conserva `LICENSE`, metadatos
+de paquete e `INTEGRITY.json` contrastados con el archivo oficial de npm.
+
 Los originales retirados del repo se conservan, cuando sea necesario, en el
 archivo externo de backups y nunca dentro de Git.

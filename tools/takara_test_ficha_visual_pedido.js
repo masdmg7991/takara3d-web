@@ -331,8 +331,8 @@ function testStaticClientContract() {
   [
     "TAKARA_ORDER_VISUAL_PROOF_V1",
     "captureVisualProof",
-    "createOverlayImage",
-    "waitForPreviewPhoto",
+    "TAKARA_PRODUCT_PREVIEW",
+    "preview.capture(expectedPhoto)",
     "ficha_visual_base64",
     "ficha_visual_size_bytes",
     "VISUAL_PROOF_MAX_BYTES",
@@ -352,200 +352,40 @@ function testStaticClientContract() {
 }
 
 async function testClientComposition() {
-  const drawCalls = [];
-  const sourceTextNode = {};
-  const cloneTextNode = {
-    setAttribute: function () {},
-    removeAttribute: function () {}
-  };
-  const cloneOverlay = {
-    setAttribute: function () {},
-    removeAttribute: function () {},
-    querySelector: function () {
-      return null;
-    },
-    querySelectorAll: function () {
-      return [cloneTextNode];
-    }
-  };
-  const sourceOverlay = {
-    cloneNode: function () {
-      return cloneOverlay;
-    },
-    querySelectorAll: function () {
-      return [sourceTextNode];
-    }
-  };
-  const sourceCanvas = {
-    width: 1200,
-    height: 900,
-    style: {
-      width: "600px",
-      height: "450px"
-    },
-    getBoundingClientRect: function () {
-      return { width: 600, height: 450 };
-    }
-  };
-  const outputContext = {
-    fillStyle: "",
-    fillRect: function () {},
-    drawImage: function () {
-      drawCalls.push(Array.from(arguments));
-    }
-  };
-  const outputCanvas = {
-    width: 0,
-    height: 0,
-    getContext: function () {
-      return outputContext;
-    },
-    toBlob: function (callback) {
-      callback(new Blob([Buffer.alloc(2048)], { type: "image/jpeg" }));
-    }
-  };
-
-  function TestImage() {
-    this.onload = null;
-    this.onerror = null;
-  }
-  Object.defineProperty(TestImage.prototype, "src", {
-    set: function () {
-      if (this.onload) this.onload();
-    }
-  });
-
-  function TestFileReader() {
-    this.result = "";
-    this.onload = null;
-    this.onerror = null;
-  }
-  TestFileReader.prototype.readAsDataURL = function (blob) {
-    const self = this;
-    blob.arrayBuffer().then(function (bytes) {
-      self.result = "data:image/jpeg;base64," +
-        Buffer.from(bytes).toString("base64");
-      self.onload();
-    }, function () {
-      self.onerror();
-    });
-  };
-
-  const windowObject = {
-    location: {
-      href: "http://localhost/pedido.html",
-      hostname: "localhost",
-      search: ""
-    },
-    console: {
-      log: function () {},
-      warn: function () {}
-    },
-    requestAnimationFrame: function (callback) {
-      callback();
-    },
-    setTimeout: setTimeout,
-    getComputedStyle: function () {
-      return {
-        fill: "rgb(21, 21, 21)",
-        stroke: "rgba(255, 255, 255, 0.38)",
-        strokeWidth: "0.75px",
-        paintOrder: "stroke fill",
-        fontFamily: "Georgia",
-        fontWeight: "700",
-        letterSpacing: "0.5px",
-        textRendering: "geometricPrecision"
-      };
-    },
-    URL: {
-      createObjectURL: function () {
-        return "blob:takara-test";
-      },
-      revokeObjectURL: function () {}
-    }
-  };
-  const context = {
-    window: windowObject,
-    document: {
-      addEventListener: function () {},
-      querySelector: function (selector) {
-        if (selector === "[data-takara-preview-canvas]") return sourceCanvas;
-        if (selector === "[data-takara-frame-text-overlay]") return sourceOverlay;
-        if (selector === "[data-takara-file-name]") {
-          return {
-            title: "foto-prueba.jpg",
-            textContent: "foto-prueba.jpg"
-          };
-        }
-        if (selector === "[data-takara-litho-mode].is-active") {
-          return {
-            getAttribute: function () {
-              return "on";
-            }
-          };
-        }
-        return null;
-      },
-      querySelectorAll: function () {
-        return [];
-      },
-      createElement: function (tagName) {
-        if (tagName === "canvas") return outputCanvas;
-        throw new Error("Elemento inesperado: " + tagName);
+  let captures=0;
+  const expectedPhoto={ name:"foto-prueba.jpg" };
+  const windowObject={
+    location:{hostname:"localhost",href:"http://localhost/pedido.html",search:""},
+    console:{warn(){}},
+    TAKARA_PRODUCT_PREVIEW:{
+      async capture(photo) {
+        ok(photo===expectedPhoto,"La captura recibe la fotografía original por identidad");
+        captures++;
+        return {blob:new Blob([Buffer.alloc(2048)],{type:"image/jpeg"}),width:960,height:760};
       }
-    },
-    console: windowObject.console,
-    URLSearchParams: URLSearchParams,
-    Uint8Array: Uint8Array,
-    FileReader: TestFileReader,
-    Image: TestImage,
-    XMLSerializer: function XMLSerializer() {
-      this.serializeToString = function () {
-        return '<svg xmlns="http://www.w3.org/2000/svg"></svg>';
-      };
-    },
-    Blob: Blob,
-    Buffer: Buffer,
-    Object: Object,
-    Array: Array,
-    Number: Number,
-    String: String,
-    JSON: JSON,
-    Date: Date,
-    Math: Math,
-    RegExp: RegExp,
-    Error: Error,
-    Promise: Promise,
-    setTimeout: setTimeout
+    }
   };
-
+  function Reader() {}
+  Reader.prototype.readAsDataURL=function(blob){
+    blob.arrayBuffer().then(bytes=>{this.result="data:image/jpeg;base64,"+Buffer.from(bytes).toString("base64");this.onload();});
+  };
+  const context={window:windowObject,document:{addEventListener(){},querySelector(){return null;}},
+    FileReader:Reader,Blob,URLSearchParams,console:windowObject.console};
   vm.createContext(context);
-  vm.runInContext(fs.readFileSync(ORDER_JS, "utf8"), context, {
-    filename: ORDER_JS
-  });
-
-  const result = await context.window.TAKARA_ORDER_VISUAL_PROOF_V1.capture(
-    "TK-WEB-VISUAL-TEST",
-    "foto-prueba.jpg"
-  );
-
-  ok(result.status === "generada", "Cliente genera una ficha visual válida");
-  ok(result.content_type === "image/jpeg", "Cliente codifica la ficha como JPEG");
-  ok(result.size_bytes === 2048, "Cliente declara el tamaño binario real");
-  ok(result.preview_mode === "encendida", "Cliente documenta el modo visible");
-  ok(
-    result.filename === "TK-WEB-VISUAL-TEST_vista_previa.jpg",
-    "Cliente aplica nombre trazable"
-  );
-  ok(
-    /^data:image\/jpeg;base64,/.test(result.data_url),
-    "Cliente incorpora la ficha al payload en data URL"
-  );
-  ok(drawCalls.length === 2, "Composición incluye canvas y capa SVG de textos");
-  ok(
-    outputCanvas.width === 960 && outputCanvas.height === 720,
-    "Cliente limita la ficha a 960 px sin deformarla"
-  );
+  vm.runInContext(fs.readFileSync(ORDER_JS,"utf8"),context);
+  const api=context.window.TAKARA_ORDER_VISUAL_PROOF_V1;
+  const result=await api.capture("TK-WEB-VISUAL-TEST",expectedPhoto);
+  ok(result.status==="generada","Cliente incorpora la captura del motor 3D");
+  ok(result.content_type==="image/jpeg","Ficha tipificada JPEG");
+  ok(result.size_bytes===2048,"Tamaño binario real");
+  ok(result.filename==="TK-WEB-VISUAL-TEST_vista_previa.jpg","Nombre trazable de ficha");
+  ok(/^data:image\/jpeg;base64,/.test(result.data_url),"Ficha integrada como data URL");
+  ok(captures===1,"Solo una captura: sin composición visual alternativa");
+  windowObject.TAKARA_PRODUCT_PREVIEW.capture=async()=>{throw new Error("WebGL no disponible");};
+  const failed=await api.capture("TK-WEB-FAILED",expectedPhoto);
+  ok(failed.status==="no_generada" && failed.data_url==="","Fallo 3D conserva contrato opcional, sin imagen antigua");
+  delete windowObject.TAKARA_PRODUCT_PREVIEW;
+  ok((await api.capture("TK-WEB-MISSING",expectedPhoto)).status==="no_generada","Motor ausente no inventa una ficha");
 }
 
 function testServerEmailOnly() {
@@ -787,12 +627,10 @@ async function main() {
   );
 }
 
-try {
-  main().catch(function (error) {
-    process.stderr.write(String(error && error.stack ? error.stack : error) + "\n");
+module.exports = { loadServerContext, makePhoto };
+if (require.main === module) {
+  main().catch(error => {
+    process.stderr.write(String(error.stack || error) + "\n");
     process.exitCode = 1;
   });
-} catch (error) {
-  process.stderr.write(String(error && error.stack ? error.stack : error) + "\n");
-  process.exitCode = 1;
 }

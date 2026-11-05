@@ -139,6 +139,11 @@ function loadFullClientContext(catalog) {
           bytes.fill(7);
           return bytes;
         }
+      },
+      TAKARA_PRODUCT_PREVIEW: {
+        assertOrderReady: function () {},
+        getSnapshot: function () { return { revision: 1 }; },
+        capture: async function () { throw new Error("Simulated WebGL failure"); }
       }
     },
     document: {
@@ -149,6 +154,12 @@ function loadFullClientContext(catalog) {
     console: console,
     URLSearchParams: URLSearchParams,
     Uint8Array: Uint8Array,
+    FormData: function (form) {
+      this.entries = function () {
+        return Object.entries(form.fields).filter(function (entry) { return entry[1].value !== undefined; })
+          .map(function (entry) { return [entry[0], entry[1].value]; });
+      };
+    },
     FileReader: function FileReader() {
       this.result = "";
       this.onload = null;
@@ -457,6 +468,7 @@ async function testFullClientPayload() {
     dataUrl: "data:image/jpeg;base64,VEVTVA=="
   };
   const form = {
+    fields: fields,
     querySelector: function (selector) {
       if (selector === "[data-takara-photo-input]") {
         return { files: [photo] };

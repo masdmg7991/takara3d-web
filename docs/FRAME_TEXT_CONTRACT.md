@@ -1,67 +1,23 @@
-# Contrato de personalización del marco V1.4.9
+# Contrato de personalización del marco 3D
 
-## Bloqueo del espacio de render V1.4.9
+El marco usa `lettering.js` para dibujar las letras sobre materiales del propio
+GLB; no existe capa SVG superpuesta. Las letras mantienen el tamaño de referencia
+3D aprobado de 6,6 mm, sin reducirse para admitir frases más largas.
+El editor conserva el límite comercial anterior, más conservador que el espacio
+total de las bandas del modelo, y el porcentaje de ocupación de esa zona segura.
 
-- El SVG de las letras y el canvas V16B-2 ocupan exactamente el 100 % del mismo
-  escenario CSS.
-- El `viewBox` del SVG utiliza las dimensiones lógicas declaradas por el último
-  render del canvas, no una segunda medición fraccionaria del navegador.
-- Los cambios de `width`, `height` y `style` del canvas disparan una
-  resincronización agrupada mediante `requestAnimationFrame`.
-- El cambio de formato, el zoom, el redimensionado y la rotación de pantalla no
-  pueden conservar las dimensiones del formato anterior.
-- La validación de longitud usa el mismo espacio lógico que la representación;
-  no existe una geometría distinta para medir y otra para dibujar.
-- Se conservan sin cambios las posiciones geométricas aprobadas, incluido el
-  eje transversal `0.68`, los límites seguros, la composición vertical y los
-  precios.
+| Formato | Superior/inferior | Izquierdo/derecho |
+|---|---|---|
+| Vertical | 100 × 10 mm | 8 × 122 mm |
+| Horizontal | 122 × 8 mm | 10 × 100 mm |
 
-## Estabilidad de interfaz V1.4.4
-
-- Los cuatro lados conservan estados y textos independientes.
-- Solo el lado activo muestra su campo de edición.
-- Cambiar de lado no añade altura al panel ni desplaza el preview.
-- Un lado incluido se distingue visualmente del lado que se está editando.
-- Pulsar un lado incluido lo abre para editar; pulsarlo de nuevo mientras está activo lo elimina.
-- El payload, precios, límites geométricos y colores no cambian.
-
-## Corrección V1.4.2
-
-- La capa SVG toma como origen, tamaño y escala el rectángulo renderizado del
-  canvas V16B-1.
-- El texto deja de depender del ancho estimado del contenedor exterior.
-- El zoom del navegador, el cambio de anchura y los mínimos CSS escalan marco y
-  letras como una sola unidad.
-- Se conserva exactamente la geometría visual V1.3/V1.4.1.
-
-## Corrección V1.4.1
-
-- La medición del límite seguro usa un nodo SVG independiente e invisible.
-- Los nodos visibles de los cuatro lados no se modifican durante la medición.
-- Se conserva sin cambios la geometría V1.3, incluido el eje transversal `0.68`.
-- Se conservan sin cambios la paleta unificada y el selector único de color V1.4.
-
-## Alcance
-
-La personalización permite representar y contratar texto independiente en los
-bordes superior, derecho, inferior e izquierdo de los marcos vertical y
-horizontal.
-
-El motor protegido `takara-pedido-preview.js` V16B-2 no se modifica. El módulo
-`takara-frame-text.js` calcula una capa SVG sincronizada con el mismo render STL
-y situada por encima del canvas.
-
-## Contratos geométricos
-
-- `FRAME_TEXT_GEOMETRY_VERTICAL_V1`
-  - Imagen de referencia: `1151 × 1400`.
-  - Ventana interior: `x=201`, `y=201`, `w=748`, `h=998`.
-- `FRAME_TEXT_GEOMETRY_HORIZONTAL_V1`
-  - Imagen de referencia: `1400 × 1151`.
-  - Ventana interior: `x=201`, `y=201`, `w=998`, `h=748`.
-
-Los formatos son contratos independientes. No se obtiene uno rotando
-automáticamente el otro.
+Los cuatro lados mantienen textos independientes. Solo se muestra el campo del
+lado activo. Pulsar un lado seleccionado lo abre; pulsarlo de nuevo mientras
+está activo lo elimina. El editor conserva espacios al escribir y normaliza el
+texto para el contrato comercial. Un lado seleccionado sin texto bloquea el pedido.
+La validación comercial mantiene `TAKARA_FRAME_TEXT_V1_4` y los identificadores
+`FRAME_TEXT_GEOMETRY_VERTICAL_V1` y `FRAME_TEXT_GEOMETRY_HORIZONTAL_V1` por
+compatibilidad con el backend; esos identificadores no implican un render 2D.
 
 ## Regla de las esquinas
 
@@ -82,13 +38,16 @@ esquinas.
 - Los laterales no rotan una palabra horizontal.
 - Los espacios se conservan como una posición vacía entre palabras.
 
-La posición transversal se centra en la cara plana visible del borde. La
-calibración V1.3 sitúa el eje al 68 % del espesor medido desde el perímetro
-exterior hacia la ventana interior. Este valor centra el texto en la banda
-frontal útil observada en los dos renders reales, sin cargarlo sobre el bisel
-exterior ni aproximarlo en exceso a la ventana interior. La misma proporción
-se aplica simétricamente a los cuatro lados y se conserva como parámetro del
-contrato geométrico.
+La posición transversal está definida por las bandas UV de los GLB aprobados.
+Las letras usan texturas a 12 px/mm, sin comprimir horizontalmente la tipografía.
+Todos los lados utilizan un tamaño común que cabe en sus medidas físicas.
+
+Los límites del editor se calculan en las unidades normalizadas de la referencia:
+tamaño tipográfico 60,3, margen horizontal/vertical de 30/34 en vertical y 34/30
+en horizontal, interlineado lateral 1,08 y espaciado horizontal 0,035 em.
+La comparación con el editor anterior comprueba letras anchas, estrechas,
+frases y laterales en ambos formatos. La selección y la edición de un lado
+se distinguen con sus marcas; los avisos muestran ocupación, poco espacio y límite.
 
 En los laterales, el límite se calcula con la altura completa del bloque:
 altura de las letras más el interlineado. El bloque se centra dentro del tramo

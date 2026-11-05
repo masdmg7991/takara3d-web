@@ -100,8 +100,17 @@ $RequiredFiles = @(
     "assets/js/takara-pedido-delivery.js",
     "assets/js/core/takara-delivery.js",
     "assets/js/core/takara-postal-national.js",
-    "assets/js/takara-pedido-preview.js",
-    "assets/js/takara-frame-text.js",
+    "assets/js/3d/product-viewer.js",
+    "assets/js/3d/marco-product.js",
+    "assets/js/3d/order-preview.js",
+    "assets/js/3d/surface.js",
+    "assets/js/3d/lettering.js",
+    "assets/js/3d/text-editor.js",
+    "assets/js/3d/text-order.js",
+    "assets/js/3d/capture.js",
+    "assets/css/takara-product-viewer.css",
+    "assets/vendor/model-viewer/LICENSE",
+    "assets/vendor/model-viewer/model-viewer.min.js",
     "apps-script/takara-pedidos-web/Code.gs",
     "apps-script/takara-pedidos-web/OrderBrowserTransport.gs",
     "docs/ARCHITECTURE.md",
@@ -181,54 +190,40 @@ foreach ($File in $RequiredFiles) {
     if (Test-Path (Join-Path $Project $File)) { Ok ("Existe " + $File) } else { Err ("Falta archivo requerido: " + $File) }
 }
 
-$PreviewPath = Join-Path $Project "assets/js/takara-pedido-preview.js"
 $PedidoPath = Join-Path $Project "pedido.html"
 $QrPath = Join-Path $Project "qr/index.html"
 $QrCssPath = Join-Path $Project "assets/css/qr.css"
 $StoreContractPath = Join-Path $Project "docs/STORE_SYSTEM_CONTRACT.md"
 
-if (Test-Path $PreviewPath) {
-    $PreviewText = Read-Utf8 $PreviewPath
-    $PreviewCanonicalText = $PreviewText.Replace("`r`n", "`n").Replace("`r", "`n")
-    $PreviewUtf8NoBom = New-Object System.Text.UTF8Encoding($false)
-    $PreviewSha256 = [System.Security.Cryptography.SHA256]::Create()
-    try {
-        $PreviewHashBytes = $PreviewSha256.ComputeHash($PreviewUtf8NoBom.GetBytes($PreviewCanonicalText))
-        $PreviewHash = (($PreviewHashBytes | ForEach-Object { $_.ToString("x2") }) -join "").ToUpperInvariant()
-    } finally {
-        $PreviewSha256.Dispose()
-    }
-    $ModeOn = "data-takara-litho-mode=" + [char]34 + "on" + [char]34
-    $ModeOff = "data-takara-litho-mode=" + [char]34 + "off" + [char]34
-    if ($PreviewText.Contains("TAKARA PEDIDO PREVIEW LITHO REAL V16B-2")) { Ok "Preview V16B-2 detectado" } else { Err "Preview V16B-2 no detectado" }
-    if ($PreviewText.Contains($ModeOn) -and $PreviewText.Contains($ModeOff)) { Ok "Preview contiene Encendida/Apagada" } else { Err "Preview no contiene Encendida/Apagada" }
-    Ok ("Hash preview: " + $PreviewHash)
-    if ($PreviewHash -eq "622E3C370E96FF8814F5A4FD68F91E4544319ED7FD93EBABA3DD1CAC362880D1") {
-        Ok "Preview V16B-2 conserva el hash protegido"
-    } else {
-        Err ("Preview V16B-2 ha cambiado: " + $PreviewHash)
-    }
-    if (
-        !$PreviewText.Contains("preloadAllFrames") -and
-        $PreviewText.Contains("const frameImg = await loadFrame(frameSrc);") -and
-        $PreviewText.Contains("state.frameCache.has(src)") -and
-        $PreviewText.Contains("state.frameCache.set(src, img)")
-    ) {
-        Ok "Preview carga marcos bajo demanda y conserva cache"
-    } else {
-        Err "Preview no conserva el contrato de carga bajo demanda"
-    }
+# The approved migration replaces the former bitmap hash guard with GLB
+# identity, isolation and executable controller/personalization checks.
+$Old3DErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+python (Join-Path $PSScriptRoot "takara_validar_3d.py") 2>&1 | ForEach-Object { Log-Line $_ }
+if ($LASTEXITCODE -eq 0) { Ok "Arquitectura 3D y modelos aprobados" } else { Err "Contrato 3D incumplido" }
+foreach ($Test3D in @("test_marco3d_contract.mjs", "test_3d_lifecycle.mjs", "test_text_order_3d.mjs", "test_3d_editor_contract.mjs")) {
+    node (Join-Path $PSScriptRoot $Test3D) 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok ("Contrato 3D: " + $Test3D) } else { Err ("Fallo " + $Test3D) }
 }
+if ($env:TAKARA_PLAYWRIGHT_MODULE) {
+    node (Join-Path $PSScriptRoot "test_3d_browser.cjs") 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Navegador 3D, pedido y correos simulados" } else { Err "Fallo QA 3D en navegador" }
+} elseif ($Mode -eq "prepush") {
+    Err "Prepush requiere TAKARA_PLAYWRIGHT_MODULE para ejecutar la aceptacion 3D en navegador"
+} else {
+    Warn "QA grafica no ejecutada: configura TAKARA_PLAYWRIGHT_MODULE antes de prepush"
+}
+$ErrorActionPreference = $Old3DErrorActionPreference
 
 if (Test-Path $PedidoPath) {
     $PedidoText = Read-Utf8 $PedidoPath
-    if ($PedidoText.Contains("takara-pedido-preview.js")) { Ok "pedido.html carga preview JS" } else { Err "pedido.html no carga preview JS" }
+    if ($PedidoText.Contains("assets/js/3d/order-preview.js")) { Ok "pedido.html carga visor 3D" } else { Err "pedido.html no carga visor 3D" }
     if ($PedidoText.Contains('id="takara-frame-preload"')) {
         Err "pedido.html contiene una precarga masiva duplicada de marcos"
     } else {
         Ok "pedido.html no precarga masivamente los marcos"
     }
-    if ($PedidoText.Contains("assets/js/takara-frame-text.js") -and $PedidoText.Contains("data-takara-frame-text-config")) {
+    if ($PedidoText.Contains("assets/js/3d/order-preview.js") -and $PedidoText.Contains("data-takara-frame-text-config")) {
         Ok "pedido.html carga personalizacion de texto V1"
     } else {
         Err "pedido.html no carga correctamente la personalizacion de texto V1"
@@ -568,32 +563,6 @@ if (Test-Path $DirectOrderEnginePath) {
     Err "Falta assets/js/takara-pedido-web.js para validar separacion DIRECT/Store"
 }
 # TAKARA_STORE_SINGLE_APP_ARCHITECTURE_GUARD_V1 END
-$FrameTextPath = Join-Path $Project "assets/js/takara-frame-text.js"
-if (Test-Path $FrameTextPath) {
-    $FrameText = Read-Utf8 $FrameTextPath
-    $FrameTextMarkers = @(
-        "TAKARA FRAME TEXT PREVIEW V1",
-        "FRAME_TEXT_GEOMETRY_VERTICAL_V1",
-        "FRAME_TEXT_GEOMETRY_HORIZONTAL_V1",
-        "TAKARA_FRAME_TEXT_V1",
-        "PRICE_BY_SIDE_COUNT",
-        "TAKARA_FRAME_TEXT_V1_4",
-        "TAKARA_FRAME_TEXT_V1_4_9_RENDER_SPACE_LOCK",
-        "LETTER_COLORS",
-        "fitTextToSafeArea",
-        "getPreviewRenderSpace",
-        "requestAnimationFrame",
-        "color_texto"
-    )
-    foreach ($Marker in $FrameTextMarkers) {
-        if ($FrameText.Contains($Marker)) {
-            Ok ("Frame text conserva contrato: " + $Marker)
-        } else {
-            Err ("Frame text no contiene contrato: " + $Marker)
-        }
-    }
-}
-
 if ($PedidoText.Contains('<script src="assets/js/pedido.js"></script>')) { Err "pedido.html carga motor legado pedido.js" } else { Ok "pedido.html no carga motor legado pedido.js" }
 if ($PedidoText.Contains("assets/js/takara-pedido-web.js") -and $PedidoText.Contains("data-takara-pedido-form") -and $PedidoText.Contains("data-takara-pedido-web-v1")) { Ok "pedido.html conserva motor Gmail actual" } else { Err "pedido.html no conserva motor Gmail actual" }
 # TAKARA LEGACY ENGINE GUARDS END

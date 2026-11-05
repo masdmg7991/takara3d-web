@@ -39,10 +39,7 @@
     4: "personalizacion_texto_4_lados"
   });
   const VISUAL_PROOF_VERSION = "TAKARA_ORDER_VISUAL_PROOF_V1";
-  const VISUAL_PROOF_MAX_EDGE_PX = 960;
   const VISUAL_PROOF_MAX_BYTES = 900 * 1024;
-  const VISUAL_PROOF_JPEG_QUALITY = 0.86;
-  const VISUAL_PROOF_READY_TIMEOUT_MS = 2000;
   const ORDER_BROWSER_TRANSPORT_VERSION = "TAKARA_ORDER_BROWSER_POSTMESSAGE_V1";
   const STORE_ORDER_ACK_RELAY_VERSION = "TAKARA_STORE_ORDER_ACK_RELAY_V1";
   const STORE_ORDER_FEEDBACK_VERSION = "TAKARA_STORE_ORDER_FEEDBACK_V1";
@@ -825,8 +822,20 @@
       throw new Error("Marca la casilla de imagen enviada para confirmar que podemos revisar la foto.");
     }
 
+    const preview = window.TAKARA_PRODUCT_PREVIEW;
+    if (!preview) throw new Error("El personalizador no está disponible. Recarga la página antes de continuar.");
+    preview.assertOrderReady(file);
+    const configurationRevision = preview.getSnapshot().revision;
+    const originalFormState = JSON.stringify(Array.from(new FormData(form).entries())
+      .filter(entry => typeof entry[1] === "string"));
     const photoBase64 = await readFileAsDataUrl(file);
-    const visualProof = await createVisualProofSafe(pedidoWebId, file.name);
+    const visualProof = await createVisualProofSafe(pedidoWebId, file);
+    preview.assertOrderReady(file);
+    if (configurationRevision !== preview.getSnapshot().revision ||
+        photoInput.files[0] !== file || originalFormState !== JSON.stringify(
+          Array.from(new FormData(form).entries()).filter(entry => typeof entry[1] === "string"))) {
+      throw new Error("Has cambiado el pedido mientras se preparaba. Revísalo y vuelve a enviarlo.");
+    }
 
     return {
       payload_version: ORDER_PAYLOAD_VERSION,
@@ -1278,7 +1287,7 @@
     });
   }
 
-  async function createVisualProofSafe(pedidoWebId, expectedPhotoName) {
+  async function createVisualProofSafe(pedidoWebId, expectedPhoto) {
     const fallback = {
       data_url: "",
       filename: "",
@@ -1292,7 +1301,7 @@
     try {
       const proof = await captureVisualProof(
         pedidoWebId,
-        expectedPhotoName
+        expectedPhoto
       );
       return Object.assign({}, fallback, proof, { status: "generada" });
     } catch (error) {
@@ -1306,65 +1315,14 @@
     }
   }
 
-  async function captureVisualProof(pedidoWebId, expectedPhotoName) {
-    const sourceCanvas = document.querySelector("[data-takara-preview-canvas]");
-    const overlay = document.querySelector("[data-takara-frame-text-overlay]");
-
-    if (!sourceCanvas || sourceCanvas.width < 2 || sourceCanvas.height < 2) {
-      throw new Error("El preview todavía no está disponible.");
+  async function captureVisualProof(pedidoWebId, expectedPhoto) {
+    const preview = window.TAKARA_PRODUCT_PREVIEW;
+    if (!preview) throw new Error("El visor 3D no está disponible.");
+    const result = await preview.capture(expectedPhoto);
+    const blob = result.blob;
+    if (!blob || blob.type !== "image/jpeg" || blob.size > VISUAL_PROOF_MAX_BYTES) {
+      throw new Error("La ficha 3D no es un JPG válido dentro del límite permitido.");
     }
-
-    await waitForPreviewPhoto(expectedPhotoName);
-    await waitForStablePaint();
-
-    const sourceWidth = sourceCanvas.width;
-    const sourceHeight = sourceCanvas.height;
-    const maxSourceEdge = Math.max(sourceWidth, sourceHeight);
-    const outputScale = Math.min(1, VISUAL_PROOF_MAX_EDGE_PX / maxSourceEdge);
-    const outputWidth = Math.max(1, Math.round(sourceWidth * outputScale));
-    const outputHeight = Math.max(1, Math.round(sourceHeight * outputScale));
-    const output = document.createElement("canvas");
-    const outputContext = output.getContext("2d", { alpha: false });
-
-    if (!outputContext) {
-      throw new Error("El navegador no permite componer la ficha visual.");
-    }
-
-    output.width = outputWidth;
-    output.height = outputHeight;
-    outputContext.fillStyle = "#F7EFE4";
-    outputContext.fillRect(0, 0, outputWidth, outputHeight);
-    outputContext.drawImage(
-      sourceCanvas,
-      0,
-      0,
-      sourceWidth,
-      sourceHeight,
-      0,
-      0,
-      outputWidth,
-      outputHeight
-    );
-
-    if (overlay) {
-      const overlayImage = await createOverlayImage(overlay, sourceCanvas);
-      outputContext.drawImage(overlayImage, 0, 0, outputWidth, outputHeight);
-    }
-
-    const blob = await canvasToBlob(
-      output,
-      "image/jpeg",
-      VISUAL_PROOF_JPEG_QUALITY
-    );
-
-    if (!blob || blob.size < 1) {
-      throw new Error("La ficha visual se generó vacía.");
-    }
-
-    if (blob.size > VISUAL_PROOF_MAX_BYTES) {
-      throw new Error("La ficha visual supera el límite de seguridad.");
-    }
-
     return {
       data_url: await blobToDataUrl(blob),
       filename: safeFilename(pedidoWebId) + "_vista_previa.jpg",
@@ -1373,136 +1331,6 @@
       version: VISUAL_PROOF_VERSION,
       preview_mode: getCurrentPreviewMode()
     };
-  }
-
-  function waitForStablePaint() {
-    return new Promise(function (resolve) {
-      const schedule = typeof window.requestAnimationFrame === "function"
-        ? window.requestAnimationFrame.bind(window)
-        : function (callback) { return window.setTimeout(callback, 0); };
-
-      schedule(function () {
-        schedule(resolve);
-      });
-    });
-  }
-
-  async function waitForPreviewPhoto(expectedPhotoName) {
-    const expected = String(expectedPhotoName || "").trim();
-    if (!expected) return;
-
-    const deadline = Date.now() + VISUAL_PROOF_READY_TIMEOUT_MS;
-
-    while (Date.now() <= deadline) {
-      const fileNameNode = document.querySelector("[data-takara-file-name]");
-      const renderedName = fileNameNode
-        ? String(fileNameNode.title || fileNameNode.textContent || "").trim()
-        : "";
-
-      if (renderedName === expected) {
-        return;
-      }
-
-      await new Promise(function (resolve) {
-        window.setTimeout(resolve, 25);
-      });
-    }
-
-    throw new Error("El preview todavía no ha terminado de cargar la fotografía.");
-  }
-
-  function createOverlayImage(sourceOverlay, sourceCanvas) {
-    const canvasRect = sourceCanvas.getBoundingClientRect();
-    const cssWidth = Number.parseFloat(sourceCanvas.style.width) || canvasRect.width;
-    const cssHeight = Number.parseFloat(sourceCanvas.style.height) || canvasRect.height;
-
-    if (cssWidth < 2 || cssHeight < 2) {
-      return Promise.reject(new Error("La capa de textos no tiene dimensiones válidas."));
-    }
-
-    const clone = sourceOverlay.cloneNode(true);
-    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    clone.setAttribute("width", cssWidth);
-    clone.setAttribute("height", cssHeight);
-    clone.setAttribute("viewBox", "0 0 " + cssWidth + " " + cssHeight);
-    clone.setAttribute("preserveAspectRatio", "none");
-    clone.removeAttribute("class");
-    clone.removeAttribute("style");
-
-    const measurement = clone.querySelector("[data-takara-frame-text-measure]");
-    if (measurement) measurement.remove();
-
-    const sourceTextNodes = sourceOverlay.querySelectorAll(
-      "[data-takara-frame-text-render]"
-    );
-    const cloneTextNodes = clone.querySelectorAll(
-      "[data-takara-frame-text-render]"
-    );
-
-    sourceTextNodes.forEach(function (sourceNode, index) {
-      const cloneNode = cloneTextNodes[index];
-      if (!cloneNode) return;
-
-      const computed = window.getComputedStyle(sourceNode);
-      copyComputedSvgTextStyle(computed, cloneNode);
-      cloneNode.removeAttribute("class");
-      cloneNode.removeAttribute("style");
-    });
-
-    const serialized = new XMLSerializer().serializeToString(clone);
-    const svgBlob = new Blob([serialized], {
-      type: "image/svg+xml;charset=utf-8"
-    });
-    const objectUrl = window.URL.createObjectURL(svgBlob);
-
-    return loadImageFromUrl(objectUrl).finally(function () {
-      window.URL.revokeObjectURL(objectUrl);
-    });
-  }
-
-  function copyComputedSvgTextStyle(computed, node) {
-    [
-      ["fill", computed.fill],
-      ["stroke", computed.stroke],
-      ["stroke-width", computed.strokeWidth],
-      ["paint-order", computed.paintOrder],
-      ["font-family", computed.fontFamily],
-      ["font-weight", computed.fontWeight],
-      ["letter-spacing", computed.letterSpacing],
-      ["text-rendering", computed.textRendering]
-    ].forEach(function (entry) {
-      if (entry[1]) node.setAttribute(entry[0], entry[1]);
-    });
-  }
-
-  function loadImageFromUrl(url) {
-    return new Promise(function (resolve, reject) {
-      const image = new Image();
-      image.onload = function () {
-        resolve(image);
-      };
-      image.onerror = function () {
-        reject(new Error("No se pudo incorporar la capa de textos a la ficha visual."));
-      };
-      image.src = url;
-    });
-  }
-
-  function canvasToBlob(canvas, contentType, quality) {
-    return new Promise(function (resolve, reject) {
-      if (typeof canvas.toBlob !== "function") {
-        reject(new Error("El navegador no admite la exportación segura del preview."));
-        return;
-      }
-
-      canvas.toBlob(function (blob) {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("El navegador no pudo codificar la ficha visual."));
-        }
-      }, contentType, quality);
-    });
   }
 
   function blobToDataUrl(blob) {
@@ -1530,10 +1358,10 @@
   window.TAKARA_ORDER_VISUAL_PROOF_V1 = Object.freeze({
     version: VISUAL_PROOF_VERSION,
     maxBytes: VISUAL_PROOF_MAX_BYTES,
-    capture: function (pedidoWebId, expectedPhotoName) {
+    capture: function (pedidoWebId, expectedPhoto) {
       return createVisualProofSafe(
         pedidoWebId || "TK-WEB-PREVIEW",
-        expectedPhotoName
+        expectedPhoto
       );
     }
   });

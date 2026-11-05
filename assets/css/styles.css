@@ -567,7 +567,6 @@ p {
   background: rgba(200, 155, 74, .10);
 }
 
-
 .gift-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1474,9 +1473,6 @@ p {
 }
 
 @media (max-width: 760px) {
-  .pedido-stl-canvas {
-    min-height: auto;
-  }
 
   .product-showcase-grid .product-card__image {
     min-height: 310px;
@@ -1618,9 +1614,6 @@ section#productos-destacados .product-card__measure {
 }
 
 @media (max-width: 760px) {
-  .pedido-stl-canvas {
-    min-height: auto;
-  }
 
   section#productos-destacados.product-showcase-section {
     padding-top: 2rem;
@@ -1866,9 +1859,6 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 @media (max-width: 760px) {
-  .pedido-stl-canvas {
-    min-height: auto;
-  }
 
   .grid[data-products-grid] {
     grid-template-columns: 1fr;
@@ -2226,21 +2216,6 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   line-height: 1.62;
 }
 
-.pedido-stl-stage {
-  margin-top: 1.15rem;
-  overflow: hidden;
-  border-radius: 1.35rem;
-  background: linear-gradient(180deg, #f6ecdd 0%, #ece0ce 100%);
-  box-shadow: inset 0 0 0 1px rgba(109, 73, 42, 0.08), 0 22px 58px rgba(42, 24, 13, 0.16);
-}
-
-.pedido-stl-canvas {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  min-height: min(72vh, 760px);
-}
-
 .pedido-stl-summary {
   margin-top: 1rem;
   display: grid;
@@ -2294,9 +2269,6 @@ section#perfecto-para-regalar .gift-strip-card__body p {
 }
 
 @media (max-width: 760px) {
-  .pedido-stl-canvas {
-    min-height: auto;
-  }
 
   .pedido-stl-format-grid,
   .pedido-stl-color-grid,
@@ -2314,77 +2286,7 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   }
 }
 /* TAKARA PEDIDO STL PREVIEW END */
-
-/* TAKARA PEDIDO PREVIEW LITHO REAL V16 START */
-.takara-preview-v16-stage {
-  --takara-stage-ratio: 4 / 5;
-  position: relative;
-  width: min(100%, 790px);
-  margin: 0 auto;
-  aspect-ratio: var(--takara-stage-ratio);
-  border-radius: 1.45rem;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(circle at 50% 48%, #352417 0%, #191109 58%, #070504 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    0 24px 74px rgba(0,0,0,0.28);
-}
-
-.takara-preview-v16-stage[data-format="horizontal"] {
-  --takara-stage-ratio: 6 / 5;
-}
-
-.takara-preview-v16-stage img[src*="marco-preview-"] {
-  display: none !important;
-}
-
-.takara-preview-v16-canvas,
-[data-takara-preview-canvas] {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.takara-preview-v16-controls {
-  margin-top: 0.9rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.65rem;
-  align-items: center;
-  padding: 0.8rem;
-  border-radius: 1rem;
-  background: rgba(255, 250, 242, 0.86);
-  border: 1px solid rgba(120, 82, 42, 0.12);
-}
-
-.takara-preview-v16-mode {
-  border: 1px solid rgba(129, 87, 44, 0.18);
-  border-radius: 999px;
-  padding: 0.7rem 0.9rem;
-  background: rgba(255,255,255,0.72);
-  color: #4d2f18;
-  font: inherit;
-  font-size: 0.92rem;
-  font-weight: 850;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, color 140ms ease;
-}
-
-.takara-preview-v16-mode.is-active {
-  background: linear-gradient(135deg, #c99242, #aa742d);
-  color: #fff8ee;
-  box-shadow: 0 10px 22px rgba(155, 101, 43, 0.18);
-}
-
-.takara-preview-v16-mode:active {
-  transform: translateY(1px);
-}
+/* TAKARA UPLOAD FILE LABEL START */
 
 [data-takara-file-box] {
   max-width: 100% !important;
@@ -2399,23 +2301,7 @@ section#perfecto-para-regalar .gift-strip-card__body p {
   display: none !important;
 }
 
-@media (max-width: 760px) {
-  .takara-preview-v16-stage {
-    width: 100%;
-    border-radius: 1.15rem;
-  }
-
-  .takara-preview-v16-controls {
-    padding: 0.72rem;
-    gap: 0.55rem;
-  }
-
-  .takara-preview-v16-mode {
-    padding: 0.66rem 0.76rem;
-    font-size: 0.88rem;
-  }
-}
-/* TAKARA PEDIDO PREVIEW LITHO REAL V16 END */
+/* TAKARA UPLOAD FILE LABEL END */
 
 /* TAKARA PEDIDO PREVIEW FONDO CANVAS V16B-1 START */
 .pedido-stl-preview,
@@ -3156,7 +3042,6 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
 }
 /* TAKARA_SOCIAL_FINAL_V1 END */
 
-
 /* TAKARA_CONTACTO_PREMIUM_V4 START
    Contacto final premium:
    email como canal formal, WhatsApp como ayuda rápida,
@@ -3525,7 +3410,6 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
 }
 /* TAKARA_CONTACTO_PREMIUM_V4 END */
 
-
 /* TAKARA_CONTACTO_WEB_FORM_V1 START */
 .contacto-final-status {
   width: 100%;
@@ -3551,43 +3435,7 @@ footer a.btn.btn--light[href*="instagram.com/3d.takara"] {
   color: #7a3029 !important;
 }
 /* TAKARA_CONTACTO_WEB_FORM_V1 END */
-
-/* TAKARA FRAME TEXT PREVIEW V1 START */
-body.pedido-premium .pedido-stl-stage {
-  position: relative;
-}
-
-body.pedido-premium .takara-preview-v16-canvas {
-  position: relative;
-  z-index: 1;
-}
-
-body.pedido-premium .takara-frame-text-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-body.pedido-premium .takara-frame-text-overlay text {
-  fill: var(--takara-letter-color, #151515);
-  stroke: rgba(255, 255, 255, 0.38);
-  stroke-width: 0.75px;
-  paint-order: stroke fill;
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 700;
-  letter-spacing: 0.035em;
-  text-rendering: geometricPrecision;
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.30));
-}
-
-body.pedido-premium .takara-frame-text-overlay text.is-invalid {
-  fill: #a63b31;
-  stroke: rgba(255, 240, 236, 0.72);
-}
+/* TAKARA FRAME TEXT CONTROLS START */
 
 body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-text-switch {
   display: grid;
@@ -3887,7 +3735,7 @@ body.pedido-premium .takara-preview-config-section--frame-text .takara-frame-tex
     grid-template-columns: 1fr;
   }
 }
-/* TAKARA FRAME TEXT PREVIEW V1 END */
+/* TAKARA FRAME TEXT CONTROLS END */
 
 /* TAKARA PEDIDO PREMIUM CONSOLIDADO START */
 body.pedido-premium {
@@ -3989,7 +3837,6 @@ body.pedido-premium .pedido-stl-form {
   backdrop-filter: blur(14px);
 }
 
-body.pedido-premium .pedido-stl-stage,
 body.pedido-premium .pedido-stl-preview {
   grid-area: preview;
   border: 1px solid rgba(122, 78, 54, 0.14);
@@ -4049,14 +3896,7 @@ body.pedido-premium label:has(input[name='color_marco']):hover {
   box-shadow: 0 12px 28px rgba(65, 41, 27, 0.1);
 }
 
-body.pedido-premium .takara-litofania-controls,
-body.pedido-premium .takara-preview-v10-controls,
-body.pedido-premium .takara-preview-v11-controls,
-body.pedido-premium .takara-preview-v12-controls,
-body.pedido-premium .takara-preview-v13-controls,
-body.pedido-premium .takara-preview-v14-controls,
-body.pedido-premium .takara-preview-v15-controls,
-body.pedido-premium .takara-preview-v16-controls {
+body.pedido-premium .takara-litofania-controls{
   border: 1px solid rgba(122, 78, 54, 0.16);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
@@ -4106,7 +3946,6 @@ body.pedido-premium .takara-inline-note p {
 
   body.pedido-premium .pedido-premium-hero-v2,
   body.pedido-premium .pedido-stl-form,
-  body.pedido-premium .pedido-stl-stage,
   body.pedido-premium .pedido-stl-preview {
     border-radius: 1.1rem;
   }
@@ -4316,41 +4155,6 @@ body.pedido-premium .pedido-stl-preview > h2[data-takara-preview-title] {
   letter-spacing: -0.045em;
 }
 
-body.pedido-premium .pedido-stl-preview > .pedido-stl-stage {
-  grid-area: stage;
-  justify-self: center;
-  width: min(100%, 25rem);
-  min-height: clamp(22rem, 41vw, 30rem);
-  margin: 0;
-  padding: clamp(0.8rem, 1.9vw, 1.1rem);
-  display: grid;
-  place-items: center;
-  overflow: visible;
-  border-radius: 1.15rem;
-  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.82), rgba(239,226,207,0.90));
-}
-
-body.pedido-premium .pedido-stl-preview > .pedido-stl-stage img,
-body.pedido-premium .pedido-stl-preview > .pedido-stl-stage canvas,
-body.pedido-premium .pedido-stl-preview > .pedido-stl-stage [data-takara-preview-canvas] {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-body.pedido-premium .takara-preview-v10-controls,
-body.pedido-premium .takara-preview-v11-controls,
-body.pedido-premium .takara-preview-v12-controls,
-body.pedido-premium .takara-preview-v13-controls,
-body.pedido-premium .takara-preview-v14-controls,
-body.pedido-premium .takara-preview-v15-controls,
-body.pedido-premium .takara-preview-v16-controls {
-  grid-area: controls;
-  justify-self: center;
-  width: min(100%, 25rem);
-  margin: 0;
-}
-
 body.pedido-premium .pedido-stl-preview > dl {
   display: none;
 }
@@ -4554,8 +4358,6 @@ body.pedido-premium .takara-preview-contact-field textarea {
   }
 }
 
-@media (max-width: 720px) {
-}
 /* TAKARA PEDIDO PREMIUM CONSOLIDADO END */
 
 /* TAKARA PEDIDO PREMIUM UI FINAL START */
@@ -4745,53 +4547,7 @@ body.pedido-premium main .takara-preview-visual > h2[data-takara-preview-title]:
   background: linear-gradient(90deg, transparent, rgba(215, 141, 45, 0.95), transparent) !important;
   vertical-align: middle !important;
 }
-body.pedido-premium main .takara-preview-visual > .pedido-stl-stage {
-  grid-area: stage !important;
-  position: relative !important;
-  justify-self: center !important;
-  width: min(100%, 33rem) !important;
-  max-width: 33rem !important;
-  height: auto !important;
-  min-height: 0 !important;
-  aspect-ratio: 4 / 5 !important;
-  overflow: hidden !important;
-  border: 0 !important;
-  border-radius: 1.15rem !important;
-  padding: 0 !important;
-  display: block !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  isolation: isolate !important;
-}
-body.pedido-premium main .takara-preview-visual > .pedido-stl-stage[data-format="horizontal"] {
-  width: min(100%, 41rem) !important;
-  max-width: 41rem !important;
-  aspect-ratio: 6 / 5 !important;
-}
-body.pedido-premium main .takara-preview-visual > .pedido-stl-stage canvas.pedido-stl-canvas {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  display: block !important;
-  transform: none !important;
-}
-body.pedido-premium main .takara-preview-v10-controls,
-body.pedido-premium main .takara-preview-v11-controls,
-body.pedido-premium main .takara-preview-v12-controls,
-body.pedido-premium main .takara-preview-v13-controls,
-body.pedido-premium main .takara-preview-v14-controls,
-body.pedido-premium main .takara-preview-v15-controls,
-body.pedido-premium main .takara-preview-v16-controls {
-  grid-area: controls !important;
-  position: static !important;
-  inset: auto !important;
-  justify-self: center !important;
-  margin: 0.15rem auto 0 !important;
-  transform: none !important;
-}
+
 body.pedido-premium main .takara-preview-visual > .pedido-stl-note {
   grid-area: note !important;
   justify-self: center !important;

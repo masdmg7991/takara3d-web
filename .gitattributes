@@ -19,3 +19,6 @@
 *.zip binary
 *.stl binary
 *.3mf binary
+
+# Preserve upstream package bytes for the integrity manifest.
+assets/vendor/model-viewer/** -text

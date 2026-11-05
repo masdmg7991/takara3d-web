@@ -37,10 +37,21 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Browser acceptance dependencies
+        shell: powershell
+        run: |
+          $browserRoot = Join-Path $env:RUNNER_TEMP "takara-browser"
+          npm install --prefix $browserRoot --no-package-lock --ignore-scripts playwright@1.62.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node (Join-Path $browserRoot "node_modules/playwright/cli.js") install chromium
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "TAKARA_PLAYWRIGHT_MODULE=$browserRoot/node_modules/playwright" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
       - name: Run Takara Quality Gate
         shell: powershell
         env:
           TAKARA_QUALITY_REPORT_ROOT: ${{ runner.temp }}\takara-quality-reports
+          TAKARA_3D_REPORT_DIR: ${{ runner.temp }}\takara-quality-reports\browser-3d
         run: .\tools\takara_quality_gate.ps1 -Mode prepush
 
       - name: Upload Quality Gate report

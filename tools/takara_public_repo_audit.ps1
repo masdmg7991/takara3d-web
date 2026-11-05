@@ -15,7 +15,7 @@ function FailAudit($Message) {
 }
 
 function GitGrep($Pattern, $Paths) {
-    $Args = @("grep", "-n", "-I", "-E", "-e", $Pattern, "--") + $Paths
+    $Args = @("grep", "--untracked", "--exclude-standard", "-n", "-I", "-E", "-e", $Pattern, "--") + $Paths
     $Output = @(& git @Args 2>$null)
     $Code = $LASTEXITCODE
 
@@ -32,7 +32,7 @@ if (!(Test-Path $Project)) {
 
 Set-Location $Project
 
-$TrackedFiles = @(git ls-files)
+$TrackedFiles = @(git ls-files --cached --others --exclude-standard | Where-Object { Test-Path -LiteralPath $_ })
 
 if ($TrackedFiles.Count -eq 0) {
     FailAudit "No hay archivos trackeados. Ruta equivocada o repo vacio."

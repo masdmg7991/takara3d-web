@@ -255,3 +255,24 @@ El Quality Gate incorporara estas comprobaciones progresivamente.
 El Design System estara bien aplicado cuando un cambio de marca o estilo global pueda hacerse tocando tokens o componentes comunes, sin editar cada pagina manualmente.
 
 Tambien sera correcto si permite crecer sin caos: nuevos productos, nuevos formatos, nuevos bloques de confianza, nuevas campanias y nuevo configurador sin duplicar estilos.
+
+## Distribución del personalizador de pedidos
+
+El grupo de configuración es una sola estructura DOM: formato y foto, visor,
+color y texto. En pantallas de hasta 900 px se presenta en ese mismo orden,
+con colores en dos columnas y un acceso al resultado desde el editor de texto.
+Abrir el editor no desplaza el visor. El encabezado y los controles secundarios
+se compactan en pantallas pequeñas, conservando áreas táctiles de al menos 44 px.
+
+Por encima de 900 px, la configuración se presenta a la izquierda y el visor
+a la derecha. Si la altura disponible alcanza 760 px, el visor permanece visible
+al desplazarse dentro de la personalización, con un tamaño que permite ver
+también sus controles. En pantallas bajas mantiene el desplazamiento normal.
+El grupo termina antes de contacto y entrega: el visor no tapa esos formularios.
+
+El formulario comercial alimentado por los controles visibles permanece fuera
+de la navegación de teclado y de lectores de pantalla; no ofrece campos
+duplicados. La selección de archivo y requestSubmit siguen funcionando desde
+los botones visibles. El acceso al resultado respeta la preferencia de movimiento
+reducido. Estos ajustes no cambian tipografía de personalización, precios ni
+contrato de pedido.

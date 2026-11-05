@@ -1,0 +1,214 @@
+/* Product viewport: stable space while loading, vertical page scrolling on touch. */
+body.pedido-premium .pedido-stl-aside { position: static; }
+/* The commercial form is populated by the visible controls. Keep its duplicate
+   inputs out of keyboard and screen-reader navigation. File selection and
+   requestSubmit remain available through the visible buttons. */
+body.pedido-premium [data-takara-pedido-form] { display: none !important; }
+body.pedido-premium main .pedido-stl-preview {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: "customizer" "contact" "delivery" "submit" !important;
+  overflow: visible !important;
+}
+.takara-product-customizer {
+  grid-area: customizer;
+  display: grid;
+  grid-template-columns: minmax(16rem, 19rem) minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(min-content, 1fr);
+  grid-template-areas: "format visual" "photo visual" "color visual" "text visual";
+  gap: .75rem 1.25rem;
+  align-items: start;
+  min-width: 0;
+}
+body.pedido-premium main .takara-preview-config-panel { display: contents; }
+.takara-preview-config-section--format { grid-area: format; }
+.takara-preview-config-section--photo { grid-area: photo; }
+.takara-preview-config-section--color { grid-area: color; }
+.takara-preview-config-section--frame-text { grid-area: text; }
+.takara-product-jump { display: none; }
+body.pedido-premium main .takara-preview-visual {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto !important;
+  grid-template-areas: "title" "stage" "controls" "note" !important;
+}
+.takara-product-stage { grid-area: stage; }
+.takara-product-toolbar { grid-area: controls; }
+.takara-product-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(300px, 52vw, 560px);
+  overflow: hidden;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at 50% 41%, #735244 0%, #54392e 58%, #33211b 100%);
+  contain: layout paint;
+}
+.takara-product-stage model-viewer { touch-action: pan-y; }
+.takara-product-stage[data-background="cream"] {
+  background: radial-gradient(ellipse at 50% 41%, #fbf4e8 0%, #efe3d3 58%, #e3d1bc 100%);
+}
+.takara-product-background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+  color: #f5e4cf;
+  font-size: .8rem;
+}
+.takara-product-background button {
+  min-height: 44px;
+  padding: .35rem .65rem;
+  border: 1px solid #a28b76;
+  border-radius: 999px;
+  background: #493127;
+  color: #fff8f0;
+  font: inherit;
+  cursor: pointer;
+}
+.takara-product-background [data-takara-background="cream"] {
+  background: #f3e9dc;
+  color: #432c23;
+}
+.takara-product-background button[aria-pressed="true"] {
+  border-color: #e5a854;
+  box-shadow: inset 0 0 0 2px #e5a854;
+}
+.takara-product-badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 8px 15px;
+  border: 1px solid #a4816d;
+  border-radius: 24px;
+  background: #392a24;
+  color: #fff8f0;
+  font: 600 13px/1.5 system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.takara-product-stage[data-invalid-photo="true"] model-viewer { visibility: hidden; }
+.takara-product-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  width: 100%;
+  gap: .5rem;
+  margin: .15rem 0 0;
+}
+.takara-product-light-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+  width: min(100%, 25rem);
+  padding: .8rem;
+  border: 1px solid rgba(122, 78, 54, .16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .72);
+  box-shadow: 0 16px 34px rgba(65, 41, 27, .14);
+}
+.takara-product-light-switch button {
+  min-height: 46px;
+  padding: .7rem .9rem;
+  border: 1px solid rgba(129, 87, 44, .18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .72);
+  color: #4d2f18;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.takara-product-light-switch button[aria-pressed="true"] {
+  background: linear-gradient(135deg, #c99242, #aa742d);
+  color: #fff8ee;
+  box-shadow: 0 10px 22px rgba(155, 101, 43, .18);
+}
+[data-takara-product-reset], [data-takara-product-retry] {
+  min-height: 44px;
+  padding: .55rem .85rem;
+  border: 1px solid #a28b76;
+  border-radius: 10px;
+  background: rgba(54, 40, 33, .7);
+  color: #fff8f0;
+  font: inherit;
+  cursor: pointer;
+}
+.takara-product-toolbar button:focus-visible, [data-takara-product-retry]:focus-visible {
+  outline: 3px solid #8d5e33;
+  outline-offset: 3px;
+}
+[data-takara-product-status] { min-height: 3em; margin: .6rem 0; font-size: .9rem; color: #f5e4cf; }
+[data-takara-product-status][data-state="error"] { color: #ffb7a6; }
+.takara-product-gesture {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 2;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, .23);
+  border-radius: 999px;
+  background: rgba(54, 40, 33, .87);
+  color: #fff8f0;
+  font: 600 12px/1.4 system-ui, sans-serif;
+  letter-spacing: .01em;
+  box-shadow: 0 3px 13px rgba(36, 25, 19, .13);
+  pointer-events: none;
+}
+.takara-product-gesture__symbol { font-size: 20px; line-height: 1; }
+.takara-product-gesture__touch { display: none; }
+@media (hover: none), (pointer: coarse) {
+  .takara-product-gesture__desktop { display: none; }
+  .takara-product-gesture__touch { display: inline; }
+}
+@media (min-width: 901px) and (min-height: 760px) {
+  body.pedido-premium main .takara-preview-visual {
+    position: sticky;
+    top: 1rem;
+  }
+  .takara-product-stage {
+    height: clamp(280px, calc(100vh - 390px), 520px);
+    height: clamp(280px, calc(100dvh - 390px), 520px);
+  }
+}
+@media (max-width: 900px) {
+  .takara-product-customizer {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "format" "photo" "visual" "color" "text";
+    gap: .85rem;
+  }
+  body.pedido-premium main .takara-preview-visual { position: static; }
+  body.pedido-premium .takara-preview-color-options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .5rem;
+  }
+  body.pedido-premium .takara-preview-color-chip { min-height: 44px; }
+  .takara-preview-config-section--frame-text:has([data-takara-frame-text-enabled]:checked) .takara-product-jump {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: .45rem .75rem;
+    border: 1px solid rgba(225, 159, 75, .45);
+    border-radius: .75rem;
+    color: #ffe2b0;
+    font-size: .85rem;
+  }
+}
+@media (max-width: 600px) {
+  .takara-product-stage { height: clamp(300px, 85vw, 360px); }
+  body.pedido-premium .pedido-premium-hero-v2 { padding: 1rem; }
+  body.pedido-premium .pedido-premium-hero-v2 h1 { font-size: clamp(1.65rem, 7vw, 2rem); }
+  body.pedido-premium .pedido-premium-hero-v2__copy > p { font-size: .88rem; line-height: 1.5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

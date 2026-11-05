@@ -1,0 +1,21 @@
+{
+  "package": "@google/model-viewer",
+  "version": "4.4.0",
+  "official_url": "https://registry.npmjs.org/@google/model-viewer/-/model-viewer-4.4.0.tgz",
+  "npm_integrity": "sha512-8z1SB5sPlzKoak5mdx/D31brBakPYm3Qi31EfAucHAUrtrHHCbabypkKvSwReYhUpPaxyJ46oT47uWE/hrs1Zw==",
+  "license": "Apache-2.0; bundled dependency notices retained in model-viewer.min.js",
+  "files": {
+    "model-viewer.min.js": {
+      "bytes": 1069272,
+      "sha256": "18b2e711035aa4705ee281530a55dc2338ff05eed3d70ae16d54105282a75ed5"
+    },
+    "LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "package.json": {
+      "bytes": 4073,
+      "sha256": "c6ee72f85444845367587580501518072d860168bcececb7272ca6f7ff92da1f"
+    }
+  }
+}
