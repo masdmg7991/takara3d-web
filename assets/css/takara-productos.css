@@ -1,8 +1,10 @@
 /* Catalog layout follows the existing product-card design. */
 .product-tile--caja .product-tile__media img {
   object-fit: contain;
-  padding: 0.62rem;
+  padding: 0;
   background: #201712;
+  transform: scale(1.35);
+  transform-origin: center;
 }
 
 .product-tile__description {
