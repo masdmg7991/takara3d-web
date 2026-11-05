@@ -174,9 +174,13 @@ forma que pueda interpretarse como un importe todavía pendiente de sumar.
 
 ### 7.2 Ficha visual del pedido
 
-El navegador puede generar una ficha visual a partir del canvas V16B-2 y de la
-capa SVG de textos ya renderizados. La ficha debe mostrar únicamente el marco,
-la fotografía y los textos visibles en el momento del envío.
+El navegador genera la ficha desde el mismo modelo 3D que muestra al cliente,
+incluidas la fotografía, los textos, el color y el encendido. La captura usa una
+cámara de pedido y un viewport de 960 × 760, restaurando después la vista del cliente.
+`TAKARA_PRODUCT_PREVIEW` es el único proveedor visual del pedido. La fotografía se
+identifica por su objeto File; el nombre del archivo no prueba que haya terminado
+su procesamiento. Si la configuración cambia durante la preparación, se exige
+revisar y volver a enviar la solicitud.
 
 La ficha visual es evidencia complementaria y nunca sustituye a:
 
@@ -407,12 +411,12 @@ Si un producto esta marcado como proximamente, no debe entrar como pedido normal
 
 El pedido puede usar preview para ayudar a decidir, pero el preview no sustituye la revision humana.
 
-El pedido no debe romper el motor V16B-2 ni acoplarse de forma fragil a su implementacion interna.
-
-La ficha visual solo puede leer el canvas y la capa SVG una vez renderizados.
-No puede modificar el estado, la geometría ni las funciones internas del motor.
-
-Cualquier motor futuro debe mantener un contrato estable de entrada y salida.
+El pedido usa `TAKARA_PRODUCT_PREVIEW.assertOrderReady(file)` y `capture(file)`.
+No lee canvas de preview ni overlays. La captura espera la revisión vigente del
+estado y bloquea temporalmente los controles de personalización. Una fotografía
+inválida o un texto incompleto bloquean el envío; un fallo del visor conserva la
+foto original y los datos estructurados, muestra un error y permite reintentar.
+El catálogo conserva la autoridad sobre precios. El núcleo visual no envía datos.
 
 ---
 

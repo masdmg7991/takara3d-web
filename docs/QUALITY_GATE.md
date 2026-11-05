@@ -28,7 +28,7 @@ El gate acumula comprobaciones de varias capas:
 - contratos del catálogo y datos estructurados;
 - entrega, precio y pedido;
 - seguridad de fotografía y ficha visual;
-- preview protegido;
+- identidad de los modelos aprobados, aislamiento núcleo/producto y ausencia de motor visual heredado;
 - Store Registry, Runtime, API pública y QR;
 - Store Admin y branding;
 - atribución DIRECT/STORE;
@@ -39,6 +39,21 @@ El gate acumula comprobaciones de varias capas:
 
 Los tests y validadores individuales viven en `tools/` y el runner único es
 `tools/takara_quality_gate.ps1`.
+
+## Aceptación del visor 3D
+
+El gate ejecuta `takara_validar_3d.py` y las pruebas de contrato, ciclo de vida,
+editor y traducción comercial. `prepush` exige además la prueba real de navegador:
+
+- `TAKARA_PLAYWRIGHT_MODULE`: ruta al módulo instalado de Playwright;
+- `TAKARA_CHROME_PATH`: ejecutable Chrome opcional; en CI se utiliza Chromium instalado por Playwright;
+- `TAKARA_3D_REPORT_DIR`: carpeta externa para capturas sintéticas e informe JSON.
+
+`test_3d_browser.cjs` sirve el candidato en loopback, cierra servidor y navegador
+en `finally`, bloquea conexiones externas y simula MailApp. Comprueba escritorio,
+móvil emulado, fotografía, texto, colores, formatos, captura, pedido V2, correos,
+recuperación y un segundo producto. No certifica Safari, iOS ni un teléfono físico.
+Un gate sin esa ejecución gráfica no equivale a aceptación de producción.
 
 ## Resultado
 

@@ -6,7 +6,7 @@
 - Compatible con GitHub Pages.
 - Sin compilación.
 - Backend de pedidos mediante Google Apps Script.
-- Sin dependencias obligatorias.
+- Sin proceso de compilación. El visor usa model-viewer 4.4.0 servido localmente, con licencia y huellas verificadas.
 
 ## Rutas
 

@@ -60,8 +60,7 @@
   }
 
   function initFormatBridge() {
-    var canvas = document.querySelector("[data-takara-preview-canvas]");
-    var stage = canvas ? canvas.parentElement : null;
+    var stage = document.querySelector("[data-takara-product-stage]");
     var formatValue = document.querySelector("[data-takara-format-value]");
 
     function sincronizarDesdeMotor() {
