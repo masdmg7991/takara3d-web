@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import re
+from takara_validar_vertical_back import validate as validate_vertical_back
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,12 +25,13 @@ def main():
     for old in ('sourceCanvas', 'createOverlayImage', 'waitForPreviewPhoto'):
         assert old not in order, f'Order retains old capture: {old}'
     expected = {
-        'vertical': '903bbd8ce6ffdc6f44eb0d248829d7a8ce83b89b8a069864f361c6dcfd350e33',
+        'vertical': 'b9924227d15439f2d6f863226036bdfaf4ddafa701619a07d14da3e82f92eb9b',
         'horizontal': '3bd9650529315713deb88b0aa9998c6ad52a0348fcee503f978e88cc97c6fba8',
     }
     for variant, digest in expected.items():
         model = ROOT / f'assets/models/marco/{variant}.glb'
         assert hashlib.sha256(model.read_bytes()).hexdigest() == digest, f'Approved model changed: {variant}'
+    validate_vertical_back()
     assert (ROOT / 'assets/vendor/model-viewer/LICENSE').is_file()
     vendor = ROOT / 'assets/vendor/model-viewer'
     manifest = json.loads((vendor / 'INTEGRITY.json').read_text(encoding='utf-8'))

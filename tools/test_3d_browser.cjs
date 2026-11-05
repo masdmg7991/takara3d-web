@@ -109,7 +109,7 @@ async function main() {
       if(mobile)for(let i=1;i<responsiveOrder.positions.length;i++)assert.ok(responsiveOrder.positions[i].y>=responsiveOrder.positions[i-1].bottom-1);
       else assert.ok(responsiveOrder.positions[2].x>responsiveOrder.positions[0].x);
       report.metrics[label] = { initialReadyMs: Date.now() - started };
-      const initialResources = await page.evaluate(() => performance.getEntriesByType("resource").filter(x => x.name.endsWith(".glb")).map(x => ({ name: x.name.split("/").at(-1), bytes: x.transferSize })));
+      const initialResources = await page.evaluate(() => performance.getEntriesByType("resource").filter(x => new URL(x.name).pathname.endsWith(".glb")).map(x => ({ name: new URL(x.name).pathname.split("/").at(-1), bytes: x.transferSize })));
       assert.equal(initialResources.length, 1, "Only the initial GLB should load");
       passed(label + ": initial GLB only, no legacy renderer");
       assert.equal(await page.locator("[data-takara-preview-canvas], [data-takara-frame-text-overlay]").count(), 0);

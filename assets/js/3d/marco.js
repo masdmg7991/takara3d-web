@@ -1,13 +1,13 @@
 /**
  * Contrato visual del marco aprobado (v20).
  * Sólo parámetros de representación: nunca precios, transporte ni pedidos.
- * Los modelos CAD originales están inmovilizados mediante SHA-256 en la auditoría.
+ * Geometría CAD inmovilizada; la auditoría verifica la reparación de normales traseras.
  */
 export const MARCO = Object.freeze({
   productCode: "MARCO_LITOFANIA_144X108",
   material: "FRAME_BODY",
   models: Object.freeze({
-    vertical: "assets/models/marco/vertical.glb",
+    vertical: "assets/models/marco/vertical.glb?v=back-normals-1",
     horizontal: "assets/models/marco/horizontal.glb"
   }),
   camera: Object.freeze({

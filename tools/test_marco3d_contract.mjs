@@ -20,7 +20,7 @@ check(() => assert.equal(MARCO.productCode, "MARCO_LITOFANIA_144X108"),
 check(() => assert.deepEqual(Object.keys(MARCO.models).sort(), ["horizontal","vertical"]),
   "Solo dos GLB aprobados; ninguna variante experimental");
 check(() => assert.deepEqual(MARCO.models,{
-  vertical:"assets/models/marco/vertical.glb",
+  vertical:"assets/models/marco/vertical.glb?v=back-normals-1",
   horizontal:"assets/models/marco/horizontal.glb"
 }), "Ruta final única para cada formato");
 check(() => assert.deepEqual(Object.keys(MARCO.colors), [
