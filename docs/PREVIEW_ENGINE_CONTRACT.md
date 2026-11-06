@@ -30,7 +30,9 @@ La personalización conserva el orden de documento: formato, fotos, visor, color
 y texto. Dos grupos de opciones permiten distribuirla sin mover ni reconstruir el
 visor: desde 1200 px, formato/fotos/colores a la izquierda, 3D en el centro y solo
 texto a la derecha. Los paneles laterales comienzan a la altura de la escena, bajo
-el título. La caja usa dos columnas al no admitir texto. De 901 a 1199 px, opciones
+el título. La caja conserva las mismas columnas y dimensiones del visor, con las
+cuatro fotos a la izquierda y colores a la derecha; las miniaturas se limitan a
+80 px en escritorio y 104 px en móvil. De 901 a 1199 px, opciones
 junto al visor; hasta 900 px, recorrido vertical.
 Los grupos no añaden filas en móvil. La descripción repetida bajo el selector de
 producto se elimina; las tarjetas y las opciones conservan sus medidas y detalles.

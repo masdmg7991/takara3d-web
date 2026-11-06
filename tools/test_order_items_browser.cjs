@@ -63,6 +63,8 @@ async function main() {
         await page.setViewportSize({width:1440,height:1000});
       }
       await page.waitForFunction(() => document.querySelector("[data-takara-draft-price]").textContent === "35,00 €");
+      const frameStage = await page.locator('.takara-product-stage').evaluate(node => ({width:node.clientWidth,height:node.clientHeight}));
+      if (output) await page.locator('.takara-product-customizer').screenshot({path:path.join(output, label + '-marco-personalizar.png')});
       if (output) await page.screenshot({ path: path.join(output, label + "-personalizar.png"), fullPage: true });
       const images = await page.evaluate(() => Array.from({ length: 6 }, (_, i) => {
         const c = document.createElement("canvas"); c.width = i === 5 ? 640 : 400; c.height = i === 4 ? 600 : 400;
@@ -81,6 +83,17 @@ async function main() {
       for (const [i, face] of ["frontal", "derecha", "trasera", "izquierda"].entries()) {
         await page.locator(`[data-takara-caja-photo="${face}"]`).setInputFiles(photo(i, `caja-uno-${face}.png`)); await ready(page);
       }
+      const boxLayout = await page.evaluate(() => {
+        const stage=document.querySelector('.takara-product-stage').getBoundingClientRect();
+        const photos=document.querySelector('.takara-preview-config-section--photo').getBoundingClientRect();
+        const colors=document.querySelector('.takara-preview-config-section--color').getBoundingClientRect();
+        return {width:stage.width,height:stage.height,photosRight:photos.right,stageLeft:stage.left,stageRight:stage.right,colorsLeft:colors.left,
+          thumbHeights:[...document.querySelectorAll('.takara-caja-photo img')].map(node=>node.clientHeight)};
+      });
+      assert.ok(Math.abs(boxLayout.width-frameStage.width)<1 && Math.abs(boxLayout.height-frameStage.height)<1, "Box and frame use the same 3D viewport size");
+      assert.ok(boxLayout.thumbHeights.every(height=>height>0 && height <= (mobile?104:80)), "Four photos keep compact thumbnails");
+      if (!mobile) assert.ok(boxLayout.photosRight <= boxLayout.stageLeft && boxLayout.stageRight <= boxLayout.colorsLeft, "Box photos are left and colors right");
+      if (output) await page.locator('.takara-product-customizer').screenshot({path:path.join(output, label + '-caja-personalizar.png')});
       await page.locator('label:has([data-takara-base-color="actual"])').click(); await ready(page); await save(page, 2);
       await customize(page);
       await page.locator('label:has([data-takara-color-proxy="rosewood"])').click();
