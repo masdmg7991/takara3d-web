@@ -1,8 +1,8 @@
 # Pedido por artículos V3
 
-Extensión local sobre el mismo servicio, Drive, transporte ACK e idempotencia.
-Conserva V1/V2. Está pendiente de publicación y despliegue; el navegador impide
-enviar V3 desde producción.
+Extensión sobre el mismo servicio, Drive, transporte ACK e idempotencia.
+Conserva V1/V2 y publica V3 para pedidos por artículos. El estado vigente se
+registra en `config/deployment-state.json`; localhost mantiene su simulación.
 
 ## Selección y compilación
 

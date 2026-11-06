@@ -24,17 +24,23 @@ La documentación describe el estado; nunca sustituye esa comprobación live.
 - Endpoint authority: `assets/js/takara-config.js`.
 - Servicio backend: `Takara Pedidos Web`.
 - Servicio: `TAKARA_PEDIDO_WEB_V2`.
-- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
-- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP` (versión declarada coincidente con LIVE).
-- Deployment PUBLIC: versión de script confirmada por GET; número inmutable no verificado en esta revisión.
+- Script LIVE: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`.
+- Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT` (versión coincidente con LIVE verificado).
+- Deployment PUBLIC: misma URL canónica; versión inmutable 41 registrada en `config/deployment-state.json`. ADMIN conserva su deployment independiente.
 - Estado observado por GET: `online`.
-- Última verificación live registrada: `2026-11-05`.
+- Última verificación live registrada: `2026-11-06`.
 
-El GET canónico del 2026-11-05 devuelve PUBLIC V1.20.0, con estado online. El código local declara la misma versión; esto no certifica igualdad byte a byte con el deployment. La revisión del visor publica únicamente archivos de GitHub Pages: no despliega Apps Script ni modifica ADMIN. El anterior registro V1.19.0 / versión 35 queda en el historial Git.
+La promoción del 2026-11-06 publica pedidos por artículos y el correo premium,
+conservando los contratos V1/V2. El campo `version` del GET conserva la plantilla
+base `TAKARA_PEDIDO_WEB_V2` por compatibilidad; `script` identifica V1.21.0 y
+`payload_versions` anuncia V1, V2 y V3. La plantilla efectiva de cada pedido V3
+es `TAKARA_PEDIDO_WEB_V3`. No se cambia el endpoint ni el deployment ADMIN.
+La versión anterior PUBLIC V1.20.0, inmutable 38, queda disponible para rollback.
 
 ## Contratos activos
 
-- `TAKARA_WEB_ORDER_PAYLOAD_V2`
+- `TAKARA_WEB_ORDER_PAYLOAD_V3` (marcos, cajas y pedidos mixtos)
+- `TAKARA_WEB_ORDER_PAYLOAD_V2` (compatibilidad)
 - `TAKARA_ORDER_SNAPSHOT_V2`
 - `TAKARA_PEDIDO_WEB_V2`
 - `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`
@@ -106,13 +112,13 @@ Antes de un despliegue Apps Script:
 
 Un commit o un push **no constituyen un despliegue del backend**.
 
-### Candidato local por artículos
+### Pedidos por artículos
 
-El contrato V3 de `ORDER_ITEMS_CONTRACT.md` está implementado localmente, pero no
-desplegado. `unreleased_features` lo identifica en el estado mecánico. El navegador
-bloquea envíos V3 fuera de localhost. La versión base declarada coincidente con LIVE
-no certifica equivalencia funcional del candidato con producción. Antes de promover
-esta extensión deben versionarse y desplegarse todos sus módulos y verificarse el ACK.
+V3 de `ORDER_ITEMS_CONTRACT.md` usa los mismos servicios, Drive y ledger. El
+navegador público permite enviar artículos mixtos una vez desplegado el backend.
+En localhost se conserva la simulación sin efectos externos. Los perfiles LAN
+con correo real son pruebas temporales y no forman parte de GitHub Pages.
+La promoción exige el candidato completo, verificación GET y ACK y QA prepush.
 
 ## Verificación posterior
 

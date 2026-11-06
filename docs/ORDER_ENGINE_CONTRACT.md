@@ -4,7 +4,7 @@ Estado: CORE V1-R0I
 Proyecto: Takara3D Web
 Objetivo: definir el contrato funcional del pedido web antes de tocar UI o logica nueva.
 
-La extensión local de pedidos mixtos se define en [ORDER_ITEMS_CONTRACT.md](ORDER_ITEMS_CONTRACT.md).
+La extensión de pedidos mixtos se define en [ORDER_ITEMS_CONTRACT.md](ORDER_ITEMS_CONTRACT.md).
 Conserva V1/V2 y añade V3 para una caja o una lista de artículos configurados.
 
 ---
@@ -321,8 +321,8 @@ La frontera activa del pedido es:
 - snapshot: `TAKARA_ORDER_SNAPSHOT_V2`;
 - correo técnico: `TAKARA_PEDIDO_WEB_V2`;
 - entrega: `TAKARA_DELIVERY_V2_POSTAL_AUTOMATIC`;
-- Versión declarada del código Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`;
-- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`;
+- Versión declarada del código Apps Script local: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`;
+- Apps Script publicado verificado por GET: `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`;
 - estado mecánico de deployment: `config/deployment-state.json`.
 
 Un payload que declare V2 pero esté incompleto o contradiga snapshot, catálogo,
@@ -688,9 +688,9 @@ Garantías de cierre:
 
 ## Idempotencia de efectos externos
 
-El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`
 incorpora `TAKARA_ORDER_IDEMPOTENCY_V1`. La versión LIVE verificada
-es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP` tras la
+es `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT` tras la
 promoción explícita.
 
 Para pedidos reales, `pedido_web_id` debe ser estable. El backend calcula un
@@ -710,7 +710,7 @@ El detalle operativo vive en `docs/ORDER_IDEMPOTENCY_CONTRACT.md`.
 
 ## Protección anti-abuso de efectos públicos
 
-El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`
+El backend LIVE `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`
 añade `TAKARA_PUBLIC_ABUSE_GUARD_V1` delante de los efectos externos públicos.
 
 - pedido real: W8 se ejecuta después de W7 y antes de Drive/Mail;

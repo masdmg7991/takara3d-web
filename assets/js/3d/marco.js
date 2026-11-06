@@ -3,7 +3,7 @@
  * Sólo parámetros de representación: nunca precios, transporte ni pedidos.
  * Geometría CAD inmovilizada; la auditoría verifica la reparación de normales traseras.
  */
-import { FINISHES, FINISH_ROUGHNESS, LITHOPHANE_APPEARANCE } from "./finishes.js";
+import { FINISHES, FINISH_ROUGHNESS, LITHOPHANE_APPEARANCE } from "./finishes.js?v=pedidos-v3-1";
 
 export const MARCO = Object.freeze({
   productCode: "MARCO_LITOFANIA_144X108",

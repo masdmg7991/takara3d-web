@@ -119,7 +119,7 @@
       "nombre": "Caja de luz · 4 fotos",
       "familia": "litofania",
       "descripcion_corta": "Un giro de 360° para iluminar tus recuerdos.",
-      "descripcion_larga": "Caja de litofanía personalizada con una fotografía de 100 x 100 mm en cada una de sus cuatro caras. En esta fase, el pedido se prepara por WhatsApp.",
+      "descripcion_larga": "Caja de litofanía personalizada con una fotografía de 100 x 100 mm en cada una de sus cuatro caras. Personaliza las cuatro fotos, elige el color del cuerpo y de la peana y revisa el resultado en 3D antes de solicitar tu pedido.",
       "precio_base_eur": 75,
       "moneda": "EUR",
       "precio_visible": "75 €",
@@ -140,8 +140,8 @@
         "principal": "assets/img/fotos/producto-caja-cuatro-fotos-100x100.png"
       },
       "pedido": {
-        "canal": "whatsapp",
-        "configurador_disponible": false,
+        "canal": "formulario_web",
+        "configurador_disponible": true,
         "numero_fotos": 4,
         "requiere_foto": true,
         "formatos_imagen_aceptados": [

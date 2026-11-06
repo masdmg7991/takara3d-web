@@ -16,8 +16,8 @@ ORDER_CONTRACT = ROOT / "docs" / "ORDER_ENGINE_CONTRACT.md"
 SCHEMA = "TAKARA_DEPLOYMENT_STATE_V1"
 SERVICE = "Takara Pedidos Web"
 SERVICE_VERSION = "TAKARA_PEDIDO_WEB_V2"
-PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
-LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
+PRODUCTION_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT"
+LOCAL_SCRIPT = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT"
 ENDPOINT_AUTHORITY = "assets/js/takara-config.js"
 LOCAL_STATUS = "version_matches_live"
 
@@ -72,13 +72,13 @@ def main() -> int:
     )
     require(
         production.get("script_version") == PRODUCTION_SCRIPT,
-        "Version script LIVE es V1.20.0",
+        "Version script LIVE es V1.21.0",
     )
     require(production.get("status") == "online", "Estado productivo online")
 
     require(
         local.get("script_version") == LOCAL_SCRIPT,
-        "Version local identifica V1.20.0",
+        "Version local identifica V1.21.0",
     )
     require(
         local.get("status") == LOCAL_STATUS,
@@ -91,7 +91,7 @@ def main() -> int:
 
     require(
         code.count(LOCAL_SCRIPT) == 1,
-        "Code.gs declara una unica VERSION_SCRIPT V1.20.0",
+        "Code.gs declara una unica VERSION_SCRIPT V1.21.0",
     )
     require(
         LOCAL_SCRIPT in code,

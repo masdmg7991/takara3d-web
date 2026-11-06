@@ -28,7 +28,7 @@
       productCode: "CAJA_LITOFANIA_4_FOTOS_100X100", variantCode: "cuatro_fotos",
       image: "assets/img/fotos/producto-caja-cuatro-fotos-100x100.png",
       alt: "Caja negra de litofanía personalizada con cuatro fotos y luz cálida",
-      modifier: "product-tile--caja", action: "Consultar esta caja", channel: "whatsapp",
+      modifier: "product-tile--caja", action: "Personalizar esta caja", channel: "configurador", href: "pedido.html?producto=caja",
       description: "Un giro de 360° para iluminar tus recuerdos.", fromPrice: false
     }
   ];
@@ -105,7 +105,7 @@
   window.TAKARA_CATALOGO_CORE_V1.loadCatalog().then(catalog => {
     cards = products.map(product => {
       const canonical = window.TAKARA_CATALOGO_CORE_V1.getProduct(catalog, product.productCode);
-      if (product.channel === "whatsapp" && (canonical.pedido.canal !== "whatsapp" || canonical.pedido.configurador_disponible !== false)) {
+      if (product.category === "cajas" && (canonical.pedido.canal !== "formulario_web" || canonical.pedido.configurador_disponible !== true)) {
         throw new Error("Revisa el canal de pedido de la caja antes de publicarla.");
       }
       const pricing = window.TAKARA_PRICING_V1.calculate({
@@ -119,7 +119,7 @@
     renderTakaraProducts();
   }).catch(error => {
     console.error("[Takara productos] No se pudo cargar el catálogo.", error);
-    cards = products.map(product => ({ ...product, price: "Consultar" }));
+    cards = products.map(product => ({ ...product, price: "Consultar", ...(product.category === "cajas" ? { channel: "whatsapp", action: "Consultar esta caja" } : {}) }));
     renderTakaraProducts();
   });
 }());

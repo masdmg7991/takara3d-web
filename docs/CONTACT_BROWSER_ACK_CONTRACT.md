@@ -101,11 +101,11 @@ para revisión.
 
 La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
 A fecha 2026-11-05 está en
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`.
 
 W9 se introdujo en
 `TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_17_0_CONTACT_BROWSER_ACK_V1`.
 
 Un commit o push no modifica la autoridad LIVE ni autoriza despliegue.
 
-El backend productivo actual conserva W9 dentro del superset V1.20.0.
+El backend productivo actual conserva W9 dentro del superset V1.21.0.

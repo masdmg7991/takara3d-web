@@ -2,12 +2,12 @@
 
 Este directorio versiona el Apps Script real que atiende los formularios publicos de Takara 3D.
 
-Extensión V3 candidata (sin promover a PUBLIC): `OrderItems.gs` valida pedidos por artículos;
+Pedidos V3: `OrderItems.gs` valida pedidos por artículos;
 `OrderItemsMedia.gs` organiza originales y capturas por artículo en Drive;
 `OrderItemsEmail.gs` prepara los dos correos con el mismo desglose. Reutilizan
 el transporte, las fases del ledger y la política de entrega existentes. El contrato
-completo está en `docs/ORDER_ITEMS_CONTRACT.md`. La versión base declarada del
-servicio se conserva hasta preparar explícitamente una nueva promoción.
+completo está en `docs/ORDER_ITEMS_CONTRACT.md`. El script V1.21.0 conserva la plantilla base V2 y anuncia compatibilidad V1/V2/V3
+en el GET; cada pedido V3 usa su propia versión de plantilla.
 
 `OrderItemsEmailLayout.gs` contiene solo la presentación HTML V3: tarjetas por
 artículo, galería de fotos proporcionadas y resumen fluido para Gmail. No participa
@@ -94,8 +94,8 @@ Responsabilidad:
 
 Contrato validado:
 
-- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP
-- versión declarada local, coincidente con LIVE: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP
+- LIVE verificado por GET: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT
+- versión declarada local, coincidente con LIVE: TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT
 - Estado mecánico actual: `../../config/deployment-state.json`
 - La autoridad LIVE se confirma mediante GET del endpoint canónico antes de cualquier promoción.
 - TAKARA_WEB_ORDER_PAYLOAD_V2

@@ -6,8 +6,8 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 checks = 0
 
-LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
-LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"
+LIVE = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT"
+LOCAL = "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT"
 
 def require(condition: bool, message: str) -> None:
     global checks

@@ -1,6 +1,6 @@
 /** Product capabilities drive the form. Rendering remains in ProductViewer. */
-import { MARCO_PRODUCT } from "./marco-product.js?v=back-normals-1";
-import { CAJA_PRODUCT, CAJA_FACES } from "./caja-product.js";
+import { MARCO_PRODUCT } from "./marco-product.js?v=pedidos-v3-1";
+import { CAJA_PRODUCT, CAJA_FACES } from "./caja-product.js?v=pedidos-v3-1";
 
 export const PRODUCTS = Object.freeze({
   marco: Object.freeze({ key: "marco", code: MARCO_PRODUCT.id, title: "Marco", profile: MARCO_PRODUCT,

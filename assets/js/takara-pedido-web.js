@@ -146,8 +146,8 @@
         return;
       }
 
-      if (payload.payload_version === "TAKARA_WEB_ORDER_PAYLOAD_V3" || payload.producto.codigo_producto !== PRODUCT_CODE) {
-        throw new Error("La caja está en pruebas locales. Su envío se activará después de revisar el configurador y el sistema de pedidos.");
+      if (payload.payload_version !== "TAKARA_WEB_ORDER_PAYLOAD_V3" && payload.producto.codigo_producto !== PRODUCT_CODE) {
+        throw new Error("Este producto no está disponible para solicitarlo desde la web.");
       }
 
       setStatus(statusNode, "Enviando solicitud...", "info");

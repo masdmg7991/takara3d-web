@@ -1,5 +1,5 @@
 /** Four independent lithophanes; shared renderer and surface implementation. */
-import { FINISHES, FINISH_ROUGHNESS, LITHOPHANE_APPEARANCE } from "./finishes.js";
+import { FINISHES, FINISH_ROUGHNESS, LITHOPHANE_APPEARANCE } from "./finishes.js?v=pedidos-v3-1";
 import { LithophaneSurface, MARCO_SURFACE_PROFILE } from "./surface.js";
 
 export const CAJA_FACES = Object.freeze(["frontal", "derecha", "trasera", "izquierda"]);

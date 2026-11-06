@@ -239,7 +239,7 @@ function backend() {
     "Store shell cache build includes ACK relay"
   );
   ok(
-    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP"),
+    code.includes("TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT"),
     "backend ACK candidate version"
   );
   ok(code.includes("parseOrderBrowserResponseRequest_(e)"), "doPost reads ACK envelope");

@@ -22,7 +22,7 @@ No cubre operaciones sin efectos:
 La autoridad LIVE se consulta en `config/deployment-state.json` y se confirma por GET.
 A fecha 2026-11-05 está en:
 
-`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP`.
+`TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT`.
 
 W8 forma parte del backend productivo actual.
 

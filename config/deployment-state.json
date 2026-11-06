@@ -3,18 +3,24 @@
   "endpoint_authority": "assets/js/takara-config.js",
   "live_verification": {
     "method": "GET canonical endpoint; inspect JSON field script",
-    "verified_on": "2026-11-05"
+    "verified_on": "2026-11-06"
   },
   "production": {
     "service": "Takara Pedidos Web",
     "service_version": "TAKARA_PEDIDO_WEB_V2",
-    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP",
-    "status": "online"
+    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT",
+    "status": "online",
+    "payload_versions": [
+      "TAKARA_WEB_ORDER_PAYLOAD_V1",
+      "TAKARA_WEB_ORDER_PAYLOAD_V2",
+      "TAKARA_WEB_ORDER_PAYLOAD_V3"
+    ],
+    "deployment_version": 41
   },
   "local": {
-    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP",
+    "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_21_0_MULTI_PRODUCT",
     "status": "version_matches_live",
-    "unreleased_features": ["TAKARA_WEB_ORDER_PAYLOAD_V3"],
-    "publication": "local_only"
+    "unreleased_features": [],
+    "publication": "production"
   }
 }
