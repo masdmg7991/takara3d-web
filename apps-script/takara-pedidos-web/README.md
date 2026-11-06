@@ -2,12 +2,16 @@
 
 Este directorio versiona el Apps Script real que atiende los formularios publicos de Takara 3D.
 
-Extensión local V3 (sin desplegar): `OrderItems.gs` valida pedidos por artículos;
+Extensión V3 candidata (sin promover a PUBLIC): `OrderItems.gs` valida pedidos por artículos;
 `OrderItemsMedia.gs` organiza originales y capturas por artículo en Drive;
 `OrderItemsEmail.gs` prepara los dos correos con el mismo desglose. Reutilizan
 el transporte, las fases del ledger y la política de entrega existentes. El contrato
 completo está en `docs/ORDER_ITEMS_CONTRACT.md`. La versión base declarada del
 servicio se conserva hasta preparar explícitamente una nueva promoción.
+
+`OrderItemsEmailLayout.gs` contiene solo la presentación HTML V3: tarjetas por
+artículo, galería de fotos proporcionadas y resumen fluido para Gmail. No participa
+en la selección de adjuntos, destinatarios, precios ni en los envíos.
 
 Archivos de entrada/transporte:
 

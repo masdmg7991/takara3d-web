@@ -87,6 +87,15 @@ y enlaza los originales privados de Drive por cara. El del cliente muestra las
 cuatro fotos de cada caja inline y las capturas de los marcos. La caja no requiere
 captura 3D adicional. Los textos se escapan en HTML y se mantiene la paleta premium.
 
+`OrderItemsEmailLayout.gs` es el renderizador HTML V3, separado del envío y de los
+helpers V1/V2. Usa tablas fluidas, tarjetas por artículo, contacto, entrega y total
+como bloques independientes. Las fotografías mantienen su proporción dentro de
+celdas de igual altura; nunca se recortan ni se modifican los originales. La base
+inline funciona sin media queries, y las reglas móviles solo ajustan espacios.
+Los IDs de contenido, adjuntos, destinatarios, asuntos y texto técnico permanecen
+en `OrderItemsEmail.gs`. Las pruebas verifican el flujo, la asociación de medios
+y un HTML estándar inferior a 100 KiB incluso con 20 cajas.
+
 ## Verificación y promoción
 
 `takara_test_order_items.js` ejecuta normalización, entrega, media, templates y

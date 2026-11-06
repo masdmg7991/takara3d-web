@@ -40,7 +40,7 @@ function createHarness() {
     ContentService: { MimeType: { JSON: "application/json" }, createTextOutput: text => ({ text, setMimeType() { return this; } }) }
   });
   for (const name of ["Code", "RuntimeHelpers", "OrderNormalization", "OrderValidation", "OrderDelivery", "OrderFulfillment", "OrderMedia", "DriveStorage",
-    "OrderEmail", "OrderIdempotency", "OrderBrowserTransport", "OrderAttribution", "OrderItems", "OrderItemsMedia", "OrderItemsEmail"]) {
+    "OrderEmail", "OrderIdempotency", "OrderBrowserTransport", "OrderAttribution", "OrderItems", "OrderItemsMedia", "OrderItemsEmail", "OrderItemsEmailLayout"]) {
     vm.runInContext(fs.readFileSync(path.join(app, name + ".gs"), "utf8"), context, { filename: name + ".gs" });
   }
   context.resolveOrderStoreIdentity_ = () => null;
@@ -89,6 +89,7 @@ function run() {
     assert.equal(server.emails[0].attachments.length, kinds.reduce((sum, kind) => sum + (kind === "caja" ? 4 : 1), 0));
     assert.ok(!server.emails[1].attachments);
     assert.match(server.emails[1].htmlBody, /Prueba &lt;segura&gt;/);
+    for (const email of server.emails) assert.ok(Buffer.byteLength(email.htmlBody) < 102400, "Standard 20-item HTML stays below 100 KiB");
     for (const item of payload.articulos) for (const email of server.emails) assert.ok(email.body.includes(item.id));
     const before = JSON.stringify(server.effects); assert.equal(server.submit(payload).ok, true);
     assert.equal(JSON.stringify(server.effects), before); assert.equal(server.emails.length, 2, "Retry cannot resend either email");
@@ -112,6 +113,12 @@ function run() {
     assert.equal(server.submit(payload).ok, false); assert.equal(JSON.stringify(server.effects), before); assert.equal(server.emails.length, mails);
   }
   const server = createHarness(), payload = fixture(); assert.equal(server.submit(payload).ok, true);
+  const pickup = server.context.normalizarPedido_(fixture());
+  pickup.entrega.fulfillment_method = "STORE_PICKUP";
+  pickup.attribution = { pickup: { address_line: "Calle de prueba 1", postal_code: "28911", city: "Leganés", province: "Madrid" } };
+  const pickupHtml = server.context.emailV3Delivery_(pickup);
+  assert.ok(pickupHtml.includes("Recogida en tienda") && pickupHtml.includes("Calle de prueba 1"));
+  assert.ok(!pickupHtml.includes("Te pediremos la dirección completa"));
   payload.articulos[0].producto.color_peana = "Negro"; payload.articulos[0].producto.atributos.color_peana_codigo = "negro";
   assert.equal(server.submit(payload).ok, false, "Same order ID with a different finish cannot replay");
   console.log("TAKARA_ORDER_ITEMS_OK: real V3 pipeline, 1/2/4/20 items, files per face, two emails, compact ledger, retries and rejection without Drive/mail effects");

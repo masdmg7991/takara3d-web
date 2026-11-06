@@ -168,6 +168,7 @@ $RequiredFiles = @(
     "apps-script/takara-pedidos-web/OrderItems.gs",
     "apps-script/takara-pedidos-web/OrderItemsMedia.gs",
     "apps-script/takara-pedidos-web/OrderItemsEmail.gs",
+    "apps-script/takara-pedidos-web/OrderItemsEmailLayout.gs",
     "assets/js/core/takara-cart.js",
     "assets/js/takara-order-items.js",
     "assets/js/takara-order-cart.js",
