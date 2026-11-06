@@ -50,11 +50,13 @@ async function main() {
       if (!mobile) {
         const layout = await page.evaluate(() => {
           const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { x:r.x, right:r.right, y:r.y, bottom:r.bottom }; };
-          return { input:rect('.takara-config-inputs'), visual:rect('.takara-preview-visual'), finishes:rect('.takara-config-finishes'), format:rect('.takara-preview-config-section--format'), photo:rect('.takara-preview-config-section--photo'), color:rect('.takara-preview-config-section--color'), text:rect('.takara-preview-config-section--frame-text') };
+          return { input:rect('.takara-config-inputs'), visual:rect('.takara-preview-visual'), stage:rect('.takara-product-stage'), format:rect('.takara-preview-config-section--format'), photo:rect('.takara-preview-config-section--photo'), color:rect('.takara-preview-config-section--color'), text:rect('.takara-preview-config-section--frame-text') };
         });
         assert.ok(layout.format.bottom <= layout.photo.y, "Format and photo never overlap");
-        assert.ok(layout.color.bottom <= layout.text.y, "Color and text never overlap");
-        assert.ok(layout.input.right <= layout.visual.x && layout.visual.right <= layout.finishes.x, "Wide desktop separates inputs, 3D and finishes");
+        assert.ok(layout.photo.bottom <= layout.color.y, "Format, photo and colors stay in order on the left");
+        assert.ok(layout.color.right <= layout.visual.x && layout.visual.right <= layout.text.x, "Only the text editor stays to the right of the 3D");
+        assert.ok(Math.abs(layout.format.y - layout.stage.y) < 2 && Math.abs(layout.text.y - layout.stage.y) < 2, "Side controls align with the top of the 3D stage");
+        assert.equal(await page.locator('.takara-order-steps').evaluate(node => getComputedStyle(node).position), 'static');
         await page.setViewportSize({width:1024,height:900});
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "Laptop layout fits its viewport");
         if (output) await page.screenshot({path:path.join(output, "laptop-personalizar.png"), fullPage:true});

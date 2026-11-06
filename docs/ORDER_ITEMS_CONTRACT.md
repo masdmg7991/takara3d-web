@@ -19,7 +19,7 @@ editar y cancelar conservan el comportamiento del carrito. Volver desde los dato
 no borra campos ni consentimientos. La lista usa miniaturas decorativas y detalles
 plegados; cantidades, edición y eliminación siguen disponibles. El foco identifica
 el paso nuevo y se respeta la preferencia de movimiento reducido.
-Los pasos son botones accesibles y permanecen visibles al desplazarse. Tras añadir
+Los pasos son botones accesibles situados en su lugar, sin flotar al desplazarse. Tras añadir
 un artículo se puede navegar entre cualquiera de los tres sin guardar de nuevo.
 Una edición pendiente se conserva al cambiar de paso; se informa de ella y el
 envío sigue bloqueado hasta guardarla o cancelarla. Solo se bloquea la navegación
