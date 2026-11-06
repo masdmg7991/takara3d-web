@@ -22,6 +22,19 @@ function passed(name) { report.scenarios.push(name); console.log("[PASS] " + nam
 async function ready(page) {
   await page.waitForFunction(() => window.TAKARA_PRODUCT_PREVIEW?.getSnapshot().ready, null, { timeout: 55000 });
 }
+async function centeredRotation(page) {
+  const viewer = page.locator("model-viewer");
+  const before = await viewer.evaluate(v => ({ target: { ...v.getCameraTarget() }, center: { ...v.getBoundingBoxCenter() },
+    fixed: v.hasAttribute("disable-pan") && v.hasAttribute("disable-tap") }));
+  assert.equal(before.fixed, true);
+  for (const axis of ["x", "y", "z"]) assert.ok(Math.abs(before.target[axis] - before.center[axis]) < 1e-6);
+  const bounds = await viewer.boundingBox();
+  await viewer.click({ position: { x: bounds.width * .6, y: bounds.height * .3 } });
+  await page.waitForTimeout(250);
+  const after = await viewer.evaluate(v => ({ ...v.getCameraTarget() }));
+  for (const axis of ["x", "y", "z"]) assert.ok(Math.abs(after[axis] - before.target[axis]) < 1e-6,
+    "Tapping a frame cannot move its rotation centre");
+}
 async function shot(page, name) {
   if (reportDir) {
     await page.locator("[data-takara-product-stage]").screenshot({ path: path.join(reportDir, name + ".png") });
@@ -160,6 +173,7 @@ async function main() {
       const initialResources = await page.evaluate(() => performance.getEntriesByType("resource").filter(x => new URL(x.name).pathname.endsWith(".glb")).map(x => ({ name: new URL(x.name).pathname.split("/").at(-1), bytes: x.transferSize })));
       assert.equal(initialResources.length, 1, "Only the initial GLB should load");
       passed(label + ": initial GLB only, no legacy renderer");
+      await centeredRotation(page);
       assert.equal(await page.locator("[data-takara-preview-canvas], [data-takara-frame-text-overlay]").count(), 0);
       const photo = await syntheticPhoto(page);
       await page.locator("[data-takara-photo-input]").setInputFiles({ name: "synthetic.png", mimeType: "image/png", buffer: photo });
@@ -222,6 +236,7 @@ async function main() {
       assert.equal(horizontalState.state.variant, "horizontal");
       assert.equal(horizontalState.details.hasPhoto, true);
       assert.equal(horizontalState.details.lettering.top.text, "MI TAKARA");
+      await centeredRotation(page);
       await page.locator('[data-takara-litho-mode="off"]').click(); await ready(page);
       await shot(page, label + "-horizontal");
       const horizontal = await capture(page);

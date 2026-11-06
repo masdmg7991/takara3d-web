@@ -26,10 +26,37 @@ body.pedido-premium main .takara-preview-config-panel { display: contents; }
 .takara-preview-config-section--frame-text { grid-area: text; }
 .takara-product-customizer [hidden] { display: none !important; }
 .takara-delivery-summary [hidden] { display: none !important; }
-.takara-product-choice { grid-area: product; padding: .8rem 1rem; border: 1px solid #806c5b; border-radius: 14px; background: #3a2a21; }
-.takara-product-choice label { display: block; margin-bottom: .45rem; color: #fff8ed; font-weight: 700; }
-.takara-product-choice select { width: 100%; min-height: 46px; padding: .6rem .8rem; border: 1px solid #a28b76; border-radius: 9px; background: #f6eee3; color: #432c23; font: inherit; font-weight: 600; }
+.takara-product-choice { grid-area: product; padding: 1rem; border: 1px solid #806c5b; border-radius: 14px; background: linear-gradient(130deg, #3f2e24, #30231d); }
+.takara-product-choice fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
+.takara-product-choice legend { margin-bottom: .7rem; color: #fff8ed; font-size: 1rem; font-weight: 700; }
+.takara-product-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.takara-product-option { position: relative; min-width: 0; cursor: pointer; }
+.takara-product-option input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.takara-product-option__content { display: flex; align-items: center; gap: .8rem; min-height: 88px; height: 100%; padding: .85rem 1rem; border: 1px solid #806c5b; border-radius: 12px; background: #2c241f; color: #ecdcc9; transition: border-color .16s, background-color .16s; }
+.takara-product-option__content > svg { flex: 0 0 40px; width: 40px; height: 40px; color: #cba66a; }
+.takara-product-option__content > span:nth-child(2) { flex: 1; min-width: 0; }
+.takara-product-option strong, .takara-product-option small { display: block; }
+.takara-product-option strong { color: #fff5e4; font-size: 1rem; }
+.takara-product-option small { margin-top: .3rem; color: #d8c4ad; font-size: .8rem; line-height: 1.4; }
+.takara-product-option__check { display: grid; place-items: center; flex: 0 0 25px; width: 25px; height: 25px; border: 1px solid #927a5e; border-radius: 50%; color: transparent; }
+.takara-product-option input:checked + .takara-product-option__content { border-color: #dfa94f; background: #4a3625; box-shadow: inset 0 0 0 1px #dfa94f; }
+.takara-product-option input:checked + .takara-product-option__content .takara-product-option__check { border-color: #dda447; background: #dda447; color: #251c15; }
+.takara-product-option input:focus-visible + .takara-product-option__content { outline: 3px solid #f6cf87; outline-offset: 3px; }
+.takara-product-option:hover .takara-product-option__content { border-color: #dab984; }
 .takara-product-choice p { margin: .45rem 0 0; color: #e2d0bc; font-size: .85rem; }
+.takara-base-colors { min-width: 0; padding: 1rem 0 0; margin: .9rem 0 0; border: 0; border-top: 1px solid #806c5b; }
+.takara-base-colors legend, .takara-color-part-title { padding: 0; margin: 0 0 .6rem; color: #f3e4d1; font-family: inherit; font-size: .85rem; font-weight: 700; line-height: 1.4; }
+.takara-product-customizer[data-product="caja"] .takara-preview-color-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+@media (max-width: 560px) {
+  .takara-product-choice { padding: .75rem; }
+  .takara-product-options { gap: .55rem; }
+  .takara-product-option__content { flex-wrap: wrap; gap: .55rem; padding: .7rem; }
+  .takara-product-option__content > svg { flex-basis: 100%; height: 32px; }
+  .takara-product-option strong { font-size: .9rem; }
+  .takara-product-option small { font-size: .72rem; }
+  .takara-product-option__check { flex-basis: 20px; width: 20px; height: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .takara-product-option__content { transition: none; } }
 .takara-caja-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
 .takara-caja-photo { min-width: 0; padding: .5rem; border: 1px solid #88715b; border-radius: 10px; background: #30251f; }
 .takara-caja-photo.is-active { border-color: #e6ae55; box-shadow: inset 0 0 0 1px #e6ae55; }

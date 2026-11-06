@@ -9,12 +9,15 @@ drafts.update({ color: "rosewood", photo: framePhoto });
 const frameState = drafts.state;
 drafts.select("caja");
 assert.equal(drafts.state.color, "negro");
+assert.equal(drafts.state.baseColor, "negro");
 assert.equal(drafts.state.photo, undefined);
 assert.equal(PRODUCTS.caja.hasText, false);
 assert.equal(PRODUCTS.caja.hasFormat, false);
 assert.throws(() => CAJA_PRODUCT.validateCapture(drafts.state), /cuatro caras/);
 const photos = Object.freeze(Object.fromEntries(CAJA_FACES.map(face => [face, { type: "image/png", size: 300 }])));
-drafts.update({ photos, color: "blanco-mate", light: "off" });
+drafts.update({ photos, color: "blanco-mate", baseColor: "rosewood", light: "off" });
+assert.equal(drafts.state.color, "blanco-mate");
+assert.equal(drafts.state.baseColor, "rosewood");
 CAJA_PRODUCT.validateCapture(drafts.state);
 const boxState = drafts.state;
 drafts.select("marco"); assert.equal(drafts.state, frameState);
@@ -22,6 +25,7 @@ drafts.select("caja"); assert.equal(drafts.state, boxState);
 assert.ok(Object.isFrozen(drafts.state));
 assert.throws(() => drafts.select("unknown"), /desconocido/);
 assert.throws(() => drafts.update({ color: "not-a-color" }), /Color/);
+assert.throws(() => drafts.update({ baseColor: "not-a-color" }), /peana/);
 assert.equal(drafts.state, boxState, "Invalid configuration cannot replace the retained draft");
 assert.throws(() => drafts.update({ photos: { unknown: framePhoto } }), /Cara/);
 assert.throws(() => drafts.update({ photos: { frontal: { type: "text/plain", size: 3 } } }), /JPG/);
@@ -53,5 +57,21 @@ for (const mesh of panels) {
   assert.ok(material.normalTexture && material.emissiveTexture && material.pbrMetallicRoughness.baseColorTexture);
 }
 assert.equal(materials.size, 4, "Each face has an independent photo material");
+const baseShell = gltf.meshes.find(mesh => mesh.name === "Base_Circular_V2").primitives[0];
+assert.equal(gltf.materials[baseShell.material].name, "BOX_BASE");
+const shellPositions = floats(baseShell.attributes.POSITION);
+const indexAccessor = gltf.accessors[baseShell.indices], indexView = gltf.bufferViews[indexAccessor.bufferView];
+assert.equal(indexAccessor.componentType, 5125);
+const indexOffset = (indexView.byteOffset || 0) + (indexAccessor.byteOffset || 0);
+const indices = Array.from({ length: indexAccessor.count }, (_, i) => binary.readUInt32LE(indexOffset + i * 4));
+let topFace = false;
+for (let i = 0; i < indices.length; i += 3) {
+  const [a, b, c] = indices.slice(i, i + 3).map(index => shellPositions.slice(index * 3, index * 3 + 3));
+  if ([a, b, c].every(v => Math.abs(v[1]) < 1e-6)) {
+    const normalY = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]);
+    if (normalY > 1e-8) topFace = true;
+  }
+}
+assert.ok(topFace, "Circular pedestal closed face points upwards after the flip");
 assert.ok(bytes.length < 1_000_000, "Box model remains under 1 MB without discarding triangles");
 console.log("TAKARA_PRODUCTS_3D_OK: isolated drafts, capabilities, photo validation, four physical surfaces and upright UVs");

@@ -373,11 +373,27 @@
         <div class="pedido-stl-preview">
           <div class="takara-product-customizer">
             <section class="takara-product-choice" aria-label="Producto a personalizar">
-              <label for="takara-product-choice">Elige tu producto</label>
-              <select id="takara-product-choice" data-takara-product-choice>
-                <option value="marco">Marco · una foto</option>
-                <option value="caja">Caja de luz · cuatro fotos</option>
-              </select>
+              <fieldset>
+                <legend>Elige tu producto</legend>
+                <div class="takara-product-options">
+                  <label class="takara-product-option">
+                    <input type="radio" name="producto_preview" value="marco" data-takara-product-option checked disabled>
+                    <span class="takara-product-option__content">
+                      <svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="9" y="3" width="30" height="39" rx="3" stroke="currentColor" stroke-width="2"/><path d="M14 8h20v29H14zM16 30l6-8 5 5 5-4M17 45h14" stroke="currentColor" stroke-width="2"/><circle cx="28" cy="16" r="3" fill="currentColor"/></svg>
+                      <span><strong>Marco</strong><small>Una foto · dos formatos</small></span>
+                      <span class="takara-product-option__check" aria-hidden="true">✓</span>
+                    </span>
+                  </label>
+                  <label class="takara-product-option">
+                    <input type="radio" name="producto_preview" value="caja" data-takara-product-option disabled>
+                    <span class="takara-product-option__content">
+                      <svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="m24 3 18 9v23l-18 9-18-9V12L24 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m6 12 18 9 18-9M24 21v23M11 19l9 4v12l-9-4V19Zm17 4 9-4v12l-9 4V23Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                      <span><strong>Caja de luz</strong><small>Cuatro fotos · giro 360°</small></span>
+                      <span class="takara-product-option__check" aria-hidden="true">✓</span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
               <p data-takara-product-description>Una foto, en formato vertical u horizontal.</p>
             </section>
             <aside class="takara-preview-config-panel" aria-label="Personalización del marco">
@@ -458,6 +474,7 @@
                     <p>Elige el acabado y comprueba cómo queda con la litofanía.</p>
                   </div>
                 </div>
+                <h3 class="takara-color-part-title" data-takara-body-color-label hidden>Color del cuerpo</h3>
                 <div class="takara-preview-color-options">
                   <label class="takara-preview-color-chip takara-preview-color-chip--madera-clara">
                     <input type="radio" name="color_marco_preview" value="actual" checked data-takara-color-proxy="actual">
@@ -485,8 +502,11 @@
                     <span>Blanco mate</span>
                   </label>
                 </div>
+              <fieldset class="takara-base-colors" data-takara-base-colors hidden>
+                <legend>Color de la peana</legend>
+                <div class="takara-preview-color-options" data-takara-base-color-options></div>
+              </fieldset>
               </section>
-
               <section class="takara-preview-config-section takara-preview-config-section--frame-text" data-takara-frame-text-config>
                 <div class="takara-config-heading">
                   <p class="takara-preview-config-step">4</p>

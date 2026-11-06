@@ -43,7 +43,8 @@ function files() {
 }
 function selection() {
   return Object.freeze({ key: drafts.current, code: drafts.product.code, variant: engine.state.variant,
-    faces: drafts.product.photoFaces, files: files(), hasText: drafts.product.hasText });
+    faces: drafts.product.photoFaces, files: files(), hasText: drafts.product.hasText,
+    bodyColor: engine.state.color, baseColor: engine.state.baseColor || null });
 }
 function snapshot() { return { ...engine.getSnapshot(), revision: generation * 1000000 + engine.revision }; }
 function update(patch) { drafts.update(patch); engine.update(patch); }
@@ -77,7 +78,8 @@ function selectProduct(key) {
   form.querySelector('[name="codigo_producto"]').value = product.code;
   form.querySelector('[name="formato"]').value = drafts.state.variant;
   form.querySelector("[data-takara-photo-input]").required = product.hasFormat;
-  document.querySelector("[data-takara-product-choice]").value = key;
+  for (const option of document.querySelectorAll("[data-takara-product-option]")) option.checked = option.value === key;
+  document.querySelector(".takara-product-customizer").dataset.product = key;
   document.querySelector(".takara-preview-config-section--format").hidden = !product.hasFormat;
   document.querySelector("[data-takara-single-photo]").hidden = !product.hasFormat;
   document.querySelector("[data-takara-caja-photos]").hidden = product.hasFormat;
@@ -92,7 +94,10 @@ function selectProduct(key) {
   document.querySelector("[data-takara-photo-heading]").textContent = product.hasFormat ? "Tu foto" : "Tus cuatro fotos";
   document.querySelector("[data-takara-photo-description]").textContent = product.hasFormat
     ? "Sube tu foto para ver cómo queda en el marco." : "Una foto por cara. Toca su nombre para verla en el modelo.";
-  document.querySelector("[data-takara-color-heading]").textContent = product.hasFormat ? "Color del marco" : "Color de la caja";
+  document.querySelector("[data-takara-color-heading]").textContent = product.hasFormat ? "Color del marco" : "Colores de la caja";
+  document.querySelector("[data-takara-body-color-label]").hidden = product.hasFormat;
+  document.querySelector("[data-takara-base-colors]").hidden = product.hasFormat;
+  for (const option of document.querySelectorAll("[data-takara-base-color]")) option.checked = option.value === drafts.state.baseColor;
   document.querySelector(".takara-preview-config-section--photo .takara-preview-config-step").textContent = product.hasFormat ? "2" : "1";
   document.querySelector(".takara-preview-config-section--color .takara-preview-config-step").textContent = product.hasFormat ? "3" : "2";
   document.querySelector("[data-takara-product-description]").textContent = product.hasFormat
@@ -114,6 +119,7 @@ async function initialize() {
   try {
     await import("../../vendor/model-viewer/model-viewer.min.js");
     buildPhotoSlots();
+    buildBaseColors();
     const initial = form.querySelector('[name="formato"]').value;
     const color = form.querySelector('input[name="color_marco"]:checked')?.value || "actual";
     drafts.update({ variant: initial, color });
@@ -131,7 +137,7 @@ async function initialize() {
       async capture(expected) {
         assertOrderReady(expected);
         if (engine.error) throw new Error(engine.error);
-        const controls = [...document.querySelectorAll(".takara-product-choice select, .takara-preview-config-panel input, .takara-preview-config-panel button, [data-takara-litho-mode], [data-takara-product-reset]")];
+        const controls = [...document.querySelectorAll(".takara-product-choice input, .takara-preview-config-panel input, .takara-preview-config-panel button, [data-takara-litho-mode], [data-takara-product-reset]")];
         const disabled = controls.map(node => node.disabled); controls.forEach(node => { node.disabled = true; });
         try { return await engine.capture(); }
         catch (error) {
@@ -226,8 +232,26 @@ function syncLight() {
     item.classList.toggle("is-active", active); item.setAttribute("aria-pressed", String(active));
   }
 }
+function buildBaseColors() {
+  const root = document.querySelector("[data-takara-base-color-options]");
+  for (const bodyInput of document.querySelectorAll("[data-takara-color-proxy]")) {
+    const label = bodyInput.closest("label").cloneNode(true);
+    const input = label.querySelector("input");
+    input.name = "color_peana_preview";
+    input.removeAttribute("data-takara-color-proxy");
+    input.dataset.takaraBaseColor = input.value;
+    input.checked = input.value === PRODUCTS.caja.profile.defaults.baseColor;
+    input.addEventListener("change", () => {
+      if (drafts.current === "caja" && input.checked) update({ baseColor: input.value });
+    });
+    root.append(label);
+  }
+}
 function bindControls() {
-  document.querySelector("[data-takara-product-choice]").addEventListener("change", event => selectProduct(event.target.value));
+  for (const option of document.querySelectorAll("[data-takara-product-option]")) {
+    option.addEventListener("change", () => { if (option.checked) selectProduct(option.value); });
+    option.disabled = false;
+  }
   const backgrounds = [...document.querySelectorAll("[data-takara-background]")];
   for (const button of backgrounds) button.addEventListener("click", () => {
     stage.dataset.background = button.dataset.takaraBackground;

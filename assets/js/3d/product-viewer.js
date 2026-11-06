@@ -65,7 +65,8 @@ export class ProductViewer {
     const viewer = document.createElement("model-viewer");
     this.viewer = viewer;
     for (const [key, value] of Object.entries({
-      "camera-controls": "", "touch-action": "pan-y", "interaction-prompt": "none",
+      "camera-controls": "", "disable-pan": "", "disable-tap": "",
+      "camera-target": "auto auto auto", "touch-action": "pan-y", "interaction-prompt": "none",
       "shadow-intensity": "0.6", exposure: "0.92", loading: "eager",
       "camera-orbit": variant.camera, alt: variant.alt,
       ...this.profile.attributes

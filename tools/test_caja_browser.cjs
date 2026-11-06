@@ -49,7 +49,7 @@ async function main() {
       await page.locator(".takara-frame-text-switch").click();
       await page.locator('[data-takara-frame-side-toggle="top"]').click();
       // Leave an incomplete frame text: it cannot block the unrelated box.
-      await page.locator("[data-takara-product-choice]").selectOption("caja"); await ready(page);
+      await page.locator('label:has([data-takara-product-option][value="caja"])').click(); await ready(page);
       assert.equal(await page.locator("model-viewer").count(), 1);
       assert.equal(await page.locator("[data-takara-frame-text-config]").isVisible(), false);
       assert.equal(await page.locator(".takara-preview-config-section--format").isVisible(), false);
@@ -57,6 +57,31 @@ async function main() {
       assert.equal(await page.locator("[data-takara-summary-text-row]").isVisible(), false);
       assert.equal(await page.locator("[data-takara-summary-product-name]").textContent(), "Caja de luz · 4 fotos");
       assert.equal(await page.locator('[data-takara-color-proxy="negro"]').isChecked(), true);
+      assert.equal(await page.locator('[data-takara-base-color="negro"]').isChecked(), true);
+      await page.locator('label:has([data-takara-base-color="actual"])').click(); await ready(page);
+      const materialColors = await page.locator("model-viewer").evaluate(viewer => ({
+        body: Array.from(viewer.model.materials.find(m => m.name === "BOX_BODY").pbrMetallicRoughness.baseColorFactor),
+        base: Array.from(viewer.model.materials.find(m => m.name === "BOX_BASE").pbrMetallicRoughness.baseColorFactor)
+      }));
+      assert.notDeepEqual(materialColors.body, materialColors.base, "Base finish changes independently of the body");
+      const initialTarget = await page.locator("model-viewer").evaluate(viewer => {
+        if (!viewer.hasAttribute("disable-pan") || !viewer.hasAttribute("disable-tap")) throw new Error("Camera pivot is not locked");
+        return { ...viewer.getCameraTarget() };
+      });
+      const modelCenter = await page.locator("model-viewer").evaluate(viewer => ({ ...viewer.getBoundingBoxCenter() }));
+      for (const axis of ["x", "y", "z"]) assert.ok(Math.abs(initialTarget[axis] - modelCenter[axis]) < 1e-6);
+      await page.locator("model-viewer").click({position:{x:180,y:130}});
+      await page.waitForTimeout(350);
+      const afterTap = await page.locator("model-viewer").evaluate(viewer => ({ ...viewer.getCameraTarget() }));
+      assert.deepEqual(afterTap, initialTarget, "Tapping a point cannot move the rotation pivot");
+      const stageBounds = await page.locator("model-viewer").boundingBox();
+      await page.mouse.move(stageBounds.x + stageBounds.width * .5, stageBounds.y + stageBounds.height * .4);
+      await page.mouse.down();
+      await page.mouse.move(stageBounds.x + stageBounds.width * .65, stageBounds.y + stageBounds.height * .4, { steps: 8 });
+      await page.mouse.up();
+      await page.waitForTimeout(250);
+      const afterDrag = await page.locator("model-viewer").evaluate(viewer => ({ ...viewer.getCameraTarget() }));
+      assert.deepEqual(afterDrag, initialTarget, "Rotating the product keeps its centre fixed");
       await page.waitForFunction(() => document.querySelector("[data-takara-delivery-product]").textContent.includes("75"));
       const missing = await page.evaluate(() => {
         const p = window.TAKARA_PRODUCT_PREVIEW;
@@ -101,12 +126,13 @@ async function main() {
       await page.locator('[data-takara-caja-photo="frontal"]').setInputFiles({ name: "rota.png", mimeType: "image/png", buffer: Buffer.from("not an image") });
       await page.waitForFunction(() => window.TAKARA_PRODUCT_PREVIEW.getSnapshot().errorCode === "INVALID_PHOTO");
       await page.locator('[data-takara-caja-photo="frontal"]').setInputFiles({ name: "cara-1.png", mimeType: "image/png", buffer: Buffer.from(buffers[0], "base64") }); await ready(page);
-      await page.locator("[data-takara-product-choice]").selectOption("marco"); await ready(page);
+      await page.locator('label:has([data-takara-product-option][value="marco"])').click(); await ready(page);
       assert.equal(await page.locator('[data-takara-color-proxy="rosewood"]').isChecked(), true);
       assert.equal(await page.evaluate(() => window.TAKARA_PRODUCT_PREVIEW.getSnapshot().details.hasPhoto), true);
       assert.equal(await page.locator("[data-takara-frame-text-config]").isVisible(), true);
-      await page.locator("[data-takara-product-choice]").selectOption("caja"); await ready(page);
+      await page.locator('label:has([data-takara-product-option][value="caja"])').click(); await ready(page);
       assert.equal(await page.locator('[data-takara-color-proxy="negro"]').isChecked(), true);
+      assert.equal(await page.locator('[data-takara-base-color="actual"]').isChecked(), true);
       assert.ok(await page.evaluate(() => Object.values(window.TAKARA_PRODUCT_PREVIEW.getSnapshot().details.photos).every(p => p.hasPhoto)));
       assert.equal(await page.locator("model-viewer").count(), 1);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1); assert.equal(overflow, false);
@@ -123,6 +149,9 @@ async function main() {
       assert.equal(payload.producto.precio_base_eur, "75.00");
       assert.equal(payload.producto.precio_extras_eur, "0.00");
       assert.equal(payload.producto.personalizacion_marco, null);
+      assert.equal(payload.producto.color_cuerpo, "Negro");
+      assert.equal(payload.producto.color_peana, "Madera clara");
+      assert.equal(payload.producto.atributos.color_peana_codigo, "actual");
       assert.equal(payload.archivos.fotos.length, 4);
       assert.deepEqual(payload.archivos.fotos.map(p => p.cara), faces);
       assert.ok(payload.archivos.fotos.every(p => p.foto_base64_presente && !p.foto_base64));
@@ -130,7 +159,7 @@ async function main() {
       const direct = await context.newPage(), requestedModels = [];
       direct.on("request", request => { if (request.url().includes(".glb")) requestedModels.push(request.url()); });
       await direct.goto(origin + "/pedido.html?producto=caja"); await ready(direct);
-      assert.equal(await direct.locator("[data-takara-product-choice]").inputValue(), "caja");
+      assert.equal(await direct.locator('[data-takara-product-option][value="caja"]').isChecked(), true);
       assert.ok(requestedModels.some(url => url.includes("/caja/")));
       assert.ok(requestedModels.every(url => !url.includes("/marco/")), "Direct box entry must not download a frame model");
       await direct.close();

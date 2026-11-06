@@ -874,10 +874,13 @@
         orientacion: isBox ? "cuatro_fotos" : formatoKey,
         medida: isBox ? "100 x 100 mm" : formatoMeta.medida,
         color_marco: colorMarco,
+        ...(isBox ? { color_cuerpo: COLOR_LABELS[selection.bodyColor], color_peana: COLOR_LABELS[selection.baseColor] } : {}),
         color_litofania: "Blanco natural",
         cantidad: cantidad,
         precio_mostrado_eur: DISPLAY_PRICE_EUR,
-        atributos: { familia: "litofania" },
+        atributos: { familia: "litofania", ...(isBox ? {
+          color_cuerpo_codigo: selection.bodyColor, color_peana_codigo: selection.baseColor
+        } : {}) },
         extras: [],
         personalizacion_marco: personalizacionMarco
       },

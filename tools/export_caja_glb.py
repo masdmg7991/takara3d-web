@@ -45,6 +45,7 @@ def read_parts(source, switch_part):
 def build(parts):
     scene = trimesh.Scene()
     body = PBRMaterial(name="BOX_BODY", baseColorFactor=[24, 24, 24, 255], metallicFactor=0, roughnessFactor=.96)
+    base = PBRMaterial(name="BOX_BASE", baseColorFactor=[24, 24, 24, 255], metallicFactor=0, roughnessFactor=.96)
     metal = PBRMaterial(name="BOX_USB", baseColorFactor=[180, 183, 185, 255], metallicFactor=.8, roughnessFactor=.32)
     switch = PBRMaterial(name="BOX_SWITCH", baseColorFactor=[12, 12, 12, 255], metallicFactor=0, roughnessFactor=.8)
     manifest = []
@@ -52,7 +53,10 @@ def build(parts):
     def translation(x=0, y=0, z=0):
         return trimesh.transformations.translation_matrix([x, y, z])
 
-    def part(name, material=body, transform=None):
+    # Flip the circular shell around its centre; the bottom cover stays underneath.
+    pedestal_flip = translation(y=-.0095) @ trimesh.transformations.rotation_matrix(np.pi, [0, 0, 1]) @ translation(y=.0095)
+
+    def part(name, material=body, transform=None, pedestal=False):
         vertices, normals = parts[name]
         mesh = trimesh.Trimesh(vertices=vertices, faces=np.arange(len(vertices)).reshape(-1, 3), vertex_normals=normals, process=False)
         mesh.visual = TextureVisuals(material=material)
@@ -60,16 +64,18 @@ def build(parts):
         mesh.merge_vertices(merge_tex=False, merge_norm=False)
         if transform is not None:
             mesh.apply_transform(transform)
+        if pedestal:
+            mesh.apply_transform(pedestal_flip)
         scene.add_geometry(mesh, node_name=name, geom_name=name)
         manifest.append({"part": name, "triangles": len(mesh.faces), "bounds_m": mesh.bounds.tolist()})
 
     part("Cuerpo")
     part("Base_Cuadrada")
     part("Cuerpo_Base")
-    part("Base_Circular_V2", transform=translation(y=-.019))
-    part("Base+rodameinto", transform=translation(x=-.009806, y=-.010))
+    part("Base_Circular_V2", material=base, transform=translation(y=-.019), pedestal=True)
+    part("Base+rodameinto", material=base, transform=translation(x=-.009806, y=-.010))
     lid = translation(y=-.019) @ trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0])
-    part("Tapa_Inferior_Base", transform=lid)
+    part("Tapa_Inferior_Base", material=base, transform=lid)
     # Review these placements locally: the old assembly has missing/obsolete references.
     part("USB Type-C", material=metal, transform=translation(x=.035115, y=-.020, z=.046))
     turn = trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0])

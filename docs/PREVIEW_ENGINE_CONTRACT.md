@@ -77,7 +77,9 @@ libera el controlador anterior y conserva los File y opciones en memoria durante
 la visita; no guarda fotografías en almacenamiento persistente.
 
 La caja utiliza `caja-product.js`: cuatro superficies de 100 × 100 mm, una foto
-por cara (frontal, derecha, trasera e izquierda), color y luz. No tiene formato
+por cara (frontal, derecha, trasera e izquierda), colores independientes de cuerpo
+y peana y luz. Los materiales `BOX_BODY` y `BOX_BASE` aíslan ambos acabados; el
+pedido local conserva sus nombres y códigos por separado. No tiene formato
 vertical/horizontal ni texto. El texto del marco se conserva al cambiar, pero
 se desactiva y queda excluido de la validación, el suplemento y el payload de la caja.
 Las fotos tienen un recorte cuadrado centrado; la interfaz lo explica. El límite
@@ -101,7 +103,15 @@ El cuerpo ya contiene la parte superior: no se superpone `Tapa_Cuerpo`.
 Las posiciones de USB e interruptor son provisionales para revisión: el ensamblaje
 anterior referencia componentes ausentes y no determina el montaje V2 actual.
 No representa una simulación mecánica del rodamiento; el cliente puede girar el visor
-360°. La procedencia y las traslaciones están explícitas en el exportador.
+360°. La procedencia y las traslaciones están explícitas en el exportador. La carcasa
+circular está volteada 180° alrededor de su centro horizontal; la tapa inferior
+permanece debajo.
+
+La selección de familia utiliza tarjetas con radios nativos, selección visible,
+foco de teclado y un grupo accesible. El giro y el zoom conservan el centro de la
+caja envolvente del producto: `disable-pan` y `disable-tap` impiden que tocar una
+esquina o arrastrar con un modificador cambie ese eje. Restablecer y capturar
+utilizan el mismo centro automático.
 
 `test_caja_browser.cjs` cubre las cuatro caras, cambios de producto con borradores,
 aislamiento del texto, colores, luz, captura, fotos inválidas y pedido local en
