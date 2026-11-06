@@ -48,10 +48,13 @@ body.pedido-premium main .pedido-stl-preview > [hidden] { display: none !importa
 body.pedido-premium main .pedido-stl-preview[data-order-step="customize"] { grid-template-areas: "steps" "customizer" "cart" !important; }
 body.pedido-premium main .pedido-stl-preview[data-order-step="review"] { grid-template-areas: "steps" "cart" !important; }
 body.pedido-premium main .pedido-stl-preview[data-order-step="checkout"] { grid-template-areas: "steps" "cart" "contact" "delivery" "submit" !important; }
-.takara-order-steps { grid-area: steps; color: #d9c6ae; }
+.takara-order-steps { grid-area: steps; color: #d9c6ae; position: sticky; top: .5rem; z-index: 5; align-self: start; background: #2b1e16; border-radius: 12px; padding: .25rem; }
 .takara-order-steps ol { display: flex; justify-content: center; gap: clamp(.75rem, 4vw, 3rem); list-style: none; padding: .5rem 0; margin: 0; }
-.takara-order-steps li { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
-.takara-order-steps li > span { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border: 1px solid #8c7761; border-radius: 50%; }
+.takara-order-steps button { display: flex; align-items: center; gap: .5rem; min-height: 44px; border: 0; background: transparent; padding: .3rem .4rem; color: inherit; font: inherit; font-size: .85rem; cursor: pointer; border-radius: 8px; }
+.takara-order-steps button > span { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border: 1px solid #8c7761; border-radius: 50%; }
+.takara-order-steps button:disabled { opacity: .55; cursor: default; }
+.takara-order-steps button:not(:disabled):hover { background: #493627; }
+.takara-order-steps button:focus-visible { outline: 2px solid #f6cf87; outline-offset: 2px; }
 .takara-order-steps [aria-current="step"] { color: #fff1da; font-weight: 700; }
 .takara-order-steps [aria-current="step"] > span { background: #d49c3c; border-color: #d49c3c; color: #291f17; }
 .takara-order-cart { padding: clamp(1.1rem, 3vw, 2rem); }
@@ -72,9 +75,9 @@ body.pedido-premium main .pedido-stl-preview[data-order-step="checkout"] { grid-
 .takara-order-cart__next { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; margin-top: .5rem; border-top: 1px solid #6a5645; }
 .takara-order-cart__note { margin-top: 1.25rem; line-height: 1.6; }
 .takara-order-cart__note summary { cursor: pointer; }
-.takara-order-cart h2, .takara-preview-contact-panel h2, .takara-product-choice legend { scroll-margin-top: 2rem; }
+.takara-order-cart h2, .takara-preview-contact-panel h2, .takara-product-choice legend { scroll-margin-top: 6.5rem; }
 @media (max-width: 600px) {
-  .takara-order-steps li { flex-direction: column; gap: .4rem; font-size: .72rem; text-align: center; }
+  .takara-order-steps button { flex-direction: column; gap: .4rem; font-size: .72rem; text-align: center; }
   .takara-order-steps ol { justify-content: space-around; gap: .5rem; }
   .takara-order-cart__item { grid-template-columns: 48px minmax(0, 1fr) auto; gap: .65rem; }
   .takara-order-cart__item > img { width: 48px; height: 56px; }

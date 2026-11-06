@@ -82,6 +82,7 @@
     save.addEventListener("click", async () => {
       if (busy) return;
       busy = true; list.inert = true; save.disabled = true; cancel.disabled = true;
+      window.dispatchEvent(new Event("takara:cart-change"));
       let saved = false; message("Preparando las fotos y los datos de este artículo…");
       try {
         const id = editingId || cart.nextId(), result = await window.TAKARA_ORDER_ITEMS_V3.compile(id);
@@ -89,7 +90,7 @@
         editingId = null; beforeEdit = null; cancel.hidden = true; save.textContent = "+ Añadir este producto al pedido";
         saved = true;
       } catch (error) { message(error.message, true); }
-      finally { busy = false; list.inert = false; save.disabled = false; cancel.disabled = false; if (saved) { render(); window.dispatchEvent(new Event("takara:cart-saved")); } }
+      finally { busy = false; list.inert = false; save.disabled = false; cancel.disabled = false; if (saved) { render(); window.dispatchEvent(new Event("takara:cart-saved")); } else window.dispatchEvent(new Event("takara:cart-change")); }
     });
     cancel.addEventListener("click", () => {
       if (busy) return;
@@ -98,7 +99,7 @@
       beforeEdit = null; render(); window.dispatchEvent(new Event("takara:cart-cancel"));
     });
     window.TAKARA_ORDER_CART = Object.freeze({ hasItems: () => cart.items.length > 0, getItems: () => cart.items.slice(),
-      getQuote: quote, editing: () => !!editingId || busy, getRevision: () => cart.revision,
+      getQuote: quote, editing: () => !!editingId || busy, isBusy: () => busy, getRevision: () => cart.revision,
       complete() { cart.clear(); configurations.clear(); render(); } });
     window.addEventListener("takara:product-change", refreshSummary);
     window.addEventListener("takara:preview-ready", () => { save.disabled = false; });

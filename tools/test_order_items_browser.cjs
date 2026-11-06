@@ -115,6 +115,26 @@ async function main() {
       await page.locator("[data-takara-delivery-postal]").fill("28911"); await page.locator("[data-takara-delivery-postal]").blur();
       await page.waitForFunction(() => document.querySelector('[name="modalidad_entrega"]').value !== "");
       for (const key of ["acepta_contacto", "acepta_revision"]) await page.locator(`[data-takara-accept-proxy="${key}"]`).check();
+      await page.locator('[data-takara-contact-proxy="observaciones"]').fill("Conservar esta nota al volver");
+      await page.locator('[data-takara-step="customize"]').click(); await ready(page);
+      assert.equal(await page.locator("[data-takara-photo-input]").evaluate(input => input.files[0].name), "marco-horizontal.png");
+      await page.locator('[data-takara-step="review"]').click();
+      await page.getByRole("button", { name: "Editar A01", exact: true }).click(); await ready(page);
+      await page.locator('[data-takara-frame-text-input="top"]').fill("OTRO TEXTO"); await ready(page);
+      await page.locator('[data-takara-step="checkout"]').click();
+      assert.equal(await page.locator(".takara-preview-contact-panel").isVisible(), true);
+      assert.match(await page.evaluate(async () => {
+        try { await window.TAKARA_ORDER_ITEMS_V3.build(window.TAKARA_ORDER_CART); return "unexpected success"; }
+        catch (error) { return error.message; }
+      }), /Guarda o cancela/);
+      await page.locator('[data-takara-step="customize"]').click(); await ready(page);
+      assert.equal(await page.locator('[data-takara-frame-text-input="top"]').inputValue(), "OTRO TEXTO");
+      await page.locator("[data-takara-cart-cancel]").click(); await ready(page);
+      await page.locator('[data-takara-step="checkout"]').click();
+      assert.equal(await page.locator('[data-takara-contact-proxy="email"]').inputValue(), "test@example.invalid");
+      assert.equal(await page.locator('[data-takara-contact-proxy="observaciones"]').inputValue(), "Conservar esta nota al volver");
+      assert.equal(await page.locator("[data-takara-delivery-postal]").inputValue(), "28911");
+      for (const key of ["acepta_contacto", "acepta_revision"]) assert.equal(await page.locator(`[data-takara-accept-proxy="${key}"]`).isChecked(), true);
       await page.locator("[data-takara-submit-proxy]").click();
       await page.waitForFunction(() => sessionStorage.getItem("TAKARA_PEDIDO_DRY_RUN_PAYLOAD"), null, { timeout: 30000 });
       for (let n = 0; !rawPayload && n < 20; n++) await page.waitForTimeout(100);
