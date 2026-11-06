@@ -24,6 +24,7 @@ function detectarContratoPedido_(payload) {
 }
 
 function normalizarPedido_(payload) {
+  if (payload && payload.payload_version === "TAKARA_WEB_ORDER_PAYLOAD_V3") return normalizarPedidoV3_(payload);
   const contrato = detectarContratoPedido_(payload);
   return contrato === "v2"
     ? normalizarPedidoV2_(payload)

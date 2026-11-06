@@ -177,6 +177,7 @@ function construirOrigenVisiblePedido_(pedido) {
 }
 
 function construirAsunto_(idPedidoWeb, pedido) {
+  if (pedido.contrato_entrada === "v3") return "[TAKARA PEDIDO WEB] " + idPedidoWeb + " · " + pedido.articulos.length + " artículos · " + pedido.cliente.nombre;
   return "[TAKARA PEDIDO WEB] " +
     idPedidoWeb +
     " \u00B7 " +
@@ -190,12 +191,14 @@ function construirAsunto_(idPedidoWeb, pedido) {
 }
 
 function versionPlantillaPedido_(pedido) {
+  if (pedido && pedido.contrato_entrada === "v3") return "TAKARA_PEDIDO_WEB_V3";
   return pedido && pedido.contrato_entrada === "v1_compat"
     ? CFG.VERSION_PLANTILLA_V1_COMPAT
     : CFG.VERSION_PLANTILLA;
 }
 
 function construirCuerpoInterno_(idPedidoWeb, now, pedido, foto, fichaVisual) {
+  if (pedido.contrato_entrada === "v3") return cuerpoPedidoV3_(idPedidoWeb, pedido, cargarArchivosPedidoV3_(foto, pedido), true);
   return pedido && pedido.contrato_entrada === "v1_compat"
     ? construirCuerpoInternoV1Compat_(idPedidoWeb, now, pedido, foto, fichaVisual)
     : construirCuerpoInternoV2_(idPedidoWeb, now, pedido, foto, fichaVisual);
@@ -447,6 +450,7 @@ function enviarEmailInterno_(
   foto,
   fichaVisual
 ) {
+  if (pedido.contrato_entrada === "v3") return enviarPedidoV3_(idPedidoWeb, pedido, foto, true);
   fichaVisual = fichaVisual || {
     ficha_visual_recibida: false,
     blob: null
@@ -623,6 +627,7 @@ function construirHtmlInterno_(idPedidoWeb, pedido, foto, fichaVisual) {
 }
 
 function enviarConfirmacionCliente_(idPedidoWeb, pedido, foto, fichaVisual) {
+  if (pedido.contrato_entrada === "v3") return enviarPedidoV3_(idPedidoWeb, pedido, foto, false);
   fichaVisual = fichaVisual || {
     ficha_visual_recibida: false,
     blob: null

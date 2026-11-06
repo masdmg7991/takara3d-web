@@ -131,8 +131,10 @@
         throw new Error("No está configurado el endpoint de pedidos.");
       }
 
-      const basePayload = await buildPayload(form);
-      const payload = await enrichPayloadWithCatalogSnapshot(basePayload);
+      const cart = window.TAKARA_ORDER_CART;
+      const useItems = cart && (cart.hasItems() || window.TAKARA_PRODUCT_PREVIEW?.getSelection().key === "caja");
+      const payload = useItems ? await window.TAKARA_ORDER_ITEMS_V3.build(cart)
+        : await enrichPayloadWithCatalogSnapshot(await buildPayload(form));
 
       if (isDryRunEnabled()) {
         persistDryRunPayload(payload);
@@ -144,7 +146,7 @@
         return;
       }
 
-      if (payload.producto.codigo_producto !== PRODUCT_CODE) {
+      if (payload.payload_version === "TAKARA_WEB_ORDER_PAYLOAD_V3" || payload.producto.codigo_producto !== PRODUCT_CODE) {
         throw new Error("La caja está en pruebas locales. Su envío se activará después de revisar el configurador y el sistema de pedidos.");
       }
 
@@ -160,6 +162,7 @@
         "success"
       );
       notifyStoreParentOrderSuccess(form, ack);
+      if (useItems) cart.complete();
     } catch (error) {
       setStatus(statusNode, error && error.message ? error.message : "No se pudo enviar la solicitud.", "error");
     } finally {
@@ -935,6 +938,35 @@
       suggestion: ""
     };
   }
+
+  function buildItemsContext(form, quantity, subtotal) {
+    const nombre = value(form, "nombre"), email = value(form, "email"), telefono = soloDigitos(value(form, "whatsapp"));
+    if (!nombre || !telefonoValido(telefono) || !emailValido(email)) throw new Error("Completa un nombre, teléfono y correo válidos.");
+    if (!isChecked(form, "acepta_contacto") || !isChecked(form, "acepta_revision")) throw new Error("Marca las casillas de contacto y autorización de las imágenes.");
+    const pickup = value(form, "fulfillment_method") === FULFILLMENT_STORE_PICKUP;
+    if (pickup && (!orderStorePickupContext || !orderStorePickupContext.available)) throw new Error("La recogida en tienda no está disponible.");
+    const deliveryApi = getTakaraCore("TAKARA_DELIVERY_CORE_V2");
+    const quote = pickup ? buildStorePickupQuote() : deliveryApi.quote({ postalCode: value(form, "codigo_postal_entrega"),
+      locationCode: value(form, "ubicacion_entrega_codigo"), quantity });
+    if (!quote.valid) throw new Error([quote.customer_text, quote.suggestion].filter(Boolean).join(" "));
+    const totals = deliveryApi.calculateTotals(subtotal, quote), id = createPedidoWebId(), created = new Date().toISOString();
+    return { pedido_web_id: id, creado_en_iso: created, modo_prueba: false,
+      cliente: { nombre, email, telefono, contacto_preferido: "" },
+      meta: Object.assign({ pagina_origen: getPageOrigin(), entorno: getEnvironment(), pedido_web_id: id,
+        creado_en_iso: created, payload_version: "TAKARA_WEB_ORDER_PAYLOAD_V3" }, getOrderStoreContextMeta()),
+      entrega: deliveryPayloadFromQuote(quote, value(form, "localidad_entrega_informativa"), {
+        code: value(form, "municipio_entrega_codigo"), name: value(form, "municipio_entrega_nombre"),
+        province: value(form, "provincia_entrega_nombre"), source: value(form, "municipio_entrega_fuente") }),
+      totales: { version: DELIVERY_VERSION, subtotal_productos_eur: Number(subtotal).toFixed(2),
+        precio_entrega_eur: totals.delivery_eur, total_estimado_eur: totals.estimated_total_eur,
+        estado_total: totals.total_status, moneda: totals.currency },
+      mensaje_cliente: value(form, "notas"), control: { consiente_gestion_datos: true,
+        declara_derechos_y_autoriza_revision_imagen: true,
+        autoriza_publicacion_resultado: isChecked(form, "autoriza_publicacion_resultado") } };
+  }
+
+  window.TAKARA_ORDER_BUILD_BRIDGE_V1 = Object.freeze({ context: buildItemsContext,
+    readFile: readFileAsDataUrl, capture: createVisualProofSafe, colorName: key => COLOR_LABELS[key] || "" });
 
   function deliveryPayloadFromQuote(quote, informativeLocality, municipalityMeta) {
     const municipality = normalizeMunicipalityMeta(municipalityMeta);

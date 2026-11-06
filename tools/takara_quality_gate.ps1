@@ -165,6 +165,12 @@ $RequiredFiles = @(
     "apps-script/takara-pedidos-web/DriveStorage.gs",
     "tools/takara_validar_order_media_module.py",
     "apps-script/takara-pedidos-web/OrderEmail.gs",
+    "apps-script/takara-pedidos-web/OrderItems.gs",
+    "apps-script/takara-pedidos-web/OrderItemsMedia.gs",
+    "apps-script/takara-pedidos-web/OrderItemsEmail.gs",
+    "assets/js/core/takara-cart.js",
+    "assets/js/takara-order-items.js",
+    "assets/js/takara-order-cart.js",
     "tools/takara_validar_order_email_module.py",
     "apps-script/takara-pedidos-web/OrderDelivery.gs",
     "apps-script/takara-pedidos-web/OrderFulfillment.gs",
@@ -212,12 +218,16 @@ if ($env:TAKARA_PLAYWRIGHT_MODULE) {
     if ($LASTEXITCODE -eq 0) { Ok "Navegador 3D, pedido y correos simulados" } else { Err "Fallo QA 3D en navegador" }
     node (Join-Path $PSScriptRoot "test_caja_browser.cjs") 2>&1 | ForEach-Object { Log-Line $_ }
     if ($LASTEXITCODE -eq 0) { Ok "Configurador de caja y transiciones entre productos" } else { Err "Fallo QA del configurador de caja" }
+    node (Join-Path $PSScriptRoot "test_order_items_browser.cjs") 2>&1 | ForEach-Object { Log-Line $_ }
+    if ($LASTEXITCODE -eq 0) { Ok "Pedido mixto y correos por artículo en navegador" } else { Err "Fallo QA del pedido mixto" }
 } elseif ($Mode -eq "prepush") {
     Err "Prepush requiere TAKARA_PLAYWRIGHT_MODULE para ejecutar la aceptacion 3D en navegador"
 } else {
     Warn "QA grafica no ejecutada: configura TAKARA_PLAYWRIGHT_MODULE antes de prepush"
 }
 $ErrorActionPreference = $Old3DErrorActionPreference
+node (Join-Path $PSScriptRoot "takara_test_order_items.js") 2>&1 | ForEach-Object { Log-Line $_ }
+if ($LASTEXITCODE -eq 0) { Ok "Pedido V3, archivos por cara, correos e idempotencia" } else { Err "Fallo contrato de pedidos por artículos" }
 
 if (Test-Path $PedidoPath) {
     $PedidoText = Read-Utf8 $PedidoPath

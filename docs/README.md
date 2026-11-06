@@ -12,6 +12,7 @@ volcado de conversaciones, estado temporal ni archivo de rescate.
 | Arquitectura global | `ARCHITECTURE.md` | Capas, límites y evolución técnica |
 | Sistema visual | `DESIGN_SYSTEM.md` | Tokens, componentes y reglas visuales |
 | Pedido web | `ORDER_ENGINE_CONTRACT.md` | Payload, validación, precio, entrega y correo |
+| Pedidos por artículos | `ORDER_ITEMS_CONTRACT.md` | Lista, contrato V3, cuatro fotos, archivos y correos por producto |
 | Idempotencia de pedido | `ORDER_IDEMPOTENCY_CONTRACT.md` | Ledger, fases, concurrencia, retry y recuperación manual |
 | Personalización de marco | `FRAME_TEXT_CONTRACT.md` | Geometría, lados, color, precio y contrato del texto del marco |
 | Protección anti-abuso | `PUBLIC_ABUSE_PROTECTION_CONTRACT.md` | Cuota, rate limits, honeypot y protección de efectos públicos |

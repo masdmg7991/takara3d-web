@@ -4,6 +4,9 @@ Estado: CORE V1-R0I
 Proyecto: Takara3D Web
 Objetivo: definir el contrato funcional del pedido web antes de tocar UI o logica nueva.
 
+La extensión local de pedidos mixtos se define en [ORDER_ITEMS_CONTRACT.md](ORDER_ITEMS_CONTRACT.md).
+Conserva V1/V2 y añade V3 para una caja o una lista de artículos configurados.
+
 ---
 
 ## 1. Principio maestro

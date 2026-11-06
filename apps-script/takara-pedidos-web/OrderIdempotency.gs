@@ -57,6 +57,7 @@ function canonicalizeOrderIdempotencyValue_(value) {
 }
 
 function buildOrderIdempotencyFingerprint_(pedido) {
+  if (pedido && pedido.contrato_entrada === "v3") return fingerprintPedidoV3_(pedido);
   const input = pedido || {};
   const source = {};
 

@@ -106,6 +106,14 @@ Antes de un despliegue Apps Script:
 
 Un commit o un push **no constituyen un despliegue del backend**.
 
+### Candidato local por artículos
+
+El contrato V3 de `ORDER_ITEMS_CONTRACT.md` está implementado localmente, pero no
+desplegado. `unreleased_features` lo identifica en el estado mecánico. El navegador
+bloquea envíos V3 fuera de localhost. La versión base declarada coincidente con LIVE
+no certifica equivalencia funcional del candidato con producción. Antes de promover
+esta extensión deben versionarse y desplegarse todos sus módulos y verificarse el ACK.
+
 ## Verificación posterior
 
 Tras una promoción deben comprobarse como mínimo:

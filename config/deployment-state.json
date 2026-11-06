@@ -13,6 +13,8 @@
   },
   "local": {
     "script_version": "TAKARA_PEDIDOS_WEB_APPS_SCRIPT_V1_20_0_STORE_PICKUP",
-    "status": "version_matches_live"
+    "status": "version_matches_live",
+    "unreleased_features": ["TAKARA_WEB_ORDER_PAYLOAD_V3"],
+    "publication": "local_only"
   }
 }

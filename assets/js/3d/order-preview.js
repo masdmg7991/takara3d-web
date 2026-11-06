@@ -112,6 +112,7 @@ function selectProduct(key) {
   editor?.setActive(product.hasText);
   if (product.hasFormat) setFormat(drafts.state.variant);
   window.TAKARA_DELIVERY_UI_V2?.refresh();
+  window.dispatchEvent(new CustomEvent("takara:product-change"));
 }
 
 async function initialize() {
@@ -134,6 +135,8 @@ async function initialize() {
     selectProduct(requested && Object.hasOwn(PRODUCTS, requested) ? requested : "marco");
     await editor.loadCatalog(); bindControls();
     window.TAKARA_PRODUCT_PREVIEW = Object.freeze({ getSnapshot: snapshot, getSelection: selection, assertOrderReady,
+      getConfiguration: () => ({ key: drafts.current, state: { ...engine.state }, quantity: form.querySelector('[name="cantidad"]').value }),
+      restoreConfiguration,
       async capture(expected) {
         assertOrderReady(expected);
         if (engine.error) throw new Error(engine.error);
@@ -148,6 +151,7 @@ async function initialize() {
       }
     });
     if (drafts.product.hasFormat) { setFormat(params.get("formato") || initial); if (photo()) changePhoto(); }
+    window.dispatchEvent(new CustomEvent("takara:preview-ready"));
   } catch (error) {
     initializationError = "No se ha podido iniciar el personalizador. Comprueba tu conexión y reintenta la carga.";
     showState({ ready: false, error: initializationError }); retry.hidden = false;
@@ -231,6 +235,27 @@ function syncLight() {
     const active = item.dataset.takaraLithoMode === drafts.state.light;
     item.classList.toggle("is-active", active); item.setAttribute("aria-pressed", String(active));
   }
+}
+function restoreConfiguration(configuration) {
+  if (engine.capturing) throw new Error("Espera a que termine la imagen del producto.");
+  const { key, state } = configuration;
+  photoErrors.delete(key); selectProduct(key);
+  const assign = (input, file) => {
+    const data = new DataTransfer(); if (file) data.items.add(file); input.files = data.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  detectedPhoto = state.photo;
+  if (drafts.product.hasFormat) {
+    assign(form.querySelector("[data-takara-photo-input]"), state.photo);
+    editor.restore(state.text); setFormat(state.variant);
+  } else {
+    for (const face of drafts.product.photoFaces) assign(document.querySelector(`[data-takara-caja-photo="${face}"]`), state.photos[face]);
+  }
+  update(state); syncColors(state.color); syncLight();
+  for (const option of document.querySelectorAll("[data-takara-base-color]")) option.checked = option.value === state.baseColor;
+  const quantity = form.querySelector('[name="cantidad"]'); quantity.value = configuration.quantity;
+  quantity.dispatchEvent(new Event("input", { bubbles: true }));
+  engine.viewer.setAttribute("camera-orbit", engine.variant.camera);
 }
 function buildBaseColors() {
   const root = document.querySelector("[data-takara-base-color-options]");

@@ -85,10 +85,14 @@ se desactiva y queda excluido de la validación, el suplemento y el payload de l
 Las fotos tienen un recorte cuadrado centrado; la interfaz lo explica. El límite
 conjunto de las cuatro es 20 MiB para contener memoria y tamaño de transporte.
 
-El pedido local contiene `archivos.fotos[]`, cada entrada con `cara`, original,
+El pedido local contiene `articulos[].archivos.fotos[]`, cada entrada con `cara`, original,
 nombre, MIME y tamaño; no reutiliza la primera foto como si representara las cuatro.
 La captura y los originales permanecen separados. El snapshot de inspección omite
 base64 recursivamente. El precio de 75 EUR procede del catálogo.
+
+El pedido por artículos V3 se define en `ORDER_ITEMS_CONTRACT.md`. La caja conserva
+sus cuatro originales y ambos colores sin necesitar captura; los marcos conservan
+su captura y su texto. Los artículos guardados tienen configuraciones independientes.
 
 Esta extensión requiere aceptación local antes de publicación. El catálogo público
 conserva WhatsApp y `configurador_disponible: false`; el cliente bloquea envíos reales

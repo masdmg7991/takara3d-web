@@ -595,6 +595,19 @@
             </aside>
           </div>
 
+          <section class="takara-order-cart" aria-labelledby="takara-cart-title">
+            <h2 id="takara-cart-title">Tu pedido</h2>
+            <p>Combina marcos y cajas. Cada artículo conserva sus fotos y acabados; la cantidad repite esa misma configuración.</p>
+            <div class="takara-order-cart__actions">
+              <div data-takara-item-quantity></div>
+              <button type="button" class="btn btn--primary" data-takara-cart-save disabled>+ Añadir este producto al pedido</button>
+              <button type="button" class="btn btn--ghost" data-takara-cart-cancel hidden>Cancelar edición</button>
+            </div>
+            <p data-takara-cart-status role="status" aria-live="polite">Puedes enviar un solo producto directamente o añadir varios a tu pedido.</p>
+            <div class="takara-order-cart__list" data-takara-cart-list></div>
+            <p class="takara-order-cart__note">Hasta 20 unidades y 20 MB de imágenes en el pedido completo. Las fotos permanecen en esta pestaña hasta que envíes la solicitud.</p>
+          </section>
+
           <section class="takara-preview-contact-panel" aria-label="Datos de contacto">
             <div class="takara-preview-contact-panel__head">
               <div>
@@ -778,6 +791,9 @@
   <script src="assets/js/core/takara-postal-national.js?v=postal-nacional-v1"></script>
   <script src="assets/js/takara-pedido-delivery.js?v=entrega-v2-2&amp;p=store-choice-v1"></script>
   <script src="assets/js/takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1-store-feedback-v1&amp;p=store-pickup-v1&amp;engine=3d-1"></script>
+  <script src="assets/js/core/takara-cart.js"></script>
+  <script src="assets/js/takara-order-items.js"></script>
+  <script src="assets/js/takara-order-cart.js" defer></script>
   <script type="module" src="assets/js/3d/order-preview.js?v=3d-4"></script>
   <script src="assets/js/takara-pedido-premium.js?v=entrega-v2-2" defer></script>
 </body>

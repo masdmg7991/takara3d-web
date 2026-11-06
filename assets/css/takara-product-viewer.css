@@ -6,7 +6,7 @@ body.pedido-premium .pedido-stl-aside { position: static; }
 body.pedido-premium [data-takara-pedido-form] { display: none !important; }
 body.pedido-premium main .pedido-stl-preview {
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-areas: "customizer" "contact" "delivery" "submit" !important;
+  grid-template-areas: "customizer" "cart" "contact" "delivery" "submit" !important;
   overflow: visible !important;
 }
 .takara-product-customizer {
@@ -26,6 +26,21 @@ body.pedido-premium main .takara-preview-config-panel { display: contents; }
 .takara-preview-config-section--frame-text { grid-area: text; }
 .takara-product-customizer [hidden] { display: none !important; }
 .takara-delivery-summary [hidden] { display: none !important; }
+.takara-order-cart { grid-area: cart; padding: 1.1rem; border: 1px solid #806c5b; border-radius: 14px; background: #33271f; color: #f4e6d4; }
+body.pedido-premium main .takara-order-cart h2 { margin: 0 0 .5rem; color: #fff4e2; }
+.takara-order-cart > p { font-size: .88rem; line-height: 1.5; }
+.takara-order-cart__actions { display: flex; align-items: end; gap: .75rem; flex-wrap: wrap; margin: 1rem 0; }
+.takara-order-cart label { display: grid; gap: .4rem; font-size: .85rem; }
+.takara-order-cart input[type="number"] { max-width: 8rem; min-height: 44px; padding: .5rem; border: 1px solid #a28b76; border-radius: 8px; background: #f6eee3; color: #432c23; font: inherit; }
+.takara-order-cart__list { display: grid; gap: .75rem; }
+.takara-order-cart__item { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1rem; border: 1px solid #806c5b; border-radius: 12px; background: #403127; }
+.takara-order-cart__item h3 { margin: 0 0 .4rem; color: #fff2dc; font-size: 1.05rem; }
+.takara-order-cart__item p { margin: .35rem 0; font-size: .85rem; line-height: 1.5; overflow-wrap: anywhere; }
+.takara-order-cart__item-controls { display: flex; gap: .5rem; flex-wrap: wrap; align-items: end; }
+.takara-order-cart button { min-height: 44px; }
+.takara-order-cart [hidden] { display: none !important; }
+.takara-order-cart__note { color: #d5c0aa; font-size: .78rem !important; }
+.takara-order-cart [data-state="error"] { color: #ffb7a6; }
 .takara-product-choice { grid-area: product; padding: 1rem; border: 1px solid #806c5b; border-radius: 14px; background: linear-gradient(130deg, #3f2e24, #30231d); }
 .takara-product-choice fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
 .takara-product-choice legend { margin-bottom: .7rem; color: #fff8ed; font-size: 1rem; font-weight: 700; }

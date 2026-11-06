@@ -40,7 +40,7 @@ export class FrameTextEditor {
     this.valid=true;
     this.error="";
     this._onSubmit=event=>{
-      if (this.active !== false && !this.valid && this.state.enabled && this.state.selected_sides.length) {
+      if (!window.TAKARA_ORDER_CART?.hasItems() && this.active !== false && !this.valid && this.state.enabled && this.state.selected_sides.length) {
         event.preventDefault();
         event.stopImmediatePropagation();
         this.#showError();
@@ -64,6 +64,14 @@ export class FrameTextEditor {
   }
   setActive(active) {
     this.active = active;
+    this.#render();
+  }
+  restore(state) {
+    this.state = { ...state, texts: { ...state.texts }, selected_sides: [...state.selected_sides] };
+    this.enabled.checked = state.enabled;
+    this.activeSide = state.selected_sides[0] || null;
+    for (const side of SIDES) { const field = this.#field(side); if (field) field.value = state.texts[side] || ""; }
+    for (const option of this.root.querySelectorAll('input[name="color_texto_marco"]')) option.checked = option.value === state.letter_color;
     this.#render();
   }
   #field(side) {

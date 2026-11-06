@@ -5,6 +5,7 @@
  */
 
 function prepararFotoOriginal_(idPedidoWeb, archivos) {
+  if (Array.isArray(archivos.articulos)) return prepararArchivosPedidoV3_(idPedidoWeb, archivos);
   const parsed = parseFotoBase64_(archivos.foto_base64, archivos.content_type);
 
   if (!parsed.base64) {
@@ -57,6 +58,7 @@ function prepararFotoOriginal_(idPedidoWeb, archivos) {
 }
 
 function guardarFoto_(fotoPreparada, folder) {
+  if (fotoPreparada.tipo === "articulos_v3") return guardarArchivosPedidoV3_(fotoPreparada, folder);
   const file = folder.createFile(fotoPreparada.blob);
 
   return {
@@ -194,6 +196,7 @@ function prepararFichaVisual_(idPedidoWeb, archivos) {
 }
 
 function prepararFichaVisualSegura_(idPedidoWeb, archivos) {
+  if (Array.isArray(archivos.articulos)) return { ficha_visual_recibida: false, estado: "por_articulo", blob: null };
   try {
     validarFichaVisual_(archivos);
     return prepararFichaVisual_(idPedidoWeb, archivos);

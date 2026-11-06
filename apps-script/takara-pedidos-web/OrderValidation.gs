@@ -81,6 +81,7 @@ function validarSnapshotV2_(pedido) {
 }
 
 function validarPedido_(pedido) {
+  if (pedido && pedido.contrato_entrada === "v3") return validarPedidoV3_(pedido);
   if (pedido && pedido.contrato_entrada === "v1_compat") {
     return validarPedidoV1Compat_(pedido);
   }

@@ -436,6 +436,10 @@
   }
 
   function getPricing(nodes, state) {
+    const cartQuote = window.TAKARA_ORDER_CART?.getQuote();
+    if (cartQuote) return { base: 0, baseSubtotal: cartQuote.baseSubtotal,
+      sideCount: cartQuote.supplementSubtotal > 0 ? 1 : 0, supplement: 0, supplementSubtotal: cartQuote.supplementSubtotal,
+      quantity: cartQuote.quantity, productSubtotal: cartQuote.productSubtotal };
     const product = getProduct(nodes, state);
     const selected = nodes.form.querySelector('[name="codigo_producto"]');
     if (!product && selected && selected.value !== PRODUCT_CODE) {
@@ -822,12 +826,13 @@
 
   function renderPricing(nodes, pricing, quote, totals, deliveryApi) {
     if (nodes.product) {
-      nodes.product.textContent = pricing.available === false ? "Pendiente" : deliveryApi.formatEuro(pricing.base * pricing.quantity);
+      nodes.product.textContent = pricing.available === false ? "Pendiente" : deliveryApi.formatEuro(
+        pricing.baseSubtotal === undefined ? pricing.base * pricing.quantity : pricing.baseSubtotal);
     }
 
     if (nodes.personalization) {
       nodes.personalization.textContent = pricing.sideCount > 0
-        ? "+" + deliveryApi.formatEuro(pricing.supplement * pricing.quantity)
+        ? "+" + deliveryApi.formatEuro(pricing.supplementSubtotal === undefined ? pricing.supplement * pricing.quantity : pricing.supplementSubtotal)
         : "Sin personalización";
     }
 
