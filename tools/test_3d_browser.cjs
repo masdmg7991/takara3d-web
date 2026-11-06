@@ -282,6 +282,8 @@ async function main() {
       passed(label+": offscreen JPEG is current; same viewer restored without scrolling or duplication");
       if (reportDir) fs.writeFileSync(path.join(reportDir, label + "-order.jpg"), Buffer.from(horizontal.data, "base64"));
 
+      // Exercise the retained legacy V2 transport independently of the basket UI.
+      await page.evaluate(() => window.TAKARA_ORDER_FLOW.show("checkout", false));
       for (const [field, value] of Object.entries({ nombre: "Prueba local", telefono: "600000000", email: "test@example.invalid" })) {
         await page.locator(`[data-takara-contact-proxy="${field}"]`).fill(value);
       }
@@ -317,6 +319,7 @@ async function main() {
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "No horizontal overflow");
       if (reportDir) await page.screenshot({ path: path.join(reportDir, label + "-page.png"), fullPage: true });
       await page.locator("[data-takara-pedido-toast] button, [data-takara-pedido-modal] button").first().click();
+      await page.evaluate(() => window.TAKARA_ORDER_FLOW.show("customize", false));
       // Same-name file must be decoded by identity; corrupt bytes cannot reuse a prior photo.
       await page.locator("[data-takara-photo-input]").setInputFiles({ name: "synthetic.png", mimeType: "image/png", buffer: Buffer.from("invalid image") });
       await page.waitForFunction(() => window.TAKARA_PRODUCT_PREVIEW.getSnapshot().errorCode === "INVALID_PHOTO");

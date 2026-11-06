@@ -171,6 +171,7 @@ $RequiredFiles = @(
     "assets/js/core/takara-cart.js",
     "assets/js/takara-order-items.js",
     "assets/js/takara-order-cart.js",
+    "assets/js/takara-order-flow.js",
     "tools/takara_validar_order_email_module.py",
     "apps-script/takara-pedidos-web/OrderDelivery.gs",
     "apps-script/takara-pedidos-web/OrderFulfillment.gs",

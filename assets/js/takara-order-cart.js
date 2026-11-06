@@ -37,11 +37,17 @@
       list.replaceChildren();
       for (const item of cart.items) {
         const p = item.producto, row = element("article", undefined, "takara-order-cart__item"); row.dataset.takaraCartItem = item.id;
-        const description = element("div"); description.append(element("h3", item.id + " · " + p.formato));
+        const thumbnail = element("img"); thumbnail.src = item.archivos.fotos[0].foto_base64;
+        thumbnail.alt = ""; thumbnail.width = 64; thumbnail.height = 64;
+        const description = element("div", undefined, "takara-order-cart__description"); description.append(element("h3", item.id + " · " + p.formato));
         description.append(element("p", p.color_peana ? "Cuerpo: " + p.color_cuerpo + " · Peana: " + p.color_peana : "Color: " + p.color_marco));
-        if (p.personalizacion_marco) description.append(element("p", "Texto: " + Object.values(p.personalizacion_marco.lados).join(" · ")));
-        description.append(element("p", item.archivos.fotos.map(photo => photo.cara + ": " + photo.nombre_archivo).join(" · ")));
-        description.append(element("p", "Precio unitario: " + Number(p.precio_unitario_final_eur).toFixed(2).replace(".", ",") + " € · Subtotal: " + Number(p.precio_total_eur).toFixed(2).replace(".", ",") + " €"));
+        const details = element("details", undefined, "takara-order-cart__details");
+        details.append(element("summary", item.archivos.fotos.length + (item.archivos.fotos.length === 1 ? " foto · Ver detalles" : " fotos · Ver detalles")));
+        if (p.personalizacion_marco) details.append(element("p", "Texto: " + Object.values(p.personalizacion_marco.lados).join(" · ")));
+        for (const photo of item.archivos.fotos) details.append(element("p", photo.cara + ": " + photo.nombre_archivo));
+        details.append(element("p", "Precio unitario: " + Number(p.precio_unitario_final_eur).toFixed(2).replace(".", ",") + " €"));
+        description.append(details);
+        const price = element("strong", Number(p.precio_total_eur).toFixed(2).replace(".", ",") + " €", "takara-order-cart__price");
         const controls = element("div", undefined, "takara-order-cart__item-controls"), label = element("label", "Cantidad");
         const quantity = document.createElement("input"); quantity.type = "number"; quantity.min = "1"; quantity.max = "20"; quantity.step = "1";
         quantity.value = p.cantidad; quantity.setAttribute("aria-label", "Cantidad de " + item.id); label.append(quantity);
@@ -57,16 +63,21 @@
           save.textContent = "Guardar cambios de " + item.id; cancel.hidden = false;
           message("Estás editando " + item.id + ". Guarda los cambios antes de enviar.");
           render();
-          document.querySelector(".takara-product-choice").scrollIntoView({ block: "start", behavior: "smooth" });
+          window.dispatchEvent(new Event("takara:cart-edit"));
         });
         const remove = element("button", "Quitar", "btn btn--ghost"); remove.type = "button"; remove.setAttribute("aria-label", "Quitar " + item.id);
         remove.addEventListener("click", () => { if (busy) return; if (editingId === item.id) cancel.click(); cart.remove(item.id); configurations.delete(item.id); render(); });
         quantity.disabled = busy || !!editingId; edit.disabled = busy || !!editingId; remove.disabled = busy || !!editingId;
-        controls.append(label, edit, remove); row.append(description, controls); list.append(row);
+        controls.append(label, edit, remove); row.append(thumbnail, description, price, controls); list.append(row);
       }
       refreshSummary();
-      if (!editingId) message(cart.items.length ? "El envío incluirá los artículos de esta lista. Añade el producto actual si también quieres incluirlo."
-        : "Puedes enviar un solo producto directamente o añadir varios a tu pedido.");
+      root.querySelector("[data-takara-cart-saved]").hidden = !cart.items.length;
+      const pricing = quote();
+      root.querySelector("[data-takara-cart-count]").textContent = pricing ? pricing.quantity + (pricing.quantity === 1 ? " unidad añadida" : " unidades añadidas") : "Productos añadidos";
+      root.querySelector("[data-takara-cart-total]").textContent = pricing ? pricing.productSubtotal.toFixed(2).replace(".", ",") + " €" : "";
+      if (!editingId) message(cart.items.length ? "Estos productos ya están añadidos. Puedes continuar o preparar otro."
+        : "Personaliza tu producto y añádelo cuando esté listo.");
+      window.dispatchEvent(new Event("takara:cart-change"));
     }
     save.addEventListener("click", async () => {
       if (busy) return;
@@ -78,13 +89,13 @@
         editingId = null; beforeEdit = null; cancel.hidden = true; save.textContent = "+ Añadir este producto al pedido";
         saved = true;
       } catch (error) { message(error.message, true); }
-      finally { busy = false; list.inert = false; save.disabled = false; cancel.disabled = false; if (saved) render(); }
+      finally { busy = false; list.inert = false; save.disabled = false; cancel.disabled = false; if (saved) { render(); window.dispatchEvent(new Event("takara:cart-saved")); } }
     });
     cancel.addEventListener("click", () => {
       if (busy) return;
       editingId = null; cancel.hidden = true; save.textContent = "+ Añadir este producto al pedido";
       if (beforeEdit) window.TAKARA_PRODUCT_PREVIEW.restoreConfiguration(beforeEdit);
-      beforeEdit = null; render();
+      beforeEdit = null; render(); window.dispatchEvent(new Event("takara:cart-cancel"));
     });
     window.TAKARA_ORDER_CART = Object.freeze({ hasItems: () => cart.items.length > 0, getItems: () => cart.items.slice(),
       getQuote: quote, editing: () => !!editingId || busy, getRevision: () => cart.revision,

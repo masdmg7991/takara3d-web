@@ -10,7 +10,13 @@ const server = http.createServer((req, res) => {
   res.setHeader("Content-Type", mime[path.extname(file)] || "application/octet-stream"); fs.createReadStream(file).pipe(res);
 });
 const ready = page => page.waitForFunction(() => window.TAKARA_PRODUCT_PREVIEW?.getSnapshot().ready, null, { timeout: 55000 });
-const choose = (page, key) => page.locator(`label:has([data-takara-product-option][value="${key}"])`).click();
+async function customize(page) {
+  if (await page.locator("[data-takara-order-another]").isVisible()) await page.locator("[data-takara-order-another]").click();
+}
+async function choose(page, key) {
+  await customize(page);
+  await page.locator(`label:has([data-takara-product-option][value="${key}"])`).click();
+}
 async function save(page, count) {
   await page.locator("[data-takara-cart-save]").click();
   await page.waitForFunction(count => document.querySelectorAll("[data-takara-cart-item]").length === count && !window.TAKARA_ORDER_CART.editing(), count, { timeout: 40000 });
@@ -38,6 +44,10 @@ async function main() {
         if (msg.type() === "log" && msg.text().startsWith("[Takara pedido dry-run payload completo]")) rawPayload = await msg.args()[1].jsonValue();
       });
       await page.goto(origin + "/pedido.html"); await ready(page);
+      assert.equal(await page.locator(".takara-preview-contact-panel").isVisible(), false);
+      assert.equal(await page.locator(".takara-product-customizer").isVisible(), true);
+      await page.waitForFunction(() => document.querySelector("[data-takara-draft-price]").textContent === "35,00 €");
+      if (output) await page.screenshot({ path: path.join(output, label + "-personalizar.png"), fullPage: true });
       const images = await page.evaluate(() => Array.from({ length: 6 }, (_, i) => {
         const c = document.createElement("canvas"); c.width = i === 5 ? 640 : 400; c.height = i === 4 ? 600 : 400;
         const x = c.getContext("2d"); x.fillStyle = "#eee"; x.fillRect(0, 0, c.width, c.height);
@@ -50,11 +60,13 @@ async function main() {
       await page.locator(".takara-frame-text-switch").click(); await page.locator('[data-takara-frame-side-toggle="top"]').click();
       await page.locator('[data-takara-frame-text-input="top"]').fill("MI TAKARA"); await ready(page); await save(page, 1);
       assert.equal(await page.getByRole("button", { name: "Editar A01", exact: true }).isEnabled(), true);
+      assert.equal(await page.locator(".takara-product-customizer").isVisible(), false);
       await choose(page, "caja"); await ready(page);
       for (const [i, face] of ["frontal", "derecha", "trasera", "izquierda"].entries()) {
         await page.locator(`[data-takara-caja-photo="${face}"]`).setInputFiles(photo(i, `caja-uno-${face}.png`)); await ready(page);
       }
       await page.locator('label:has([data-takara-base-color="actual"])').click(); await ready(page); await save(page, 2);
+      await customize(page);
       await page.locator('label:has([data-takara-color-proxy="rosewood"])').click();
       await page.locator('label:has([data-takara-base-color="blanco-mate"])').click(); await ready(page);
       for (const [i, face] of ["frontal", "derecha", "trasera", "izquierda"].entries()) {
@@ -82,10 +94,24 @@ async function main() {
       assert.equal(await page.evaluate(() => window.TAKARA_PRODUCT_PREVIEW.getSnapshot().state.variant), "vertical");
       await page.locator("[data-takara-cart-cancel]").click(); await ready(page);
       // An unfinished draft must not contaminate the four saved articles at checkout.
+      await customize(page);
       await page.locator(".takara-frame-text-switch").click(); await page.locator('[data-takara-frame-side-toggle="top"]').click();
+      // Return to the saved order without saving that unfinished draft.
+      await page.locator("[data-takara-order-review]").click();
+      if (output) await page.screenshot({ path: path.join(output, label + "-revision.png"), fullPage: true });
+      await page.locator("[data-takara-order-continue]").click();
+      assert.equal(await page.locator(".takara-product-customizer").isVisible(), false);
+      assert.equal(await page.locator(".takara-preview-contact-panel").isVisible(), true);
+      await page.locator("[data-takara-order-back]").click();
+      assert.equal(await page.locator(".takara-preview-contact-panel").isVisible(), false);
+      await page.locator("[data-takara-order-continue]").click();
       for (const [key, value] of Object.entries({ nombre: "Prueba de pedido mixto", telefono: "600000000", email: "test@example.invalid" })) {
         await page.locator(`[data-takara-contact-proxy="${key}"]`).fill(value);
       }
+      await page.locator("[data-takara-order-back]").click();
+      await page.locator("[data-takara-order-continue]").click();
+      assert.equal(await page.locator('[data-takara-contact-proxy="email"]').inputValue(), "test@example.invalid");
+      assert.equal(await page.locator("[data-takara-cart-saved]").evaluate(node => node.open), false);
       await page.locator("[data-takara-delivery-postal]").fill("28911"); await page.locator("[data-takara-delivery-postal]").blur();
       await page.waitForFunction(() => document.querySelector('[name="modalidad_entrega"]').value !== "");
       for (const key of ["acepta_contacto", "acepta_revision"]) await page.locator(`[data-takara-accept-proxy="${key}"]`).check();
@@ -126,6 +152,7 @@ async function main() {
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       await page.evaluate(() => window.TAKARA_ORDER_CART.complete());
       assert.equal(await page.locator("[data-takara-cart-item]").count(), 0);
+      assert.equal(await page.locator(".takara-product-customizer").isVisible(), true);
       assert.equal(await page.locator("[data-takara-summary-product-name]").textContent(), "Marco con litofanía");
       assert.deepEqual(errors, []); assert.deepEqual(external, []);
       console.log("[PASS] " + label + ": two independent boxes, vertical text frame, horizontal frame, edit/cancel/remove/quantity, shared delivery, real backend, two matching emails, retry without duplicates");

@@ -12,7 +12,16 @@ la misma configuración; fotos distintas requieren otro artículo. Añadir, edit
 cancelar, quitar y cambiar cantidades recalculan la lista. Editar restaura File,
 orientación, texto y ambos colores. Compilar rechaza cambios concurrentes.
 
-Con lista vacía se conserva el envío directo del marco V2. Una caja sola o una
+La interfaz muestra tres momentos: personalización, revisión compacta del pedido
+y datos/entrega. `takara-order-flow.js` cambia la visibilidad sin reconstruir el
+visor ni los campos. Añadir abre la revisión; añadir otro recupera el borrador;
+editar y cancelar conservan el comportamiento del carrito. Volver desde los datos
+no borra campos ni consentimientos. La lista usa miniaturas decorativas y detalles
+plegados; cantidades, edición y eliminación siguen disponibles. El foco identifica
+el paso nuevo y se respeta la preferencia de movimiento reducido.
+
+Con lista vacía se conserva internamente el envío directo del marco V2 para
+compatibilidad; el flujo visible añade el artículo antes de continuar. Una caja sola o una
 lista explícita usan `TAKARA_WEB_ORDER_PAYLOAD_V3`. Con artículos guardados, solo
 se envía esa lista; el borrador actual no se añade implícitamente. Una edición
 en curso bloquea el envío. El consentimiento cubre todas las imágenes de la lista.

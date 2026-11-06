@@ -6,7 +6,9 @@ body.pedido-premium .pedido-stl-aside { position: static; }
 body.pedido-premium [data-takara-pedido-form] { display: none !important; }
 body.pedido-premium main .pedido-stl-preview {
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-areas: "customizer" "cart" "contact" "delivery" "submit" !important;
+  grid-template-areas: "steps" "customizer" "cart" "contact" "delivery" "submit" !important;
+  row-gap: clamp(1.5rem, 3vw, 2.5rem) !important;
+  min-height: 0 !important;
   overflow: visible !important;
 }
 .takara-product-customizer {
@@ -41,6 +43,45 @@ body.pedido-premium main .takara-order-cart h2 { margin: 0 0 .5rem; color: #fff4
 .takara-order-cart [hidden] { display: none !important; }
 .takara-order-cart__note { color: #d5c0aa; font-size: .78rem !important; }
 .takara-order-cart [data-state="error"] { color: #ffb7a6; }
+/* Reveal only the current task; hidden panels retain their inputs and photos. */
+body.pedido-premium main .pedido-stl-preview > [hidden] { display: none !important; }
+body.pedido-premium main .pedido-stl-preview[data-order-step="customize"] { grid-template-areas: "steps" "customizer" "cart" !important; }
+body.pedido-premium main .pedido-stl-preview[data-order-step="review"] { grid-template-areas: "steps" "cart" !important; }
+body.pedido-premium main .pedido-stl-preview[data-order-step="checkout"] { grid-template-areas: "steps" "cart" "contact" "delivery" "submit" !important; }
+.takara-order-steps { grid-area: steps; color: #d9c6ae; }
+.takara-order-steps ol { display: flex; justify-content: center; gap: clamp(.75rem, 4vw, 3rem); list-style: none; padding: .5rem 0; margin: 0; }
+.takara-order-steps li { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+.takara-order-steps li > span { display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border: 1px solid #8c7761; border-radius: 50%; }
+.takara-order-steps [aria-current="step"] { color: #fff1da; font-weight: 700; }
+.takara-order-steps [aria-current="step"] > span { background: #d49c3c; border-color: #d49c3c; color: #291f17; }
+.takara-order-cart { padding: clamp(1.1rem, 3vw, 2rem); }
+.takara-order-cart__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.takara-order-cart__head > strong { white-space: nowrap; font-size: 1.15rem; }
+.takara-order-cart__saved > summary { padding: .85rem 0; cursor: pointer; color: #f4dfbf; }
+.takara-order-cart__item { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: start; gap: .75rem 1rem; padding: 1rem 0; border: 0; border-top: 1px solid #6a5645; border-radius: 0; background: transparent; }
+.takara-order-cart__item > img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; background: #eadcc7; }
+.takara-order-cart__description { min-width: 0; }
+.takara-order-cart__item h3 { font-size: 1rem; line-height: 1.4; }
+.takara-order-cart__item p { color: #dcc8af; }
+.takara-order-cart__price { white-space: nowrap; }
+.takara-order-cart__details summary { font-size: .8rem; color: #eed4ad; cursor: pointer; padding: .4rem 0; }
+.takara-order-cart__item-controls { grid-column: 2 / -1; align-items: center; }
+.takara-order-cart__item-controls label { display: flex; align-items: center; }
+.takara-order-cart__item-controls input { width: 4rem; }
+.takara-order-cart__item-controls .btn { padding: .45rem .85rem; background: transparent; box-shadow: none; }
+.takara-order-cart__next { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; margin-top: .5rem; border-top: 1px solid #6a5645; }
+.takara-order-cart__note { margin-top: 1.25rem; line-height: 1.6; }
+.takara-order-cart__note summary { cursor: pointer; }
+.takara-order-cart h2, .takara-preview-contact-panel h2, .takara-product-choice legend { scroll-margin-top: 2rem; }
+@media (max-width: 600px) {
+  .takara-order-steps li { flex-direction: column; gap: .4rem; font-size: .72rem; text-align: center; }
+  .takara-order-steps ol { justify-content: space-around; gap: .5rem; }
+  .takara-order-cart__item { grid-template-columns: 48px minmax(0, 1fr) auto; gap: .65rem; }
+  .takara-order-cart__item > img { width: 48px; height: 56px; }
+  .takara-order-cart__item-controls { grid-column: 1 / -1; }
+  .takara-order-cart__next { flex-direction: column-reverse; }
+  .takara-order-cart__next .btn { width: 100%; }
+}
 .takara-product-choice { grid-area: product; padding: 1rem; border: 1px solid #806c5b; border-radius: 14px; background: linear-gradient(130deg, #3f2e24, #30231d); }
 .takara-product-choice fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
 .takara-product-choice legend { margin-bottom: .7rem; color: #fff8ed; font-size: 1rem; font-weight: 700; }

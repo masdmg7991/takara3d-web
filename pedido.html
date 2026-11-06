@@ -371,6 +371,9 @@
 
       <aside class="pedido-stl-aside">
         <div class="pedido-stl-preview">
+          <nav class="takara-order-steps" aria-label="Pasos de tu pedido" hidden>
+            <ol><li data-takara-step="customize" aria-current="step"><span>1</span> Personaliza</li><li data-takara-step="review"><span>2</span> Tu pedido</li><li data-takara-step="checkout"><span>3</span> Datos y entrega</li></ol>
+          </nav>
           <div class="takara-product-customizer">
             <section class="takara-product-choice" aria-label="Producto a personalizar">
               <fieldset>
@@ -596,16 +599,24 @@
           </div>
 
           <section class="takara-order-cart" aria-labelledby="takara-cart-title">
-            <h2 id="takara-cart-title">Tu pedido</h2>
-            <p>Combina marcos y cajas. Cada artículo conserva sus fotos y acabados; la cantidad repite esa misma configuración.</p>
+            <div class="takara-order-cart__head"><h2 id="takara-cart-title" tabindex="-1">Tu pedido</h2><strong data-takara-draft-price aria-live="polite"></strong><strong data-takara-cart-total></strong></div>
             <div class="takara-order-cart__actions">
               <div data-takara-item-quantity></div>
               <button type="button" class="btn btn--primary" data-takara-cart-save disabled>+ Añadir este producto al pedido</button>
               <button type="button" class="btn btn--ghost" data-takara-cart-cancel hidden>Cancelar edición</button>
+              <button type="button" class="btn btn--ghost" data-takara-order-review hidden>Ver mi pedido</button>
             </div>
-            <p data-takara-cart-status role="status" aria-live="polite">Puedes enviar un solo producto directamente o añadir varios a tu pedido.</p>
-            <div class="takara-order-cart__list" data-takara-cart-list></div>
-            <p class="takara-order-cart__note">Hasta 20 unidades y 20 MB de imágenes en el pedido completo. Las fotos permanecen en esta pestaña hasta que envíes la solicitud.</p>
+            <p data-takara-cart-status role="status" aria-live="polite">Personaliza tu producto y añádelo cuando esté listo.</p>
+            <details class="takara-order-cart__saved" data-takara-cart-saved hidden>
+              <summary data-takara-cart-count>Productos añadidos</summary>
+              <div class="takara-order-cart__list" data-takara-cart-list></div>
+            </details>
+            <div class="takara-order-cart__next" hidden>
+              <button type="button" class="btn btn--ghost" data-takara-order-another>Añadir otro producto</button>
+              <button type="button" class="btn btn--primary" data-takara-order-continue>Continuar con el pedido</button>
+            </div>
+            <button type="button" class="btn btn--ghost" data-takara-order-back hidden>Volver a tu pedido</button>
+            <details class="takara-order-cart__note"><summary>Sobre las fotos de tu pedido</summary><p>Hasta 20 unidades y 20 MB de imágenes. Las fotos permanecen en esta pestaña hasta que envíes la solicitud. Mantén la pestaña abierta para conservarlas.</p></details>
           </section>
 
           <section class="takara-preview-contact-panel" aria-label="Datos de contacto">
@@ -794,6 +805,7 @@
   <script src="assets/js/core/takara-cart.js"></script>
   <script src="assets/js/takara-order-items.js"></script>
   <script src="assets/js/takara-order-cart.js" defer></script>
+  <script src="assets/js/takara-order-flow.js" defer></script>
   <script type="module" src="assets/js/3d/order-preview.js?v=3d-4"></script>
   <script src="assets/js/takara-pedido-premium.js?v=entrega-v2-2" defer></script>
 </body>

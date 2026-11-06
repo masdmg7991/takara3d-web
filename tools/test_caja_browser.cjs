@@ -136,6 +136,9 @@ async function main() {
       assert.ok(await page.evaluate(() => Object.values(window.TAKARA_PRODUCT_PREVIEW.getSnapshot().details.photos).every(p => p.hasPhoto)));
       assert.equal(await page.locator("model-viewer").count(), 1);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1); assert.equal(overflow, false);
+      await page.locator("[data-takara-cart-save]").click();
+      await page.waitForFunction(() => window.TAKARA_ORDER_CART.hasItems() && !window.TAKARA_ORDER_CART.editing());
+      await page.locator("[data-takara-order-continue]").click();
       for (const [field, value] of Object.entries({ nombre: "Prueba caja", telefono: "600000000", email: "test@example.invalid" })) {
         await page.locator(`[data-takara-contact-proxy="${field}"]`).fill(value);
       }
