@@ -82,7 +82,7 @@ def validate_client() -> None:
 
     require(
         re.search(
-            r"const\s+personalizacionMarco\s*=\s*parseFrameTextPersonalization\s*\(",
+            r"const\s+personalizacionMarco\s*=\s*(?:isBox\s*\?\s*null\s*:\s*)?parseFrameTextPersonalization\s*\(",
             source,
         )
         is not None,

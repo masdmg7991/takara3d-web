@@ -55,6 +55,11 @@ móvil emulado, fotografía, texto, colores, formatos, captura, pedido V2, corre
 recuperación y un segundo producto. No certifica Safari, iOS ni un teléfono físico.
 Un gate sin esa ejecución gráfica no equivale a aceptación de producción.
 
+El gate también ejecuta `test_products_3d.mjs` y `test_caja_browser.cjs`: perfiles,
+borradores independientes, cuatro superficies y sus UV, cambio entre marco y caja,
+texto excluido de la caja, recuperación de fotos y pedido local de cuatro imágenes.
+`TAKARA_CAJA_REPORT_DIR` permite guardar sus evidencias fuera del repositorio.
+
 ## Resultado
 
 - `OK`: comprobación correcta.

@@ -68,6 +68,45 @@ El cliente siempre ve que la imagen es orientativa y se revisa antes de fabricar
 
 ## Validación y límites
 
+### Extensión local de varios productos
+
+`products.js` registra capacidades y borradores independientes por familia.
+`ProductViewer` permanece independiente del producto. `finishes.js` comparte
+los acabados aprobados sin alterar la apariencia del marco. Cambiar de producto
+libera el controlador anterior y conserva los File y opciones en memoria durante
+la visita; no guarda fotografías en almacenamiento persistente.
+
+La caja utiliza `caja-product.js`: cuatro superficies de 100 × 100 mm, una foto
+por cara (frontal, derecha, trasera e izquierda), color y luz. No tiene formato
+vertical/horizontal ni texto. El texto del marco se conserva al cambiar, pero
+se desactiva y queda excluido de la validación, el suplemento y el payload de la caja.
+Las fotos tienen un recorte cuadrado centrado; la interfaz lo explica. El límite
+conjunto de las cuatro es 20 MiB para contener memoria y tamaño de transporte.
+
+El pedido local contiene `archivos.fotos[]`, cada entrada con `cara`, original,
+nombre, MIME y tamaño; no reutiliza la primera foto como si representara las cuatro.
+La captura y los originales permanecen separados. El snapshot de inspección omite
+base64 recursivamente. El precio de 75 EUR procede del catálogo.
+
+Esta extensión requiere aceptación local antes de publicación. El catálogo público
+conserva WhatsApp y `configurador_disponible: false`; el cliente bloquea envíos reales
+de la caja. El backend actualmente publicado solo acepta el marco. Activar la caja
+en producción requiere adaptar y probar validación de las cuatro imágenes, archivos,
+idempotencia, persistencia y correos antes de quitar esa restricción.
+
+El GLB local se obtiene con `tools/export_caja_glb.py` de las piezas de SolidWorks
+abiertas en modo de solo lectura. No contiene CAD originales ni fotografías privadas.
+Respeta la teselación y las normales de CAD; comparte vértices con normales idénticas.
+El cuerpo ya contiene la parte superior: no se superpone `Tapa_Cuerpo`.
+Las posiciones de USB e interruptor son provisionales para revisión: el ensamblaje
+anterior referencia componentes ausentes y no determina el montaje V2 actual.
+No representa una simulación mecánica del rodamiento; el cliente puede girar el visor
+360°. La procedencia y las traslaciones están explícitas en el exportador.
+
+`test_caja_browser.cjs` cubre las cuatro caras, cambios de producto con borradores,
+aislamiento del texto, colores, luz, captura, fotos inválidas y pedido local en
+escritorio y móvil emulado. Bloquea todas las conexiones externas.
+
 `takara_validar_3d.py` protege la identidad de los GLB y la separación del núcleo.
 Las pruebas de ciclo de vida cubren revisiones obsoletas, retry y liberación.
 `test_3d_browser.cjs` comprueba con WebGL real los recorridos de escritorio y

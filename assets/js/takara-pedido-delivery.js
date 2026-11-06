@@ -414,11 +414,14 @@
     const catalog = state.catalog;
     if (!catalog || !Array.isArray(catalog.productos)) return null;
     return catalog.productos.find(function (product) {
-      return product && product.codigo === PRODUCT_CODE;
+      const selected = nodes.form.querySelector('[name="codigo_producto"]');
+      return product && product.codigo === (selected && selected.value || PRODUCT_CODE);
     }) || null;
   }
 
   function getPersonalizationCount(nodes) {
+    const selected = nodes.form.querySelector('[name="codigo_producto"]');
+    if (selected && selected.value !== PRODUCT_CODE) return 0;
     const field = nodes.form.querySelector('[name="personalizacion_marco"]');
     const raw = field && typeof field.value === "string" ? field.value.trim() : "";
     if (!raw) return 0;
@@ -434,6 +437,11 @@
 
   function getPricing(nodes, state) {
     const product = getProduct(nodes, state);
+    const selected = nodes.form.querySelector('[name="codigo_producto"]');
+    if (!product && selected && selected.value !== PRODUCT_CODE) {
+      return { available: false, base: 0, sideCount: 0, supplement: 0, unit: 0,
+        quantity: getQuantity(nodes), productSubtotal: 0 };
+    }
     const base = product ? Number(product.precio_base_eur) : 35;
     const quantity = getQuantity(nodes);
     const sideCount = getPersonalizationCount(nodes);
@@ -778,7 +786,7 @@
     const pricing = getPricing(nodes, state);
     if (state.fulfillmentMethod === "STORE_PICKUP" && state.pickupContext) {
       const quote = pickupQuote();
-      const totals = deliveryApi.calculateTotals(pricing.productSubtotal, quote);
+      const totals = pricing.available === false ? null : deliveryApi.calculateTotals(pricing.productSubtotal, quote);
       state.quote = quote;
       state.totals = totals;
       syncDerivedDelivery(nodes, quote);
@@ -799,7 +807,7 @@
       locationCode: nodes.realLocationCode.value,
       quantity: pricing.quantity
     });
-    const totals = quote.valid
+    const totals = quote.valid && pricing.available !== false
       ? deliveryApi.calculateTotals(pricing.productSubtotal, quote)
       : null;
 
@@ -814,7 +822,7 @@
 
   function renderPricing(nodes, pricing, quote, totals, deliveryApi) {
     if (nodes.product) {
-      nodes.product.textContent = deliveryApi.formatEuro(pricing.base * pricing.quantity);
+      nodes.product.textContent = pricing.available === false ? "Pendiente" : deliveryApi.formatEuro(pricing.base * pricing.quantity);
     }
 
     if (nodes.personalization) {

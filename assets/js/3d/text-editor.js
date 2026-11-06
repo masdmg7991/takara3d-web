@@ -40,7 +40,7 @@ export class FrameTextEditor {
     this.valid=true;
     this.error="";
     this._onSubmit=event=>{
-      if (!this.valid && this.state.enabled && this.state.selected_sides.length) {
+      if (this.active !== false && !this.valid && this.state.enabled && this.state.selected_sides.length) {
         event.preventDefault();
         event.stopImmediatePropagation();
         this.#showError();
@@ -61,6 +61,10 @@ export class FrameTextEditor {
       this.#render();
       throw error;
     }
+  }
+  setActive(active) {
+    this.active = active;
+    this.#render();
   }
   #field(side) {
     return this.root.querySelector('[data-takara-frame-text-input="'+side+'"]');
@@ -190,7 +194,7 @@ export class FrameTextEditor {
     }
     this.valid=!error;
     this.error=error;
-    this.payload.value=payload?JSON.stringify(payload):"";
+    this.payload.value=this.active!==false&&payload?JSON.stringify(payload):"";
     const selection=this.root.querySelector("[data-takara-frame-text-selection]");
     if (selection) selection.textContent=count===0?"Selecciona los lados":
       count+(count===1?" lado seleccionado":" lados seleccionados");
@@ -219,7 +223,7 @@ export class FrameTextEditor {
     const input=this.#field(side);
     const status=this.root.querySelector('[data-takara-frame-text-status="'+side+'"]');
     if(!input)return;
-    const selected=state.enabled&&state.selected_sides.includes(side);
+    const selected=this.active!==false&&state.enabled&&state.selected_sides.includes(side);
     input.required=selected;
     if(!selected){input.setCustomValidity?.("");return;}
     const metrics=frameTextMetrics(state,side);

@@ -144,6 +144,10 @@
         return;
       }
 
+      if (payload.producto.codigo_producto !== PRODUCT_CODE) {
+        throw new Error("La caja está en pruebas locales. Su envío se activará después de revisar el configurador y el sistema de pedidos.");
+      }
+
       setStatus(statusNode, "Enviando solicitud...", "info");
 
       const ack = await submitOrderWithBrowserAck(endpoint, payload);
@@ -454,6 +458,7 @@
 
   function normalizeVariantCode(value) {
     const text = String(value || "").toLowerCase();
+    if (text === "cuatro_fotos") return "cuatro_fotos";
 
     if (text === "horizontal") {
       return "horizontal";
@@ -481,8 +486,8 @@
       const catalogQuote = snapshotApi.build({
         catalog: catalog,
         selection: {
-          product_code: PRODUCT_CODE,
-          variant_code: normalizeVariantCode(producto.orientacion),
+          product_code: producto.codigo_producto || PRODUCT_CODE,
+          variant_code: normalizeVariantCode(producto.variante_codigo || producto.orientacion),
           extra_codes: extraCodes,
           quantity: producto.cantidad || 1
         },
@@ -528,7 +533,7 @@
         codigo_producto: catalogQuote.producto.codigo_producto,
         variante_codigo: catalogQuote.producto.variante_codigo,
         formato: catalogQuote.producto.formato,
-        orientacion: catalogQuote.producto.orientacion,
+        orientacion: catalogQuote.producto.orientacion || producto.orientacion,
         medida: catalogQuote.producto.medida,
         atributos: Object.assign({}, producto.atributos || {}, {
           familia: "litofania"
@@ -726,8 +731,12 @@
   });
 
   async function buildPayload(form) {
+    const preview = window.TAKARA_PRODUCT_PREVIEW;
+    const selection = preview && typeof preview.getSelection === "function" ? preview.getSelection() : null;
+    const isBox = selection && selection.code === "CAJA_LITOFANIA_4_FOTOS_100X100";
     const photoInput = form.querySelector("[data-takara-photo-input]");
-    const file = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
+    const selectedFiles = isBox ? selection.files : [photoInput && photoInput.files && photoInput.files[0] || null];
+    const file = selectedFiles[0];
 
     const nombre = value(form, "nombre");
     const email = value(form, "email");
@@ -740,7 +749,7 @@
     const entorno = getEnvironment();
     const colorKey = checkedValue(form, "color_marco") || "actual";
     const colorMarco = COLOR_LABELS[colorKey] || COLOR_LABELS.actual;
-    const personalizacionMarco = parseFrameTextPersonalization(
+    const personalizacionMarco = isBox ? null : parseFrameTextPersonalization(
       value(form, "personalizacion_marco"),
       formatoKey
     );
@@ -802,15 +811,15 @@
       throw new Error([deliveryQuote.customer_text, deliveryQuote.suggestion].filter(Boolean).join(" "));
     }
 
-    if (!file) {
-      throw new Error("Falta la foto. Sube una imagen para que podamos revisar la litofanía.");
+    if (selectedFiles.some(photo => !photo)) {
+      throw new Error(isBox ? "Añade una foto a cada una de las cuatro caras." : "Falta la foto. Sube una imagen para que podamos revisar la litofanía.");
     }
 
-    if (file.size > MAX_FILE_BYTES) {
-      throw new Error("La foto supera el máximo permitido de 20 MB.");
+    if (selectedFiles.reduce((total, photo) => total + photo.size, 0) > MAX_FILE_BYTES) {
+      throw new Error(isBox ? "Las cuatro fotos superan el máximo conjunto de 20 MB." : "La foto supera el máximo permitido de 20 MB.");
     }
 
-    if (!isAllowedImage(file)) {
+    if (selectedFiles.some(photo => !isAllowedImage(photo))) {
       throw new Error("Formato de foto no válido. Usa JPG, PNG o WEBP.");
     }
 
@@ -822,17 +831,19 @@
       throw new Error("Marca la casilla de imagen enviada para confirmar que podemos revisar la foto.");
     }
 
-    const preview = window.TAKARA_PRODUCT_PREVIEW;
     if (!preview) throw new Error("El personalizador no está disponible. Recarga la página antes de continuar.");
-    preview.assertOrderReady(file);
+    const expectedPhotos = isBox ? selectedFiles : file;
+    preview.assertOrderReady(expectedPhotos);
     const configurationRevision = preview.getSnapshot().revision;
     const originalFormState = JSON.stringify(Array.from(new FormData(form).entries())
       .filter(entry => typeof entry[1] === "string"));
-    const photoBase64 = await readFileAsDataUrl(file);
-    const visualProof = await createVisualProofSafe(pedidoWebId, file);
-    preview.assertOrderReady(file);
+    const encodedPhotos = [];
+    for (const photo of selectedFiles) encodedPhotos.push(await readFileAsDataUrl(photo));
+    const photoBase64 = encodedPhotos[0];
+    const visualProof = await createVisualProofSafe(pedidoWebId, expectedPhotos);
+    preview.assertOrderReady(expectedPhotos);
     if (configurationRevision !== preview.getSnapshot().revision ||
-        photoInput.files[0] !== file || originalFormState !== JSON.stringify(
+        (!isBox && photoInput.files[0] !== file) || originalFormState !== JSON.stringify(
           Array.from(new FormData(form).entries()).filter(entry => typeof entry[1] === "string"))) {
       throw new Error("Has cambiado el pedido mientras se preparaba. Revísalo y vuelve a enviarlo.");
     }
@@ -856,11 +867,12 @@
         creado_en_iso: creadoEnIso
       }, getOrderStoreContextMeta()),
       producto: {
-        producto: "Marco litofanía personalizado",
-        codigo_producto: PRODUCT_CODE,
-        formato: formatoMeta.formato,
-        orientacion: formatoKey,
-        medida: formatoMeta.medida,
+        producto: isBox ? "Caja de luz · 4 fotos" : "Marco litofanía personalizado",
+        codigo_producto: isBox ? selection.code : PRODUCT_CODE,
+        variante_codigo: isBox ? selection.variant : formatoKey,
+        formato: isBox ? "Caja de luz · 4 fotos" : formatoMeta.formato,
+        orientacion: isBox ? "cuatro_fotos" : formatoKey,
+        medida: isBox ? "100 x 100 mm" : formatoMeta.medida,
         color_marco: colorMarco,
         color_litofania: "Blanco natural",
         cantidad: cantidad,
@@ -876,10 +888,11 @@
         source: municipioEntregaFuente
       }),
       archivos: {
-        foto_base64: photoBase64,
-        nombre_archivo: file.name || "foto_original.jpg",
-        content_type: file.type || "image/jpeg",
-        size_bytes: file.size || 0,
+        ...(isBox ? { fotos: selectedFiles.map((photo, i) => ({
+          cara: selection.faces[i], foto_base64: encodedPhotos[i], nombre_archivo: photo.name,
+          content_type: photo.type, size_bytes: photo.size
+        })) } : { foto_base64: photoBase64, nombre_archivo: file.name || "foto_original.jpg",
+          content_type: file.type || "image/jpeg", size_bytes: file.size || 0 }),
         ficha_visual_base64: visualProof.data_url,
         ficha_visual_nombre_archivo: visualProof.filename,
         ficha_visual_content_type: visualProof.content_type,
