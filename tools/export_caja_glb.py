@@ -53,6 +53,13 @@ def build(parts):
     def translation(x=0, y=0, z=0):
         return trimesh.transformations.translation_matrix([x, y, z])
 
+    def radial_mount(angle, radius, anchor, tilt=0):
+        """Align a CAD mounting face to its measured tangent plane in the shell."""
+        centre = translation(x=np.sin(angle) * radius, y=-.0095, z=np.cos(angle) * radius)
+        facing = trimesh.transformations.rotation_matrix(angle, [0, 1, 0])
+        facing = facing @ trimesh.transformations.rotation_matrix(tilt, [1, 0, 0])
+        return centre @ facing @ translation(*(-np.asarray(anchor)))
+
     # Flip the circular shell around its centre; the bottom cover stays underneath.
     pedestal_flip = translation(y=-.0095) @ trimesh.transformations.rotation_matrix(np.pi, [0, 0, 1]) @ translation(y=.0095)
 
@@ -76,10 +83,13 @@ def build(parts):
     part("Base+rodameinto", material=base, transform=translation(x=-.009806, y=-.010))
     lid = translation(y=-.019) @ trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0])
     part("Tapa_Inferior_Base", material=base, transform=lid)
-    # Review these placements locally: the old assembly has missing/obsolete references.
-    part("USB Type-C", material=metal, transform=translation(x=.035115, y=-.020, z=.046))
-    turn = trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0])
-    part("Interruptor", material=switch, transform=translation(x=-.028, y=-.0095, z=.047) @ turn)
+    # Shell CAD: large opening at +22.5 degrees, 64 mm tangent radius;
+    # small opening at -22.5 degrees, 64.5303 mm radius (after the shell flip).
+    # Use the rear of each front flange as its mounting anchor, not its bbox centre.
+    usb_mount = radial_mount(-np.pi / 8, .0645303, [-.035115438, .010517695, .018])
+    switch_mount = radial_mount(np.pi / 8, .064, [0, .0085, 0], tilt=np.pi / 2)
+    part("USB Type-C", material=metal, transform=usb_mount)
+    part("Interruptor", material=switch, transform=switch_mount)
     for i in range(4):
         material = PBRMaterial(name=f"BOX_PHOTO_{i + 1}", baseColorFactor=[255] * 4,
             baseColorTexture=Image.new("RGBA", (2, 2), (232, 228, 215, 255)),

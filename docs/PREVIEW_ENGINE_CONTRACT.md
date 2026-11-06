@@ -100,8 +100,12 @@ El GLB local se obtiene con `tools/export_caja_glb.py` de las piezas de SolidWor
 abiertas en modo de solo lectura. No contiene CAD originales ni fotografías privadas.
 Respeta la teselación y las normales de CAD; comparte vértices con normales idénticas.
 El cuerpo ya contiene la parte superior: no se superpone `Tapa_Cuerpo`.
-Las posiciones de USB e interruptor son provisionales para revisión: el ensamblaje
-anterior referencia componentes ausentes y no determina el montaje V2 actual.
+Los conectores se alinean con los huecos de la carcasa V2, medidos en la teselación:
+el interruptor ocupa el grande (+22,5°, plano tangente a 64 mm del eje), y el USB-C
+el pequeño (−22,5°, plano a 64,5303 mm). Ambos se centran a −9,5 mm de altura.
+El anclaje del interruptor es la cara posterior de su pestaña, a Y=8,5 mm en su
+CAD; la tecla queda hacia fuera. El USB usa la pestaña a Z=18 mm, con su origen
+lateral corregido. No se alteran las piezas ni se agrandan los huecos para encajarlos.
 No representa una simulación mecánica del rodamiento; el cliente puede girar el visor
 360°. La procedencia y las traslaciones están explícitas en el exportador. La carcasa
 circular está volteada 180° alrededor de su centro horizontal; la tapa inferior

@@ -73,5 +73,23 @@ for (let i = 0; i < indices.length; i += 3) {
   }
 }
 assert.ok(topFace, "Circular pedestal closed face points upwards after the flip");
+for (const [name, angle, width, height, frontRadius] of [
+  ["Interruptor", Math.PI / 8, .021, .015, .0693],
+  ["USB Type-C", -Math.PI / 8, .0158, .0093, .0665303]
+]) {
+  const hardware = gltf.meshes.find(mesh => mesh.name === name).primitives[0];
+  const coordinates = floats(hardware.attributes.POSITION);
+  const tangent = [], radial = [], vertical = [];
+  for (let i = 0; i < coordinates.length; i += 3) {
+    tangent.push(coordinates[i] * Math.cos(angle) - coordinates[i + 2] * Math.sin(angle));
+    radial.push(coordinates[i] * Math.sin(angle) + coordinates[i + 2] * Math.cos(angle));
+    vertical.push(coordinates[i + 1]);
+  }
+  assert.ok(Math.abs((Math.min(...tangent) + Math.max(...tangent)) / 2) < 1e-6, `${name}: centred on its opening tangent`);
+  assert.ok(Math.abs(Math.max(...tangent) - Math.min(...tangent) - width) < 1e-6, `${name}: CAD flange width unchanged`);
+  assert.ok(Math.abs((Math.min(...vertical) + Math.max(...vertical)) / 2 + .0095) < 1e-6, `${name}: centred at opening height`);
+  assert.ok(Math.abs(Math.max(...vertical) - Math.min(...vertical) - height) < 1e-6, `${name}: CAD height unchanged`);
+  assert.ok(Math.abs(Math.max(...radial) - frontRadius) < 1e-6, `${name}: front face points outwards and rear stays inside`);
+}
 assert.ok(bytes.length < 1_000_000, "Box model remains under 1 MB without discarding triangles");
 console.log("TAKARA_PRODUCTS_3D_OK: isolated drafts, capabilities, photo validation, four physical surfaces and upright UVs");

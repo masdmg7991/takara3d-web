@@ -71,7 +71,7 @@ class CajaController {
 export const CAJA_PRODUCT = Object.freeze({
   id: "CAJA_LITOFANIA_4_FOTOS_100X100",
   defaults: Object.freeze({ variant: "cuatro_fotos", color: "negro", baseColor: "negro", light: "on", photos: Object.freeze({}) }),
-  variants: Object.freeze({ cuatro_fotos: Object.freeze({ src: "assets/models/caja/cuatro-fotos.glb?v=base-2",
+  variants: Object.freeze({ cuatro_fotos: Object.freeze({ src: "assets/models/caja/cuatro-fotos.glb?v=hardware-3",
     camera: "45deg 72deg auto", alt: "Caja de cuatro fotos de 100 × 100 mm, vista 3D" }) }),
   validate(state) {
     if (!Object.hasOwn(FINISHES, state.color)) throw new RangeError("Color de la caja no reconocido.");
