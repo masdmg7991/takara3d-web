@@ -46,6 +46,20 @@ async function main() {
       await page.goto(origin + "/pedido.html"); await ready(page);
       assert.equal(await page.locator(".takara-preview-contact-panel").isVisible(), false);
       assert.equal(await page.locator(".takara-product-customizer").isVisible(), true);
+      assert.equal(await page.locator("[data-takara-product-description]").count(), 0);
+      if (!mobile) {
+        const layout = await page.evaluate(() => {
+          const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { x:r.x, right:r.right, y:r.y, bottom:r.bottom }; };
+          return { input:rect('.takara-config-inputs'), visual:rect('.takara-preview-visual'), finishes:rect('.takara-config-finishes'), format:rect('.takara-preview-config-section--format'), photo:rect('.takara-preview-config-section--photo'), color:rect('.takara-preview-config-section--color'), text:rect('.takara-preview-config-section--frame-text') };
+        });
+        assert.ok(layout.format.bottom <= layout.photo.y, "Format and photo never overlap");
+        assert.ok(layout.color.bottom <= layout.text.y, "Color and text never overlap");
+        assert.ok(layout.input.right <= layout.visual.x && layout.visual.right <= layout.finishes.x, "Wide desktop separates inputs, 3D and finishes");
+        await page.setViewportSize({width:1024,height:900});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "Laptop layout fits its viewport");
+        if (output) await page.screenshot({path:path.join(output, "laptop-personalizar.png"), fullPage:true});
+        await page.setViewportSize({width:1440,height:1000});
+      }
       await page.waitForFunction(() => document.querySelector("[data-takara-draft-price]").textContent === "35,00 €");
       if (output) await page.screenshot({ path: path.join(output, label + "-personalizar.png"), fullPage: true });
       const images = await page.evaluate(() => Array.from({ length: 6 }, (_, i) => {

@@ -26,6 +26,13 @@ móviles o medidas variables necesita su propio modelo y sus propias reglas.
 
 ## Estado y carga
 
+La personalización conserva el orden de documento: formato, fotos, visor, colores
+y texto. Dos grupos de opciones permiten distribuirla sin mover ni reconstruir el
+visor: desde 1200 px, datos/fotos a la izquierda, 3D en el centro y acabados a la
+derecha; de 901 a 1199 px, opciones junto al visor; hasta 900 px, recorrido vertical.
+Los grupos no añaden filas en móvil. La descripción repetida bajo el selector de
+producto se elimina; las tarjetas y las opciones conservan sus medidas y detalles.
+
 `order-preview.js` toma formato, foto, colores y textos de los controles y
 entrega un único estado al visor. La foto se conserva como File; los bitmaps
 se cierran tras preparar sus texturas. Los cambios rápidos invalidan trabajos

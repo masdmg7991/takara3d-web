@@ -14,18 +14,33 @@ body.pedido-premium main .pedido-stl-preview {
 .takara-product-customizer {
   grid-area: customizer;
   display: grid;
-  grid-template-columns: minmax(16rem, 19rem) minmax(0, 1fr);
-  grid-template-rows: auto auto auto minmax(min-content, 1fr);
-  grid-template-areas: "product product" "format visual" "photo visual" "color visual" "text visual";
-  gap: .75rem 1.25rem;
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+  grid-template-rows: auto min-content min-content;
+  grid-template-areas: "product product" "inputs visual" "finishes visual";
+  gap: 1rem 1.25rem;
   align-items: start;
   min-width: 0;
 }
 body.pedido-premium main .takara-preview-config-panel { display: contents; }
+.takara-config-inputs { grid-area: inputs; }
+.takara-config-finishes { grid-area: finishes; }
+.takara-config-inputs, .takara-config-finishes { display: grid; gap: 1rem; min-width: 0; align-content: start; }
+@media (min-width: 1200px) {
+  .takara-product-customizer {
+    grid-template-columns: minmax(14rem, 1fr) minmax(20rem, 1.8fr) minmax(16rem, 1.15fr);
+    grid-template-rows: auto auto;
+    grid-template-areas: "product product product" "inputs visual finishes";
+  }
+  body.pedido-premium .takara-preview-color-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+}
 .takara-preview-config-section--format { grid-area: format; }
 .takara-preview-config-section--photo { grid-area: photo; }
 .takara-preview-config-section--color { grid-area: color; }
 .takara-preview-config-section--frame-text { grid-area: text; }
+@media (min-width: 901px) {
+  .takara-config-inputs > .takara-preview-config-section,
+  .takara-config-finishes > .takara-preview-config-section { grid-area: auto; }
+}
 .takara-product-customizer [hidden] { display: none !important; }
 .takara-delivery-summary [hidden] { display: none !important; }
 .takara-order-cart { grid-area: cart; padding: 1.1rem; border: 1px solid #806c5b; border-radius: 14px; background: #33271f; color: #f4e6d4; }
@@ -275,7 +290,7 @@ body.pedido-premium main .takara-preview-visual {
 @media (min-width: 901px) and (min-height: 760px) {
   body.pedido-premium main .takara-preview-visual {
     position: sticky;
-    top: 1rem;
+    top: 6rem;
   }
   .takara-product-stage {
     height: clamp(280px, calc(100vh - 390px), 520px);
@@ -283,6 +298,7 @@ body.pedido-premium main .takara-preview-visual {
   }
 }
 @media (max-width: 900px) {
+  .takara-config-inputs, .takara-config-finishes { display: contents; }
   .takara-product-customizer {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;

@@ -100,8 +100,6 @@ function selectProduct(key) {
   for (const option of document.querySelectorAll("[data-takara-base-color]")) option.checked = option.value === drafts.state.baseColor;
   document.querySelector(".takara-preview-config-section--photo .takara-preview-config-step").textContent = product.hasFormat ? "2" : "1";
   document.querySelector(".takara-preview-config-section--color .takara-preview-config-step").textContent = product.hasFormat ? "3" : "2";
-  document.querySelector("[data-takara-product-description]").textContent = product.hasFormat
-    ? "Una foto, en formato vertical u horizontal." : "Cuatro fotos de 100 × 100 mm. Un giro de 360° para iluminar tus recuerdos.";
   document.querySelector("[data-takara-preview-title]").textContent = product.hasFormat ? `Marco ${drafts.state.variant}` : product.title;
   stage.dataset.format = drafts.state.variant; stage.dataset.product = key; stage.dataset.invalidPhoto = String(!!invalidPhoto);
   syncColors(drafts.state.color);

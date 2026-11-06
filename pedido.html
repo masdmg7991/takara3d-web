@@ -19,7 +19,7 @@
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
       <link rel="stylesheet" href="assets/css/styles.css?v=pedido-consentimiento-color-v1-img-auto-20260923">
       <link rel="stylesheet" href="assets/css/takara-pedido-delivery.css?v=entrega-v2-2&amp;p=store-choice-v2">
-      <link rel="stylesheet" href="assets/css/takara-product-viewer.css?v=3d-6-order-flow-2">
+      <link rel="stylesheet" href="assets/css/takara-product-viewer.css?v=3d-7-layout-1">
 
 
   <!-- TAKARA OFFICIAL FAVICON V2 START -->
@@ -397,47 +397,49 @@
                   </label>
                 </div>
               </fieldset>
-              <p data-takara-product-description>Una foto, en formato vertical u horizontal.</p>
             </section>
             <aside class="takara-preview-config-panel" aria-label="Personalización del marco">
-              <section class="takara-preview-config-section takara-preview-config-section--format">
-                <div class="takara-config-heading">
-                  <p class="takara-preview-config-step">1</p>
-                  <div>
-                    <h2>Formato del marco</h2>
-                    <p>Lo adaptamos a tu foto. También puedes cambiarlo si lo prefieres.</p>
+              <div class="takara-config-inputs">
+                <section class="takara-preview-config-section takara-preview-config-section--format">
+                  <div class="takara-config-heading">
+                    <p class="takara-preview-config-step">1</p>
+                    <div>
+                      <h2>Formato del marco</h2>
+                      <p>Lo adaptamos a tu foto. También puedes cambiarlo si lo prefieres.</p>
+                    </div>
                   </div>
-                </div>
-                <div class="takara-preview-format-options">
-                  <button type="button" class="takara-preview-format-card is-active" data-takara-format-proxy="vertical">
-                    <strong>Marco vertical</strong>
-                    <span>Foto 108 × 144 mm</span>
-                  </button>
-                  <button type="button" class="takara-preview-format-card" data-takara-format-proxy="horizontal">
-                    <strong>Marco horizontal</strong>
-                    <span>Foto 144 × 108 mm</span>
-                  </button>
-                </div>
-              </section>
+                  <div class="takara-preview-format-options">
+                    <button type="button" class="takara-preview-format-card is-active" data-takara-format-proxy="vertical">
+                      <strong>Marco vertical</strong>
+                      <span>Foto 108 × 144 mm</span>
+                    </button>
+                    <button type="button" class="takara-preview-format-card" data-takara-format-proxy="horizontal">
+                      <strong>Marco horizontal</strong>
+                      <span>Foto 144 × 108 mm</span>
+                    </button>
+                  </div>
+                </section>
 
-              <section class="takara-preview-config-section takara-preview-config-section--photo">
-                <div class="takara-config-heading">
-                  <p class="takara-preview-config-step">2</p>
-                  <div>
-                    <h2 data-takara-photo-heading>Tu foto</h2>
-                    <p data-takara-photo-description>Sube tu foto para ver cómo queda en el marco.</p>
+                <section class="takara-preview-config-section takara-preview-config-section--photo">
+                  <div class="takara-config-heading">
+                    <p class="takara-preview-config-step">2</p>
+                    <div>
+                      <h2 data-takara-photo-heading>Tu foto</h2>
+                      <p data-takara-photo-description>Sube tu foto para ver cómo queda en el marco.</p>
+                    </div>
                   </div>
-                </div>
-                <div data-takara-single-photo>
-                <button type="button" class="takara-preview-upload-button" data-takara-upload-proxy>
-                  <span data-takara-upload-proxy-name>Ningún archivo seleccionado</span>
-                  <strong>+ Subir foto</strong>
-                </button>
-                <small>JPG, PNG o WEBP</small>
-                </div>
-                <div class="takara-caja-photos" data-takara-caja-photos hidden></div>
-                <p class="takara-caja-photo-note" data-takara-caja-photo-note hidden>JPG, PNG o WEBP. Máximo 20 MB entre las cuatro fotos. Se muestran con un recorte cuadrado centrado; revisaremos el encuadre contigo antes de fabricar.</p>
-              </section>
+                  <div data-takara-single-photo>
+                  <button type="button" class="takara-preview-upload-button" data-takara-upload-proxy>
+                    <span data-takara-upload-proxy-name>Ningún archivo seleccionado</span>
+                    <strong>+ Subir foto</strong>
+                  </button>
+                  <small>JPG, PNG o WEBP</small>
+                  </div>
+                  <div class="takara-caja-photos" data-takara-caja-photos hidden></div>
+                  <p class="takara-caja-photo-note" data-takara-caja-photo-note hidden>JPG, PNG o WEBP. Máximo 20 MB entre las cuatro fotos. Se muestran con un recorte cuadrado centrado; revisaremos el encuadre contigo antes de fabricar.</p>
+                </section>
+
+              </div>
 
               <div class="takara-preview-visual" id="takara-product-viewer" tabindex="-1">
                 <h2 data-takara-preview-title>Marco vertical</h2>
@@ -469,132 +471,134 @@
                 <div class="pedido-stl-note">La vista previa es orientativa. Antes de fabricar revisamos encuadre, contraste y detalle para preparar bien la litofanía.</div>
               </div>
 
-              <section class="takara-preview-config-section takara-preview-config-section--color">
-                <div class="takara-config-heading">
-                  <p class="takara-preview-config-step">3</p>
-                  <div>
-                    <h2 data-takara-color-heading>Color del marco</h2>
-                    <p>Elige el acabado y comprueba cómo queda con la litofanía.</p>
+              <div class="takara-config-finishes">
+                <section class="takara-preview-config-section takara-preview-config-section--color">
+                  <div class="takara-config-heading">
+                    <p class="takara-preview-config-step">3</p>
+                    <div>
+                      <h2 data-takara-color-heading>Color del marco</h2>
+                      <p>Elige el acabado y comprueba cómo queda con la litofanía.</p>
+                    </div>
                   </div>
-                </div>
-                <h3 class="takara-color-part-title" data-takara-body-color-label hidden>Color del cuerpo</h3>
-                <div class="takara-preview-color-options">
-                  <label class="takara-preview-color-chip takara-preview-color-chip--madera-clara">
-                    <input type="radio" name="color_marco_preview" value="actual" checked data-takara-color-proxy="actual">
-                    <span class="takara-preview-color-chip__dot"></span>
-                    <span>Madera clara</span>
-                  </label>
-                  <label class="takara-preview-color-chip takara-preview-color-chip--rosewood">
-                    <input type="radio" name="color_marco_preview" value="rosewood" data-takara-color-proxy="rosewood">
-                    <span class="takara-preview-color-chip__dot"></span>
-                    <span>Rosewood</span>
-                  </label>
-                  <label class="takara-preview-color-chip takara-preview-color-chip--ebano">
-                    <input type="radio" name="color_marco_preview" value="ebano" data-takara-color-proxy="ebano">
-                    <span class="takara-preview-color-chip__dot"></span>
-                    <span>Ébano</span>
-                  </label>
-                  <label class="takara-preview-color-chip takara-preview-color-chip--negro">
-                    <input type="radio" name="color_marco_preview" value="negro" data-takara-color-proxy="negro">
-                    <span class="takara-preview-color-chip__dot"></span>
-                    <span>Negro</span>
-                  </label>
-                  <label class="takara-preview-color-chip takara-preview-color-chip--blanco">
-                    <input type="radio" name="color_marco_preview" value="blanco-mate" data-takara-color-proxy="blanco-mate">
-                    <span class="takara-preview-color-chip__dot"></span>
-                    <span>Blanco mate</span>
-                  </label>
-                </div>
-              <fieldset class="takara-base-colors" data-takara-base-colors hidden>
-                <legend>Color de la peana</legend>
-                <div class="takara-preview-color-options" data-takara-base-color-options></div>
-              </fieldset>
-              </section>
-              <section class="takara-preview-config-section takara-preview-config-section--frame-text" data-takara-frame-text-config>
-                <div class="takara-config-heading">
-                  <p class="takara-preview-config-step">4</p>
-                  <div>
-                    <h2>Texto en el marco</h2>
-                    <p>Añade nombres, una fecha o una frase corta en los lados que quieras.</p>
+                  <h3 class="takara-color-part-title" data-takara-body-color-label hidden>Color del cuerpo</h3>
+                  <div class="takara-preview-color-options">
+                    <label class="takara-preview-color-chip takara-preview-color-chip--madera-clara">
+                      <input type="radio" name="color_marco_preview" value="actual" checked data-takara-color-proxy="actual">
+                      <span class="takara-preview-color-chip__dot"></span>
+                      <span>Madera clara</span>
+                    </label>
+                    <label class="takara-preview-color-chip takara-preview-color-chip--rosewood">
+                      <input type="radio" name="color_marco_preview" value="rosewood" data-takara-color-proxy="rosewood">
+                      <span class="takara-preview-color-chip__dot"></span>
+                      <span>Rosewood</span>
+                    </label>
+                    <label class="takara-preview-color-chip takara-preview-color-chip--ebano">
+                      <input type="radio" name="color_marco_preview" value="ebano" data-takara-color-proxy="ebano">
+                      <span class="takara-preview-color-chip__dot"></span>
+                      <span>Ébano</span>
+                    </label>
+                    <label class="takara-preview-color-chip takara-preview-color-chip--negro">
+                      <input type="radio" name="color_marco_preview" value="negro" data-takara-color-proxy="negro">
+                      <span class="takara-preview-color-chip__dot"></span>
+                      <span>Negro</span>
+                    </label>
+                    <label class="takara-preview-color-chip takara-preview-color-chip--blanco">
+                      <input type="radio" name="color_marco_preview" value="blanco-mate" data-takara-color-proxy="blanco-mate">
+                      <span class="takara-preview-color-chip__dot"></span>
+                      <span>Blanco mate</span>
+                    </label>
                   </div>
-                </div>
-
-                <label class="takara-frame-text-switch">
-                  <input type="checkbox" data-takara-frame-text-enabled>
-                  <span class="takara-frame-text-switch__control" aria-hidden="true"></span>
-                  <span>
-                    <strong>Personalizar el marco</strong>
-                    <small>Desde +4 €</small>
-                  </span>
-                </label>
-
-                <div class="takara-frame-text-editor" data-takara-frame-text-editor hidden>
-                  <div class="takara-frame-text-sides" aria-label="Lados del marco">
-                    <button type="button" data-takara-frame-side-toggle="top" aria-pressed="false">Superior</button>
-                    <button type="button" data-takara-frame-side-toggle="right" aria-pressed="false">Derecho</button>
-                    <button type="button" data-takara-frame-side-toggle="bottom" aria-pressed="false">Inferior</button>
-                    <button type="button" data-takara-frame-side-toggle="left" aria-pressed="false">Izquierdo</button>
+                <fieldset class="takara-base-colors" data-takara-base-colors hidden>
+                  <legend>Color de la peana</legend>
+                  <div class="takara-preview-color-options" data-takara-base-color-options></div>
+                </fieldset>
+                </section>
+                <section class="takara-preview-config-section takara-preview-config-section--frame-text" data-takara-frame-text-config>
+                  <div class="takara-config-heading">
+                    <p class="takara-preview-config-step">4</p>
+                    <div>
+                      <h2>Texto en el marco</h2>
+                      <p>Añade nombres, una fecha o una frase corta en los lados que quieras.</p>
+                    </div>
                   </div>
 
-                  <p class="takara-frame-text-help">Selecciona un lado y escribe el texto. La frase nunca podrá invadir las esquinas.</p>
+                  <label class="takara-frame-text-switch">
+                    <input type="checkbox" data-takara-frame-text-enabled>
+                    <span class="takara-frame-text-switch__control" aria-hidden="true"></span>
+                    <span>
+                      <strong>Personalizar el marco</strong>
+                      <small>Desde +4 €</small>
+                    </span>
+                  </label>
 
-                  <fieldset class="takara-frame-text-colors">
-                    <legend>Color de todas las letras</legend>
-                    <div class="takara-frame-text-color-grid">
-                      <label>
-                        <input type="radio" name="color_texto_marco" value="actual">
-                        <span><i data-color="actual"></i>Madera clara</span>
+                  <div class="takara-frame-text-editor" data-takara-frame-text-editor hidden>
+                    <div class="takara-frame-text-sides" aria-label="Lados del marco">
+                      <button type="button" data-takara-frame-side-toggle="top" aria-pressed="false">Superior</button>
+                      <button type="button" data-takara-frame-side-toggle="right" aria-pressed="false">Derecho</button>
+                      <button type="button" data-takara-frame-side-toggle="bottom" aria-pressed="false">Inferior</button>
+                      <button type="button" data-takara-frame-side-toggle="left" aria-pressed="false">Izquierdo</button>
+                    </div>
+
+                    <p class="takara-frame-text-help">Selecciona un lado y escribe el texto. La frase nunca podrá invadir las esquinas.</p>
+
+                    <fieldset class="takara-frame-text-colors">
+                      <legend>Color de todas las letras</legend>
+                      <div class="takara-frame-text-color-grid">
+                        <label>
+                          <input type="radio" name="color_texto_marco" value="actual">
+                          <span><i data-color="actual"></i>Madera clara</span>
+                        </label>
+                        <label>
+                          <input type="radio" name="color_texto_marco" value="rosewood">
+                          <span><i data-color="rosewood"></i>Rosewood</span>
+                        </label>
+                        <label>
+                          <input type="radio" name="color_texto_marco" value="ebano">
+                          <span><i data-color="ebano"></i>Ébano</span>
+                        </label>
+                        <label>
+                          <input type="radio" name="color_texto_marco" value="negro" checked>
+                          <span><i data-color="negro"></i>Negro</span>
+                        </label>
+                        <label>
+                          <input type="radio" name="color_texto_marco" value="blanco-mate">
+                          <span><i data-color="blanco-mate"></i>Blanco mate</span>
+                        </label>
+                      </div>
+                      <small class="takara-frame-text-contrast" data-takara-frame-text-contrast hidden></small>
+                    </fieldset>
+
+                    <div class="takara-frame-text-fields">
+                      <label data-takara-frame-text-field="top" hidden>
+                        <span>Texto superior</span>
+                        <input type="text" autocomplete="off" data-takara-frame-text-input="top">
+                        <small data-takara-frame-text-status="top">Escribe una frase corta.</small>
                       </label>
-                      <label>
-                        <input type="radio" name="color_texto_marco" value="rosewood">
-                        <span><i data-color="rosewood"></i>Rosewood</span>
+                      <label data-takara-frame-text-field="right" hidden>
+                        <span>Texto derecho</span>
+                        <input type="text" autocomplete="off" data-takara-frame-text-input="right">
+                        <small data-takara-frame-text-status="right">Escribe una frase corta.</small>
                       </label>
-                      <label>
-                        <input type="radio" name="color_texto_marco" value="ebano">
-                        <span><i data-color="ebano"></i>Ébano</span>
+                      <label data-takara-frame-text-field="bottom" hidden>
+                        <span>Texto inferior</span>
+                        <input type="text" autocomplete="off" data-takara-frame-text-input="bottom">
+                        <small data-takara-frame-text-status="bottom">Escribe una frase corta.</small>
                       </label>
-                      <label>
-                        <input type="radio" name="color_texto_marco" value="negro" checked>
-                        <span><i data-color="negro"></i>Negro</span>
-                      </label>
-                      <label>
-                        <input type="radio" name="color_texto_marco" value="blanco-mate">
-                        <span><i data-color="blanco-mate"></i>Blanco mate</span>
+                      <label data-takara-frame-text-field="left" hidden>
+                        <span>Texto izquierdo</span>
+                        <input type="text" autocomplete="off" data-takara-frame-text-input="left">
+                        <small data-takara-frame-text-status="left">Escribe una frase corta.</small>
                       </label>
                     </div>
-                    <small class="takara-frame-text-contrast" data-takara-frame-text-contrast hidden></small>
-                  </fieldset>
 
-                  <div class="takara-frame-text-fields">
-                    <label data-takara-frame-text-field="top" hidden>
-                      <span>Texto superior</span>
-                      <input type="text" autocomplete="off" data-takara-frame-text-input="top">
-                      <small data-takara-frame-text-status="top">Escribe una frase corta.</small>
-                    </label>
-                    <label data-takara-frame-text-field="right" hidden>
-                      <span>Texto derecho</span>
-                      <input type="text" autocomplete="off" data-takara-frame-text-input="right">
-                      <small data-takara-frame-text-status="right">Escribe una frase corta.</small>
-                    </label>
-                    <label data-takara-frame-text-field="bottom" hidden>
-                      <span>Texto inferior</span>
-                      <input type="text" autocomplete="off" data-takara-frame-text-input="bottom">
-                      <small data-takara-frame-text-status="bottom">Escribe una frase corta.</small>
-                    </label>
-                    <label data-takara-frame-text-field="left" hidden>
-                      <span>Texto izquierdo</span>
-                      <input type="text" autocomplete="off" data-takara-frame-text-input="left">
-                      <small data-takara-frame-text-status="left">Escribe una frase corta.</small>
-                    </label>
+                    <div class="takara-frame-text-price" aria-live="polite">
+                      <span data-takara-frame-text-selection>Selecciona los lados</span>
+                      <strong data-takara-frame-text-price>+0 €</strong>
+                    </div>
                   </div>
-
-                  <div class="takara-frame-text-price" aria-live="polite">
-                    <span data-takara-frame-text-selection>Selecciona los lados</span>
-                    <strong data-takara-frame-text-price>+0 €</strong>
-                  </div>
-                </div>
-                <a class="takara-product-jump" href="#takara-product-viewer">↑ Ver resultado en 3D</a>
-              </section>
+                  <a class="takara-product-jump" href="#takara-product-viewer">↑ Ver resultado en 3D</a>
+                </section>
+              </div>
             </aside>
           </div>
 
@@ -806,7 +810,7 @@
   <script src="assets/js/takara-order-items.js"></script>
   <script src="assets/js/takara-order-cart.js?v=order-flow-2" defer></script>
   <script src="assets/js/takara-order-flow.js?v=order-flow-2" defer></script>
-  <script type="module" src="assets/js/3d/order-preview.js?v=3d-4"></script>
+  <script type="module" src="assets/js/3d/order-preview.js?v=3d-5-layout-1"></script>
   <script src="assets/js/takara-pedido-premium.js?v=entrega-v2-2" defer></script>
 </body>
 </html>
