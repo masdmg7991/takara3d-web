@@ -6,16 +6,26 @@
   async function compile(id) {
     const form = document.querySelector("[data-takara-pedido-form]"), preview = window.TAKARA_PRODUCT_PREVIEW;
     if (!preview) throw new Error("Espera a que se prepare el personalizador.");
-    const bridge = window.TAKARA_ORDER_BUILD_BRIDGE_V1, selection = preview.getSelection();
-    const expected = selection.key === "caja" ? selection.files : selection.files[0];
-    preview.assertOrderReady(expected);
-    const revision = preview.getSnapshot().revision, count = form.querySelector('[name="cantidad"]').value;
+    const bridge = window.TAKARA_ORDER_BUILD_BRIDGE_V1;
+    const initial = preview.getSelection();
+    preview.assertOrderReady(initial.key === "caja" ? initial.files : initial.files[0]);
+    const count = form.querySelector('[name="cantidad"]').value;
     const deadline = Date.now() + 48000;
     while (!preview.getSnapshot().ready && !preview.getSnapshot().error) {
       if (Date.now() > deadline) throw new Error("El producto tarda en prepararse. Reintenta en unos segundos.");
       await new Promise(resolve => setTimeout(resolve, 80));
     }
+    // Use the final visible selection; format can be auto-detected during render.
+    const selection = preview.getSelection();
+    if (selection.key !== initial.key ||
+        selection.files.length !== initial.files.length ||
+        selection.files.some((file, index) => file !== initial.files[index])) {
+      throw new Error("Has cambiado las fotos o el producto. Revísalo y vuelve a añadirlo.");
+    }
+    const expected = selection.key === "caja" ? selection.files : selection.files[0];
     preview.assertOrderReady(expected);
+    // Subsequent changes during photo/proof capture still invalidate the item.
+    const revision = preview.getSnapshot().revision;
     const box = selection.code === BOX;
     const text = box ? null : window.TAKARA_FRAME_TEXT_ORDER_V1.parse(form.querySelector('[name="personalizacion_marco"]').value, selection.variant);
     const photos = [];
