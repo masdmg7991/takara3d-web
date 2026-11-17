@@ -161,7 +161,11 @@ export class ProductViewer {
     const minimumScale = renderer.minimumRenderScale ?? 0.5;
     const captureHost = document.createElement("div");
     captureHost.setAttribute("aria-hidden", "true");
-    captureHost.style.cssText = "position:fixed;inset:0;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;";
+    // In Store, the iframe may extend above the visible parent viewport.
+    // Keep the capture viewer in the visible part so model-viewer renders it.
+    const frameTop = window.frameElement?.getBoundingClientRect().top || 0;
+    const captureTop = Math.max(0, -frameTop);
+    captureHost.style.cssText = `position:fixed;left:0;right:0;top:${captureTop}px;height:760px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;`;
     this.notify();
     try {
       // Adaptive rendering may halve resolution on slower GPUs. Export at
