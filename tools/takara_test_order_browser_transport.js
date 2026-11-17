@@ -220,7 +220,12 @@ function backend() {
     "Store success notifies parent only after correlated ACK resolves"
   );
   ok(
-    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1-store-feedback-v1"),
+    web.includes("notifyStoreParentOrderError(form, message);") &&
+      web.includes('type: "error"'),
+    "Store error notifies parent without an ACK"
+  );
+  ok(
+    pedido.includes("takara-pedido-web.js?v=pedido-entrega-v2-3&amp;b=pedido-feedback-store-v1-ack-store-relay-v1-store-feedback-v2"),
     "Store ACK relay cache build active"
   );
   ok(
@@ -232,10 +237,16 @@ function backend() {
     storeClient.includes('STORE_ORDER_FEEDBACK_VERSION = "TAKARA_STORE_ORDER_FEEDBACK_V1"') &&
       storeClient.includes("normalizeStoreOrderFeedback(event, frame)") &&
       storeClient.includes("showStoreOrderFeedback(feedback)"),
-    "Store shell shows parent success modal only from trusted iframe feedback"
+    "Store shell shows parent feedback only from trusted iframe"
   );
   ok(
-    storePage.includes("order-ack-relay-v1-store-feedback-v1"),
+    storeClient.includes('data.type === "error"') &&
+      storeClient.includes('feedback.type !== "success" && feedback.type !== "error"') &&
+      storeClient.includes('event.source !== frameWindow'),
+    "Store shell accepts bounded error feedback from its order iframe"
+  );
+  ok(
+    storePage.includes("order-ack-relay-v1-store-feedback-v2"),
     "Store shell cache build includes ACK relay"
   );
   ok(

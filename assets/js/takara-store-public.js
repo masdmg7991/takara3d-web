@@ -102,9 +102,18 @@
     ) return null;
     const data = event.data;
     if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    if (data.version !== STORE_ORDER_FEEDBACK_VERSION) return null;
+    if (data.type === "error") {
+      const message = String(data.message || "").trim();
+      if (!message || message.length > 400) return null;
+      return Object.freeze({
+        version: STORE_ORDER_FEEDBACK_VERSION,
+        type: "error",
+        message: message
+      });
+    }
     const orderId = String(data.order_id || "").trim().toUpperCase();
     if (
-      data.version !== STORE_ORDER_FEEDBACK_VERSION ||
       data.type !== "success" ||
       !ORDER_BROWSER_ORDER_ID_PATTERN.test(orderId)
     ) return null;
@@ -116,7 +125,8 @@
   }
 
   function showStoreOrderFeedback(feedback) {
-    if (!feedback || feedback.type !== "success") return false;
+    if (!feedback || (feedback.type !== "success" && feedback.type !== "error")) return false;
+    const success = feedback.type === "success";
     document.querySelectorAll("[data-takara-store-order-modal]").forEach(function (node) {
       node.remove();
     });
@@ -129,7 +139,7 @@
     overlay.setAttribute("data-takara-store-order-modal", "");
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-live", "polite");
+    overlay.setAttribute("aria-live", success ? "polite" : "assertive");
     overlay.style.cssText = [
       "position:fixed","inset:0","z-index:2147483647","display:flex",
       "align-items:center","justify-content:center","padding:24px",
@@ -137,23 +147,23 @@
     ].join(";");
     card.style.cssText = [
       "box-sizing:border-box","width:min(92vw,460px)","border-radius:24px",
-      "padding:24px 24px 22px","border:2px solid rgba(62,132,77,.55)",
-      "background:#effaf1","color:#173f24","box-shadow:0 28px 90px rgba(23,13,7,.34)",
+      "padding:24px 24px 22px","border:2px solid " + (success ? "rgba(62,132,77,.55)" : "rgba(176,54,34,.62)"),
+      "background:" + (success ? "#effaf1" : "#fff1ec"),"color:" + (success ? "#173f24" : "#722415"),"box-shadow:0 28px 90px rgba(23,13,7,.34)",
       "font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
     ].join(";");
-    title.textContent = "Solicitud recibida";
+    title.textContent = success ? "Solicitud recibida" : "Solicitud no confirmada";
     title.style.cssText = "display:block;margin:0 0 10px;font-size:22px;line-height:1.2;font-weight:950";
-    body.textContent =
-      "Solicitud recibida correctamente. Referencia: " +
-      feedback.order_id +
-      ". Revisa tu correo para conservar la confirmación.";
+    body.textContent = success
+      ? "Solicitud recibida correctamente. Referencia: " + feedback.order_id +
+        ". Revisa tu correo para conservar la confirmación."
+      : feedback.message;
     body.style.cssText = "margin:0;font-size:16px;line-height:1.55;font-weight:650";
     close.type = "button";
-    close.textContent = "Entendido";
+    close.textContent = success ? "Entendido" : "Revisar pedido";
     close.style.cssText = [
       "display:inline-flex","align-items:center","justify-content:center",
       "margin-top:20px","min-height:44px","padding:0 20px","border:0",
-      "border-radius:999px","background:#2f7d43","color:#fff",
+      "border-radius:999px","background:" + (success ? "#2f7d43" : "#9e321f"),"color:#fff",
       "font:inherit","font-weight:900","cursor:pointer"
     ].join(";");
 

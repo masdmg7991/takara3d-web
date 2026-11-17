@@ -164,7 +164,9 @@
       notifyStoreParentOrderSuccess(form, ack);
       if (useItems) cart.complete();
     } catch (error) {
-      setStatus(statusNode, error && error.message ? error.message : "No se pudo enviar la solicitud.", "error");
+      const message = error && error.message ? error.message : "No se pudo enviar la solicitud.";
+      setStatus(statusNode, message, "error");
+      notifyStoreParentOrderError(form, message);
     } finally {
       setBusy(submitButton, false);
     }
@@ -187,6 +189,28 @@
           version: STORE_ORDER_FEEDBACK_VERSION,
           type: "success",
           order_id: orderId
+        }),
+        "https://takara3d.es"
+      );
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function notifyStoreParentOrderError(form, message) {
+    if (
+      !form ||
+      form.getAttribute("data-takara-order-channel") !== "STORE" ||
+      !window.parent || window.parent === window ||
+      typeof window.parent.postMessage !== "function"
+    ) return false;
+    try {
+      window.parent.postMessage(
+        Object.freeze({
+          version: STORE_ORDER_FEEDBACK_VERSION,
+          type: "error",
+          message: String(message || "No se pudo enviar la solicitud.").slice(0, 400)
         }),
         "https://takara3d.es"
       );
