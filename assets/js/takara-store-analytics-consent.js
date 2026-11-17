@@ -1,6 +1,6 @@
 (function (win, doc) {
   "use strict";
-  // LAB, sin conexión de red: UI para consentimiento específico de estadísticas Store.
+  // P21: consentimiento explícito, acceso discreto dentro de la página Store.
   if (!win || !doc) return;
   const config = win.TAKARA_STORE_ANALYTICS_PILOT_CONFIG;
   const gate = win.TAKARA_STORE_ANALYTICS_PILOT_V1;
@@ -22,8 +22,8 @@
   const css = doc.createElement("style");
   css.textContent = [
     "[data-takara-stats-ui][hidden],[data-takara-stats-ui] [hidden]{display:none!important}",
-    "[data-takara-stats-ui]{position:fixed;right:12px;bottom:12px;z-index:1000;",
-    "max-width:min(390px,calc(100vw - 24px));box-sizing:border-box;",
+    "[data-takara-stats-ui]{position:static;margin:14px auto 8px;text-align:center;",
+    "max-width:min(440px,calc(100vw - 32px));box-sizing:border-box;",
     "font:14px/1.45 system-ui,sans-serif;color:#222;}",
     "[data-takara-stats-panel]{background:#fff;border:1px solid #b7b0a8;",
     "border-radius:12px;box-shadow:0 5px 24px #0002;padding:14px;}",
@@ -32,8 +32,8 @@
     "[data-takara-stats-ui] button{padding:8px 12px;min-height:40px;",
     "font:inherit;cursor:pointer;border:1px solid #555;border-radius:8px;background:#fff;color:#222;}",
     "[data-takara-stats-accept],[data-takara-stats-reject]{background:#33271f!important;color:#fff!important}",
-    "[data-takara-stats-pref]{background:#fff;padding:5px 8px;min-height:36px!important;",
-    "box-shadow:0 1px 5px #0002;font-size:12px!important}",
+    "[data-takara-stats-pref]{background:transparent;border:0!important;text-decoration:underline;",
+    "box-shadow:none;padding:6px 10px;min-height:32px!important;font-size:12px!important}",
   ].join("");
   doc.head.appendChild(css);
 
@@ -63,7 +63,7 @@
   const accept = makeButton("Aceptar", "data-takara-stats-accept");
   const reject = makeButton("Rechazar", "data-takara-stats-reject");
   const dismiss = makeButton("Cerrar", "data-takara-stats-close");
-  const pref = makeButton("Preferencias de estadísticas", "data-takara-stats-pref");
+  const pref = makeButton("Estadísticas opcionales", "data-takara-stats-pref");
   dismiss.hidden = true;
   pref.hidden = true;
   actions.appendChild(accept);
@@ -79,7 +79,7 @@
   panel.appendChild(actions);
   wrap.appendChild(panel);
   wrap.appendChild(pref);
-  doc.body.appendChild(wrap);
+  store.appendChild(wrap);
 
   function isActive() {
     return store.getAttribute("data-state") === "active";
@@ -89,7 +89,7 @@
     if (wrap.hidden) return;
     panel.hidden = !openPanel;
     pref.hidden = openPanel;
-    dismiss.hidden = choice === null;
+    dismiss.hidden = false;
   }
   function save(value) {
     choice = value;
@@ -114,7 +114,8 @@
     if (choice === "accept") {
       try { gate.setConsent(true); } catch (_ignored) {}
     }
-    render(choice === null);
+    // Sin cuadro intrusivo al abrir Store: consentimiento siempre a petición.
+    render(false);
   }
   if (typeof win.MutationObserver === "function") {
     const observer = new win.MutationObserver(update);
