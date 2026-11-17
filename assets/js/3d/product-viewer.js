@@ -163,9 +163,11 @@ export class ProductViewer {
     captureHost.setAttribute("aria-hidden", "true");
     // In Store, the iframe may extend above the visible parent viewport.
     // Keep the capture viewer in the visible part so model-viewer renders it.
-    const frameTop = window.frameElement?.getBoundingClientRect().top || 0;
-    const captureTop = Math.max(0, -frameTop);
-    captureHost.style.cssText = `position:fixed;left:0;right:0;top:${captureTop}px;height:760px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;`;
+    captureHost.style.cssText = "position:fixed;left:0;right:0;top:0;height:760px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;";
+    const alignCaptureHost = () => {
+      const frameTop = window.frameElement?.getBoundingClientRect().top || 0;
+      captureHost.style.top = `${Math.max(0, -frameTop)}px`;
+    };
     this.notify();
     try {
       // Adaptive rendering may halve resolution on slower GPUs. Export at
@@ -177,6 +179,7 @@ export class ProductViewer {
       // rendering offscreen, and toBlob would otherwise read an obsolete frame.
       document.body.appendChild(captureHost);
       captureHost.appendChild(viewer);
+      alignCaptureHost();
       viewer.style.width = "960px";
       viewer.style.height = "760px";
       viewer.style.position = "absolute";
@@ -187,11 +190,13 @@ export class ProductViewer {
       viewer.setAttribute("field-of-view", "auto");
       await viewer.updateComplete;
       await paint();
-      const deadline = performance.now() + 3000;
+      const deadline = performance.now() + 5000;
       while (!viewer.modelIsVisible) {
         if (this.disposed || performance.now() > deadline) throw new Error("No se pudo preparar la escena para capturar.");
+        alignCaptureHost();
         await paint();
       }
+      alignCaptureHost();
       await viewer.updateFraming();
       viewer.jumpCameraToGoal();
       await paint();

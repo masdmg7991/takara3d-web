@@ -1,5 +1,5 @@
 /** Form adapter: product capabilities and drafts, one shared viewer. */
-import { ProductViewer } from "./product-viewer.js?v=pedidos-v3-2-store-capture";
+import { ProductViewer } from "./product-viewer.js?v=pedidos-v3-3-store-capture";
 import { PRODUCTS, ProductDrafts } from "./products.js?v=pedidos-v3-1";
 import { FrameTextEditor } from "./text-editor.js?v=pedidos-v3-1";
 
