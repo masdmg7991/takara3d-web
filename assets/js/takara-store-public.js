@@ -983,7 +983,13 @@
     }).then(
       function (context) {
         if (storeSlug) restorePrettyStoreUrl(storeSlug);
-        return renderStore(root, context).catch(function (error) {
+        return renderStore(root, context).then(function () {
+          // Evento optativo tras resolución ACTIVE y montaje completo.
+          const metrics = window.TAKARA_STORE_ANALYTICS_PILOT_V1;
+          if (!metrics || typeof metrics.captureVerifiedPageview !== "function") return;
+          if (root.getAttribute("data-state") !== "active") return;
+          try { metrics.captureVerifiedPageview(context, storeSlug); } catch (_ignored) {}
+        }).catch(function (error) {
           renderError(root, error);
         });
       },

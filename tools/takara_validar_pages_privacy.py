@@ -5,7 +5,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = {
     "assets", "qr", "tienda", "index.html", "productos.html", "pedido.html",
-    "contacto.html", "404.html", "favicon.ico", "robots.txt", "sitemap.xml", "CNAME",
+    "contacto.html", "estadisticas-privacidad.html", "404.html", "favicon.ico", "robots.txt", "sitemap.xml", "CNAME",
 }
 PRIVATE = {"apps-script", "config", "docs", "tools", "README.md", "CONTRIBUTING.md"}
 

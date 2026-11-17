@@ -102,19 +102,7 @@
     }
   </script>
   <!-- TAKARA SEO JSON-LD END -->
-  <!-- TAKARA DIRECT ANALYTICS GUARD V1 START -->
-  <script>
-    (function () {
-      "use strict";
-      if (new URLSearchParams(window.location.search).get("channel") === "store") return;
-      var analytics = document.createElement("script");
-      analytics.src = "https://static.cloudflareinsights.com/beacon.min.js";
-      analytics.async = true;
-      analytics.setAttribute("data-cf-beacon", '{"token": "a33d526d98b94d2daf9152868f5fa030"}');
-      document.head.appendChild(analytics);
-    }());
-  </script>
-  <!-- TAKARA DIRECT ANALYTICS GUARD V1 END -->
+
       <meta name="robots" content="index, follow">
       <meta property="og:site_name" content="Takara3D">
       <meta name="twitter:card" content="summary">
@@ -812,5 +800,10 @@
   <script src="assets/js/takara-order-flow.js?v=order-flow-2&amp;release=pedidos-v3-1" defer></script>
   <script type="module" src="assets/js/3d/order-preview.js?v=3d-5-layout-1&amp;release=pedidos-v3-1"></script>
   <script src="assets/js/takara-pedido-premium.js?v=entrega-v2-2" defer></script>
+
+  <!-- TAKARA_SITE_ANALYTICS_V1 : analítica opcional y sin SDK -->
+  <script src="assets/js/takara-store-analytics-config.js?v=p10-posthog-consent-20261117"></script>
+  <script src="assets/js/takara-store-analytics-adapter.js?v=p10-posthog-consent-20261117"></script>
+  <script src="assets/js/takara-site-analytics.js?v=p10-posthog-consent-20261117" data-takara-page-type="order"></script>
 </body>
 </html>
