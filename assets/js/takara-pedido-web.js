@@ -993,11 +993,13 @@
     readFile: readFileAsDataUrl, capture: createVisualProofSafe, colorName: key => COLOR_LABELS[key] || "" });
 
   function deliveryPayloadFromQuote(quote, informativeLocality, municipalityMeta) {
-    const municipality = normalizeMunicipalityMeta(municipalityMeta);
     // Pickup never carries a delivery municipality, even if hidden delivery
     // fields retain values after the customer switches methods.
     const hasCommercialLocation = Boolean(quote.location_required) ||
       quote.fulfillment_method === FULFILLMENT_STORE_PICKUP;
+    const municipality = hasCommercialLocation
+      ? { code: "", name: "", province: "", source: "" }
+      : normalizeMunicipalityMeta(municipalityMeta);
     return {
       version: DELIVERY_VERSION,
       fulfillment_method: quote.fulfillment_method || FULFILLMENT_DELIVERY,
