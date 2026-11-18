@@ -994,7 +994,10 @@
 
   function deliveryPayloadFromQuote(quote, informativeLocality, municipalityMeta) {
     const municipality = normalizeMunicipalityMeta(municipalityMeta);
-    const hasCommercialLocation = Boolean(quote.location_required);
+    // Pickup never carries a delivery municipality, even if hidden delivery
+    // fields retain values after the customer switches methods.
+    const hasCommercialLocation = Boolean(quote.location_required) ||
+      quote.fulfillment_method === FULFILLMENT_STORE_PICKUP;
     return {
       version: DELIVERY_VERSION,
       fulfillment_method: quote.fulfillment_method || FULFILLMENT_DELIVERY,
