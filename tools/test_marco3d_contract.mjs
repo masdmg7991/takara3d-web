@@ -18,10 +18,10 @@ function check(test, detail) {
 check(() => assert.equal(MARCO.productCode, "MARCO_LITOFANIA_144X108"),
   "Contrato con el código de producto comercial");
 check(() => assert.deepEqual(Object.keys(MARCO.models).sort(), ["horizontal","vertical"]),
-  "Solo dos GLB aprobados; ninguna variante experimental");
+  "Dos formatos comerciales; ninguna variante experimental");
 check(() => assert.deepEqual(MARCO.models,{
-  vertical:"assets/models/marco/vertical.glb?v=back-normals-1",
-  horizontal:"assets/models/marco/horizontal.glb"
+  vertical:"assets/models/marco/vertical-compact.glb?v=geometry-compact-p33",
+  horizontal:"assets/models/marco/horizontal-compact.glb?v=geometry-compact-p33"
 }), "Ruta final única para cada formato");
 check(() => assert.deepEqual(Object.keys(MARCO.colors), [
   "actual","rosewood","ebano","negro","blanco-mate"

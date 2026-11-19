@@ -9,8 +9,8 @@ export const MARCO = Object.freeze({
   productCode: "MARCO_LITOFANIA_144X108",
   material: "FRAME_BODY",
   models: Object.freeze({
-    vertical: "assets/models/marco/vertical.glb?v=back-normals-1",
-    horizontal: "assets/models/marco/horizontal.glb"
+    vertical: "assets/models/marco/vertical-compact.glb?v=geometry-compact-p33",
+    horizontal: "assets/models/marco/horizontal-compact.glb?v=geometry-compact-p33"
   }),
   camera: Object.freeze({
     vertical: "180deg 75deg auto",

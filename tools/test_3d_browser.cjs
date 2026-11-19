@@ -382,7 +382,7 @@ async function main() {
       const failurePage = await context.newPage();
       failurePage.on("pageerror", error => report.errors.push(error.message));
       let failModel = true;
-      await failurePage.route("**/assets/models/marco/vertical.glb*", route => failModel ? route.abort() : route.continue());
+      await failurePage.route("**/assets/models/marco/vertical-compact.glb*", route => failModel ? route.abort() : route.continue());
       await failurePage.goto(origin + "/pedido.html");
       await failurePage.waitForFunction(() => window.TAKARA_PRODUCT_PREVIEW?.getSnapshot().error, null, { timeout: 15000 });
       assert.equal(await failurePage.locator("[data-takara-product-retry]").isVisible(), true);

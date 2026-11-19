@@ -1,5 +1,5 @@
 /** Product capabilities drive the form. Rendering remains in ProductViewer. */
-import { MARCO_PRODUCT } from "./marco-product.js?v=pedidos-v3-1";
+import { MARCO_PRODUCT } from "./marco-product.js?v=geometry-compact-p33";
 import { CAJA_PRODUCT, CAJA_FACES } from "./caja-product.js?v=pedidos-v3-1";
 
 export const PRODUCTS = Object.freeze({

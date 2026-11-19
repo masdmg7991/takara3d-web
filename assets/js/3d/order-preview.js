@@ -1,6 +1,6 @@
 /** Form adapter: product capabilities and drafts, one shared viewer. */
 import { ProductViewer } from "./product-viewer.js?v=pedidos-v3-3-store-capture";
-import { PRODUCTS, ProductDrafts } from "./products.js?v=pedidos-v3-1";
+import { PRODUCTS, ProductDrafts } from "./products.js?v=geometry-compact-p33";
 import { FrameTextEditor } from "./text-editor.js?v=pedidos-v3-1";
 
 const form = document.querySelector("[data-takara-pedido-form]");

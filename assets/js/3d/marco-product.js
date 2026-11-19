@@ -1,5 +1,5 @@
 /** Marco adapter: all lithophane and lettering knowledge stays outside the core. */
-import { MARCO } from "./marco.js?v=pedidos-v3-1";
+import { MARCO } from "./marco.js?v=geometry-compact-p33";
 import { LithophaneSurface, MARCO_SURFACE_PROFILE } from "./surface.js";
 import { FrameText3D } from "./lettering.js";
 
