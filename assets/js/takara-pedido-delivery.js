@@ -158,14 +158,34 @@
     });
   }
 
+  function formatStorePickupAddress(pickup) {
+    const fold = value => String(value).normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const address = pickup.address_line.replace(/[,.\s]+$/, "");
+    const folded = fold(address);
+    const hasPostal = new RegExp("\\b" + pickup.postal_code + "\\b").test(address);
+    const city = fold(pickup.city);
+    const hasCity = folded.endsWith(city) ||
+      folded.includes(" " + pickup.postal_code + " " + city) ||
+      folded.includes(", " + city + ",") || folded.includes(", " + city + " (");
+    const province = fold(pickup.province);
+    const hasProvince = folded.endsWith(province) ||
+      folded.includes(", " + province) || folded.includes("(" + province + ")");
+    const parts = [address];
+    const missingLocation = [hasPostal ? "" : pickup.postal_code,
+      hasCity ? "" : pickup.city].filter(Boolean).join(" ");
+    if (missingLocation) parts.push(missingLocation);
+    if (!hasProvince) parts.push(pickup.province);
+    return parts.join(", ");
+  }
+
   function setStorePickupContext(nodes, state, deliveryApi, postalApi, pickup) {
     state.pickupContext = normalizeStorePickupContext(pickup);
     if (nodes.fulfillmentWrap) nodes.fulfillmentWrap.hidden = !state.pickupContext;
     if (nodes.pickupInfo) {
       nodes.pickupInfo.textContent = state.pickupContext
-        ? "Recogida en " + state.pickupContext.address_line + ", " +
-          state.pickupContext.postal_code + " " + state.pickupContext.city +
-          " (" + state.pickupContext.province + "). Sin coste de entrega."
+        ? "Recogida en " + formatStorePickupAddress(state.pickupContext) +
+          ". Sin coste de entrega."
         : "";
     }
     if (!state.pickupContext && state.fulfillmentMethod === "STORE_PICKUP") {
