@@ -39,6 +39,7 @@ Los siguientes documentos conservan evidencia de cierres o escenarios y **no
 sustituyen** a los contratos anteriores:
 
 - `ENGINE3D_MIGRATION.md`
+- `ANALYTICS_P26.md`
 - `STORE_PUBLIC_F2_CLOSURE.md`
 - `STORE_PUBLIC_READINESS.md`
 - `STORE_PUBLIC_SYSTEM_SCENARIO.md`

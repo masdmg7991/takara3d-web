@@ -7,7 +7,7 @@ const { chromium } = require(process.env.TAKARA_PLAYWRIGHT_MODULE || "playwright
 const { loadServerContext, makePhoto } = require("./takara_test_ficha_visual_pedido.js");
 const root = path.resolve(__dirname, "..");
 const reportDir = process.env.TAKARA_3D_REPORT_DIR;
-const report = { scenarios: [], errors: [], externalRequests: [], metrics: {} };
+const report = { scenarios: [], errors: [], externalRequests: [], counterRequests: [], metrics: {} };
 const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".glb": "model/gltf-binary", ".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp" };
 const server = http.createServer((req, res) => {
   const file = path.resolve(root, "." + decodeURIComponent(new URL(req.url, "http://localhost").pathname));
@@ -95,6 +95,15 @@ async function main() {
       await context.route("**/*", route => {
         const url = route.request().url();
         if (url.startsWith(origin + "/") || url.startsWith("data:") || url.startsWith("blob:")) return route.continue();
+        if (url === "https://script.google.com/macros/s/AKfycbyTSDnOIyoOu2totmDjnsQzWGRMmxvFq_SdRh_6WUD2vAyNkCYIw04kEAqo6rS_VRsXFQ/exec") {
+          const request = route.request();
+          const body = JSON.parse(request.postData() || "null");
+          assert.equal(request.method(), "POST");
+          assert.deepEqual(body, { kind: "web", page: body.page });
+          assert.ok(["home", "products", "contact", "order", "qr"].includes(body.page));
+          report.counterRequests.push(body.page);
+          return route.fulfill({ status: 200, contentType: "text/plain", body: "ok" });
+        }
         if (url.startsWith("https://fonts.googleapis.com/")) return route.fulfill({ contentType: "text/css", body: "" });
         if (url.startsWith("https://static.cloudflareinsights.com/beacon.min.js")) return route.fulfill({ contentType: "text/javascript", body: "" });
         report.externalRequests.push(url.split("?")[0]); return route.abort();
@@ -404,6 +413,7 @@ async function main() {
     }
     assert.deepEqual(report.errors, []);
     assert.deepEqual(report.externalRequests, []);
+    assert.ok(report.counterRequests.length > 0);
   } finally {
     await browser?.close();
     await new Promise(resolve => server.close(resolve));

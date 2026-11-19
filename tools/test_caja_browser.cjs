@@ -29,6 +29,11 @@ async function main() {
       await context.route("**/*", route => {
         const url = route.request().url();
         if (url.startsWith(origin) || /^(data|blob):/.test(url)) return route.continue();
+        if (url === "https://script.google.com/macros/s/AKfycbyTSDnOIyoOu2totmDjnsQzWGRMmxvFq_SdRh_6WUD2vAyNkCYIw04kEAqo6rS_VRsXFQ/exec") {
+          assert.equal(route.request().method(), "POST");
+          assert.deepEqual(JSON.parse(route.request().postData()), { kind: "web", page: "order" });
+          return route.fulfill({ status: 200, contentType: "text/plain", body: "ok" });
+        }
         if (url.startsWith("https://fonts.googleapis.com/")) return route.fulfill({ contentType: "text/css", body: "" });
         if (url.includes("cloudflareinsights.com")) return route.fulfill({ contentType: "text/javascript", body: "" });
         external.push(url.split("?")[0]); return route.abort();
